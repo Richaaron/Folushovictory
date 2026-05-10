@@ -23,6 +23,7 @@ app.use(
 );
 app.use(express.json({ limit: "2mb" }));
 
+app.get("/", (req, res) => res.send("Folusho Victory Schools API - Up and running!"));
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 app.use("/api/auth", authRouter);
