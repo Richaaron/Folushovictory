@@ -1,61 +1,61 @@
 {% extends "base.html" %}
 {% block content %}
   <div class="relative overflow-hidden py-12 lg:py-24">
-    <div class="grid items-center gap-12 lg:grid-cols-2">
-      <div>
-        <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
-          Empowering Excellence through <span class="text-[#0B6E4F]">Innovation</span>.
+    <div class="grid items-center gap-16 lg:grid-cols-2">
+      <div class="fade-in">
+        <h1 class="text-5xl font-black tracking-tight text-slate-900 sm:text-7xl leading-[1.1]">
+          Excellence <br/>Defined by <span class="text-royal-purple">Legacy</span>.
         </h1>
-        <p class="mt-6 text-lg leading-8 text-slate-600">
-          Welcome to the Folusho Victory Schools digital ecosystem. A unified platform designed for academic precision, seamless teacher workflows, and parent transparency.
+        <p class="mt-8 text-lg font-medium leading-8 text-slate-500 max-w-lg">
+          Welcome to the Folusho Victory Schools digital citadel. A sanctuary of academic precision, teacher empowerment, and parental partnership.
         </p>
-        <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
-          <a href="/admin/login" class="rounded-xl bg-[#0B6E4F] px-8 py-4 text-center text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:scale-105 active:scale-95">
+        <div class="mt-12 flex flex-wrap items-center gap-x-6 gap-y-4">
+          <a href="/admin/login" class="rounded-2xl purple-gradient px-10 py-5 text-center text-sm font-black uppercase tracking-widest text-white shadow-2xl shadow-purple-200 transition hover:scale-105 hover:shadow-purple-300 active:scale-95">
             Admin Portal
           </a>
-          <a href="/teacher/login" class="rounded-xl bg-[#D4AF37] px-8 py-4 text-center text-sm font-bold text-slate-900 shadow-lg shadow-amber-100 transition hover:scale-105 active:scale-95">
+          <a href="/teacher/login" class="rounded-2xl gold-gradient px-10 py-5 text-center text-sm font-black uppercase tracking-widest text-slate-900 shadow-2xl shadow-amber-100 transition hover:scale-105 active:scale-95">
             Teacher Portal
           </a>
-          <a href="/parent/login" class="group flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:text-[#0B6E4F]">
-            Parent Portal <span class="transition group-hover:translate-x-1">→</span>
+          <a href="/parent/login" class="group flex items-center gap-3 px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-slate-400 transition hover:text-royal-purple">
+            Parental Access <span class="transition group-hover:translate-x-2">→</span>
           </a>
         </div>
       </div>
       <div class="relative">
-        <div class="rounded-3xl bg-white p-8 shadow-2xl ring-1 ring-slate-200">
-          <div class="mb-6 flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-[#0B6E4F]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="academic-card rounded-[3rem] p-10 float">
+          <div class="mb-10 flex items-center gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-50 text-royal-purple border border-purple-100 shadow-inner">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
             </div>
-            <h2 class="text-xl font-bold text-slate-800">Quick Reference</h2>
+            <h2 class="text-2xl font-black text-slate-800 tracking-tight">Academic Pillar</h2>
           </div>
-          <div class="space-y-6">
-            <div class="flex gap-4">
-              <div class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-[#D4AF37]"></div>
+          <div class="space-y-8">
+            <div class="flex gap-6">
+              <div class="mt-1 h-3 w-3 flex-shrink-0 rounded-full gold-gradient shadow-lg"></div>
               <div>
-                <h3 class="font-semibold text-slate-900">Administrative Control</h3>
-                <p class="text-sm text-slate-600">Full management of students, teachers, and curriculum metadata with secure result publishing.</p>
+                <h3 class="font-black text-slate-900 uppercase tracking-widest text-xs">Royal Governance</h3>
+                <p class="mt-1 text-sm font-medium text-slate-500">Centralized control of academic records and institutional intelligence.</p>
               </div>
             </div>
-            <div class="flex gap-4">
-              <div class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-[#0B6E4F]"></div>
+            <div class="flex gap-6">
+              <div class="mt-1 h-3 w-3 flex-shrink-0 rounded-full purple-gradient shadow-lg"></div>
               <div>
-                <h3 class="font-semibold text-slate-900">Streamlined Grading</h3>
-                <p class="text-sm text-slate-600">Efficient numeric and trait-based assessment tools for teachers with real-time computations.</p>
+                <h3 class="font-black text-slate-900 uppercase tracking-widest text-xs">Scholarly Assessment</h3>
+                <p class="mt-1 text-sm font-medium text-slate-500">Sophisticated evaluation frameworks for numeric and character development.</p>
               </div>
             </div>
-            <div class="flex gap-4">
-              <div class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
+            <div class="flex gap-6">
+              <div class="mt-1 h-3 w-3 flex-shrink-0 rounded-full bg-slate-900 shadow-lg"></div>
               <div>
-                <h3 class="font-semibold text-slate-900">Parent Access</h3>
-                <p class="text-sm text-slate-600">Secure terminal-based result checking and printable PDF report cards for students.</p>
+                <h3 class="font-black text-slate-900 uppercase tracking-widest text-xs">Parental Engagement</h3>
+                <p class="mt-1 text-sm font-medium text-slate-500">Real-time academic updates and detailed student performance report cards.</p>
               </div>
             </div>
           </div>
         </div>
         <!-- Decorative elements -->
-        <div class="absolute -right-4 -top-4 -z-10 h-24 w-24 rounded-full bg-emerald-100 opacity-50 blur-2xl"></div>
-        <div class="absolute -bottom-6 -left-6 -z-10 h-32 w-32 rounded-full bg-amber-100 opacity-50 blur-2xl"></div>
+        <div class="absolute -right-12 -top-12 -z-10 h-48 w-48 rounded-full bg-purple-100/50 blur-3xl"></div>
+        <div class="absolute -bottom-12 -left-12 -z-10 h-64 w-64 rounded-full bg-amber-100/50 blur-3xl"></div>
       </div>
     </div>
   </div>
