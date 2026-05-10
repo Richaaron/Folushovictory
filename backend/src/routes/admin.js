@@ -60,8 +60,9 @@ adminRouter.post(
     const { displayName, email } = req.body || {};
     if (!displayName) return res.status(400).json({ error: "Missing displayName" });
 
-    const username = await generateTeacherUsername();
-    const password = generateRandomPassword(8);
+    const username = await generateTeacherUsername(displayName);
+    const pin = Math.floor(1000 + Math.random() * 9000);
+    const password = `fvs@${pin}`;
     const passwordHash = await hashPassword(password);
 
     await createUser({
@@ -117,7 +118,7 @@ adminRouter.post(
 
     const studentId = await generateStudentId();
     const parentUsername = await generateParentUsername();
-    const parentPassword = generateRandomPassword(8);
+    const parentPassword = `fvs@${Math.floor(1000 + Math.random() * 9000)}`;
     const parentPasswordHash = await hashPassword(parentPassword);
 
     await createStudent({

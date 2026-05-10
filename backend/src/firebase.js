@@ -6,16 +6,22 @@ let app;
 export function getFirebaseApp() {
   if (app) return app;
 
-  let credential;
+  let cert;
   if (config.firebaseServiceAccountJson) {
     try {
-      credential = admin.credential.cert(JSON.parse(config.firebaseServiceAccountJson));
+      const parsed = JSON.parse(config.firebaseServiceAccountJson);
+      cert = {
+        ...parsed,
+        private_key: parsed.private_key.replace(/\\n/g, "\n")
+      };
     } catch (e) {
-      throw new Error("Invalid FIREBASE_SERVICE_ACCOUNT_JSON: " + e.message);
+      console.error("FIREBASE_SERVICE_ACCOUNT_JSON parse error, falling back to file...");
     }
-  } else {
-    credential = admin.credential.cert(config.googleCredentialsPath);
   }
+
+  const credential = cert 
+    ? admin.credential.cert(cert) 
+    : admin.credential.cert(config.googleCredentialsPath);
 
   app = admin.initializeApp({
     credential,
