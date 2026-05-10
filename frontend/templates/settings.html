@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if session.user.role == 'ADMIN' %}
+    {% include "admin/_nav.html" %}
+  {% endif %}
+
+  <div class="mb-8">
+    <h1 class="text-2xl font-extrabold text-slate-900">Account & Portal Settings</h1>
+    <p class="text-sm text-slate-500">Manage your credentials and system-wide configurations.</p>
+  </div>
+
+  <div class="grid gap-8 lg:grid-cols-2">
+    <!-- Change Password -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+      <div class="border-b border-slate-100 bg-slate-50/50 p-6 text-center">
+        <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-[#0B6E4F]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h2 class="text-lg font-bold text-slate-900">Change Password</h2>
+        <p class="text-xs text-slate-500 uppercase font-bold tracking-wider mt-1">Keep your account secure</p>
+      </div>
+      <div class="p-6">
+        <form method="post" class="space-y-5">
+          <input type="hidden" name="action" value="change_password" />
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase">Current Password</label>
+            <input name="oldPassword" type="password" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" required />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase">New Password</label>
+            <input name="newPassword" type="password" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" required />
+          </div>
+          <button class="w-full rounded-xl bg-slate-900 py-4 text-sm font-bold text-white transition hover:bg-slate-800 active:scale-95">
+            Update Password
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- School Settings (Admin Only) -->
+    {% if session.user.role == 'ADMIN' %}
+      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+        <div class="border-b border-slate-100 bg-slate-50/50 p-6 text-center">
+          <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-[#D4AF37]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="m3 9 2.45-4.91A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.79 1.09L21 9"/><path d="M12 3v6"/></svg>
+          </div>
+          <h2 class="text-lg font-bold text-slate-900">School & Report Branding</h2>
+          <p class="text-xs text-slate-500 uppercase font-bold tracking-wider mt-1">Global portal identity</p>
+        </div>
+        <div class="p-6">
+          <form method="post" class="space-y-4">
+            <input type="hidden" name="action" value="school_settings" />
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase">School Name</label>
+              <input name="name" value="{{ school_settings.name or '' }}" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" required />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase">School Motto</label>
+              <input name="motto" value="{{ school_settings.motto or '' }}" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase">Principal Name</label>
+                <input name="principalName" value="{{ school_settings.principalName or '' }}" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase">Signature URL</label>
+                <input name="principalSignatureUrl" value="{{ school_settings.principalSignatureUrl or '' }}" placeholder="https://..." class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase">Address</label>
+              <textarea name="address" class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" rows="2">{{ school_settings.address or '' }}</textarea>
+            </div>
+            <button class="w-full rounded-xl bg-[#0B6E4F] py-4 text-sm font-bold text-white shadow-lg shadow-emerald-100 transition hover:bg-[#095c41] active:scale-95">
+              Save Global Settings
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

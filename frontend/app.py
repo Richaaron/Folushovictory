@@ -122,27 +122,75 @@ def admin_classes():
         name = request.form.get("name", "").strip()
         level = request.form.get("level", "").strip()
         track = request.form.get("track", "").strip() or None
+        form_teacher = request.form.get("formTeacherUsername", "").strip() or None
         try:
-            api_request("POST", "/api/admin/classes", token=token, payload={"name": name, "level": level, "track": track})
+            api_request("POST", "/api/admin/classes", token=token, payload={"name": name, "level": level, "track": track, "formTeacherUsername": form_teacher})
             return redirect(url_for("admin_classes"))
         except Exception as e:
             flash(str(e))
 
     classes = api_request("GET", "/api/admin/classes", token=token).get("classes", [])
     subjects = api_request("GET", "/api/admin/subjects", token=token).get("subjects", [])
-    return render_template("admin/classes.html", classes=classes, subjects=subjects)
+    teachers = api_request("GET", "/api/admin/teachers", token=token).get("teachers", [])
+    return render_template("admin/classes.html", classes=classes, subjects=subjects, teachers=teachers)
 
 
-@app.post("/admin/classes/<class_id>/subjects")
+@app.post("/admin/classes/<class_id>/update")
 @require_portal("ADMIN")
-def admin_set_class_subjects(class_id):
+def admin_update_class(class_id):
     token = session.get("token")
     subject_ids = request.form.getlist("subjectIds")
+    form_teacher = request.form.get("formTeacherUsername", "").strip() or None
     try:
-        api_request("PUT", f"/api/admin/classes/{class_id}/subjects", token=token, payload={"subjectIds": subject_ids})
+        api_request("PUT", f"/api/admin/classes/{class_id}/subjects", token=token, payload={"subjectIds": subject_ids, "formTeacherUsername": form_teacher})
     except Exception as e:
         flash(str(e))
     return redirect(url_for("admin_classes"))
+
+
+@app.route("/settings", methods=["GET", "POST"])
+def settings():
+    token = session.get("token")
+    if not token:
+        return redirect(url_for("login"))
+    
+    user_role = session.get("user", {}).get("role")
+    
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "change_password":
+            old_pass = request.form.get("oldPassword")
+            new_pass = request.form.get("newPassword")
+            try:
+                api_request("POST", "/api/change-password", token=token, payload={"oldPassword": old_pass, "newPassword": new_pass})
+                flash("Password updated successfully")
+            except Exception as e:
+                flash(f"Error: {str(e)}")
+        
+        elif action == "school_settings" and user_role == "ADMIN":
+            payload = {
+                "name": request.form.get("name"),
+                "motto": request.form.get("motto"),
+                "address": request.form.get("address"),
+                "phone": request.form.get("phone"),
+                "email": request.form.get("email"),
+                "principalName": request.form.get("principalName"),
+                "principalSignatureUrl": request.form.get("principalSignatureUrl")
+            }
+            try:
+                api_request("POST", "/api/admin/school-settings", token=token, payload=payload)
+                flash("School settings updated")
+            except Exception as e:
+                flash(str(e))
+
+    school_settings = None
+    if user_role == "ADMIN":
+        try:
+            school_settings = api_request("GET", "/api/admin/school-settings", token=token)
+        except Exception:
+            pass
+
+    return render_template("settings.html", school_settings=school_settings)
 
 
 @app.route("/admin/students", methods=["GET", "POST"])

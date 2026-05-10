@@ -9,7 +9,7 @@ import { createStudent, listStudentsByClass } from "../repos/students.js";
 import { createClass, listClasses, updateClass } from "../repos/classes.js";
 import { createSubject, listSubjects } from "../repos/subjects.js";
 import { createAssignment } from "../repos/assignments.js";
-import { getGradingScale, setGradingScale, setTermMeta } from "../repos/config.js";
+import { getGradingScale, setGradingScale, setTermMeta, getSchoolSettings, setSchoolSettings } from "../repos/config.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark } from "../repos/remarks.js";
 import { getDb } from "../firebase.js";
@@ -179,7 +179,7 @@ adminRouter.get(
 adminRouter.post(
   "/classes",
   asyncHandler(async (req, res) => {
-    const { name, level, track, assessmentType } = req.body || {};
+    const { name, level, track, assessmentType, formTeacherUsername } = req.body || {};
     if (!name || !level) return res.status(400).json({ error: "Missing fields" });
 
     const derivedAssessmentType =
@@ -190,6 +190,7 @@ adminRouter.post(
       level: String(level),
       track: track ? String(track) : null,
       assessmentType: String(derivedAssessmentType),
+      formTeacherUsername: formTeacherUsername || null,
       subjectIds: []
     });
 
@@ -209,9 +210,11 @@ adminRouter.put(
   "/classes/:classId/subjects",
   asyncHandler(async (req, res) => {
     const { classId } = req.params;
-    const { subjectIds } = req.body || {};
-    if (!Array.isArray(subjectIds)) return res.status(400).json({ error: "subjectIds must be an array" });
-    const updated = await updateClass(classId, { subjectIds });
+    const { subjectIds, formTeacherUsername } = req.body || {};
+    const updated = await updateClass(classId, { 
+      ...(Array.isArray(subjectIds) ? { subjectIds } : {}),
+      formTeacherUsername: formTeacherUsername || null
+    });
     return res.json(updated);
   })
 );
@@ -326,6 +329,22 @@ adminRouter.post(
       setBy: req.user.username
     });
     return res.json({ ok: true });
+  })
+);
+
+adminRouter.get(
+  "/school-settings",
+  asyncHandler(async (req, res) => {
+    const settings = await getSchoolSettings();
+    return res.json(settings);
+  })
+);
+
+adminRouter.post(
+  "/school-settings",
+  asyncHandler(async (req, res) => {
+    const settings = await setSchoolSettings(req.body);
+    return res.json(settings);
   })
 );
 

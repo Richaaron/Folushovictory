@@ -42,4 +42,30 @@ export async function setTermMeta({ session, term, resumptionDate }) {
   const snap = await ref.get();
   return snap.exists ? snap.data() : null;
 }
+export async function getSchoolSettings() {
+  const db = getDb();
+  const snap = await db.collection("config").doc("schoolSettings").get();
+  return snap.exists ? snap.data() : { 
+    name: "Folusho Victory Schools", 
+    motto: "Knowledge · Integrity · Excellence",
+    address: "",
+    phone: "",
+    email: "",
+    principalName: "",
+    principalSignatureUrl: ""
+  };
+}
 
+export async function setSchoolSettings(settings) {
+  const db = getDb();
+  const ref = db.collection("config").doc("schoolSettings");
+  await ref.set(
+    {
+      ...settings,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    },
+    { merge: true }
+  );
+  const snap = await ref.get();
+  return snap.exists ? snap.data() : null;
+}

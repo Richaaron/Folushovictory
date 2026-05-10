@@ -5,12 +5,13 @@ import { asyncHandler } from "../http.js";
 import { getClassById } from "../repos/classes.js";
 import { listStudentsByClass, getStudentById } from "../repos/students.js";
 import { listScoresForClass, listScoresForStudent } from "../repos/scores.js";
-import { getGradingScale, getTermMeta } from "../repos/config.js";
+import { getGradingScale, getTermMeta, getSchoolSettings } from "../repos/config.js";
 import { numericBroadsheet, traitSheet } from "../compute.js";
 import { listSubjects, getSubjectById } from "../repos/subjects.js";
 import { getRemarks } from "../repos/remarks.js";
 import { getPublish } from "../repos/publishes.js";
 import { listAssignmentsByTeacher } from "../repos/assignments.js";
+import { getUserByUsername } from "../repos/users.js";
 
 export const resultsRouter = express.Router();
 
@@ -84,13 +85,19 @@ resultsRouter.get(
     const cls = await getClassById(student.classId);
     if (!cls) return res.status(404).json({ error: "Class not found" });
 
-    const [subjects, scale, remarks, meta, publish] = await Promise.all([
+    const [subjects, scale, remarks, meta, publish, school] = await Promise.all([
       subjectsForClass(cls),
       getGradingScale(),
       getRemarks({ session: String(session), term: String(term), studentId }),
       getTermMeta({ session: String(session), term: String(term) }),
-      getPublish({ classId: student.classId, session: String(session), term: String(term) })
+      getPublish({ classId: student.classId, session: String(session), term: String(term) }),
+      getSchoolSettings()
     ]);
+
+    let formTeacher = null;
+    if (cls.formTeacherUsername) {
+      formTeacher = await getUserByUsername(cls.formTeacherUsername);
+    }
 
     let row;
     if (String(cls.assessmentType).toUpperCase() === "TRAIT") {
@@ -108,7 +115,8 @@ resultsRouter.get(
     }
 
     return res.json({
-      school: { name: "Folusho Victory Schools" },
+      school,
+      formTeacher: formTeacher ? { displayName: formTeacher.displayName || formTeacher.username } : null,
       class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
       student: { studentId: student.studentId, firstName: student.firstName, lastName: student.lastName, gender: student.gender || "" },
       session: String(session),
