@@ -12,6 +12,7 @@ import { getRemarks } from "../repos/remarks.js";
 import { getPublish } from "../repos/publishes.js";
 import { listAssignmentsByTeacher } from "../repos/assignments.js";
 import { getUserByUsername } from "../repos/users.js";
+import { getReleaseStatus } from "../repos/releases.js";
 
 export const resultsRouter = express.Router();
 
@@ -85,14 +86,17 @@ resultsRouter.get(
     const cls = await getClassById(student.classId);
     if (!cls) return res.status(404).json({ error: "Class not found" });
 
-    const [subjects, scale, remarks, meta, publish, school] = await Promise.all([
+    const [subjects, scale, remarks, meta, publish, school, release] = await Promise.all([
       subjectsForClass(cls),
       getGradingScale(),
       getRemarks({ session: String(session), term: String(term), studentId }),
       getTermMeta({ session: String(session), term: String(term) }),
       getPublish({ classId: student.classId, session: String(session), term: String(term) }),
-      getSchoolSettings()
+      getSchoolSettings(),
+      getReleaseStatus({ session: String(session), term: String(term), studentId })
     ]);
+
+    const isReleased = release.released;
 
     let formTeacher = null;
     if (cls.formTeacherUsername) {
@@ -117,6 +121,7 @@ resultsRouter.get(
     return res.json({
       school,
       formTeacher: formTeacher ? { displayName: formTeacher.displayName || formTeacher.username } : null,
+      released: isReleased,
       class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
       student: { studentId: student.studentId, firstName: student.firstName, lastName: student.lastName, gender: student.gender || "" },
       session: String(session),

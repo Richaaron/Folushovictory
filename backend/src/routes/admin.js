@@ -10,6 +10,7 @@ import { createClass, listClasses, updateClass } from "../repos/classes.js";
 import { createSubject, listSubjects } from "../repos/subjects.js";
 import { createAssignment } from "../repos/assignments.js";
 import { getGradingScale, setGradingScale, setTermMeta, getSchoolSettings, setSchoolSettings } from "../repos/config.js";
+import { setReleaseStatus } from "../repos/releases.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark } from "../repos/remarks.js";
 import { getDb } from "../firebase.js";
@@ -345,6 +346,22 @@ adminRouter.post(
   asyncHandler(async (req, res) => {
     const settings = await setSchoolSettings(req.body);
     return res.json(settings);
+  })
+);
+
+adminRouter.post(
+  "/results/release",
+  asyncHandler(async (req, res) => {
+    const { session, term, studentId, released } = req.body || {};
+    if (!session || !term || !studentId) return res.status(400).json({ error: "Missing fields" });
+    const result = await setReleaseStatus({
+      session: String(session),
+      term: String(term),
+      studentId: String(studentId),
+      released: !!released,
+      releasedBy: req.user.username
+    });
+    return res.json(result);
   })
 );
 

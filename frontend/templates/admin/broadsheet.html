@@ -74,6 +74,7 @@
             <tr class="bg-[#0B6E4F] text-white">
               <th class="sticky left-0 z-10 bg-[#0B6E4F] px-4 py-3 text-left font-semibold">S/N</th>
               <th class="sticky left-10 z-10 bg-[#0B6E4F] px-4 py-3 text-left font-semibold">Student</th>
+              <th class="px-3 py-3 font-semibold no-print">Release</th>
               {% for subj in sheet.subjects %}
                 <th class="whitespace-nowrap px-3 py-3 font-semibold" title="{{ subj.name }}">
                   {{ subj.name | truncate(12, true, '…') }}
@@ -92,6 +93,15 @@
                 <td class="sticky left-0 z-10 bg-white px-4 py-2 text-slate-500">{{ loop.index }}</td>
                 <td class="sticky left-10 z-10 whitespace-nowrap bg-white px-4 py-2 font-medium text-slate-800">
                   {{ st.lastName }} {{ st.firstName }}
+                </td>
+                <td class="px-3 py-2 text-center no-print">
+                  <form method="post" action="/admin/results/release" class="inline-flex gap-1">
+                    <input type="hidden" name="studentId" value="{{ st.studentId }}" />
+                    <input type="hidden" name="session" value="{{ session_name }}" />
+                    <input type="hidden" name="term" value="{{ term }}" />
+                    <button name="released" value="true" class="rounded bg-emerald-500 p-1 text-[8px] text-white" title="Release">🔓</button>
+                    <button name="released" value="false" class="rounded bg-red-500 p-1 text-[8px] text-white" title="Withhold">🔒</button>
+                  </form>
                 </td>
                 {% for ps in st.perSubject %}
                   <td class="px-3 py-2 text-center
@@ -124,6 +134,7 @@
             <tr class="bg-[#0B6E4F] text-white">
               <th class="px-4 py-3 text-left font-semibold">S/N</th>
               <th class="px-4 py-3 text-left font-semibold">Student</th>
+              <th class="px-4 py-3 text-left font-semibold no-print">Release</th>
               {% for subj in sheet.subjects %}
                 <th class="whitespace-nowrap px-3 py-3 font-semibold">{{ subj.name | truncate(14, true, '…') }}</th>
               {% endfor %}
@@ -134,6 +145,15 @@
               <tr class="hover:bg-[#f0faf5]">
                 <td class="px-4 py-2 text-slate-500">{{ loop.index }}</td>
                 <td class="whitespace-nowrap px-4 py-2 font-medium text-slate-800">{{ st.lastName }} {{ st.firstName }}</td>
+                <td class="px-4 py-2 no-print">
+                  <form method="post" action="/admin/results/release" class="inline-flex gap-1">
+                    <input type="hidden" name="studentId" value="{{ st.studentId }}" />
+                    <input type="hidden" name="session" value="{{ session_name }}" />
+                    <input type="hidden" name="term" value="{{ term }}" />
+                    <button name="released" value="true" class="rounded bg-emerald-500 p-1 text-[8px] text-white" title="Release">🔓</button>
+                    <button name="released" value="false" class="rounded bg-red-500 p-1 text-[8px] text-white" title="Withhold">🔒</button>
+                  </form>
+                </td>
                 {% for ps in st.perSubject %}
                   <td class="px-3 py-2 text-center">
                     <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold

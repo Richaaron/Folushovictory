@@ -9,6 +9,8 @@ import { listStudentsByClass } from "../repos/students.js";
 import { isPublished } from "../repos/publishes.js";
 import { upsertNumericScore, upsertTraitScore } from "../repos/scores.js";
 import { setTeacherRemark } from "../repos/remarks.js";
+import { setReleaseStatus } from "../repos/releases.js";
+import { getStudentById } from "../repos/students.js";
 
 export const teacherRouter = express.Router();
 
@@ -135,6 +137,15 @@ teacherRouter.post(
   asyncHandler(async (req, res) => {
     const { session, term, studentId, teacherRemark } = req.body || {};
     if (!session || !term || !studentId) return res.status(400).json({ error: "Missing fields" });
+    
+    // Authorization check: Teacher must be form teacher of the class
+    const student = await getStudentById(studentId);
+    if (!student) return res.status(404).json({ error: "Student not found" });
+    const cls = await getClassById(student.classId);
+    if (!cls || cls.formTeacherUsername !== req.user.username) {
+      return res.status(403).json({ error: "Only the form teacher can add remarks" });
+    }
+
     await setTeacherRemark({
       session: String(session),
       term: String(term),
@@ -143,6 +154,31 @@ teacherRouter.post(
       setBy: req.user.username
     });
     return res.json({ ok: true });
+  })
+);
+
+teacherRouter.post(
+  "/results/release",
+  asyncHandler(async (req, res) => {
+    const { session, term, studentId, released } = req.body || {};
+    if (!session || !term || !studentId) return res.status(400).json({ error: "Missing fields" });
+
+    // Authorization check: Teacher must be form teacher of the class
+    const student = await getStudentById(studentId);
+    if (!student) return res.status(404).json({ error: "Student not found" });
+    const cls = await getClassById(student.classId);
+    if (!cls || cls.formTeacherUsername !== req.user.username) {
+      return res.status(403).json({ error: "Only the form teacher can release results" });
+    }
+
+    const result = await setReleaseStatus({
+      session: String(session),
+      term: String(term),
+      studentId: String(studentId),
+      released: !!released,
+      releasedBy: req.user.username
+    });
+    return res.json(result);
   })
 );
 

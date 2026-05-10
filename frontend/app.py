@@ -382,6 +382,25 @@ def admin_broadsheet():
     )
 
 
+@app.post("/admin/results/release")
+@require_portal("ADMIN")
+def admin_release_result():
+    token = session.get("token")
+    sess = request.form.get("session", "").strip()
+    term = request.form.get("term", "").strip()
+    student_id = request.form.get("studentId", "").strip()
+    released = request.form.get("released") == "true"
+    try:
+        api_request(
+            "POST", "/api/admin/results/release", token=token,
+            payload={"session": sess, "term": term, "studentId": student_id, "released": released},
+        )
+        flash("Result " + ("released" if released else "withheld"))
+    except Exception as e:
+        flash(str(e))
+    return redirect(request.referrer or url_for("admin_broadsheet"))
+
+
 @app.get("/teacher")
 @require_portal("TEACHER")
 def teacher_dashboard():
@@ -423,6 +442,25 @@ def teacher_save_remark():
         flash(str(e))
     # Redirect back — need classId from student record; use referer or fallback
     return redirect(url_for("teacher_dashboard"))
+
+
+@app.post("/teacher/release-result")
+@require_portal("TEACHER")
+def teacher_release_result():
+    token = session.get("token")
+    sess = request.form.get("session", "").strip()
+    term = request.form.get("term", "").strip()
+    student_id = request.form.get("studentId", "").strip()
+    released = request.form.get("released") == "true"
+    try:
+        api_request(
+            "POST", "/api/teacher/results/release", token=token,
+            payload={"session": sess, "term": term, "studentId": student_id, "released": released},
+        )
+        flash("Result " + ("released" if released else "withheld"))
+    except Exception as e:
+        flash(str(e))
+    return redirect(request.referrer or url_for("teacher_dashboard"))
 
 
 @app.route("/teacher/enter-scores/<assignment_id>", methods=["GET", "POST"])
