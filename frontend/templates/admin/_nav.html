@@ -1,0 +1,25 @@
+<nav class="no-print mb-6 rounded-xl border border-slate-200 bg-white shadow-sm">
+  <div class="flex flex-wrap gap-1 p-2">
+    {% set links = [
+        ('/admin',             'Dashboard'),
+        ('/admin/teachers',    'Teachers'),
+        ('/admin/students',    'Students'),
+        ('/admin/classes',     'Classes & Subjects'),
+        ('/admin/assignments', 'Assignments'),
+        ('/admin/broadsheet',  'Broadsheet'),
+        ('/admin/grading',     'Grading Scale'),
+        ('/admin/term-meta',   'Term Settings'),
+    ] %}
+    {% for href, label in links %}
+      <a href="{{ href }}"
+        class="rounded-lg px-3 py-2 text-sm font-medium transition
+          {% if request.path == href %}
+            bg-[#0B6E4F] text-white
+          {% else %}
+            text-slate-600 hover:bg-slate-100 hover:text-slate-900
+          {% endif %}">
+        {{ label }}
+      </a>
+    {% endfor %}
+  </div>
+</nav>

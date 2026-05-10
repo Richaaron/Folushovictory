@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+  {% include "admin/_nav.html" %}
+
+  <div class="mb-8">
+    <h1 class="text-2xl font-extrabold text-slate-900">Term Administration</h1>
+    <p class="text-sm text-slate-500">Manage terminal dates and official administrative endorsements.</p>
+  </div>
+
+  <div class="grid gap-8 lg:grid-cols-12">
+
+    <!-- Term & Resumption Settings -->
+    <div class="lg:col-span-5">
+      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+        <div class="border-b border-slate-100 bg-slate-50/50 p-6">
+          <h2 class="text-lg font-bold text-slate-900">Academic Meta</h2>
+          <p class="text-xs text-slate-500 uppercase font-semibold tracking-wider mt-1">Next session resumption</p>
+        </div>
+        <div class="p-6">
+          <form method="post" class="space-y-6">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Academic Session</label>
+              <input name="session" value="{{ meta.session if meta else '' }}" placeholder="e.g. 2025/2026"
+                class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                required />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Active Term</label>
+              <select name="term"
+                class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                required>
+                <option value="">Select —</option>
+                {% for t in ['1st','2nd','3rd'] %}
+                  <option value="{{ t }}" {% if meta and meta.term == t %}selected{% endif %}>{{ t }} Term</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Next Resumption Date</label>
+              <input name="resumptionDate" type="date" value="{{ meta.resumptionDate if meta else '' }}"
+                class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                required />
+            </div>
+            <button type="submit"
+              class="w-full rounded-xl bg-[#0B6E4F] py-4 text-sm font-bold text-white shadow-lg shadow-emerald-100 transition hover:bg-[#095c41] active:scale-95">
+              Update Meta Settings
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Principal Remarks -->
+    <div class="lg:col-span-7">
+      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-100 bg-slate-50/50 p-6">
+          <h2 class="text-lg font-bold text-slate-900">Principal Endorsements</h2>
+          <p class="text-xs text-slate-500 uppercase font-semibold tracking-wider mt-1">Individual student report remarks</p>
+        </div>
+        <div class="p-6">
+          <form method="post" action="/admin/remarks/principal" class="space-y-6">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Session</label>
+                <input name="session" placeholder="2025/2026"
+                  class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" required />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Term</label>
+                <select name="term"
+                  class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+                  <option value="">Select</option>
+                  <option value="1st">1st Term</option>
+                  <option value="2nd">2nd Term</option>
+                  <option value="3rd">3rd Term</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Target Student ID</label>
+              <input name="studentId" placeholder="FVS-2026-XXXX"
+                class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-mono font-bold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" required />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Remark Content</label>
+              <textarea name="principalRemark" rows="4"
+                placeholder="Exemplary conduct and outstanding academic performance. Recommended for promotion."
+                class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100 resize-none"></textarea>
+            </div>
+            <button type="submit"
+              class="w-full rounded-xl bg-slate-900 py-4 text-sm font-bold text-white shadow-lg shadow-slate-100 transition hover:bg-slate-800 active:scale-95">
+              Confirm & Save Remark
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

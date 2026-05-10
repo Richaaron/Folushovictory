@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}
+  {% include "admin/_nav.html" %}
+
+  {# ── Filter bar ── #}
+  <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm no-print">
+    <form method="get" class="flex flex-wrap items-end gap-3">
+      <div>
+        <label class="block text-xs font-medium text-slate-600">Class</label>
+        <select name="classId"
+          class="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-[#0B6E4F] focus:outline-none focus:ring-1 focus:ring-[#0B6E4F]">
+          {% for c in classes %}
+            <option value="{{ c.id }}" {% if c.id == class_id %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600">Session</label>
+        <input name="session" value="{{ session_name }}" placeholder="2025/2026"
+          class="mt-1 w-32 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-[#0B6E4F] focus:outline-none focus:ring-1 focus:ring-[#0B6E4F]" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600">Term</label>
+        <select name="term"
+          class="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-[#0B6E4F] focus:outline-none focus:ring-1 focus:ring-[#0B6E4F]">
+          <option value="">Select</option>
+          {% for t in ['1st','2nd','3rd'] %}
+            <option value="{{ t }}" {% if t == term %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="rounded-lg bg-[#0B6E4F] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#095c41]">
+        Load
+      </button>
+    </form>
+  </div>
+
+  {% if sheet %}
+    {# ── Publish / header ── #}
+    <div class="mt-5 flex flex-wrap items-center justify-between gap-3 no-print">
+      <div>
+        <h2 class="text-xl font-bold text-slate-800">
+          {{ sheet.class.name }} &mdash; {{ session_name }} &mdash; {{ term }} Term
+        </h2>
+        <span class="mt-1 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold
+          {% if sheet.published %}bg-emerald-100 text-emerald-700{% else %}bg-amber-100 text-amber-700{% endif %}">
+          {% if sheet.published %}✓ Published{% else %}⏳ Draft{% endif %}
+        </span>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="window.print()"
+          class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+          🖨 Print
+        </button>
+        {% if not sheet.published %}
+          <form method="post">
+            <input type="hidden" name="classId" value="{{ class_id }}" />
+            <input type="hidden" name="session" value="{{ session_name }}" />
+            <input type="hidden" name="term" value="{{ term }}" />
+            <button type="submit"
+              class="rounded-lg bg-[#D4AF37] px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-[#c4a030] active:scale-95">
+              Publish Results
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── NUMERIC broadsheet ── #}
+    {% if sheet.class.assessmentType == 'NUMERIC' %}
+      <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table class="min-w-full border-collapse text-xs">
+          <thead>
+            <tr class="bg-[#0B6E4F] text-white">
+              <th class="sticky left-0 z-10 bg-[#0B6E4F] px-4 py-3 text-left font-semibold">S/N</th>
+              <th class="sticky left-10 z-10 bg-[#0B6E4F] px-4 py-3 text-left font-semibold">Student</th>
+              {% for subj in sheet.subjects %}
+                <th class="whitespace-nowrap px-3 py-3 font-semibold" title="{{ subj.name }}">
+                  {{ subj.name | truncate(12, true, '…') }}
+                </th>
+              {% endfor %}
+              <th class="px-3 py-3 font-semibold">Total</th>
+              <th class="px-3 py-3 font-semibold">Avg</th>
+              <th class="px-3 py-3 font-semibold">Pos</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for st in sheet.students %}
+              <tr class="hover:bg-[#f0faf5]">
+                <td class="sticky left-0 z-10 bg-white px-4 py-2 text-slate-500">{{ loop.index }}</td>
+                <td class="sticky left-10 z-10 whitespace-nowrap bg-white px-4 py-2 font-medium text-slate-800">
+                  {{ st.lastName }} {{ st.firstName }}
+                </td>
+                {% for ps in st.perSubject %}
+                  <td class="px-3 py-2 text-center
+                    {% if ps.grade == 'A' %}text-emerald-700 font-semibold
+                    {% elif ps.grade == 'B' %}text-blue-700
+                    {% elif ps.grade == 'F' %}text-red-600
+                    {% else %}text-slate-700{% endif %}">
+                    {{ ps.total }}<span class="ml-0.5 text-[10px] opacity-60">{{ ps.grade }}</span>
+                  </td>
+                {% endfor %}
+                <td class="px-3 py-2 text-center font-semibold text-slate-800">{{ st.total }}</td>
+                <td class="px-3 py-2 text-center text-slate-700">{{ st.average }}</td>
+                <td class="px-3 py-2 text-center">
+                  <span class="rounded-full bg-[#D4AF37] px-2 py-0.5 text-xs font-bold text-slate-900">
+                    {{ st.position }}
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {# ── TRAIT broadsheet ── #}
+      <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table class="min-w-full border-collapse text-xs">
+          <thead>
+            <tr class="bg-[#0B6E4F] text-white">
+              <th class="px-4 py-3 text-left font-semibold">S/N</th>
+              <th class="px-4 py-3 text-left font-semibold">Student</th>
+              {% for subj in sheet.subjects %}
+                <th class="whitespace-nowrap px-3 py-3 font-semibold">{{ subj.name | truncate(14, true, '…') }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for st in sheet.students %}
+              <tr class="hover:bg-[#f0faf5]">
+                <td class="px-4 py-2 text-slate-500">{{ loop.index }}</td>
+                <td class="whitespace-nowrap px-4 py-2 font-medium text-slate-800">{{ st.lastName }} {{ st.firstName }}</td>
+                {% for ps in st.perSubject %}
+                  <td class="px-3 py-2 text-center">
+                    <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold
+                      {% if ps.rating == 'Excellent' %}bg-emerald-100 text-emerald-700
+                      {% elif ps.rating == 'Good' %}bg-blue-100 text-blue-700
+                      {% elif ps.rating == 'Fair' %}bg-amber-100 text-amber-700
+                      {% else %}bg-red-100 text-red-700{% endif %}">
+                      {{ ps.rating or '–' }}
+                    </span>
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  {% endif %}
+{% endblock %}

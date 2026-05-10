@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+  {% include "admin/_nav.html" %}
+
+  <div class="mb-8">
+    <h1 class="text-2xl font-extrabold text-slate-900">Staff Management</h1>
+    <p class="text-sm text-slate-500">Register and manage academic staff accounts.</p>
+  </div>
+
+  <div class="grid gap-8 md:grid-cols-2">
+    <!-- Teacher Creation -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+      <div class="border-b border-slate-100 bg-slate-50/50 p-6">
+        <h2 class="text-lg font-bold text-slate-900">Add New Teacher</h2>
+        <p class="text-xs text-slate-500 uppercase font-semibold tracking-wider mt-1">Username (e.g. TCH-2026-001) will be auto-generated</p>
+      </div>
+      <div class="p-6">
+        <form method="post" class="space-y-6">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Full Display Name</label>
+            <input name="displayName" placeholder="e.g. Mr. Smith"
+              class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" required />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Teacher Email (Optional)</label>
+            <input name="email" type="email" placeholder="e.g. smith@example.com"
+              class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+          </div>
+          <button class="w-full rounded-xl bg-[#0B6E4F] py-4 text-sm font-bold text-white shadow-lg shadow-emerald-100 transition hover:bg-[#095c41] active:scale-95">
+            Register Teacher
+          </button>
+        </form>
+
+        {% if created %}
+          <div class="mt-8 overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50/50">
+            <div class="bg-emerald-500 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white">Access Key Generated</div>
+            <div class="p-4 space-y-3">
+              <div class="flex justify-between border-b border-emerald-100 pb-2">
+                <span class="text-xs font-bold text-emerald-800 uppercase">Username</span>
+                <span class="font-mono text-sm font-black text-emerald-900">{{ created.username }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-xs font-bold text-emerald-800 uppercase">One-time Password</span>
+                <span class="font-mono text-sm font-black text-emerald-900">{{ created.password }}</span>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Teacher List -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="border-b border-slate-100 bg-slate-50/50 p-6">
+        <h2 class="text-lg font-bold text-slate-900">Registered Staff</h2>
+        <p class="text-xs text-slate-500 uppercase font-semibold tracking-wider mt-1">Total active accounts</p>
+      </div>
+      <div class="p-0">
+        <div class="overflow-x-auto">
+          <table class="min-w-full border-collapse text-left text-sm">
+            <thead>
+              <tr class="border-b border-slate-100 text-xs font-bold uppercase tracking-wider text-slate-400">
+                <th class="px-6 py-4">Username</th>
+                <th class="px-6 py-4">Display Name</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {% for t in teachers %}
+                <tr class="transition hover:bg-slate-50/50">
+                  <td class="px-6 py-4 font-mono text-xs font-bold text-[#0B6E4F]">{{ t.username }}</td>
+                  <td class="px-6 py-4 font-bold text-slate-700">{{ t.displayName }}</td>
+                </tr>
+              {% else %}
+                <tr><td colspan="2" class="px-6 py-12 text-center text-slate-400">No teachers registered yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
