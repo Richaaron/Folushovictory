@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+  
+  <div class="mb-5 no-print flex items-center gap-3">
+    <a href="/teacher" class="text-sm font-medium text-[#0B6E4F] hover:underline">← Back to Dashboard</a>
+    <span class="text-slate-300">/</span>
+    <span class="text-sm text-slate-600">Master Broadsheet</span>
+  </div>
+
+  <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-900">Class Master Broadsheet</h1>
+      <p class="text-sm text-slate-500">Detailed performance breakdown for students in your assigned form class.</p>
+    </div>
+    <div class="flex gap-2 no-print">
+      {% if sheet %}
+        <button onclick="exportTableToCSV('masterTable', 'class_detailed_broadsheet.csv')"
+          class="rounded-xl bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-700 transition hover:bg-emerald-200">
+          💾 Export CSV
+        </button>
+        <button onclick="window.print()"
+          class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+          🖨 Print
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ── Filter Bar ── #}
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm no-print mb-8">
+    <form method="get" class="flex flex-wrap items-end gap-4">
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Form Class</label>
+        <select name="classId"
+          class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#0B6E4F] focus:outline-none focus:ring-2 focus:ring-emerald-100 transition">
+          {% for c in classes %}
+            <option value="{{ c.id }}" {% if c.id == class_id %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Session</label>
+        <input name="session" value="{{ session_name }}" placeholder="2025/2026"
+          class="w-32 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#0B6E4F] focus:outline-none focus:ring-2 focus:ring-emerald-100 transition" />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Term</label>
+        <select name="term"
+          class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#0B6E4F] focus:outline-none focus:ring-2 focus:ring-emerald-100 transition">
+          <option value="">Select</option>
+          {% for t in ['1st','2nd','3rd'] %}
+            <option value="{{ t }}" {% if t == term %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="rounded-xl bg-[#0B6E4F] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-100 transition hover:bg-[#095c41] active:scale-95">
+        View Broadsheet
+      </button>
+    </form>
+  </div>
+
+  {% if sheet %}
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
+      <div class="overflow-x-auto">
+        <table id="masterTable" class="min-w-full border-collapse text-[10px]">
+          <thead>
+            <tr class="bg-[#0B6E4F] text-white">
+              <th rowspan="2" class="sticky left-0 z-20 bg-[#0B6E4F] px-4 py-3 text-left font-black uppercase tracking-wider border-r border-white/10">Student Name</th>
+              {% for subj in sheet.subjects %}
+                <th colspan="4" class="px-3 py-3 text-center font-black uppercase tracking-widest border-b border-l border-white/10">
+                  {{ subj.name | truncate(15, true, '…') }}
+                </th>
+              {% endfor %}
+              <th rowspan="2" class="px-4 py-3 text-center font-black uppercase border-l border-white/10">Total</th>
+              <th rowspan="2" class="px-4 py-3 text-center font-black uppercase border-l border-white/10">Avg</th>
+              <th rowspan="2" class="px-4 py-3 text-center font-black uppercase border-l border-white/10">Pos</th>
+            </tr>
+            <tr class="bg-[#08553d] text-emerald-100">
+              {% for subj in sheet.subjects %}
+                <th class="px-1 py-2 text-center font-bold border-l border-white/5">1st CA</th>
+                <th class="px-1 py-2 text-center font-bold border-l border-white/5">2nd CA</th>
+                <th class="px-1 py-2 text-center font-bold border-l border-white/5">Exam</th>
+                <th class="px-1 py-2 text-center font-bold border-l border-white/5 bg-[#064230]">Total</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for st in sheet.students %}
+              <tr class="hover:bg-slate-50 transition">
+                <td class="sticky left-0 z-10 bg-white px-4 py-3 font-bold text-slate-800 border-r border-slate-100 whitespace-nowrap">
+                  {{ st.lastName }} {{ st.firstName }}
+                </td>
+                {% for ps in st.perSubject %}
+                  <td class="px-1 py-3 text-center text-slate-500 border-l border-slate-50">{{ ps.ca1 or '-' }}</td>
+                  <td class="px-1 py-3 text-center text-slate-500 border-l border-slate-50">{{ ps.ca2 or '-' }}</td>
+                  <td class="px-1 py-3 text-center text-slate-500 border-l border-slate-50">{{ ps.exam or '-' }}</td>
+                  <td class="px-1 py-3 text-center font-bold text-slate-900 border-l border-slate-50 bg-slate-50/50">
+                    {{ ps.total }}
+                    <div class="text-[8px] font-black text-[#D4AF37]">{{ ps.grade }}</div>
+                  </td>
+                {% endfor %}
+                <td class="px-4 py-3 text-center font-black text-[#0B6E4F] border-l border-slate-100">{{ st.total }}</td>
+                <td class="px-4 py-3 text-center font-bold text-slate-700 border-l border-slate-100">{{ st.average or '-' }}%</td>
+                <td class="px-4 py-3 text-center border-l border-slate-100">
+                  {% if st.position %}
+                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#D4AF37] text-[10px] font-black text-slate-900">
+                      {{ st.position }}
+                    </span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="py-20 text-center">
+      <h3 class="text-lg font-bold text-slate-800">No Data Loaded</h3>
+      <p class="text-slate-500">Select session and term to view the detailed broadsheet for your class.</p>
+    </div>
+  {% endif %}
+{% endblock %}

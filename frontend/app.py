@@ -424,8 +424,9 @@ def admin_master_broadsheet():
 @require_portal("TEACHER")
 def teacher_dashboard():
     token = session.get("token")
-    data = api_request("GET", "/api/teacher/assignments", token=token)
-    return render_template("teacher/dashboard.html", assignments=data.get("assignments", []))
+    assignments = api_request("GET", "/api/teacher/assignments", token=token).get("assignments", [])
+    form_classes = api_request("GET", "/api/teacher/form-classes", token=token).get("classes", [])
+    return render_template("teacher/dashboard.html", assignments=assignments, form_classes=form_classes)
 
 
 @app.route("/teacher/remarks/<class_id>", methods=["GET", "POST"])
@@ -480,6 +481,31 @@ def teacher_release_result():
     except Exception as e:
         flash(str(e))
     return redirect(request.referrer or url_for("teacher_dashboard"))
+
+
+@app.route("/teacher/master-broadsheet")
+@require_portal("TEACHER")
+def teacher_master_broadsheet():
+    token = session.get("token")
+    form_classes = api_request("GET", "/api/teacher/form-classes", token=token).get("classes", [])
+    class_id = request.args.get("classId") or (form_classes[0]["id"] if form_classes else "")
+    session_name = request.args.get("session", "")
+    term = request.args.get("term", "")
+    
+    # Auth check: ensure class_id is in form_classes
+    if class_id and not any(c["id"] == class_id for c in form_classes):
+        flash("Unauthorized: You are not the form teacher for this class.")
+        return redirect(url_for("teacher_dashboard"))
+
+    sheet = None
+    if class_id and session_name and term:
+        try:
+            sheet = api_request(
+                "GET", f"/api/results/class/{class_id}/broadsheet", token=token, params={"session": session_name, "term": term}
+            )
+        except Exception as e:
+            flash(str(e))
+    return render_template("teacher/master_broadsheet.html", classes=form_classes, class_id=class_id, session_name=session_name, term=term, sheet=sheet)
 
 
 @app.route("/teacher/enter-scores/<assignment_id>", methods=["GET", "POST"])

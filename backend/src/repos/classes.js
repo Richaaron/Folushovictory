@@ -31,3 +31,9 @@ export async function updateClass(classId, patch) {
   return snap.exists ? { id: snap.id, ...snap.data() } : null;
 }
 
+
+export async function listClassesByFormTeacher(username) {
+  const db = getDb();
+  const snap = await db.collection("classes").where("formTeacherUsername", "==", username).get();
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}

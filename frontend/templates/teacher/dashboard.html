@@ -19,6 +19,40 @@
     </div>
   </div>
 
+  {% if form_classes %}
+    <div class="mb-10 overflow-hidden rounded-3xl border border-emerald-200 bg-white shadow-xl shadow-emerald-100/20 no-print">
+      <div class="bg-gradient-to-r from-[#0B6E4F] to-[#0D8A63] px-8 py-6 text-white">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-black uppercase tracking-wider">Form Teacher Utilities</h2>
+            <p class="mt-1 text-sm text-emerald-100/80">Manage and analyze your assigned form classes.</p>
+          </div>
+          <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="grid gap-4 p-6 sm:grid-cols-2">
+        {% for fc in form_classes %}
+          <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition hover:bg-white hover:shadow-md">
+            <div>
+              <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Master Report</div>
+              <div class="text-lg font-bold text-slate-800">{{ fc.name }}</div>
+            </div>
+            <a href="/teacher/master-broadsheet?classId={{ fc.id }}"
+               class="rounded-xl bg-[#D4AF37] px-4 py-2 text-xs font-black uppercase tracking-wider text-slate-900 transition hover:bg-[#c4a030] active:scale-95">
+               View Master Broadsheet
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="mb-6">
+    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Subject Portals</h2>
+  </div>
+
   {% if assignments %}
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {% for a in assignments %}

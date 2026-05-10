@@ -3,7 +3,7 @@ import { Roles, TraitRatings } from "../constants.js";
 import { authRequired, requireRole } from "../middleware/auth.js";
 import { asyncHandler } from "../http.js";
 import { listAssignmentsByTeacher, getAssignmentByTriplet } from "../repos/assignments.js";
-import { getClassById } from "../repos/classes.js";
+import { listClassesByFormTeacher, getClassById } from "../repos/classes.js";
 import { getSubjectById } from "../repos/subjects.js";
 import { listStudentsByClass } from "../repos/students.js";
 import { isPublished } from "../repos/publishes.js";
@@ -17,6 +17,14 @@ import { sendResultReleasedEmail } from "../services/email.js";
 export const teacherRouter = express.Router();
 
 teacherRouter.use(authRequired, requireRole(Roles.TEACHER));
+
+teacherRouter.get(
+  "/form-classes",
+  asyncHandler(async (req, res) => {
+    const classes = await listClassesByFormTeacher(req.user.username);
+    return res.json({ classes });
+  })
+);
 
 teacherRouter.get(
   "/assignments",
