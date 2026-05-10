@@ -23,27 +23,57 @@ export function computePositions(items) {
   });
 }
 
+export function computeSubjectPositions(items) {
+  const sorted = [...items].sort((a, b) => b.total - a.total);
+  let lastTotal = null;
+  let lastPos = 0;
+  return sorted.map((x, idx) => {
+    if (lastTotal === null || x.total !== lastTotal) {
+      lastPos = idx + 1;
+      lastTotal = x.total;
+    }
+    return { ...x, subjectPosition: lastPos };
+  });
+}
+
 export function numericBroadsheet({ students, subjects, scoresByKey, scale, level }) {
   const subjectIds = subjects.map((s) => s.id);
   const l = String(level || "").toUpperCase();
   const isSSS = l.includes("SSS");
+  const isSecondary = l.includes("JSS") || l.includes("SSS");
 
+  // Step 1: Compute basic rows with totals and averages
   const rows = students.map((st) => {
     const perSubject = subjectIds.map((subjectId) => {
       const key = `${st.studentId}_${subjectId}`;
       const sc = scoresByKey.get(key);
-      const ca = Number(sc?.ca || 0);
+      const ca1 = Number(sc?.ca1 || 0);
+      const ca2 = Number(sc?.ca2 || 0);
+      const ca = Number(sc?.ca || (ca1 + ca2));
       const exam = Number(sc?.exam || 0);
       const total = ca + exam;
       const g = gradeForTotal(total, scale);
+
+      let automatedComment = "";
+      if (!isSecondary && total > 0) {
+        if (total >= 80) automatedComment = "Outstanding performance, keep it up!";
+        else if (total >= 70) automatedComment = "Excellent result, very impressive.";
+        else if (total >= 60) automatedComment = "Very good performance, good job.";
+        else if (total >= 50) automatedComment = "Good result, can be better.";
+        else if (total >= 40) automatedComment = "Fair performance, needs improvement.";
+        else automatedComment = "Poor performance, requires urgent attention.";
+      }
+
       return {
         subjectId,
         subjectName: subjects.find((s) => s.id === subjectId)?.name || subjectId,
+        ca1,
+        ca2,
         ca,
         exam,
         total,
         grade: g.letter,
-        remark: g.remark
+        remark: isSecondary ? g.remark : automatedComment
       };
     });
     const sum = perSubject.reduce((acc, p) => acc + p.total, 0);
@@ -59,6 +89,24 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
     };
   });
 
+  // Step 2: Compute Position in Subject for Secondary (JSS & SSS)
+  if (isSecondary) {
+    subjectIds.forEach(subId => {
+      const subjectScores = rows.map(r => ({ 
+        studentId: r.studentId, 
+        total: r.perSubject.find(ps => ps.subjectId === subId).total 
+      }));
+      const rankedSub = computeSubjectPositions(subjectScores);
+      const posMap = new Map(rankedSub.map(rs => [rs.studentId, rs.subjectPosition]));
+      
+      rows.forEach(r => {
+        const ps = r.perSubject.find(ps => ps.subjectId === subId);
+        ps.subjectPosition = posMap.get(r.studentId);
+      });
+    });
+  }
+
+  // Step 3: Compute Overall Positions (Pre-Nursery to JSS 3)
   if (isSSS) {
     return {
       subjects,

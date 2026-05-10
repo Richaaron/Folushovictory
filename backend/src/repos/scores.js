@@ -5,7 +5,7 @@ function scoreId({ session, term, classId, studentId, subjectId }) {
   return `${session}_${term}_${classId}_${studentId}_${subjectId}`;
 }
 
-export async function upsertNumericScore({ session, term, classId, studentId, subjectId, ca, exam, enteredBy }) {
+export async function upsertNumericScore({ session, term, classId, studentId, subjectId, ca1, ca2, exam, enteredBy }) {
   const db = getDb();
   const ref = db.collection("scores").doc(scoreId({ session, term, classId, studentId, subjectId }));
   await ref.set(
@@ -16,8 +16,10 @@ export async function upsertNumericScore({ session, term, classId, studentId, su
       studentId,
       subjectId,
       type: "NUMERIC",
-      ca,
-      exam,
+      ca1: Number(ca1 || 0),
+      ca2: Number(ca2 || 0),
+      ca: Number(ca1 || 0) + Number(ca2 || 0),
+      exam: Number(exam || 0),
       enteredBy,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     },

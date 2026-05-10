@@ -399,9 +399,15 @@ def teacher_enter_scores(assignment_id):
             else:
                 scores = []
                 for st in students:
-                    ca = request.form.get(f"ca_{st['studentId']}", "0").strip()
+                    ca1 = request.form.get(f"ca1_{st['studentId']}", "0").strip()
+                    ca2 = request.form.get(f"ca2_{st['studentId']}", "0").strip()
                     exam = request.form.get(f"exam_{st['studentId']}", "0").strip()
-                    scores.append({"studentId": st["studentId"], "ca": float(ca or 0), "exam": float(exam or 0)})
+                    scores.append({
+                        "studentId": st["studentId"], 
+                        "ca1": float(ca1 or 0), 
+                        "ca2": float(ca2 or 0), 
+                        "exam": float(exam or 0)
+                    })
                 api_request(
                     "POST",
                     "/api/teacher/scores",

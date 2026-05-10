@@ -68,23 +68,29 @@
 
       {# Score table #}
       <div class="overflow-x-auto">
-        <table class="min-w-full border-collapse text-left text-sm">
+        <table id="scoresTable" class="min-w-full border-collapse text-left text-sm">
           <thead>
             <tr class="border-b border-slate-100 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
               <th class="px-8 py-5">SN</th>
               <th class="px-8 py-5">Student Identity</th>
-              <th class="px-8 py-5 text-center">
-                {% if assignment.assessmentType == 'TRAIT' %}Rating{% else %}CA (40%){% endif %}
-              </th>
-              {% if assignment.assessmentType != 'TRAIT' %}
-                <th class="px-8 py-5 text-center">Exam (60%)</th>
-                <th class="px-8 py-5 text-center">Term Total</th>
+              {% if assignment.assessmentType == 'TRAIT' %}
+                <th class="px-8 py-5 text-center">Rating</th>
+              {% else %}
+                <th class="px-4 py-5 text-center">1st CA</th>
+                <th class="px-4 py-5 text-center">2nd CA</th>
+                <th class="px-4 py-5 text-center">Exam</th>
+                <th class="px-4 py-5 text-center">Total</th>
+                {% if 'SSS' in assignment.level.upper() or 'JSS' in assignment.level.upper() %}
+                  <th class="px-4 py-5 text-center">Position</th>
+                {% else %}
+                  <th class="px-8 py-5 text-left">Automated Comment</th>
+                {% endif %}
               {% endif %}
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             {% for st in students %}
-              <tr class="transition hover:bg-slate-50/50">
+              <tr class="transition hover:bg-slate-50/50" data-student-id="{{ st.studentId }}">
                 <td class="px-8 py-4 font-mono text-[10px] text-slate-400">{{ loop.index|string|zfill(2) }}</td>
                 <td class="px-8 py-4">
                   <div class="font-bold text-slate-800">{{ st.lastName }} {{ st.firstName }}</div>
@@ -103,28 +109,40 @@
                     </select>
                   </td>
                 {% else %}
-                  <td class="px-8 py-4 text-center">
-                    <input name="ca_{{ st.studentId }}" type="number" min="0" max="40" step="0.5"
-                      placeholder="0.0"
-                      class="w-20 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center text-xs font-bold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none" />
+                  <td class="px-4 py-4 text-center">
+                    <input name="ca1_{{ st.studentId }}" type="number" min="0" max="100" step="0.5"
+                      placeholder="0"
+                      class="w-16 rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 text-center text-xs font-bold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none score-input" />
                   </td>
-                  <td class="px-8 py-4 text-center">
-                    <input name="exam_{{ st.studentId }}" type="number" min="0" max="60" step="0.5"
-                      placeholder="0.0"
-                      class="w-20 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center text-xs font-bold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none"
-                      oninput="updateTotal(this, '{{ st.studentId }}')" />
+                  <td class="px-4 py-4 text-center">
+                    <input name="ca2_{{ st.studentId }}" type="number" min="0" max="100" step="0.5"
+                      placeholder="0"
+                      class="w-16 rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 text-center text-xs font-bold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none score-input" />
                   </td>
-                  <td class="px-8 py-4 text-center">
-                    <span id="total_{{ st.studentId }}"
-                      class="inline-flex min-w-[3rem] items-center justify-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700">
+                  <td class="px-4 py-4 text-center">
+                    <input name="exam_{{ st.studentId }}" type="number" min="0" max="100" step="0.5"
+                      placeholder="0"
+                      class="w-16 rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 text-center text-xs font-bold transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none score-input" />
+                  </td>
+                  <td class="px-4 py-4 text-center">
+                    <span class="total-display inline-flex min-w-[3rem] items-center justify-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700">
                       0.0
                     </span>
                   </td>
+                  {% if 'SSS' in assignment.level.upper() or 'JSS' in assignment.level.upper() %}
+                    <td class="px-4 py-4 text-center">
+                      <span class="position-display font-black text-[#D4AF37]">—</span>
+                    </td>
+                  {% else %}
+                    <td class="px-8 py-4">
+                      <span class="comment-display text-xs font-medium text-slate-500">Pending scores...</span>
+                    </td>
+                  {% endif %}
                 {% endif %}
               </tr>
             {% else %}
               <tr>
-                <td colspan="5" class="px-8 py-16 text-center text-slate-400 font-medium">No students enrolled in this classroom.</td>
+                <td colspan="7" class="px-8 py-16 text-center text-slate-400 font-medium">No students enrolled in this classroom.</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -137,41 +155,99 @@
           Locked after publication
         </div>
         <button type="submit"
-          class="rounded-xl bg-[#D4AF37] px-8 py-4 text-sm font-black text-slate-900 shadow-lg shadow-amber-100 transition hover:bg-[#c4a030] active:scale-95">
-          Commit Assessments
+          class="rounded-xl bg-[#0B6E4F] px-8 py-4 text-sm font-black text-white shadow-lg shadow-emerald-100 transition hover:bg-[#095c41] active:scale-95">
+          Save All Assessments
         </button>
       </div>
     </form>
   </div>
 
   <script>
-    function updateTotal(examInput, studentId) {
-      const row = examInput.closest('tr');
-      const caInput = row.querySelector('input[name^="ca_"]');
-      const ca = parseFloat(caInput?.value || 0) || 0;
-      const exam = parseFloat(examInput.value || 0) || 0;
-      const total = ca + exam;
-      const el = document.getElementById('total_' + studentId);
-      if (el) {
-        el.textContent = total.toFixed(1);
-        el.className = 'inline-flex min-w-[3rem] items-center justify-center rounded-lg px-3 py-1.5 text-xs font-black ' +
-          (total >= 70 ? 'bg-emerald-100 text-emerald-700 shadow-sm shadow-emerald-50' :
-           total >= 60 ? 'bg-blue-100 text-blue-700' :
-           total >= 45 ? 'bg-amber-100 text-amber-700' :
-                         'bg-red-100 text-red-700 shadow-sm shadow-red-50');
+    const table = document.getElementById('scoresTable');
+    const inputs = document.querySelectorAll('.score-input');
+
+    function updateAll() {
+      const rows = Array.from(table.querySelectorAll('tbody tr[data-student-id]'));
+      const studentData = rows.map(row => {
+        const ca1 = parseFloat(row.querySelector('input[name^="ca1_"]')?.value || 0) || 0;
+        const ca2 = parseFloat(row.querySelector('input[name^="ca2_"]')?.value || 0) || 0;
+        const exam = parseFloat(row.querySelector('input[name^="exam_"]')?.value || 0) || 0;
+        const total = ca1 + ca2 + exam;
+        
+        return { row, total };
+      });
+
+      // Update Totals and Comments
+      studentData.forEach(({ row, total }) => {
+        const totalEl = row.querySelector('.total-display');
+        if (totalEl) {
+          totalEl.textContent = total.toFixed(1);
+          totalEl.className = 'total-display inline-flex min-w-[3rem] items-center justify-center rounded-lg px-3 py-1.5 text-xs font-black ' +
+            (total >= 70 ? 'bg-emerald-100 text-emerald-700' :
+             total >= 60 ? 'bg-blue-100 text-blue-700' :
+             total >= 45 ? 'bg-amber-100 text-amber-700' :
+                           'bg-red-100 text-red-700');
+        }
+
+        const commentEl = row.querySelector('.comment-display');
+        if (commentEl) {
+          if (total === 0) {
+            commentEl.textContent = "Pending scores...";
+            commentEl.className = "comment-display text-xs font-medium text-slate-400 italic";
+          } else if (total >= 80) {
+            commentEl.textContent = "Outstanding performance, keep it up!";
+            commentEl.className = "comment-display text-xs font-bold text-emerald-600";
+          } else if (total >= 70) {
+            commentEl.textContent = "Excellent result, very impressive.";
+            commentEl.className = "comment-display text-xs font-bold text-emerald-500";
+          } else if (total >= 60) {
+            commentEl.textContent = "Very good performance, good job.";
+            commentEl.className = "comment-display text-xs font-bold text-blue-500";
+          } else if (total >= 50) {
+            commentEl.textContent = "Good result, can be better.";
+            commentEl.className = "comment-display text-xs font-bold text-indigo-500";
+          } else if (total >= 40) {
+            commentEl.textContent = "Fair performance, needs improvement.";
+            commentEl.className = "comment-display text-xs font-bold text-amber-600";
+          } else {
+            commentEl.textContent = "Poor performance, requires urgent attention.";
+            commentEl.className = "comment-display text-xs font-bold text-red-500";
+          }
+        }
+      });
+
+      // Update Positions
+      const posDisplays = table.querySelectorAll('.position-display');
+      if (posDisplays.length > 0) {
+        const sorted = [...studentData].sort((a, b) => b.total - a.total);
+        let lastTotal = null;
+        let lastPos = 0;
+        const positions = new Map();
+
+        sorted.forEach((item, idx) => {
+          if (item.total === 0) {
+            positions.set(item.row.dataset.studentId, "—");
+            return;
+          }
+          if (lastTotal === null || item.total !== lastTotal) {
+            lastPos = idx + 1;
+            lastTotal = item.total;
+          }
+          positions.set(item.row.dataset.studentId, lastPos + (lastPos === 1 ? 'st' : lastPos === 2 ? 'nd' : lastPos === 3 ? 'rd' : 'th'));
+        });
+
+        studentData.forEach(({ row }) => {
+          const display = row.querySelector('.position-display');
+          if (display) display.textContent = positions.get(row.dataset.studentId);
+        });
       }
     }
 
-    // Also update when CA changes
-    document.querySelectorAll('input[name^="ca_"]').forEach(caInput => {
-      caInput.addEventListener('input', () => {
-        const row = caInput.closest('tr');
-        const examInput = row.querySelector('input[name^="exam_"]');
-        if (examInput) {
-          const studentId = caInput.name.replace('ca_', '');
-          updateTotal(examInput, studentId);
-        }
-      });
+    inputs.forEach(input => {
+      input.addEventListener('input', updateAll);
     });
+
+    // Initialize on load
+    updateAll();
   </script>
 {% endblock %}

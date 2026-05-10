@@ -24,6 +24,7 @@ teacherRouter.get(
         return {
           ...a,
           className: cls?.name || a.classId,
+          level: cls?.level || "",
           subjectName: subj?.name || a.subjectId
         };
       })
@@ -63,11 +64,13 @@ teacherRouter.post(
 
     const writes = scores.map(async (s) => {
       const studentId = String(s.studentId || "");
-      const ca = Number(s.ca);
-      const exam = Number(s.exam);
+      const ca1 = Number(s.ca1 || 0);
+      const ca2 = Number(s.ca2 || 0);
+      const exam = Number(s.exam || 0);
       if (!studentId) throw Object.assign(new Error("Missing studentId"), { statusCode: 400 });
-      if (!Number.isFinite(ca) || !Number.isFinite(exam)) throw Object.assign(new Error("Invalid score"), { statusCode: 400 });
-      if (ca < 0 || ca > 40 || exam < 0 || exam > 60) throw Object.assign(new Error("Score out of range"), { statusCode: 400 });
+      
+      const total = ca1 + ca2 + exam;
+      if (total > 100) throw Object.assign(new Error("Total score cannot exceed 100"), { statusCode: 400 });
 
       await upsertNumericScore({
         session: String(session),
@@ -75,7 +78,8 @@ teacherRouter.post(
         classId: String(classId),
         studentId,
         subjectId: String(subjectId),
-        ca,
+        ca1,
+        ca2,
         exam,
         enteredBy: req.user.username
       });
