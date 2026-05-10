@@ -23,8 +23,11 @@ export function computePositions(items) {
   });
 }
 
-export function numericBroadsheet({ students, subjects, scoresByKey, scale }) {
+export function numericBroadsheet({ students, subjects, scoresByKey, scale, level }) {
   const subjectIds = subjects.map((s) => s.id);
+  const l = String(level || "").toUpperCase();
+  const isSSS = l.includes("SSS");
+
   const rows = students.map((st) => {
     const perSubject = subjectIds.map((subjectId) => {
       const key = `${st.studentId}_${subjectId}`;
@@ -45,15 +48,23 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale }) {
     });
     const sum = perSubject.reduce((acc, p) => acc + p.total, 0);
     const average = subjectIds.length ? Number((sum / subjectIds.length).toFixed(2)) : 0;
+    
     return {
       studentId: st.studentId,
       firstName: st.firstName,
       lastName: st.lastName,
       perSubject,
       total: sum,
-      average
+      average: isSSS ? null : average
     };
   });
+
+  if (isSSS) {
+    return {
+      subjects,
+      students: rows.map(r => ({ ...r, position: null }))
+    };
+  }
 
   const ranked = computePositions(rows);
   const byId = new Map(ranked.map((r) => [r.studentId, r]));

@@ -49,7 +49,7 @@ resultsRouter.get(
     const sheet =
       String(cls.assessmentType).toUpperCase() === "TRAIT"
         ? traitSheet({ students, subjects, scoresByKey })
-        : numericBroadsheet({ students, subjects, scoresByKey, scale });
+        : numericBroadsheet({ students, subjects, scoresByKey, scale, level: cls.level });
 
     return res.json({
       class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
@@ -103,7 +103,7 @@ resultsRouter.get(
         listScoresForClass({ session: String(session), term: String(term), classId: student.classId })
       ]);
       const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-      const sheet = numericBroadsheet({ students, subjects, scoresByKey, scale });
+      const sheet = numericBroadsheet({ students, subjects, scoresByKey, scale, level: cls.level });
       row = sheet.students.find((s) => s.studentId === studentId) || null;
     }
 

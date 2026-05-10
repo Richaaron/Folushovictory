@@ -80,8 +80,10 @@
                 </th>
               {% endfor %}
               <th class="px-3 py-3 font-semibold">Total</th>
-              <th class="px-3 py-3 font-semibold">Avg</th>
-              <th class="px-3 py-3 font-semibold">Pos</th>
+              {% if sheet.students[0].average is not none %}
+                <th class="px-3 py-3 font-semibold">Avg</th>
+                <th class="px-3 py-3 font-semibold">Pos</th>
+              {% endif %}
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -101,12 +103,14 @@
                   </td>
                 {% endfor %}
                 <td class="px-3 py-2 text-center font-semibold text-slate-800">{{ st.total }}</td>
-                <td class="px-3 py-2 text-center text-slate-700">{{ st.average }}</td>
-                <td class="px-3 py-2 text-center">
-                  <span class="rounded-full bg-[#D4AF37] px-2 py-0.5 text-xs font-bold text-slate-900">
-                    {{ st.position }}
-                  </span>
-                </td>
+                {% if st.average is not none %}
+                  <td class="px-3 py-2 text-center text-slate-700">{{ st.average }}</td>
+                  <td class="px-3 py-2 text-center">
+                    <span class="rounded-full bg-[#D4AF37] px-2 py-0.5 text-xs font-bold text-slate-900">
+                      {{ st.position }}
+                    </span>
+                  </td>
+                {% endif %}
               </tr>
             {% endfor %}
           </tbody>

@@ -133,9 +133,13 @@
                 </td>
                 <td class="px-3 py-2.5 text-center font-bold text-slate-900">{{ report.result.total }}</td>
                 <td colspan="2" class="px-3 py-2.5 text-slate-700">
-                  Avg: <strong>{{ report.result.average }}</strong>
-                  &nbsp;·&nbsp;
-                  Position: <strong>{{ report.result.position }}</strong>
+                  {% if report.result.average is not none %}
+                    Avg: <strong>{{ report.result.average }}</strong>
+                    &nbsp;·&nbsp;
+                    Position: <strong>{{ report.result.position }}</strong>
+                  {% else %}
+                    Term Summary
+                  {% endif %}
                 </td>
               </tr>
             </tfoot>
@@ -143,19 +147,21 @@
         </div>
 
         {# Summary boxes #}
-        <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="mt-4 grid grid-cols-{% if report.result.average is not none %}3{% else %}1{% endif %} gap-3">
           <div class="rounded-lg border border-[#0B6E4F]/30 bg-[#0B6E4F]/5 p-3 text-center">
             <div class="text-xs font-medium text-slate-500">Total Score</div>
             <div class="mt-1 text-2xl font-extrabold text-[#0B6E4F]">{{ report.result.total }}</div>
           </div>
-          <div class="rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/10 p-3 text-center">
-            <div class="text-xs font-medium text-slate-500">Average</div>
-            <div class="mt-1 text-2xl font-extrabold text-[#c4930a]">{{ report.result.average }}%</div>
-          </div>
-          <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-center">
-            <div class="text-xs font-medium text-slate-500">Class Position</div>
-            <div class="mt-1 text-2xl font-extrabold text-slate-800">{{ report.result.position }}</div>
-          </div>
+          {% if report.result.average is not none %}
+            <div class="rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/10 p-3 text-center">
+              <div class="text-xs font-medium text-slate-500">Average</div>
+              <div class="mt-1 text-2xl font-extrabold text-[#c4930a]">{{ report.result.average }}%</div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-center">
+              <div class="text-xs font-medium text-slate-500">Class Position</div>
+              <div class="mt-1 text-2xl font-extrabold text-slate-800">{{ report.result.position }}</div>
+            </div>
+          {% endif %}
         </div>
 
       {# ─── TRAIT result table ─── #}
