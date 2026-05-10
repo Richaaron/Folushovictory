@@ -1,7 +1,7 @@
 services:
   # 1. Node.js Backend
   - type: web
-    name: fvs-backend
+    name: folushovictory-backend
     runtime: node
     rootDir: backend
     plan: free
@@ -27,7 +27,7 @@ services:
 
   # 2. Flask Frontend
   - type: web
-    name: fvs-frontend
+    name: folushovictoryschool
     runtime: python
     rootDir: frontend
     plan: free
@@ -36,7 +36,7 @@ services:
     envVars:
       - key: BACKEND_URL
         fromService:
-          name: fvs-backend
+          name: folushovictory-backend
           type: web
           property: host
       - key: FLASK_SECRET_KEY
