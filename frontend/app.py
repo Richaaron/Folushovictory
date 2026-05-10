@@ -401,6 +401,25 @@ def admin_release_result():
     return redirect(request.referrer or url_for("admin_broadsheet"))
 
 
+@app.route("/admin/master-broadsheet")
+@require_portal("ADMIN")
+def admin_master_broadsheet():
+    token = session.get("token")
+    classes = api_request("GET", "/api/admin/classes", token=token).get("classes", [])
+    class_id = request.args.get("classId") or (classes[0]["id"] if classes else "")
+    session_name = request.args.get("session", "")
+    term = request.args.get("term", "")
+    sheet = None
+    if class_id and session_name and term:
+        try:
+            sheet = api_request(
+                "GET", f"/api/results/class/{class_id}/broadsheet", token=token, params={"session": session_name, "term": term}
+            )
+        except Exception as e:
+            flash(str(e))
+    return render_template("admin/master_broadsheet.html", classes=classes, class_id=class_id, session_name=session_name, term=term, sheet=sheet)
+
+
 @app.get("/teacher")
 @require_portal("TEACHER")
 def teacher_dashboard():
