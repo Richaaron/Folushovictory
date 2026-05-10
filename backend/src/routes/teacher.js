@@ -11,6 +11,8 @@ import { upsertNumericScore, upsertTraitScore } from "../repos/scores.js";
 import { setTeacherRemark } from "../repos/remarks.js";
 import { setReleaseStatus } from "../repos/releases.js";
 import { getStudentById } from "../repos/students.js";
+import { getUserByUsername } from "../repos/users.js";
+import { sendResultReleasedEmail } from "../services/email.js";
 
 export const teacherRouter = express.Router();
 
@@ -178,6 +180,29 @@ teacherRouter.post(
       released: !!released,
       releasedBy: req.user.username
     });
+
+    // Optional: Send email notification if released
+    if (!!released) {
+      (async () => {
+        try {
+          if (student.parentUsername) {
+            const parent = await getUserByUsername(student.parentUsername);
+            if (parent && parent.email) {
+              await sendResultReleasedEmail({
+                parentEmail: parent.email,
+                parentName: parent.displayName,
+                studentName: `${student.firstName} ${student.lastName}`,
+                session: String(session),
+                term: String(term)
+              });
+            }
+          }
+        } catch (err) {
+          console.error("Failed to send release notification email:", err);
+        }
+      })();
+    }
+
     return res.json(result);
   })
 );

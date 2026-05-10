@@ -14,7 +14,8 @@ import { setReleaseStatus } from "../repos/releases.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark } from "../repos/remarks.js";
 import { getDb } from "../firebase.js";
-import { sendEmail } from "../services/email.js";
+import { sendEmail, sendResultReleasedEmail } from "../services/email.js";
+import { getUserByUsername } from "../repos/users.js";
 
 export const adminRouter = express.Router();
 
@@ -361,6 +362,30 @@ adminRouter.post(
       released: !!released,
       releasedBy: req.user.username
     });
+
+    // Optional: Send email notification if released
+    if (!!released) {
+      (async () => {
+        try {
+          const student = await getStudentById(studentId);
+          if (student && student.parentUsername) {
+            const parent = await getUserByUsername(student.parentUsername);
+            if (parent && parent.email) {
+              await sendResultReleasedEmail({
+                parentEmail: parent.email,
+                parentName: parent.displayName,
+                studentName: `${student.firstName} ${student.lastName}`,
+                session: String(session),
+                term: String(term)
+              });
+            }
+          }
+        } catch (err) {
+          console.error("Failed to send release notification email:", err);
+        }
+      })();
+    }
+
     return res.json(result);
   })
 );

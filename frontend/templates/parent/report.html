@@ -243,6 +243,45 @@
           </div>
         </div>
 
+        {# ─── Cumulative Summary (Session-wide) ─── #}
+        {% if report.cumulative and report.cumulative.previousTerms %}
+          <div class="mt-8">
+            <h3 class="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Session Academic Summary</h3>
+            <div class="overflow-hidden rounded-xl border border-slate-200">
+              <table class="min-w-full border-collapse text-sm">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-600">
+                    <th class="px-4 py-2 text-left font-semibold">Term</th>
+                    <th class="px-4 py-2 text-center font-semibold">Total Score</th>
+                    <th class="px-4 py-2 text-center font-semibold">Average (%)</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  {% for pt in report.cumulative.previousTerms %}
+                    <tr>
+                      <td class="px-4 py-2 font-medium text-slate-700">{{ pt.term }} Term</td>
+                      <td class="px-4 py-2 text-center text-slate-800">{{ pt.total }}</td>
+                      <td class="px-4 py-2 text-center text-slate-800">{{ pt.average }}%</td>
+                    </tr>
+                  {% endfor %}
+                  <tr class="bg-[#0B6E4F]/5">
+                    <td class="px-4 py-2 font-bold text-[#0B6E4F]">{{ report.term }} Term (Current)</td>
+                    <td class="px-4 py-2 text-center font-bold text-[#0B6E4F]">{{ report.result.total }}</td>
+                    <td class="px-4 py-2 text-center font-bold text-[#0B6E4F]">{{ report.result.average }}%</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="bg-[#0B6E4F] text-white">
+                    <td class="px-4 py-2.5 font-bold">SESSION CUMULATIVE</td>
+                    <td class="px-4 py-2.5 text-center font-black">{{ report.cumulative.sessionTotal }}</td>
+                    <td class="px-4 py-2.5 text-center font-black">{{ report.cumulative.sessionAverage }}%</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        {% endif %}
+
         {# ─── Grading key + resumption ─── #}
         <div class="mt-5 flex flex-wrap items-end justify-between gap-4 rounded-lg bg-slate-50 px-4 py-3 border border-slate-100">
           <div>

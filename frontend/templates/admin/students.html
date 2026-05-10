@@ -102,12 +102,16 @@
               <button class="rounded-xl bg-slate-900 px-4 py-1.5 text-xs font-bold text-white transition hover:bg-slate-800">
                 Filter
               </button>
+              <button type="button" onclick="exportTableToCSV('studentTable', 'students.csv')"
+                class="rounded-xl bg-emerald-100 px-4 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-200">
+                CSV
+              </button>
             </form>
           </div>
         </div>
         <div class="p-0">
           <div class="overflow-x-auto">
-            <table class="min-w-full border-collapse text-left text-sm">
+            <table id="studentTable" class="min-w-full border-collapse text-left text-sm">
               <thead>
                 <tr class="border-b border-slate-100 text-xs font-bold uppercase tracking-wider text-slate-400">
                   <th class="px-6 py-4">ID</th>

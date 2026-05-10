@@ -104,24 +104,50 @@ resultsRouter.get(
     }
 
     let row;
+    let cumulative = null;
+    
     if (String(cls.assessmentType).toUpperCase() === "TRAIT") {
       const scores = await listScoresForStudent({ session: String(session), term: String(term), studentId });
       const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
       row = traitSheet({ students: [student], subjects, scoresByKey }).students[0];
     } else {
-      const [students, scores] = await Promise.all([
-        listStudentsByClass(student.classId),
-        listScoresForClass({ session: String(session), term: String(term), classId: student.classId })
-      ]);
+      const scores = await listScoresForClass({ session: String(session), term: String(term), classId: student.classId });
       const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-      const sheet = numericBroadsheet({ students, subjects, scoresByKey, scale, level: cls.level });
-      row = sheet.students.find((s) => s.studentId === studentId) || null;
+      const studentsInClass = await listStudentsByClass(student.classId);
+      const sheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey, scale, level: cls.level });
+      row = sheet.students.find((s) => s.studentId === studentId);
+
+      // Cumulative Logic
+      if (term === "2nd" || term === "3rd") {
+        const termsToFetch = term === "2nd" ? ["1st"] : ["1st", "2nd"];
+        const prevResults = await Promise.all(termsToFetch.map(async (t) => {
+            const pScores = await listScoresForClass({ session: String(session), term: t, classId: student.classId });
+            const pScoresByKey = new Map(pScores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
+            const pSheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey: pScoresByKey, scale, level: cls.level });
+            return { term: t, result: pSheet.students.find((s) => s.studentId === studentId) };
+        }));
+        
+        cumulative = {
+            previousTerms: prevResults.filter(r => !!r.result).map(r => ({
+                term: r.term,
+                total: r.result.total,
+                average: r.result.average
+            }))
+        };
+        
+        if (cumulative.previousTerms.length > 0 && row) {
+            const allTotals = [...cumulative.previousTerms.map(r => r.total), row.total];
+            cumulative.sessionTotal = allTotals.reduce((a, b) => a + b, 0);
+            cumulative.sessionAverage = (cumulative.sessionTotal / allTotals.length).toFixed(2);
+        }
+      }
     }
 
     return res.json({
       school,
       formTeacher: formTeacher ? { displayName: formTeacher.displayName || formTeacher.username } : null,
       released: isReleased,
+      cumulative,
       class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
       student: { studentId: student.studentId, firstName: student.firstName, lastName: student.lastName, gender: student.gender || "" },
       session: String(session),

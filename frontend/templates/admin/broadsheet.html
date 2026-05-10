@@ -63,13 +63,19 @@
             </button>
           </form>
         {% endif %}
+        {% if sheet.published %}
+          <button type="button" onclick="exportTableToCSV('broadsheetTable', 'broadsheet.csv')"
+            class="rounded-lg bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-200 no-print">
+            💾 Export CSV
+          </button>
+        {% endif %}
       </div>
     </div>
 
     {# ── NUMERIC broadsheet ── #}
     {% if sheet.class.assessmentType == 'NUMERIC' %}
       <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table class="min-w-full border-collapse text-xs">
+        <table id="broadsheetTable" class="min-w-full border-collapse text-xs">
           <thead>
             <tr class="bg-[#0B6E4F] text-white">
               <th class="sticky left-0 z-10 bg-[#0B6E4F] px-4 py-3 text-left font-semibold">S/N</th>
@@ -129,7 +135,7 @@
     {% else %}
       {# ── TRAIT broadsheet ── #}
       <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table class="min-w-full border-collapse text-xs">
+        <table id="broadsheetTable" class="min-w-full border-collapse text-xs">
           <thead>
             <tr class="bg-[#0B6E4F] text-white">
               <th class="px-4 py-3 text-left font-semibold">S/N</th>
