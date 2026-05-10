@@ -111,7 +111,9 @@ def admin_teachers():
             flash("Display name is required")
 
     teachers = api_request("GET", "/api/admin/teachers", token=token).get("teachers", [])
-    return render_template("admin/teachers.html", teachers=teachers, created=created)
+    classes = api_request("GET", "/api/admin/classes", token=token).get("classes", [])
+    subjects = api_request("GET", "/api/admin/subjects", token=token).get("subjects", [])
+    return render_template("admin/teachers.html", teachers=teachers, classes=classes, subjects=subjects, created=created)
 
 
 @app.route("/admin/classes", methods=["GET", "POST"])
@@ -146,6 +148,20 @@ def admin_update_class(class_id):
     except Exception as e:
         flash(str(e))
     return redirect(url_for("admin_classes"))
+
+
+@app.post("/admin/classes/assign-form-teacher")
+@require_portal("ADMIN")
+def admin_assign_form_teacher():
+    token = session.get("token")
+    class_id = request.form.get("classId")
+    form_teacher = request.form.get("formTeacherUsername")
+    try:
+        api_request("PUT", f"/api/admin/classes/{class_id}/subjects", token=token, payload={"formTeacherUsername": form_teacher})
+        flash("Form Teacher assigned successfully")
+    except Exception as e:
+        flash(str(e))
+    return redirect(url_for("admin_teachers"))
 
 
 @app.route("/settings", methods=["GET", "POST"])
