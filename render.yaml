@@ -10,20 +10,7 @@ services:
     envVars:
       - key: PORT
         value: 4000
-      - key: JWT_SECRET
-        generateValue: true
-      - key: FIREBASE_PROJECT_ID
-        sync: false
-      - key: FIREBASE_SERVICE_ACCOUNT_JSON
-        sync: false
-      - key: SMTP_HOST
-        sync: false
-      - key: SMTP_PORT
-        value: 587
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASS
-        sync: false
+      - fromGroup: fvs-secrets
 
   # 2. Flask Frontend
   - type: web
@@ -39,5 +26,4 @@ services:
           name: folushovictory-backend
           type: web
           property: host
-      - key: FLASK_SECRET_KEY
-        generateValue: true
+      - fromGroup: fvs-secrets
