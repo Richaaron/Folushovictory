@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { 
   BookOpen, 
   ClipboardCheck, 
@@ -9,11 +9,23 @@ import {
   Award,
   Loader2
 } from 'lucide-vue-next'
+import { useAuthStore } from '../../stores/authStore'
 import api from '../../services/api'
+
+const authStore = useAuthStore()
 
 const assignments = ref<any[]>([])
 const formClasses = ref<any[]>([])
 const loading = ref(true)
+
+const roleDescription = computed(() => {
+  const isForm = formClasses.value.length > 0
+  const isSubject = assignments.value.length > 0
+  if (isForm && isSubject) return 'Dual Role Academic Staff • Comprehensive Oversight'
+  if (isForm) return 'Form Teacher • Class Management & Pastoral Care'
+  if (isSubject) return 'Subject Teacher • Academic Excellence Specialist'
+  return 'Academic Staff Portal'
+})
 
 const fetchData = async () => {
   loading.value = true
@@ -45,8 +57,16 @@ onMounted(fetchData)
           </div>
         </div>
         <div>
-          <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Welcome, <span class="text-royal-purple">Samuel Smith</span></h1>
-          <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Senior Academic Staff • Science Dept</p>
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Welcome, <span class="text-royal-purple">{{ authStore.user?.displayName || 'Academic Staff' }}</span></h1>
+            <div class="flex gap-2">
+              <span v-if="formClasses.length > 0" class="px-3 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-[8px] font-black uppercase tracking-widest rounded-lg border border-amber-200 dark:border-amber-800">Form Teacher</span>
+              <span v-if="assignments.length > 0" class="px-3 py-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 text-[8px] font-black uppercase tracking-widest rounded-lg border border-purple-200 dark:border-purple-800">Subject Teacher</span>
+            </div>
+          </div>
+          <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+            {{ roleDescription }}
+          </p>
         </div>
       </div>
       <div class="flex gap-4">

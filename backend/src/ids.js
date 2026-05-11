@@ -19,18 +19,10 @@ function pad(num, width) {
   return String(num).padStart(width, "0");
 }
 
-export async function generateTeacherUsername(displayName) {
-  const firstName = String(displayName).split(" ")[0].toLowerCase().replace(/[^a-z]/g, "");
-  const base = `${firstName}@folusho.com`;
-  
-  const db = getDb();
-  const snap = await db.collection("users").doc(base).get();
-  
-  if (!snap.exists) return base;
-  
-  // If exists, add a counter
-  const n = await nextCounter(`teacher_email_${firstName}`);
-  return `${firstName}${n}@folusho.com`;
+export async function generateTeacherUsername() {
+  const year = new Date().getFullYear();
+  const n = await nextCounter(`teachers_${year}`);
+  return `TCH-${year}-${pad(n, 3)}`;
 }
 
 export async function generateStudentId(date = new Date()) {
