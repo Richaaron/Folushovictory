@@ -21,6 +21,8 @@ const editingTeacher = ref<any>(null)
 const newTeacher = ref({ 
   displayName: '', 
   email: '',
+  department: 'Primary/Nursery', // 'Primary/Nursery' or 'Secondary'
+  roleType: 'Subject Teacher', // 'Form Teacher', 'Subject Teacher', or 'Dual Role'
   formClassId: '',
   assignedSubjectIds: [] as string[]
 })
@@ -45,19 +47,22 @@ const fetchTeachers = async () => {
 
 // Auto-assign subjects for Primary/Nursery classes
 watch(() => newTeacher.value.formClassId, (newId) => {
-  if (!newId) {
-    newTeacher.value.assignedSubjectIds = []
-    return
-  }
+  if (!newId || newTeacher.value.department !== 'Primary/Nursery') return
+  
   const selectedClass = classes.value.find(c => c.id === newId)
   if (selectedClass) {
-    const level = String(selectedClass.level).toUpperCase()
-    const isPrimaryOrNursery = level.includes('PRY') || level.includes('NUR') || level.includes('PRE')
-    if (isPrimaryOrNursery) {
-      newTeacher.value.assignedSubjectIds = subjects.value.map(s => s.id)
-    } else {
-      newTeacher.value.assignedSubjectIds = []
-    }
+    newTeacher.value.assignedSubjectIds = subjects.value.map(s => s.id)
+  }
+})
+
+// Reset fields on department change
+watch(() => newTeacher.value.department, (newDept) => {
+  newTeacher.value.formClassId = ''
+  newTeacher.value.assignedSubjectIds = []
+  if (newDept === 'Primary/Nursery') {
+    newTeacher.value.roleType = 'Dual Role' // Primary teachers are usually both
+  } else {
+    newTeacher.value.roleType = 'Subject Teacher'
   }
 })
 
@@ -70,15 +75,16 @@ const handleAddTeacher = async () => {
       email: newTeacher.value.email
     })
     
-    // 1. Assign Form Class Role (if selected)
-    if (newTeacher.value.formClassId) {
+    // 1. Assign Form Class Role (if applicable)
+    if ((newTeacher.value.roleType === 'Form Teacher' || newTeacher.value.roleType === 'Dual Role') && newTeacher.value.formClassId) {
       await api.put(`/api/admin/classes/${newTeacher.value.formClassId}/subjects`, {
         formTeacherUsername: teacher.username
       })
     }
-
+    
     // 2. Assign Specific Subjects (Subject Teacher Role)
-    if (newTeacher.value.assignedSubjectIds.length > 0 && newTeacher.value.formClassId) {
+    if ((newTeacher.value.roleType === 'Subject Teacher' || newTeacher.value.roleType === 'Dual Role') && 
+        newTeacher.value.assignedSubjectIds.length > 0 && newTeacher.value.formClassId) {
       await api.post('/api/admin/assignments', {
         teacherUsername: teacher.username,
         classIds: [newTeacher.value.formClassId],
@@ -87,7 +93,14 @@ const handleAddTeacher = async () => {
     }
 
     showAddModal.value = false
-    newTeacher.value = { displayName: '', email: '', formClassId: '', assignedSubjectIds: [] }
+    newTeacher.value = { 
+      displayName: '', 
+      email: '', 
+      department: 'Primary/Nursery',
+      roleType: 'Subject Teacher',
+      formClassId: '', 
+      assignedSubjectIds: [] 
+    }
     await fetchTeachers()
     alert(`Staff Account Created Successfully!\n\nUsername: ${teacher.username}\nPassword: ${teacher.password}\n\nPlease copy the password now. It will not be shown again.`)
   } catch (err) {
@@ -238,31 +251,67 @@ onMounted(fetchTeachers)
               <input v-model="newTeacher.email" type="email" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="s.okafor@fvs.edu" />
             </div>
 
+            <!-- Department Selection -->
             <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Primary Class Assignment (Form Role)</label>
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Department</label>
+              <div class="grid grid-cols-2 gap-4">
+                <button 
+                  @click="newTeacher.department = 'Primary/Nursery'"
+                  :class="newTeacher.department === 'Primary/Nursery' ? 'purple-gradient text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'"
+                  class="py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
+                >Primary/Nursery</button>
+                <button 
+                  @click="newTeacher.department = 'Secondary'"
+                  :class="newTeacher.department === 'Secondary' ? 'purple-gradient text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'"
+                  class="py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
+                >Secondary</button>
+              </div>
+            </div>
+
+            <!-- Role Selection (for Secondary) -->
+            <div v-if="newTeacher.department === 'Secondary'" class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Academic Role</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button 
+                  v-for="role in ['Form Teacher', 'Subject Teacher', 'Dual Role']" 
+                  :key="role"
+                  @click="newTeacher.roleType = role"
+                  :class="newTeacher.roleType === role ? 'bg-royal-purple text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'"
+                  class="py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                >{{ role }}</button>
+              </div>
+            </div>
+
+            <!-- Class Assignment -->
+            <div class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                {{ newTeacher.roleType === 'Subject Teacher' ? 'Teaching Class' : 'Assigned Class (Form Role)' }}
+              </label>
               <select v-model="newTeacher.formClassId" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-royal-purple outline-none">
-                <option value="">None (Subject Teacher only)</option>
+                <option value="">Select a class...</option>
                 <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
               </select>
             </div>
 
-            <div v-if="newTeacher.formClassId" class="space-y-2">
+            <!-- Subject Assignment -->
+            <div v-if="newTeacher.formClassId && newTeacher.roleType !== 'Form Teacher'" class="space-y-2">
               <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assigned Subjects</label>
-              <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
+              <div v-if="newTeacher.department === 'Primary/Nursery'" class="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <p class="text-[10px] font-bold text-royal-purple uppercase tracking-widest">Master Class Role</p>
+                <p class="text-[9px] text-slate-400 mt-1 uppercase font-medium italic">* All subjects automatically assigned to Primary faculty.</p>
+              </div>
+              <div v-else class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <label v-for="sub in subjects" :key="sub.id" class="flex items-center gap-3 cursor-pointer group">
                   <input type="checkbox" :value="sub.id" v-model="newTeacher.assignedSubjectIds" class="w-4 h-4 rounded border-slate-300 text-royal-purple focus:ring-royal-purple" />
                   <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-royal-purple transition-colors">{{ sub.name }}</span>
                 </label>
               </div>
-              <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] px-2 italic mt-2">
-                * Primary/Nursery staff are automatically mapped to all subjects upon selection.
-              </p>
             </div>
 
             <div class="pt-6 flex gap-4">
               <button @click="showAddModal = false" class="flex-grow py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
               <button @click="handleAddTeacher" :disabled="creating" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 disabled:opacity-50">
-                {{ creating ? 'Creating...' : 'Create Account' }}
+                {{ creating ? 'Creating...' : 'Create Staff Account' }}
               </button>
             </div>
           </div>
