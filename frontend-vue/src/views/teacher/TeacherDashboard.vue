@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { 
   BookOpen, 
   ClipboardCheck, 
@@ -13,6 +14,7 @@ import { useAuthStore } from '../../stores/authStore'
 import api from '../../services/api'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const assignments = ref<any[]>([])
 const formClasses = ref<any[]>([])
@@ -110,7 +112,19 @@ onMounted(fetchData)
               <h4 class="text-2xl font-black text-slate-900 dark:text-white">{{ item.subjectName }}</h4>
               <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{{ item.className }}</p>
               
-              <button class="mt-8 w-full py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white group-hover:bg-royal-purple group-hover:text-white transition-all flex items-center justify-center gap-2">
+              <button 
+                @click="router.push({ 
+                  name: 'teacher-scores', 
+                  params: { id: item.id },
+                  query: { 
+                    classId: item.classId, 
+                    subjectId: item.subjectId,
+                    className: item.className,
+                    subjectName: item.subjectName
+                  }
+                })"
+                class="mt-8 w-full py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white group-hover:bg-royal-purple group-hover:text-white transition-all flex items-center justify-center gap-2"
+              >
                 Enter Results <ArrowRight class="w-4 h-4" />
               </button>
             </div>

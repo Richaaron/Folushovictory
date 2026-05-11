@@ -60,6 +60,11 @@ const router = createRouter({
           path: '',
           name: 'teacher-dashboard',
           component: () => import('../views/teacher/TeacherDashboard.vue')
+        },
+        {
+          path: 'scores/:id',
+          name: 'teacher-scores',
+          component: () => import('../views/teacher/ScoreEntryView.vue')
         }
       ]
     },
