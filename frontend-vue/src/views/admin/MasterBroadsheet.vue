@@ -152,12 +152,12 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
             </tr>
             <tr class="bg-slate-50 dark:bg-slate-800/50">
               <template v-for="sub in broadsheet.subjects" :key="sub.id + '-sub'">
-                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-8">C1</th>
-                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-8">C2</th>
-                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-8">EX</th>
-                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-600 text-center w-8 bg-slate-100/30">TO</th>
-                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-8">
-                  {{ isSSS ? 'GR' : 'PO' }}
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-12">1st CA</th>
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-12">2nd CA</th>
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-12">Exam</th>
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-600 text-center w-12 bg-slate-100/30">Total</th>
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-10">
+                  {{ isSSS ? 'Grade' : 'Pos' }}
                 </th>
               </template>
               <th class="px-2 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[8px] font-black text-slate-400 text-center">TOT</th>
