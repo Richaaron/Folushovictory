@@ -52,6 +52,12 @@ const fetchBroadsheet = async () => {
   }
 }
 
+const isSSS = computed(() => {
+  if (!selectedClassId.value) return false
+  const cls = classes.value.find(c => c.id === selectedClassId.value)
+  return String(cls?.level || '').toUpperCase().includes('SSS')
+})
+
 const handlePrint = () => {
   window.print()
 }
@@ -136,54 +142,68 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         <table class="w-full border-collapse">
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800/50">
-              <th rowspan="2" class="px-6 py-8 border-b border-r border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase tracking-widest text-slate-400 min-w-[200px] text-left">Student Information</th>
-              <th v-for="sub in broadsheet.subjects" :key="sub.id" class="px-4 py-4 border-b border-r border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase tracking-widest text-royal-purple text-center">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-slate-800/50">
+              <th rowspan="2" class="px-4 py-6 border-b border-r border-slate-200 dark:border-slate-700 text-[9px] font-black uppercase tracking-widest text-slate-400 min-w-[180px] text-left">Student Profile</th>
+              <th v-for="sub in broadsheet.subjects" :key="sub.id" colspan="5" class="px-2 py-3 border-b border-r border-slate-200 dark:border-slate-700 text-[8px] font-black uppercase tracking-widest text-royal-purple text-center">
                 {{ sub.name }}
               </th>
-              <th colspan="4" class="px-4 py-4 border-b border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase tracking-widest text-amber-500 text-center">Final Summary</th>
+              <th colspan="4" class="px-4 py-3 border-b border-slate-200 dark:border-slate-700 text-[9px] font-black uppercase tracking-widest text-amber-500 text-center">Summary</th>
             </tr>
             <tr class="bg-slate-50 dark:bg-slate-800/50">
-              <th v-for="sub in broadsheet.subjects" :key="sub.id + '-sub'" class="px-2 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[8px] font-black text-slate-400 text-center">
-                TOT / GR
-              </th>
-              <th class="px-2 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[8px] font-black text-slate-400 text-center">TOTAL</th>
+              <template v-for="sub in broadsheet.subjects" :key="sub.id + '-sub'">
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-8">C1</th>
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-8">C2</th>
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-8">EX</th>
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-600 text-center w-8 bg-slate-100/30">TO</th>
+                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-8">
+                  {{ isSSS ? 'GR' : 'PO' }}
+                </th>
+              </template>
+              <th class="px-2 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[8px] font-black text-slate-400 text-center">TOT</th>
               <th class="px-2 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[8px] font-black text-slate-400 text-center">AVG</th>
               <th class="px-2 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[8px] font-black text-slate-400 text-center">POS</th>
-              <th class="px-2 py-2 border-b border-slate-200 dark:border-slate-700 text-[8px] font-black text-slate-400 text-center">STATUS</th>
+              <th class="px-2 py-2 border-b border-slate-200 dark:border-slate-700 text-[8px] font-black text-slate-400 text-center">RES</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
             <tr v-for="student in broadsheet.students" :key="student.studentId" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-              <td class="px-6 py-4 border-r border-slate-200 dark:border-slate-700">
-                <div class="flex items-center gap-3">
-                  <div class="text-[10px] font-black text-slate-400 w-8">{{ student.position }}</div>
+              <td class="px-4 py-4 border-r border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-2">
+                  <div class="text-[9px] font-black text-slate-400 w-4">{{ student.position }}</div>
                   <div>
-                    <p class="text-sm font-black text-slate-900 dark:text-white uppercase truncate">{{ student.lastName }} {{ student.firstName }}</p>
-                    <p class="text-[9px] font-bold text-slate-400 tracking-widest uppercase">{{ student.studentId }}</p>
+                    <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase truncate max-w-[120px]">{{ student.lastName }} {{ student.firstName }}</p>
+                    <p class="text-[8px] font-bold text-slate-400 tracking-widest uppercase">{{ student.studentId }}</p>
                   </div>
                 </div>
               </td>
-              <td v-for="sub in broadsheet.subjects" :key="sub.id + '-score'" class="px-2 py-4 border-r border-slate-200 dark:border-slate-700 text-center">
+              <template v-for="sub in broadsheet.subjects" :key="sub.id + '-score'">
                 <template v-if="student.scores[sub.id]">
-                  <span class="text-xs font-black text-slate-700 dark:text-slate-300">{{ student.scores[sub.id].total }}</span>
-                  <span class="ml-1 text-[9px] font-black" :class="[student.scores[sub.id].grade === 'F' ? 'text-red-500' : 'text-emerald-500']">
-                    {{ student.scores[sub.id].grade }}
-                  </span>
+                  <td class="px-1 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-[9px] font-bold text-slate-500">{{ student.scores[sub.id].ca1 }}</td>
+                  <td class="px-1 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-[9px] font-bold text-slate-500">{{ student.scores[sub.id].ca2 }}</td>
+                  <td class="px-1 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-[9px] font-bold text-slate-500">{{ student.scores[sub.id].exam }}</td>
+                  <td class="px-1 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-[9px] font-black text-slate-900 dark:text-white bg-slate-50/30">{{ student.scores[sub.id].total }}</td>
+                  <td class="px-1 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-[9px] font-black">
+                    <span v-if="isSSS" :class="student.scores[sub.id].grade === 'F' ? 'text-red-500' : 'text-emerald-500'">{{ student.scores[sub.id].grade }}</span>
+                    <span v-else class="text-slate-500">{{ student.scores[sub.id].subjectPosition || '-' }}</span>
+                  </td>
                 </template>
-                <span v-else class="text-slate-300">-</span>
-              </td>
-              <td class="px-2 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-sm font-black text-slate-900 dark:text-white">
+                <template v-else>
+                  <td colspan="5" class="px-1 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-slate-200">-</td>
+                </template>
+              </template>
+              <td class="px-2 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-xs font-black text-slate-900 dark:text-white">
                 {{ student.total }}
               </td>
-              <td class="px-2 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-sm font-black text-royal-purple">
+              <td class="px-2 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-xs font-black text-royal-purple">
                 {{ student.average }}%
               </td>
-              <td class="px-2 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-sm font-black text-royal-gold">
+              <td class="px-2 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-xs font-black text-royal-gold">
                 {{ student.position }}
               </td>
               <td class="px-2 py-4 text-center">
-                <span class="text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest" :class="[student.average >= 40 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' : 'bg-red-50 text-red-600 dark:bg-red-900/20']">
-                  {{ student.average >= 40 ? 'PASSED' : 'FAILED' }}
+                <span class="text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest" :class="[student.average >= 40 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' : 'bg-red-50 text-red-600 dark:bg-red-900/20']">
+                  {{ student.average >= 40 ? 'PASS' : 'FAIL' }}
                 </span>
               </td>
             </tr>
