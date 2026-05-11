@@ -27,8 +27,9 @@ async function testConnection() {
     
     if (classesSnapshot.size > 0) {
       console.log("Sample classes:");
-      classesSnapshot.docs.slice(0, 3).forEach(doc => {
-        console.log(`- ${doc.id}: ${doc.data().name}`);
+      classesSnapshot.docs.slice(0, 15).forEach(doc => {
+        const d = doc.data();
+        console.log(`- ${doc.id}: ${d.name} [Level: ${d.level}]`);
       });
     }
 

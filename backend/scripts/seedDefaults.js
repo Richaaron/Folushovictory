@@ -16,36 +16,41 @@ const defaultScale = {
 };
 
 const subjects = [
-  "Mathematics",
-  "English Language",
-  "Basic Science",
-  "Basic Technology",
-  "National Values",
-  "Agriculture Science",
-  "Phonics",
-  "Physical & Health Education",
-  "Vocational Aptitude",
-  "Quantitative Reasoning",
-  "Verbal Reasoning",
-  "Literature",
-  "Creative Arts",
-  "Writing (P1–P3)",
-  "Home Economics",
-  "Computer Studies",
-  "Religious Studies",
-  "Business Studies",
-  "Hausa",
-  "Fine Arts",
-  "Chemistry",
-  "Physics",
-  "Government",
-  "Literature in English",
-  "Biology",
-  "Marketing",
-  "Civic Education",
-  "Geography",
-  "Accounting",
-  "Commerce"
+  { name: "Mathematics", level: "Primary" },
+  { name: "English Language", level: "Primary" },
+  { name: "Basic Science", level: "Primary" },
+  { name: "Basic Technology", level: "Primary" },
+  { name: "Mathematics", level: "JSS" },
+  { name: "English Language", level: "JSS" },
+  { name: "Basic Science", level: "JSS" },
+  { name: "Basic Technology", level: "JSS" },
+  { name: "Mathematics", level: "SSS" },
+  { name: "English Language", level: "SSS" },
+  { name: "Chemistry", level: "SSS" },
+  { name: "Physics", level: "SSS" },
+  { name: "Biology", level: "SSS" },
+  { name: "Further Mathematics", level: "SSS" },
+  { name: "Agricultural Science", level: "JSS" },
+  { name: "Agricultural Science", level: "SSS" },
+  { name: "National Values", level: "Primary" },
+  { name: "National Values", level: "JSS" },
+  { name: "Physical & Health Education", level: "Primary" },
+  { name: "Physical & Health Education", level: "JSS" },
+  { name: "Computer Studies", level: "Primary" },
+  { name: "Computer Studies", level: "JSS" },
+  { name: "Computer Studies", level: "SSS" },
+  { name: "Civic Education", level: "JSS" },
+  { name: "Civic Education", level: "SSS" },
+  { name: "Geography", level: "SSS" },
+  { name: "Accounting", level: "SSS" },
+  { name: "Commerce", level: "SSS" },
+  { name: "Government", level: "SSS" },
+  { name: "Business Studies", level: "JSS" },
+  { name: "Literature in English", level: "SSS" },
+  { name: "Fine Arts", level: "JSS" },
+  { name: "Hausa", level: "JSS" },
+  { name: "Home Economics", level: "Primary" },
+  { name: "Home Economics", level: "JSS" }
 ];
 
 const db = getDb();
@@ -56,13 +61,71 @@ if (!scale || !Array.isArray(scale.grades) || scale.grades.length === 0) {
   process.stdout.write("Seeded grading scale\n");
 }
 
+// Clear and re-seed subjects if they don't have levels, to avoid mixup
 const existingSubjects = await db.collection("subjects").get();
-if (existingSubjects.size === 0) {
-  for (const name of subjects) {
-    await db.collection("subjects").add({ name });
-  }
-  process.stdout.write(`Seeded ${subjects.length} subjects\n`);
+let needsReseed = false;
+if (existingSubjects.size > 0) {
+  const first = existingSubjects.docs[0].data();
+  if (!first.level) needsReseed = true;
 } else {
-  process.stdout.write("Subjects already exist, skipping\n");
+  needsReseed = true;
 }
+
+if (needsReseed) {
+  process.stdout.write("Updating subjects to include academic levels...\n");
+  for (const doc of existingSubjects.docs) {
+    await doc.ref.delete();
+  }
+  for (const sub of subjects) {
+    await db.collection("subjects").add({ 
+      name: sub.name, 
+      level: sub.level,
+      createdAt: new Date().toISOString()
+    });
+  }
+  process.stdout.write(`Seeded ${subjects.length} leveled subjects\n`);
+} else {
+  process.stdout.write("Leveled subjects already exist, skipping\n");
+}
+
+const defaultClasses = [
+  { name: "PRE-NURSERY", level: "NUR" },
+  { name: "NURSERY 1", level: "NUR" },
+  { name: "NURSERY 2", level: "NUR" },
+  { name: "PRIMARY 1", level: "PRY" },
+  { name: "PRIMARY 2", level: "PRY" },
+  { name: "PRIMARY 3", level: "PRY" },
+  { name: "PRIMARY 4", level: "PRY" },
+  { name: "PRIMARY 5", level: "PRY" },
+  { name: "PRIMARY 6", level: "PRY" },
+  { name: "JSS 1", level: "JSS" },
+  { name: "JSS 2", level: "JSS" },
+  { name: "JSS 3", level: "JSS" },
+  { name: "SSS 1", level: "SSS" },
+  { name: "SSS 2", level: "SSS" },
+  { name: "SSS 3", level: "SSS" }
+];
+
+const existingClasses = await db.collection("classes").get();
+process.stdout.write("Synchronizing academic levels for all classes...\n");
+const classMap = new Map(existingClasses.docs.map(d => [d.data().name.toUpperCase(), d]));
+
+for (const cls of defaultClasses) {
+  const existingDoc = classMap.get(cls.name);
+  if (existingDoc) {
+    // Update level if it's non-standard
+    if (existingDoc.data().level !== cls.level) {
+      await existingDoc.ref.update({ level: cls.level });
+      process.stdout.write(`Updated level for ${cls.name} -> ${cls.level}\n`);
+    }
+  } else {
+    // Add missing class
+    await db.collection("classes").add({
+      ...cls,
+      createdAt: new Date().toISOString()
+    });
+    process.stdout.write(`Added missing class: ${cls.name}\n`);
+  }
+}
+process.stdout.write("Institutional class structure synchronized.\n");
 
