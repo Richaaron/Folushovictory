@@ -79,6 +79,50 @@
       </div>
     </div>
   </div>
+  <!-- Primary & Nursery Allocation -->
+  <div class="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+    <div class="border-b border-slate-100 bg-slate-50/50 p-6">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Primary & Nursery Allocation</h2>
+          <p class="text-xs text-slate-500 uppercase font-semibold tracking-wider mt-0.5">Assign a Class Teacher (teaches all subjects)</p>
+        </div>
+      </div>
+    </div>
+    <div class="p-6">
+      <form method="post" action="/admin/classes/assign-form-teacher" class="max-w-3xl">
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Select Teacher</label>
+            <select name="formTeacherUsername" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold transition focus:border-emerald-500 focus:bg-white focus:outline-none">
+              <option value="">— Choose Teacher —</option>
+              {% for t in teachers %}
+                <option value="{{ t.username }}">{{ t.displayName }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Primary / Nursery Class</label>
+            <select name="classId" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold transition focus:border-emerald-500 focus:bg-white focus:outline-none">
+              <option value="">— Choose Class —</option>
+              {% for c in classes %}
+                {% if 'PRIMARY' in c.level.upper() or 'NURSERY' in c.level.upper() %}
+                  <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <button class="mt-6 w-full sm:w-auto rounded-xl bg-emerald-600 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-100 transition hover:bg-emerald-700 active:scale-95">
+          Assign as Class Teacher
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Role Allocation for Secondary -->
   <div class="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
     <div class="border-b border-slate-100 bg-slate-50/50 p-6">
