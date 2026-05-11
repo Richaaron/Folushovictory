@@ -60,6 +60,21 @@ def logout():
     return redirect(url_for("landing"))
 
 
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    return login("admin")
+
+
+@app.route("/teacher/login", methods=["GET", "POST"])
+def teacher_login():
+    return login("teacher")
+
+
+@app.route("/parent/login", methods=["GET", "POST"])
+def parent_login():
+    return login("parent")
+
+
 @app.route("/<portal>/login", methods=["GET", "POST"])
 def login(portal):
     portal_upper = portal.upper()
@@ -77,7 +92,7 @@ def login(portal):
             )
             session["token"] = data["token"]
             session["user"] = data["user"]
-            return redirect(url_for(f"{portal}_dashboard"))
+            return redirect(url_for(f"{portal.lower()}_dashboard"))
         except Exception as e:
             flash(str(e))
 
