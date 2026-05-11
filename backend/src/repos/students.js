@@ -14,8 +14,10 @@ export async function createStudent(student) {
 
 export async function listStudentsByClass(classId) {
   const db = getDb();
-  const snap = await db.collection("students").where("classId", "==", classId).orderBy("lastName").get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const snap = await db.collection("students").where("classId", "==", classId).get();
+  const students = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  students.sort((a, b) => String(a.lastName || "").localeCompare(String(b.lastName || "")));
+  return students;
 }
 
 export async function getStudentById(studentId) {

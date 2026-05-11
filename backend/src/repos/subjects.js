@@ -13,8 +13,10 @@ export async function createSubject(data) {
 
 export async function listSubjects() {
   const db = getDb();
-  const snap = await db.collection("subjects").orderBy("name").get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const snap = await db.collection("subjects").get();
+  const subjects = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  subjects.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+  return subjects;
 }
 
 export async function getSubjectById(subjectId) {

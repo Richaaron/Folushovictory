@@ -101,11 +101,13 @@ adminRouter.get(
   "/teachers",
   asyncHandler(async (req, res) => {
     const db = getDb();
-    const snap = await db.collection("users").where("role", "==", Roles.TEACHER).orderBy("username").get();
+    const snap = await db.collection("users").where("role", "==", Roles.TEACHER).get();
     const teachers = snap.docs.map((d) => {
       const u = d.data();
       return { username: u.username, displayName: u.displayName || "" };
     });
+    // Sort in memory to avoid index requirements
+    teachers.sort((a, b) => a.username.localeCompare(b.username));
     return res.json({ teachers });
   })
 );

@@ -13,8 +13,10 @@ export async function createClass(data) {
 
 export async function listClasses() {
   const db = getDb();
-  const snap = await db.collection("classes").orderBy("name").get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const snap = await db.collection("classes").get();
+  const classes = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  classes.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+  return classes;
 }
 
 export async function getClassById(classId) {
