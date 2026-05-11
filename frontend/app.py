@@ -13,6 +13,11 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change_me")
 
 
+@app.get("/health")
+def health():
+    return "OK", 200
+
+
 def api_request(method, path, token=None, payload=None, params=None):
     url = f"{BACKEND_URL}{path}"
     headers = {"Content-Type": "application/json"}
