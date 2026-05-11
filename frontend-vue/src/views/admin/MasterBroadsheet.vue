@@ -9,9 +9,11 @@ import {
   Loader2,
   ChevronRight,
   AlertCircle,
-  Printer
+  Printer,
+  TrendingUp
 } from 'lucide-vue-next'
 import api from '../../services/api'
+import PerformanceCharts from '../../components/analytics/PerformanceCharts.vue'
 
 const classes = ref<any[]>([])
 const selectedClassId = ref('')
@@ -196,8 +198,20 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         </div>
       </div>
     </div>
+
+    <!-- Visual Analytics -->
+    <div v-if="broadsheet && !loading && !error" class="fade-in">
+      <div class="mb-8 flex items-center justify-between no-print">
+        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+          <TrendingUp class="w-5 h-5 text-royal-purple" /> Visual <span class="text-royal-purple">Analytics</span>
+        </h2>
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Class Performance Insights</p>
+      </div>
+      <PerformanceCharts :students="broadsheet.students" :subjects="broadsheet.subjects" class="no-print" />
+    </div>
   </div>
 </template>
+
 
 <style scoped>
 @media print {
