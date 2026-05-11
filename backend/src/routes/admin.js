@@ -25,18 +25,39 @@ adminRouter.get(
   asyncHandler(async (req, res) => {
     const { session, term } = req.query;
     const db = getDb();
-    const [studentsSnap, teachersSnap, classes] = await Promise.all([
+    const [studentsSnap, teachersSnap, classes, termMeta] = await Promise.all([
       db.collection("students").get(),
       db.collection("users").where("role", "==", Roles.TEACHER).get(),
-      listClasses()
+      listClasses(),
+      db.collection("config").doc("termMeta").get()
     ]);
+
+    const activeTerm = termMeta.exists ? termMeta.data() : { session: "2026/2027", term: "SECOND TERM" };
+    const currentSession = session || activeTerm.session;
+    const currentTerm = term || activeTerm.term;
+
+    // Calculate "New This Term" (last 30 days for now)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const students = studentsSnap.docs.map(d => d.data());
+    const newThisTerm = students.filter(s => s.createdAt && new Date(s.createdAt) > thirtyDaysAgo).length;
+
+    // Calculate "Awaiting Results"
+    // Fetch all publishes for current term
+    const pubSnap = await db.collection("publishes")
+      .where("session", "==", String(currentSession))
+      .where("term", "==", String(currentTerm))
+      .get();
+    const publishedClassIds = new Set(pubSnap.docs.map(d => d.data().classId));
+    
+    const awaitingResults = students.filter(s => !publishedClassIds.has(s.classId)).length;
 
     let resultStatus = [];
     if (session && term) {
       const statuses = await Promise.all(
         classes.map(async (c) => {
-          const pub = await getPublish({ classId: c.id, session: String(session), term: String(term) });
-          return { classId: c.id, className: c.name, published: Boolean(pub) };
+          const published = publishedClassIds.has(c.id);
+          return { classId: c.id, className: c.name, published };
         })
       );
       resultStatus = statuses;
@@ -46,9 +67,12 @@ adminRouter.get(
       counts: {
         students: studentsSnap.size,
         teachers: teachersSnap.size,
-        classes: classes.length
+        classes: classes.length,
+        newThisTerm,
+        awaitingResults
       },
-      resultStatus
+      resultStatus,
+      activeTerm
     });
   })
 );

@@ -21,6 +21,24 @@ const selectedClassId = ref('')
 const searchQuery = ref('')
 const showEditModal = ref(false)
 const editingStudent = ref<any>(null)
+const stats = ref({
+  total: 0,
+  newlyEnrolled: 0,
+  awaiting: 0
+})
+
+const fetchStats = async () => {
+  try {
+    const { data } = await api.get('/api/admin/dashboard')
+    stats.value = {
+      total: data.counts.students || 0,
+      newlyEnrolled: data.counts.newThisTerm || 0,
+      awaiting: data.counts.awaitingResults || 0
+    }
+  } catch (err) {
+    console.error('Error fetching stats:', err)
+  }
+}
 
 const fetchClasses = async () => {
   try {
@@ -63,6 +81,7 @@ const handleAddStudent = async () => {
     await api.post('/api/admin/students', newStudent.value)
     showAddModal.value = false
     await fetchStudents()
+    await fetchStats()
   } catch (err) {
     console.error('Error adding student:', err)
   }
@@ -73,6 +92,7 @@ const handleDelete = async (id: string) => {
   try {
     await api.delete(`/api/admin/students/${id}`)
     await fetchStudents()
+    await fetchStats()
   } catch (err) {
     console.error('Error deleting student:', err)
   }
@@ -99,6 +119,7 @@ watch(selectedClassId, fetchStudents)
 onMounted(async () => {
   await fetchClasses()
   await fetchStudents()
+  await fetchStats()
 })
 </script>
 
@@ -131,7 +152,7 @@ onMounted(async () => {
         </div>
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Enrollment</p>
-          <h3 class="text-2xl font-black text-slate-900 dark:text-white">1,284</h3>
+          <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ stats.total.toLocaleString() }}</h3>
         </div>
       </div>
       <div class="academic-card rounded-3xl p-6 flex items-center gap-6">
@@ -140,7 +161,7 @@ onMounted(async () => {
         </div>
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">New This Term</p>
-          <h3 class="text-2xl font-black text-slate-900 dark:text-white">42</h3>
+          <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ stats.newlyEnrolled.toLocaleString() }}</h3>
         </div>
       </div>
       <div class="academic-card rounded-3xl p-6 flex items-center gap-6">
@@ -149,7 +170,7 @@ onMounted(async () => {
         </div>
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Awaiting Results</p>
-          <h3 class="text-2xl font-black text-slate-900 dark:text-white">1,150</h3>
+          <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ stats.awaiting.toLocaleString() }}</h3>
         </div>
       </div>
     </div>
