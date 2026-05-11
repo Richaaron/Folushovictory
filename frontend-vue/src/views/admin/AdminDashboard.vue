@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { 
   Users, 
   BookOpen, 
@@ -11,15 +12,16 @@ import {
   BarChart3
 } from 'lucide-vue-next'
 import api from '../../services/api'
+const router = useRouter()
 
 const loading = ref(true)
 const dashboardData = ref<any>(null)
 
 const stats = ref([
-  { name: 'Total Students', key: 'studentsCount', value: '0', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20', trend: '...' },
-  { name: 'Active Teachers', key: 'teachersCount', value: '0', icon: Users, color: 'text-royal-purple', bg: 'bg-purple-50 dark:bg-purple-900/20', trend: '...' },
-  { name: 'Active Classes', key: 'classesCount', value: '0', icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20', trend: '...' },
-  { name: 'Avg. Performance', key: 'avgPerformance', value: '0%', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20', trend: '...' },
+  { name: 'Total Students', key: 'studentsCount', value: '0', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20', trend: '...', route: '/admin/students' },
+  { name: 'Active Teachers', key: 'teachersCount', value: '0', icon: Users, color: 'text-royal-purple', bg: 'bg-purple-50 dark:bg-purple-900/20', trend: '...', route: '/admin/teachers' },
+  { name: 'Active Classes', key: 'classesCount', value: '0', icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20', trend: '...', route: '/admin/classes' },
+  { name: 'Avg. Performance', key: 'avgPerformance', value: '0%', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20', trend: '...', route: '/admin/broadsheet' },
 ])
 
 const fetchDashboard = async () => {
@@ -72,10 +74,11 @@ const recentActivity = [
       <div 
         v-for="stat in stats" 
         :key="stat.name"
-        class="academic-card rounded-3xl p-6 border border-slate-100 dark:border-slate-800"
+        @click="router.push(stat.route)"
+        class="academic-card rounded-3xl p-6 border border-slate-100 dark:border-slate-800 cursor-pointer hover:scale-[1.02] transition-all group"
       >
         <div class="flex items-start justify-between">
-          <div :class="[stat.bg, stat.color]" class="p-3 rounded-2xl">
+          <div :class="[stat.bg, stat.color]" class="p-3 rounded-2xl group-hover:scale-110 transition-transform">
             <component :is="stat.icon" class="w-6 h-6" />
           </div>
           <div class="flex items-center gap-1 text-[10px] font-black text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-lg">
@@ -116,7 +119,7 @@ const recentActivity = [
             <div class="relative z-10">
               <h4 class="text-lg font-black uppercase tracking-widest mb-2">Publish Results</h4>
               <p class="text-sm font-medium text-purple-100 mb-6">Review and release term broadsheets to parents.</p>
-              <button class="bg-white text-royal-purple px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl transition hover:scale-105 active:scale-95">Go to Portal</button>
+              <router-link to="/admin/broadsheet" class="inline-block bg-white text-royal-purple px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl transition hover:scale-105 active:scale-95">Go to Broadsheet</router-link>
             </div>
             <BarChart3 class="absolute -right-8 -bottom-8 w-48 h-48 opacity-10 group-hover:scale-110 transition-transform" />
           </div>
@@ -125,7 +128,7 @@ const recentActivity = [
             <div class="relative z-10">
               <h4 class="text-lg font-black uppercase tracking-widest mb-2">Manage Staff</h4>
               <p class="text-sm font-bold text-amber-900/70 mb-6">Create teacher accounts and assign classes.</p>
-              <button class="bg-slate-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl transition hover:scale-105 active:scale-95">Go to Staff</button>
+              <router-link to="/admin/teachers" class="inline-block bg-slate-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl transition hover:scale-105 active:scale-95">Go to Staff</router-link>
             </div>
             <Users class="absolute -right-8 -bottom-8 w-48 h-48 opacity-10 group-hover:scale-110 transition-transform" />
           </div>
