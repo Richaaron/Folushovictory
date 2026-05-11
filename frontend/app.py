@@ -285,16 +285,20 @@ def admin_assignments():
     token = session.get("token")
     if request.method == "POST":
         teacher_username = request.form.get("teacherUsername", "").strip()
-        class_id = request.form.get("classId", "").strip()
-        subject_id = request.form.get("subjectId", "").strip()
+        class_ids = request.form.getlist("classId")
+        subject_ids = request.form.getlist("subjectId")
         try:
             api_request(
                 "POST",
                 "/api/admin/assignments",
                 token=token,
-                payload={"teacherUsername": teacher_username, "classId": class_id, "subjectId": subject_id},
+                payload={
+                    "teacherUsername": teacher_username, 
+                    "classIds": class_ids, 
+                    "subjectIds": subject_ids
+                },
             )
-            flash("Assignment created")
+            flash(f"Successfully created {len(class_ids) * len(subject_ids)} assignments")
         except Exception as e:
             flash(str(e))
 

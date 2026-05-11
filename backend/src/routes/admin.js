@@ -245,14 +245,29 @@ adminRouter.post(
 adminRouter.post(
   "/assignments",
   asyncHandler(async (req, res) => {
-    const { teacherUsername, classId, subjectId } = req.body || {};
-    if (!teacherUsername || !classId || !subjectId) return res.status(400).json({ error: "Missing fields" });
-    const created = await createAssignment({
-      teacherUsername: String(teacherUsername),
-      classId: String(classId),
-      subjectId: String(subjectId)
-    });
-    return res.status(201).json(created);
+    let { teacherUsername, classId, subjectId } = req.body || {};
+    if (!teacherUsername || (!classId && !req.body.classIds) || (!subjectId && !req.body.subjectIds)) {
+      return res.status(400).json({ error: "Missing fields" });
+    }
+
+    const classIds = Array.isArray(req.body.classIds) ? req.body.classIds : [classId];
+    const subjectIds = Array.isArray(req.body.subjectIds) ? req.body.subjectIds : [subjectId];
+
+    const results = [];
+    for (const cid of classIds) {
+      if (!cid) continue;
+      for (const sid of subjectIds) {
+        if (!sid) continue;
+        const created = await createAssignment({
+          teacherUsername: String(teacherUsername),
+          classId: String(cid),
+          subjectId: String(sid)
+        });
+        results.push(created);
+      }
+    }
+
+    return res.status(201).json({ count: results.length, assignments: results });
   })
 );
 

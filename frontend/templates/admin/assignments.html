@@ -28,24 +28,24 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Target Class</label>
-              <select name="classId" required
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Target Class (Select Multiple)</label>
+              <select name="classId" multiple size="6" required
                 class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100">
-                <option value="">— select class —</option>
                 {% for c in classes %}
                   <option value="{{ c.id }}">{{ c.name }} ({{ c.level }}{% if c.track %} · {{ c.track }}{% endif %})</option>
                 {% endfor %}
               </select>
+              <p class="mt-1 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Hold Ctrl/Cmd to select multiple</p>
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Allocated Subject</label>
-              <select name="subjectId" required
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Allocated Subject (Select Multiple)</label>
+              <select name="subjectId" multiple size="6" required
                 class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition focus:border-[#0B6E4F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100">
-                <option value="">— select subject —</option>
                 {% for s in subjects %}
                   <option value="{{ s.id }}">{{ s.name }}</option>
                 {% endfor %}
               </select>
+              <p class="mt-1 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Hold Ctrl/Cmd to select multiple</p>
             </div>
             <button type="submit"
               class="w-full rounded-xl bg-[#0B6E4F] py-4 text-sm font-bold text-white shadow-lg shadow-emerald-100 transition hover:bg-[#095c41] active:scale-95">

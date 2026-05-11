@@ -183,24 +183,24 @@
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
               <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase">Target Class</label>
-                <select name="classId" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold transition focus:border-[#0B6E4F] focus:outline-none">
-                  <option value="">— Class —</option>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Target Classes (Multiple)</label>
+                <select name="classId" multiple size="6" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold transition focus:border-[#0B6E4F] focus:outline-none">
                   {% for c in classes %}
                     {% if 'SSS' in c.level.upper() or 'JSS' in c.level.upper() %}
                       <option value="{{ c.id }}">{{ c.name }}</option>
                     {% endif %}
                   {% endfor %}
                 </select>
+                <p class="mt-1 text-[8px] text-slate-400 font-bold uppercase tracking-widest">Hold Ctrl/Cmd</p>
               </div>
               <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase">Subject</label>
-                <select name="subjectId" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold transition focus:border-[#0B6E4F] focus:outline-none">
-                  <option value="">— Subject —</option>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Subjects (Multiple)</label>
+                <select name="subjectId" multiple size="6" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold transition focus:border-[#0B6E4F] focus:outline-none">
                   {% for s in subjects %}
                     <option value="{{ s.id }}">{{ s.name }}</option>
                   {% endfor %}
                 </select>
+                <p class="mt-1 text-[8px] text-slate-400 font-bold uppercase tracking-widest">Hold Ctrl/Cmd</p>
               </div>
             </div>
             <button class="w-full rounded-xl bg-[#0B6E4F] py-3 text-xs font-bold text-white shadow-lg shadow-emerald-50 transition hover:bg-[#095c41]">
