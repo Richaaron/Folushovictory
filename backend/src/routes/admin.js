@@ -4,8 +4,8 @@ import { authRequired, requireRole } from "../middleware/auth.js";
 import { asyncHandler } from "../http.js";
 import { generateTeacherUsername, generateStudentId, generateParentUsername } from "../ids.js";
 import { generateRandomPassword, hashPassword } from "../security.js";
-import { createUser } from "../repos/users.js";
-import { createStudent, listStudentsByClass } from "../repos/students.js";
+import { createUser, deleteUser, getUserByUsername, updateUser } from "../repos/users.js";
+import { createStudent, listStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
 import { createClass, listClasses, updateClass } from "../repos/classes.js";
 import { createSubject, listSubjects } from "../repos/subjects.js";
 import { createAssignment } from "../repos/assignments.js";
@@ -15,7 +15,6 @@ import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark } from "../repos/remarks.js";
 import { getDb } from "../firebase.js";
 import { sendEmail, sendResultReleasedEmail } from "../services/email.js";
-import { getUserByUsername } from "../repos/users.js";
 
 export const adminRouter = express.Router();
 
@@ -118,6 +117,28 @@ adminRouter.post(
   })
 );
 
+adminRouter.put(
+  "/teachers/:username",
+  asyncHandler(async (req, res) => {
+    const { username } = req.params;
+    const { displayName, email } = req.body || {};
+    const updated = await updateUser(username, { 
+      ...(displayName ? { displayName: String(displayName) } : {}),
+      ...(email ? { email: String(email) } : {})
+    });
+    return res.json(updated);
+  })
+);
+
+adminRouter.delete(
+  "/teachers/:username",
+  asyncHandler(async (req, res) => {
+    const { username } = req.params;
+    await deleteUser(username);
+    return res.json({ success: true });
+  })
+);
+
 adminRouter.get(
   "/teachers",
   asyncHandler(async (req, res) => {
@@ -208,6 +229,43 @@ adminRouter.post(
     }
 
     return res.status(201).json({ studentId, parentUsername, parentPassword });
+  })
+);
+
+adminRouter.put(
+  "/students/:studentId",
+  asyncHandler(async (req, res) => {
+    const { studentId } = req.params;
+    const { firstName, lastName, classId, gender, parentName, parentEmail } = req.body || {};
+    const updated = await updateStudent(studentId, {
+      ...(firstName ? { firstName: String(firstName) } : {}),
+      ...(lastName ? { lastName: String(lastName) } : {}),
+      ...(classId ? { classId: String(classId) } : {}),
+      ...(gender ? { gender: String(gender) } : {}),
+      ...(parentName ? { parentName: String(parentName) } : {}),
+      ...(parentEmail ? { parentEmail: String(parentEmail) } : {})
+    });
+    return res.json(updated);
+  })
+);
+
+adminRouter.delete(
+  "/students/:studentId",
+  asyncHandler(async (req, res) => {
+    const { studentId } = req.params;
+    // Find parent user to delete as well
+    const db = getDb();
+    const parentSnap = await db.collection("users")
+      .where("role", "==", Roles.PARENT)
+      .where("studentId", "==", studentId)
+      .get();
+    
+    for (const doc of parentSnap.docs) {
+      await deleteUser(doc.id);
+    }
+
+    await deleteStudent(studentId);
+    return res.json({ success: true });
   })
 );
 

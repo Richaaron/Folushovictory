@@ -117,6 +117,7 @@
                   <th class="px-6 py-4">ID</th>
                   <th class="px-6 py-4">Full Name</th>
                   <th class="px-6 py-4">Gender</th>
+                  <th class="px-6 py-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -129,9 +130,15 @@
                         {{ s.gender or 'N/A' }}
                       </span>
                     </td>
+                    <td class="px-6 py-4 text-right">
+                      <button onclick="deleteStudent('{{ s.studentId }}', '{{ s.firstName }} {{ s.lastName }}')" 
+                        class="text-xs font-bold text-rose-600 hover:text-rose-700 transition active:scale-90">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                      </button>
+                    </td>
                   </tr>
                 {% else %}
-                  <tr><td colspan="3" class="px-6 py-12 text-center text-slate-400">No students enrolled in this class.</td></tr>
+                  <tr><td colspan="4" class="px-6 py-12 text-center text-slate-400">No students enrolled in this class.</td></tr>
                 {% endfor %}
               </tbody>
             </table>
@@ -140,4 +147,16 @@
       </div>
     </div>
   </div>
+
+  <script>
+    function deleteStudent(id, name) {
+      if (!confirm(`Are you sure you want to delete ${name}? This will also remove the associated parent account. This cannot be undone.`)) return;
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/admin/students/delete/${id}`;
+      document.body.appendChild(form);
+      form.submit();
+    }
+  </script>
 {% endblock %}

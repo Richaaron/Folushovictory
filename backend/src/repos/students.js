@@ -26,3 +26,17 @@ export async function getStudentById(studentId) {
   return snap.exists ? { id: snap.id, ...snap.data() } : null;
 }
 
+
+export async function updateStudent(studentId, patch) {
+  const db = getDb();
+  const ref = db.collection("students").doc(studentId);
+  await ref.set({ ...patch, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  const snap = await ref.get();
+  return snap.exists ? { id: snap.id, ...snap.data() } : null;
+}
+
+export async function deleteStudent(studentId) {
+  const db = getDb();
+  await db.collection("students").doc(studentId).delete();
+  return true;
+}

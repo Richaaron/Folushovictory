@@ -27,3 +27,9 @@ export async function updateUser(username, patch) {
   return snap.exists ? { id: snap.id, ...snap.data() } : null;
 }
 
+
+export async function deleteUser(username) {
+  const db = getDb();
+  await db.collection("users").doc(username).delete();
+  return true;
+}

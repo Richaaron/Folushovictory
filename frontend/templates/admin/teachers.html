@@ -62,6 +62,7 @@
               <tr class="border-b border-slate-100 text-xs font-bold uppercase tracking-wider text-slate-400">
                 <th class="px-6 py-4">Username</th>
                 <th class="px-6 py-4">Display Name</th>
+                <th class="px-6 py-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -69,6 +70,12 @@
                 <tr class="transition hover:bg-slate-50/50">
                   <td class="px-6 py-4 font-mono text-xs font-bold text-[#0B6E4F]">{{ t.username }}</td>
                   <td class="px-6 py-4 font-bold text-slate-700">{{ t.displayName }}</td>
+                  <td class="px-6 py-4 text-right">
+                    <button onclick="deleteTeacher('{{ t.username }}')" 
+                      class="text-xs font-bold text-rose-600 hover:text-rose-700 transition active:scale-90">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                  </td>
                 </tr>
               {% else %}
                 <tr><td colspan="2" class="px-6 py-12 text-center text-slate-400">No teachers registered yet.</td></tr>
@@ -211,4 +218,16 @@
       </div>
     </div>
   </div>
+
+  <script>
+    async function deleteTeacher(username) {
+      if (!confirm(`Are you sure you want to permanently delete teacher ${username}? This cannot be undone.`)) return;
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/admin/teachers/delete/${username}`;
+      document.body.appendChild(form);
+      form.submit();
+    }
+  </script>
 {% endblock %}

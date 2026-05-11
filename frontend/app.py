@@ -650,6 +650,30 @@ def parent_report():
     return render_template("parent/report.html", report=report)
 
 
+@app.post("/admin/teachers/delete/<username>")
+@require_portal("ADMIN")
+def admin_delete_teacher(username):
+    token = session.get("token")
+    try:
+        api_request("DELETE", f"/api/admin/teachers/{username}", token=token)
+        flash(f"Teacher {username} deleted successfully")
+    except Exception as e:
+        flash(str(e))
+    return redirect(url_for("admin_teachers"))
+
+
+@app.post("/admin/students/delete/<student_id>")
+@require_portal("ADMIN")
+def admin_delete_student(student_id):
+    token = session.get("token")
+    try:
+        api_request("DELETE", f"/api/admin/students/{student_id}", token=token)
+        flash(f"Student {student_id} and parent account deleted successfully")
+    except Exception as e:
+        flash(str(e))
+    return redirect(url_for("admin_students"))
+
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=True)
