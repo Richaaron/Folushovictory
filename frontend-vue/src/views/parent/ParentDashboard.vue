@@ -99,8 +99,15 @@ onMounted(fetchData)
             </div>
             <h4 class="text-lg font-black text-slate-800 dark:text-slate-200 mb-2">Result is Available</h4>
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-xs mx-auto">The second term academic performance report has been verified and released.</p>
-            <button class="purple-gradient text-white px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-purple-200 dark:shadow-purple-900/30 flex items-center justify-center gap-3 mx-auto transition hover:scale-105 active:scale-95">
-              <Download class="w-4 h-4" /> Download Report Card
+            <button 
+              @click="$router.push({ 
+                name: 'student-report', 
+                params: { studentId: student.studentId },
+                query: { session: '2026/2027', term: '2nd' }
+              })"
+              class="purple-gradient text-white px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-purple-200 dark:shadow-purple-900/30 flex items-center justify-center gap-3 mx-auto transition hover:scale-105 active:scale-95"
+            >
+              <Download class="w-4 h-4" /> View Full Report Card
             </button>
           </div>
         </div>

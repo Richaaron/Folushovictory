@@ -17,6 +17,12 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/report/:studentId',
+      name: 'student-report',
+      component: () => import('../views/common/StudentReportView.vue'),
+      props: true
+    },
+    {
       path: '/admin',
       component: () => import('../layouts/AdminLayout.vue'),
       children: [

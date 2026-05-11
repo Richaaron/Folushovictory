@@ -171,8 +171,15 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
               <td class="px-4 py-4 border-r border-slate-200 dark:border-slate-700">
                 <div class="flex items-center gap-2">
                   <div class="text-[9px] font-black text-slate-400 w-4">{{ student.position }}</div>
-                  <div>
-                    <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase truncate max-w-[120px]">{{ student.lastName }} {{ student.firstName }}</p>
+                  <div 
+                    @click="$router.push({ 
+                      name: 'student-report', 
+                      params: { studentId: student.studentId },
+                      query: { session: selectedSession, term: selectedTerm }
+                    })"
+                    class="cursor-pointer group/name"
+                  >
+                    <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase truncate max-w-[120px] group-hover/name:text-royal-purple transition-colors">{{ student.lastName }} {{ student.firstName }}</p>
                     <p class="text-[8px] font-bold text-slate-400 tracking-widest uppercase">{{ student.studentId }}</p>
                   </div>
                 </div>
