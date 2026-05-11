@@ -91,8 +91,25 @@ const handleAddTeacher = async () => {
       })
     }
     
-    // Note: Subject assignments removed from this modal as per user request.
-    // They can be managed after account creation.
+    // 2. Assign Specific Subjects (Subject Teacher / Dual Role)
+    let targetClassIds: string[] = []
+    if (newTeacher.value.roleType === 'Subject Teacher') {
+      targetClassIds = newTeacher.value.selectedClassIds
+    } else if (newTeacher.value.roleType === 'Dual Role') {
+      const uniqueIds = new Set(newTeacher.value.selectedClassIds)
+      if (newTeacher.value.formClassId) uniqueIds.add(newTeacher.value.formClassId)
+      targetClassIds = Array.from(uniqueIds)
+    } else if (newTeacher.value.roleType === 'Form Teacher') {
+      targetClassIds = newTeacher.value.formClassId ? [newTeacher.value.formClassId] : []
+    }
+
+    if (newTeacher.value.assignedSubjectIds.length > 0 && targetClassIds.length > 0) {
+      await api.post('/api/admin/assignments', {
+        teacherUsername: teacher.username,
+        classIds: targetClassIds,
+        subjectIds: newTeacher.value.assignedSubjectIds
+      })
+    }
 
     showAddModal.value = false
     newTeacher.value = { 
@@ -165,6 +182,16 @@ const filteredClasses = computed(() => {
     return lvl.includes('JSS') || lvl.includes('SSS') || lvl.includes('SS')
   })
   return classes.value.filter(c => String(c.level).toUpperCase().includes(level))
+})
+
+const filteredSubjects = computed(() => {
+  if (newTeacher.value.department === 'Primary/Nursery') {
+    return subjects.value.filter(s => s.level === 'Primary')
+  }
+  
+  const level = newTeacher.value.secondaryLevel
+  if (level === 'Both') return subjects.value.filter(s => s.level === 'JSS' || s.level === 'SSS')
+  return subjects.value.filter(s => s.level === level)
 })
 
 onMounted(fetchTeachers)
@@ -331,6 +358,30 @@ onMounted(fetchTeachers)
                 <label v-for="cls in filteredClasses" :key="cls.id" class="flex items-center gap-3 cursor-pointer group">
                   <input type="checkbox" :value="cls.id" v-model="newTeacher.selectedClassIds" class="w-4 h-4 rounded border-slate-300 text-royal-purple focus:ring-royal-purple" />
                   <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-royal-purple transition-colors">{{ cls.name }}</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Automated Subject Assignment -->
+            <div v-if="(newTeacher.formClassId || newTeacher.selectedClassIds.length > 0) && newTeacher.roleType !== 'Form Teacher'" class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assigned Subjects (Automated Filtering)</label>
+              <div v-if="newTeacher.department === 'Primary/Nursery'" class="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <p class="text-[10px] font-bold text-royal-purple uppercase tracking-widest">Master Class Role</p>
+                <p class="text-[9px] text-slate-400 mt-1 uppercase font-medium italic">* All Primary subjects automatically assigned.</p>
+                <div class="mt-4 grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                   <div v-for="sub in filteredSubjects" :key="sub.id" class="flex items-center gap-2">
+                     <div class="w-1 h-1 rounded-full bg-emerald-500"></div>
+                     <span class="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tight">{{ sub.name }}</span>
+                   </div>
+                </div>
+              </div>
+              <div v-else class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-inner">
+                <label v-for="sub in filteredSubjects" :key="sub.id" class="flex items-center gap-3 cursor-pointer group p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all">
+                  <input type="checkbox" :value="sub.id" v-model="newTeacher.assignedSubjectIds" class="w-4 h-4 rounded border-slate-300 text-royal-purple focus:ring-royal-purple" />
+                  <div class="flex flex-col">
+                    <span class="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest group-hover:text-royal-purple transition-colors">{{ sub.name }}</span>
+                    <span class="text-[8px] font-bold text-slate-400 uppercase">{{ sub.level }}</span>
+                  </div>
                 </label>
               </div>
             </div>
