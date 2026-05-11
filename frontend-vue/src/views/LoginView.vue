@@ -55,7 +55,7 @@ const handleLogin = async () => {
     <div class="max-w-md w-full space-y-8 fade-in">
       <div class="text-center">
         <div class="mx-auto h-20 w-20 bg-white dark:bg-slate-900 rounded-2xl p-3 shadow-xl border border-purple-50 dark:border-purple-900/30 flex items-center justify-center mb-6">
-          <img src="/fvs_v2_final.png" alt="Logo" class="object-contain w-full h-full" />
+          <img src="/logo.png" alt="Logo" class="object-contain w-full h-full" />
         </div>
         <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           {{ portalTitle }} <span class="text-royal-purple">Login</span>
