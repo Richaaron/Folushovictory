@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { 
-  BarChart3, 
-  Search, 
   Download, 
   FileSpreadsheet, 
-  Filter,
   Loader2,
-  ChevronRight,
   AlertCircle,
   Printer,
   TrendingUp
@@ -140,8 +136,6 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
 
       <div v-else-if="broadsheet" class="overflow-x-auto print:overflow-visible">
         <table class="w-full border-collapse">
-          <thead>
-            <tr class="bg-slate-50 dark:bg-slate-800/50">
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800/50">
               <th rowspan="2" class="px-4 py-6 border-b border-r border-slate-200 dark:border-slate-700 text-[9px] font-black uppercase tracking-widest text-slate-400 min-w-[180px] text-left">Student Profile</th>

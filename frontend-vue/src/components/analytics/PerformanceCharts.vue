@@ -101,7 +101,7 @@ const chartOptions = {
     legend: {
       display: true,
       labels: {
-        font: { family: 'Inter', weight: 'bold', size: 10 },
+        font: { family: 'Inter', weight: 'bold' as const, size: 10 },
         color: '#64748b'
       }
     }

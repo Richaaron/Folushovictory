@@ -13,7 +13,6 @@ import api from '../../services/api'
 const route = useRoute()
 const router = useRouter()
 
-const assignmentId = route.params.id as string
 const classId = route.query.classId as string
 const subjectId = route.query.subjectId as string
 const subjectName = route.query.subjectName as string
@@ -55,7 +54,7 @@ const computeTotal = (st: any) => {
 // Auto-generate positions locally for preview
 const studentsWithPositions = computed(() => {
   const sorted = [...students.value].sort((a, b) => computeTotal(b) - computeTotal(a))
-  let lastTotal = null
+  let lastTotal: number | null = null
   let lastPos = 0
   
   const posMap = new Map()
