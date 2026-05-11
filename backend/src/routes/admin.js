@@ -195,11 +195,7 @@ adminRouter.post(
 
     if (parentEmail) {
       try {
-        const portalUrl = process.env.FRONTEND_URL || "https://folushovictoryschool.onrender.com";
-        await sendEmail({
-          to: parentEmail,
-          subject: "FVS Parent Portal: Access Your Child's Records",
-          html: `
+        const parentEmailHtml = `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
               <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
                 <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
@@ -228,6 +224,26 @@ adminRouter.post(
                 </p>
               </div>
             </div>
+          `;
+        const portalUrl = process.env.FRONTEND_URL || "https://folushovictoryschool.onrender.com";
+        await sendEmail({
+          to: parentEmail,
+          subject: "FVS Parent Portal: Access Your Child's Records",
+          html: parentEmailHtml
+        });
+
+        // Also send a copy to the school email
+        await sendEmail({
+          to: "folushovictoryschool@gmail.com",
+          subject: `ADMIN COPY: Parent Access Created - ${parentName}`,
+          html: `
+            <h3>Admin Copy: Parent Account Created</h3>
+            <p><strong>Parent Name:</strong> ${parentName}</p>
+            <p><strong>Student:</strong> ${firstName} ${lastName}</p>
+            <p><strong>Username:</strong> ${parentUsername}</p>
+            <p><strong>Password:</strong> ${parentPassword}</p>
+            <hr/>
+            ${parentEmailHtml}
           `
         });
       } catch (err) {
