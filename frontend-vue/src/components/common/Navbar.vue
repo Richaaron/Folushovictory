@@ -40,7 +40,7 @@ const handleLogout = () => {
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 relative z-10">
       <router-link to="/" class="flex items-center gap-3 transition hover:scale-105 active:scale-95">
         <div class="rounded-xl bg-white p-1.5 shadow-xl border border-white/30">
-          <img src="/fvs_v2_final.png" alt="Logo" class="h-10 w-10 object-contain" />
+          <img src="/logo.png" alt="Logo" class="h-10 w-10 object-contain" />
         </div>
         <div class="hidden sm:block text-lg font-black tracking-widest text-white uppercase">
           FOLUSHO <span class="text-royal-gold">VICTORY</span>

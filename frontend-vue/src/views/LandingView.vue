@@ -15,7 +15,7 @@ const navigateToLogin = (portal: string) => {
       <div class="grid items-center gap-16 lg:grid-cols-2">
         <div class="fade-in">
           <div class="mb-10 flex h-20 w-20 items-center justify-center rounded-2xl bg-white dark:bg-slate-900 p-3 shadow-2xl shadow-purple-200 dark:shadow-purple-900/20 border border-purple-50 dark:border-purple-900/30">
-            <img src="/fvs_v2_final.png" alt="School Logo" class="object-contain w-full h-full" />
+            <img src="/logo.png" alt="School Logo" class="object-contain w-full h-full" />
           </div>
           <h1 class="text-5xl font-black tracking-tight text-slate-900 dark:text-white sm:text-7xl leading-[1.1]">
             Excellence <br/>Defined by <span class="text-royal-purple">Legacy</span>.
