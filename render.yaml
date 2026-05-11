@@ -15,21 +15,3 @@ services:
         value: https://folushovictoryschool.onrender.com
       - fromGroup: fvs-secrets
 
-  # 2. Vue 3 Frontend (Static Site)
-  - type: static
-    name: folushovictoryschool
-    rootDir: frontend-vue
-    plan: free
-    buildCommand: npm install && npm run build
-    publishDir: dist
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: no-cache
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_URL
-        value: https://folushovictory-backend.onrender.com
