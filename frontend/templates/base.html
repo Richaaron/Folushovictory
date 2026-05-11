@@ -11,7 +11,7 @@
         originalWarn.apply(console, args);
       };
     </script>
-    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+    <link rel="icon" href="{{ url_for('static', filename='fvs_official_logo.png') }}">
     <title>{{ title or "Folusho Victory Schools" }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -104,8 +104,8 @@
       </div>
       <div class="mx-auto flex max-w-6xl items-center justify-between px-4 relative z-10">
         <a href="/" class="flex items-center gap-4 transition hover:scale-105 active:scale-95">
-          <div class="rounded-2xl bg-white/20 p-2 backdrop-blur-md border border-white/30 shadow-inner">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="h-12 w-12 object-contain" />
+          <div class="rounded-2xl bg-white p-2 shadow-xl border border-white/30">
+            <img src="{{ url_for('static', filename='fvs_official_logo.png') }}" alt="Logo" class="h-12 w-12 object-contain" />
           </div>
           <div class="text-xl font-black tracking-widest text-white">FOLUSHO <span class="text-royal-gold">VICTORY</span></div>
         </a>
