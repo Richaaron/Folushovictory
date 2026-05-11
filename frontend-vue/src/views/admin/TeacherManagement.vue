@@ -91,10 +91,19 @@ const handleAddTeacher = async () => {
       })
     }
     
-    // 2. Assign Specific Subjects (Subject Teacher Role)
-    const targetClassIds = newTeacher.value.roleType === 'Subject Teacher' 
-      ? newTeacher.value.selectedClassIds 
-      : (newTeacher.value.formClassId ? [newTeacher.value.formClassId] : [])
+    // 2. Assign Specific Subjects (Subject Teacher / Dual Role)
+    let targetClassIds: string[] = []
+    if (newTeacher.value.roleType === 'Subject Teacher') {
+      targetClassIds = newTeacher.value.selectedClassIds
+    } else if (newTeacher.value.roleType === 'Dual Role') {
+      // For Dual Role, we combine the form class and any other teaching classes selected
+      const uniqueIds = new Set(newTeacher.value.selectedClassIds)
+      if (newTeacher.value.formClassId) uniqueIds.add(newTeacher.value.formClassId)
+      targetClassIds = Array.from(uniqueIds)
+    } else if (newTeacher.value.roleType === 'Form Teacher') {
+      // Form teachers usually teach all subjects in their class (Primary) or just that one class
+      targetClassIds = newTeacher.value.formClassId ? [newTeacher.value.formClassId] : []
+    }
 
     if (newTeacher.value.assignedSubjectIds.length > 0 && targetClassIds.length > 0) {
       await api.post('/api/admin/assignments', {
@@ -178,7 +187,7 @@ const filteredSubjects = computed(() => {
     return subjects.value.filter(s => s.level === 'Primary')
   }
   
-  if (newTeacher.value.roleType === 'Subject Teacher') {
+  if (newTeacher.value.roleType === 'Subject Teacher' || newTeacher.value.roleType === 'Dual Role') {
     const level = newTeacher.value.secondaryLevel
     if (level === 'Both') return subjects.value.filter(s => s.level === 'JSS' || s.level === 'SSS')
     return subjects.value.filter(s => s.level === level)
@@ -347,9 +356,9 @@ onMounted(fetchTeachers)
               </select>
             </div>
 
-            <!-- Level Selection (for Subject Teacher only) -->
-            <div v-if="newTeacher.department === 'Secondary' && newTeacher.roleType === 'Subject Teacher'" class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Target Levels</label>
+            <!-- Level Selection (for Subject/Dual Teacher) -->
+            <div v-if="newTeacher.department === 'Secondary' && (newTeacher.roleType === 'Subject Teacher' || newTeacher.roleType === 'Dual Role')" class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Teaching Levels (Subjects)</label>
               <div class="grid grid-cols-3 gap-2">
                 <button 
                   v-for="lvl in ['JSS', 'SSS', 'Both']" 
@@ -361,8 +370,8 @@ onMounted(fetchTeachers)
               </div>
             </div>
 
-            <!-- Multi-Class Selection (for Subject Teacher only) -->
-            <div v-if="newTeacher.roleType === 'Subject Teacher' && newTeacher.department === 'Secondary'" class="space-y-2">
+            <!-- Multi-Class Selection (for Subject/Dual Teacher) -->
+            <div v-if="newTeacher.department === 'Secondary' && (newTeacher.roleType === 'Subject Teacher' || newTeacher.roleType === 'Dual Role')" class="space-y-2">
               <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Teaching Classes</label>
               <div class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <label v-for="cls in filteredClasses" :key="cls.id" class="flex items-center gap-3 cursor-pointer group">
