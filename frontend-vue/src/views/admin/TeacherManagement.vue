@@ -16,6 +16,8 @@ const loading = ref(true)
 const creating = ref(false)
 const searchQuery = ref('')
 const showAddModal = ref(false)
+const showEditModal = ref(false)
+const editingTeacher = ref<any>(null)
 const newTeacher = ref({ 
   displayName: '', 
   email: '',
@@ -95,6 +97,35 @@ const handleAddTeacher = async () => {
   }
 }
 
+const handleDelete = async (username: string) => {
+  if (!confirm(`Are you sure you want to delete staff account: ${username}? This action cannot be undone.`)) return
+  try {
+    await api.delete(`/api/admin/teachers/${username}`)
+    await fetchTeachers()
+  } catch (err) {
+    console.error('Error deleting teacher:', err)
+  }
+}
+
+const openEditModal = (teacher: any) => {
+  editingTeacher.value = { ...teacher }
+  showEditModal.value = true
+}
+
+const handleUpdateTeacher = async () => {
+  if (!editingTeacher.value?.displayName) return
+  try {
+    await api.put(`/api/admin/teachers/${editingTeacher.value.username}`, {
+      displayName: editingTeacher.value.displayName,
+      email: editingTeacher.value.email
+    })
+    showEditModal.value = false
+    await fetchTeachers()
+  } catch (err) {
+    console.error('Error updating teacher:', err)
+  }
+}
+
 const filteredTeachers = computed(() => {
   if (!searchQuery.value) return teachers.value
   const query = searchQuery.value.toLowerCase()
@@ -164,10 +195,16 @@ onMounted(fetchTeachers)
               </td>
               <td class="px-8 py-6 text-right">
                 <div class="flex items-center justify-end gap-2">
-                  <button class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-royal-purple transition-colors">
+                  <button 
+                    @click="openEditModal(teacher)"
+                    class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-royal-purple transition-colors"
+                  >
                     <Edit2 class="w-4 h-4" />
                   </button>
-                  <button class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors">
+                  <button 
+                    @click="handleDelete(teacher.username)"
+                    class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors"
+                  >
                     <Trash2 class="w-4 h-4" />
                   </button>
                 </div>
@@ -227,6 +264,38 @@ onMounted(fetchTeachers)
               <button @click="handleAddTeacher" :disabled="creating" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 disabled:opacity-50">
                 {{ creating ? 'Creating...' : 'Create Account' }}
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <!-- Edit Teacher Modal -->
+    <transition name="fade">
+      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showEditModal = false"></div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-lg p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800">
+          <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8 flex items-center gap-3">
+            <Edit2 class="w-6 h-6 text-royal-purple" /> Edit Staff Info
+          </h2>
+          
+          <div class="space-y-6" v-if="editingTeacher">
+            <div class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Staff Username</label>
+              <input :value="editingTeacher.username" disabled type="text" class="w-full px-6 py-4 bg-slate-100 dark:bg-slate-800/50 border-none rounded-2xl text-sm font-bold text-slate-500 outline-none cursor-not-allowed" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Display Name</label>
+              <input v-model="editingTeacher.displayName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+            </div>
+            
+            <div class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+              <input v-model="editingTeacher.email" type="email" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+            </div>
+
+            <div class="pt-6 flex gap-4">
+              <button @click="showEditModal = false" class="flex-grow py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
+              <button @click="handleUpdateTeacher" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30">Save Changes</button>
             </div>
           </div>
         </div>

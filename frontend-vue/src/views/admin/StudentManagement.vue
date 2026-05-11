@@ -8,17 +8,19 @@ import {
   MoreVertical,
   GraduationCap,
   Calendar,
-  FileText,
-  Loader2
+  Loader2,
+  Trash2,
+  Edit2
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
 const students = ref<any[]>([])
 const classes = ref<any[]>([])
 const loading = ref(true)
-const showAddModal = ref(false)
 const selectedClassId = ref('')
 const searchQuery = ref('')
+const showEditModal = ref(false)
+const editingStudent = ref<any>(null)
 
 const fetchClasses = async () => {
   try {
@@ -56,13 +58,29 @@ const newStudent = ref({
   classId: ''
 })
 
-const handleAddStudent = async () => {
+const handleDelete = async (id: string) => {
+  if (!confirm(`Are you sure you want to delete this student record? This action cannot be undone.`)) return
   try {
-    await api.post('/api/admin/students', newStudent.value)
-    showAddModal.value = false
+    await api.delete(`/api/admin/students/${id}`)
     await fetchStudents()
   } catch (err) {
-    console.error('Error adding student:', err)
+    console.error('Error deleting student:', err)
+  }
+}
+
+const openEditModal = (student: any) => {
+  editingStudent.value = { ...student }
+  showEditModal.value = true
+}
+
+const handleUpdateStudent = async () => {
+  if (!editingStudent.value?.firstName || !editingStudent.value?.lastName) return
+  try {
+    await api.put(`/api/admin/students/${editingStudent.value.studentId}`, editingStudent.value)
+    showEditModal.value = false
+    await fetchStudents()
+  } catch (err) {
+    console.error('Error updating student:', err)
   }
 }
 
@@ -181,9 +199,20 @@ onMounted(async () => {
                 <p class="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-1">Verified Parent</p>
               </td>
               <td class="px-8 py-6 text-right">
-                <button class="p-2 rounded-xl text-slate-400 hover:text-royal-purple hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                  <MoreVertical class="w-5 h-5" />
-                </button>
+                <div class="flex items-center justify-end gap-2">
+                  <button 
+                    @click="openEditModal(student)"
+                    class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-royal-purple transition-colors"
+                  >
+                    <Edit2 class="w-4 h-4" />
+                  </button>
+                  <button 
+                    @click="handleDelete(student.studentId)"
+                    class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 class="w-4 h-4" />
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -246,6 +275,61 @@ onMounted(async () => {
             <div class="pt-6 flex gap-4">
               <button @click="showAddModal = false" class="flex-grow py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
               <button @click="handleAddStudent" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30">Enroll Student</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <!-- Edit Student Modal -->
+    <transition name="fade">
+      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showEditModal = false"></div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-xl p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800">
+          <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8 flex items-center gap-3">
+            <Edit2 class="w-6 h-6 text-royal-purple" /> Edit Student Info
+          </h2>
+          
+          <div class="space-y-6" v-if="editingStudent">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">First Name</label>
+                <input v-model="editingStudent.firstName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Name</label>
+                <input v-model="editingStudent.lastName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
+                <select v-model="editingStudent.gender" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none">
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Class</label>
+                <select v-model="editingStudent.classId" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none">
+                  <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Name</label>
+                <input v-model="editingStudent.parentName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email</label>
+                <input v-model="editingStudent.parentEmail" type="email" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+              </div>
+            </div>
+
+            <div class="pt-6 flex gap-4">
+              <button @click="showEditModal = false" class="flex-grow py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
+              <button @click="handleUpdateStudent" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30">Save Changes</button>
             </div>
           </div>
         </div>
