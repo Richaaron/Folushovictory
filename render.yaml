@@ -7,6 +7,7 @@ services:
     plan: free
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - key: PORT
         value: 4000
@@ -20,6 +21,7 @@ services:
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
+    healthCheckPath: /health
     envVars:
       - key: BACKEND_URL
         value: https://folushovictory-backend.onrender.com
