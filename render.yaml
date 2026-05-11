@@ -22,8 +22,5 @@ services:
     startCommand: gunicorn app:app
     envVars:
       - key: BACKEND_URL
-        fromService:
-          name: folushovictory-backend
-          type: web
-          property: host
+        value: http://folushovictory-backend
       - fromGroup: fvs-secrets
