@@ -23,7 +23,9 @@ const newTeacher = ref({
   email: '',
   department: 'Primary/Nursery', // 'Primary/Nursery' or 'Secondary'
   roleType: 'Subject Teacher', // 'Form Teacher', 'Subject Teacher', or 'Dual Role'
-  formClassId: '',
+  secondaryLevel: 'Both', // 'JSS', 'SSS', or 'Both'
+  formClassId: '', // For Form/Dual roles
+  selectedClassIds: [] as string[], // For Subject/Dual roles
   assignedSubjectIds: [] as string[]
 })
 
@@ -58,12 +60,19 @@ watch(() => newTeacher.value.formClassId, (newId) => {
 // Reset fields on department change
 watch(() => newTeacher.value.department, (newDept) => {
   newTeacher.value.formClassId = ''
+  newTeacher.value.selectedClassIds = []
   newTeacher.value.assignedSubjectIds = []
   if (newDept === 'Primary/Nursery') {
-    newTeacher.value.roleType = 'Dual Role' // Primary teachers are usually both
+    newTeacher.value.roleType = 'Dual Role'
   } else {
     newTeacher.value.roleType = 'Subject Teacher'
+    newTeacher.value.secondaryLevel = 'Both'
   }
+})
+
+// Reset subjects on secondary level change
+watch(() => newTeacher.value.secondaryLevel, () => {
+  newTeacher.value.assignedSubjectIds = []
 })
 
 const handleAddTeacher = async () => {
@@ -83,11 +92,14 @@ const handleAddTeacher = async () => {
     }
     
     // 2. Assign Specific Subjects (Subject Teacher Role)
-    if ((newTeacher.value.roleType === 'Subject Teacher' || newTeacher.value.roleType === 'Dual Role') && 
-        newTeacher.value.assignedSubjectIds.length > 0 && newTeacher.value.formClassId) {
+    const targetClassIds = newTeacher.value.roleType === 'Subject Teacher' 
+      ? newTeacher.value.selectedClassIds 
+      : (newTeacher.value.formClassId ? [newTeacher.value.formClassId] : [])
+
+    if (newTeacher.value.assignedSubjectIds.length > 0 && targetClassIds.length > 0) {
       await api.post('/api/admin/assignments', {
         teacherUsername: teacher.username,
-        classIds: [newTeacher.value.formClassId],
+        classIds: targetClassIds,
         subjectIds: newTeacher.value.assignedSubjectIds
       })
     }
@@ -98,7 +110,9 @@ const handleAddTeacher = async () => {
       email: '', 
       department: 'Primary/Nursery',
       roleType: 'Subject Teacher',
+      secondaryLevel: 'Both',
       formClassId: '', 
+      selectedClassIds: [],
       assignedSubjectIds: [] 
     }
     await fetchTeachers()
@@ -163,9 +177,31 @@ const filteredSubjects = computed(() => {
   if (newTeacher.value.department === 'Primary/Nursery') {
     return subjects.value.filter(s => s.level === 'Primary')
   }
+  
+  if (newTeacher.value.roleType === 'Subject Teacher') {
+    const level = newTeacher.value.secondaryLevel
+    if (level === 'Both') return subjects.value.filter(s => s.level === 'JSS' || s.level === 'SSS')
+    return subjects.value.filter(s => s.level === level)
+  }
+
   const level = selectedClassLevel.value
   if (!level) return []
   return subjects.value.filter(s => s.level === level)
+})
+
+const filteredClasses = computed(() => {
+  if (newTeacher.value.department === 'Primary/Nursery') {
+    return classes.value.filter(c => {
+      const lvl = String(c.level).toUpperCase()
+      return lvl.includes('PRY') || lvl.includes('NUR') || lvl.includes('PRE')
+    })
+  }
+  const level = newTeacher.value.secondaryLevel
+  if (level === 'Both') return classes.value.filter(c => {
+    const lvl = String(c.level).toUpperCase()
+    return lvl.includes('JSS') || lvl.includes('SSS') || lvl.includes('SS')
+  })
+  return classes.value.filter(c => String(c.level).toUpperCase().includes(level))
 })
 
 onMounted(fetchTeachers)
@@ -303,18 +339,41 @@ onMounted(fetchTeachers)
             </div>
 
             <!-- Class Assignment -->
-            <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                {{ newTeacher.roleType === 'Subject Teacher' ? 'Teaching Class' : 'Assigned Class (Form Role)' }}
-              </label>
+            <div v-if="newTeacher.roleType === 'Form Teacher' || newTeacher.roleType === 'Dual Role'" class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assigned Class (Form Role)</label>
               <select v-model="newTeacher.formClassId" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-royal-purple outline-none">
                 <option value="">Select a class...</option>
-                <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+                <option v-for="cls in filteredClasses" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
               </select>
             </div>
 
+            <!-- Level Selection (for Subject Teacher only) -->
+            <div v-if="newTeacher.department === 'Secondary' && newTeacher.roleType === 'Subject Teacher'" class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Target Levels</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button 
+                  v-for="lvl in ['JSS', 'SSS', 'Both']" 
+                  :key="lvl"
+                  @click="newTeacher.secondaryLevel = lvl"
+                  :class="newTeacher.secondaryLevel === lvl ? 'bg-amber-500 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'"
+                  class="py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                >{{ lvl }}</button>
+              </div>
+            </div>
+
+            <!-- Multi-Class Selection (for Subject Teacher only) -->
+            <div v-if="newTeacher.roleType === 'Subject Teacher' && newTeacher.department === 'Secondary'" class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Teaching Classes</label>
+              <div class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <label v-for="cls in filteredClasses" :key="cls.id" class="flex items-center gap-3 cursor-pointer group">
+                  <input type="checkbox" :value="cls.id" v-model="newTeacher.selectedClassIds" class="w-4 h-4 rounded border-slate-300 text-royal-purple focus:ring-royal-purple" />
+                  <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-royal-purple transition-colors">{{ cls.name }}</span>
+                </label>
+              </div>
+            </div>
+
             <!-- Subject Assignment -->
-            <div v-if="newTeacher.formClassId && newTeacher.roleType !== 'Form Teacher'" class="space-y-2">
+            <div v-if="(newTeacher.formClassId || newTeacher.selectedClassIds.length > 0) && newTeacher.roleType !== 'Form Teacher'" class="space-y-2">
               <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assigned Subjects</label>
               <div v-if="newTeacher.department === 'Primary/Nursery'" class="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <p class="text-[10px] font-bold text-royal-purple uppercase tracking-widest">Master Class Role</p>
@@ -329,8 +388,8 @@ onMounted(fetchTeachers)
                   </div>
                 </label>
               </div>
-              <div v-if="newTeacher.department === 'Secondary' && !newTeacher.formClassId" class="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20">
-                <p class="text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest text-center italic">* Please select a class first to load relevant subjects (JSS/SSS).</p>
+              <div v-if="newTeacher.department === 'Secondary' && !newTeacher.formClassId && newTeacher.selectedClassIds.length === 0" class="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20">
+                <p class="text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest text-center italic">* Please select teaching class(es) first.</p>
               </div>
             </div>
 
