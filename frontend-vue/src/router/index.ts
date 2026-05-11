@@ -39,6 +39,16 @@ const router = createRouter({
           path: 'students',
           name: 'admin-students',
           component: () => import('../views/admin/StudentManagement.vue')
+        },
+        {
+          path: 'broadsheet',
+          name: 'admin-broadsheet',
+          component: () => import('../views/admin/MasterBroadsheet.vue')
+        },
+        {
+          path: '/settings',
+          name: 'settings',
+          component: () => import('../views/SettingsView.vue')
         }
       ]
     },
