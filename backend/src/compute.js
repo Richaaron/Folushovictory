@@ -85,7 +85,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
       lastName: st.lastName,
       perSubject,
       total: sum,
-      average: isSSS ? null : average
+      average: average
     };
   });
 
@@ -106,14 +106,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
     });
   }
 
-  // Step 3: Compute Overall Positions (Pre-Nursery to JSS 3)
-  if (isSSS) {
-    return {
-      subjects,
-      students: rows.map(r => ({ ...r, position: null }))
-    };
-  }
-
+  // Step 3: Compute Overall Positions
   const ranked = computePositions(rows);
   const byId = new Map(ranked.map((r) => [r.studentId, r]));
   return {
