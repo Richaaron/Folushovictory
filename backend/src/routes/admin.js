@@ -98,7 +98,7 @@ adminRouter.post(
                 </div>
 
                 <div style="text-align: center; margin: 32px 0;">
-                  <a href="${portalUrl}/teacher/login" 
+                  <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/teacher" 
                      style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                      Access Staff Portal
                   </a>
@@ -215,7 +215,7 @@ adminRouter.post(
                 </div>
 
                 <div style="text-align: center; margin: 32px 0;">
-                  <a href="${portalUrl}/parent/login" 
+                  <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/parent" 
                      style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                      Login to Parent Portal
                   </a>
