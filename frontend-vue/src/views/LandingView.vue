@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ArrowRight, ShieldCheck, GraduationCap, Users } from 'lucide-vue-next'
+import { ArrowRight, ShieldCheck } from 'lucide-vue-next'
 
 const router = useRouter()
 

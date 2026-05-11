@@ -8,7 +8,6 @@ import {
   GraduationCap, 
   BarChart3, 
   Settings,
-  Menu,
   ChevronRight
 } from 'lucide-vue-next'
 

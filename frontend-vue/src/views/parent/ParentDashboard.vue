@@ -13,7 +13,6 @@ import {
 import api from '../../services/api'
 
 const student = ref<any>(null)
-const report = ref<any>(null)
 const recentScores = ref<any[]>([])
 const loading = ref(true)
 
