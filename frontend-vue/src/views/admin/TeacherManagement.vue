@@ -148,6 +148,26 @@ const filteredTeachers = computed(() => {
   )
 })
 
+const selectedClassLevel = computed(() => {
+  if (!newTeacher.value.formClassId) return null
+  const cls = classes.value.find(c => c.id === newTeacher.value.formClassId)
+  if (!cls) return null
+  const level = String(cls.level).toUpperCase()
+  if (level.includes('PRY') || level.includes('NUR') || level.includes('PRE')) return 'Primary'
+  if (level.includes('JSS')) return 'JSS'
+  if (level.includes('SSS') || level.includes('SS')) return 'SSS'
+  return null
+})
+
+const filteredSubjects = computed(() => {
+  if (newTeacher.value.department === 'Primary/Nursery') {
+    return subjects.value.filter(s => s.level === 'Primary')
+  }
+  const level = selectedClassLevel.value
+  if (!level) return []
+  return subjects.value.filter(s => s.level === level)
+})
+
 onMounted(fetchTeachers)
 </script>
 
@@ -300,11 +320,17 @@ onMounted(fetchTeachers)
                 <p class="text-[10px] font-bold text-royal-purple uppercase tracking-widest">Master Class Role</p>
                 <p class="text-[9px] text-slate-400 mt-1 uppercase font-medium italic">* All subjects automatically assigned to Primary faculty.</p>
               </div>
-              <div v-else class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <label v-for="sub in subjects" :key="sub.id" class="flex items-center gap-3 cursor-pointer group">
+              <div v-else class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <label v-for="sub in filteredSubjects" :key="sub.id" class="flex items-center gap-3 cursor-pointer group p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all">
                   <input type="checkbox" :value="sub.id" v-model="newTeacher.assignedSubjectIds" class="w-4 h-4 rounded border-slate-300 text-royal-purple focus:ring-royal-purple" />
-                  <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-royal-purple transition-colors">{{ sub.name }}</span>
+                  <div class="flex flex-col">
+                    <span class="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest group-hover:text-royal-purple transition-colors">{{ sub.name }}</span>
+                    <span class="text-[8px] font-bold text-slate-400 uppercase">{{ sub.level }}</span>
+                  </div>
                 </label>
+              </div>
+              <div v-if="newTeacher.department === 'Secondary' && !newTeacher.formClassId" class="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20">
+                <p class="text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest text-center italic">* Please select a class first to load relevant subjects (JSS/SSS).</p>
               </div>
             </div>
 
