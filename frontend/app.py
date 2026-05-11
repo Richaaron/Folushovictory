@@ -110,9 +110,16 @@ def admin_teachers():
         else:
             flash("Display name is required")
 
-    teachers = api_request("GET", "/api/admin/teachers", token=token).get("teachers", [])
-    classes = api_request("GET", "/api/admin/classes", token=token).get("classes", [])
-    subjects = api_request("GET", "/api/admin/subjects", token=token).get("subjects", [])
+    teachers = []
+    classes = []
+    subjects = []
+    try:
+        teachers = api_request("GET", "/api/admin/teachers", token=token).get("teachers", [])
+        classes = api_request("GET", "/api/admin/classes", token=token).get("classes", [])
+        subjects = api_request("GET", "/api/admin/subjects", token=token).get("subjects", [])
+    except Exception as e:
+        flash(f"Data retrieval error: {str(e)}")
+
     return render_template("admin/teachers.html", teachers=teachers, classes=classes, subjects=subjects, created=created)
 
 
@@ -131,9 +138,16 @@ def admin_classes():
         except Exception as e:
             flash(str(e))
 
-    classes = api_request("GET", "/api/admin/classes", token=token).get("classes", [])
-    subjects = api_request("GET", "/api/admin/subjects", token=token).get("subjects", [])
-    teachers = api_request("GET", "/api/admin/teachers", token=token).get("teachers", [])
+    classes = []
+    subjects = []
+    teachers = []
+    try:
+        classes = api_request("GET", "/api/admin/classes", token=token).get("classes", [])
+        subjects = api_request("GET", "/api/admin/subjects", token=token).get("subjects", [])
+        teachers = api_request("GET", "/api/admin/teachers", token=token).get("teachers", [])
+    except Exception as e:
+        flash(f"Data retrieval error: {str(e)}")
+
     return render_template("admin/classes.html", classes=classes, subjects=subjects, teachers=teachers)
 
 
@@ -264,9 +278,16 @@ def admin_assignments():
         except Exception as e:
             flash(str(e))
 
-    classes = api_request("GET", "/api/admin/classes", token=token).get("classes", [])
-    subjects = api_request("GET", "/api/admin/subjects", token=token).get("subjects", [])
-    teachers = api_request("GET", "/api/admin/teachers", token=token).get("teachers", [])
+    classes = []
+    subjects = []
+    teachers = []
+    try:
+        classes = api_request("GET", "/api/admin/classes", token=token).get("classes", [])
+        subjects = api_request("GET", "/api/admin/subjects", token=token).get("subjects", [])
+        teachers = api_request("GET", "/api/admin/teachers", token=token).get("teachers", [])
+    except Exception as e:
+        flash(f"Data retrieval error: {str(e)}")
+        
     return render_template("admin/assignments.html", classes=classes, subjects=subjects, teachers=teachers)
 
 
