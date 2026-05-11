@@ -5,7 +5,6 @@ import {
   UserPlus, 
   Filter, 
   Download, 
-  MoreVertical,
   GraduationCap,
   Calendar,
   Loader2,
@@ -17,6 +16,7 @@ import api from '../../services/api'
 const students = ref<any[]>([])
 const classes = ref<any[]>([])
 const loading = ref(true)
+const showAddModal = ref(false)
 const selectedClassId = ref('')
 const searchQuery = ref('')
 const showEditModal = ref(false)
@@ -57,6 +57,16 @@ const newStudent = ref({
   parentEmail: '',
   classId: ''
 })
+
+const handleAddStudent = async () => {
+  try {
+    await api.post('/api/admin/students', newStudent.value)
+    showAddModal.value = false
+    await fetchStudents()
+  } catch (err) {
+    console.error('Error adding student:', err)
+  }
+}
 
 const handleDelete = async (id: string) => {
   if (!confirm(`Are you sure you want to delete this student record? This action cannot be undone.`)) return
@@ -279,6 +289,8 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+    </transition>
+
     <!-- Edit Student Modal -->
     <transition name="fade">
       <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">

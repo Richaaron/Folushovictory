@@ -268,6 +268,8 @@ onMounted(fetchTeachers)
           </div>
         </div>
       </div>
+    </transition>
+
     <!-- Edit Teacher Modal -->
     <transition name="fade">
       <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
