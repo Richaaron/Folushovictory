@@ -52,6 +52,7 @@ const newStudent = ref({
   lastName: '',
   gender: 'Male',
   parentName: '',
+  parentEmail: '',
   classId: ''
 })
 
@@ -231,9 +232,15 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Full Name</label>
-              <input v-model="newStudent.parentName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="e.g. Chief Adeleke" />
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
+                <input v-model="newStudent.parentName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="e.g. Chief Adeleke" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email <span class="text-slate-500 lowercase">(Optional)</span></label>
+                <input v-model="newStudent.parentEmail" type="email" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="guardian@example.com" />
+              </div>
             </div>
 
             <div class="pt-6 flex gap-4">
