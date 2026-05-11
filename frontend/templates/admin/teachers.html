@@ -71,10 +71,16 @@
                   <td class="px-6 py-4 font-mono text-xs font-bold text-[#0B6E4F]">{{ t.username }}</td>
                   <td class="px-6 py-4 font-bold text-slate-700">{{ t.displayName }}</td>
                   <td class="px-6 py-4 text-right">
-                    <button onclick="deleteTeacher('{{ t.username }}')" 
-                      class="text-xs font-bold text-rose-600 hover:text-rose-700 transition active:scale-90">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                    </button>
+                    <div class="flex items-center justify-end gap-3">
+                      <button onclick="openEditTeacherModal('{{ t.username }}', '{{ t.displayName }}', '{{ t.email or '' }}')"
+                        class="text-xs font-bold text-slate-400 hover:text-[#0B6E4F] transition active:scale-90">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button onclick="deleteTeacher('{{ t.username }}')" 
+                        class="text-xs font-bold text-rose-300 hover:text-rose-600 transition active:scale-90">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               {% else %}
@@ -219,7 +225,50 @@
     </div>
   </div>
 
+  <!-- Edit Teacher Modal -->
+  <div id="edit-teacher-modal" class="fixed inset-0 z-[110] hidden">
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeEditTeacherModal()"></div>
+    <div class="fixed top-1/2 left-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[2.5rem] bg-white p-10 shadow-2xl transition-all">
+      <div class="mb-8">
+        <h2 class="text-2xl font-black text-slate-900">Update Profile</h2>
+        <p class="text-sm text-slate-500">Modify academic staff information.</p>
+      </div>
+      <form id="edit-teacher-form" method="POST" class="space-y-6">
+        <div>
+          <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Display Name</label>
+          <input name="displayName" id="edit-teacher-name" required
+            class="w-full rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4 text-sm transition focus:border-royal-purple focus:bg-white focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+          <input name="email" type="email" id="edit-teacher-email"
+            class="w-full rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4 text-sm transition focus:border-royal-purple focus:bg-white focus:outline-none" />
+        </div>
+        <button class="w-full rounded-2xl purple-gradient py-5 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 transition hover:scale-[1.02] active:scale-[0.98]">
+          Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script>
+    function openEditTeacherModal(username, name, email) {
+      const modal = document.getElementById('edit-teacher-modal');
+      const form = document.getElementById('edit-teacher-form');
+      const nameInput = document.getElementById('edit-teacher-name');
+      const emailInput = document.getElementById('edit-teacher-email');
+      
+      form.action = `/admin/teachers/update/${username}`;
+      nameInput.value = name;
+      emailInput.value = email;
+      
+      modal.classList.remove('hidden');
+    }
+
+    function closeEditTeacherModal() {
+      document.getElementById('edit-teacher-modal').classList.add('hidden');
+    }
+
     async function deleteTeacher(username) {
       if (!confirm(`Are you sure you want to permanently delete teacher ${username}? This cannot be undone.`)) return;
       

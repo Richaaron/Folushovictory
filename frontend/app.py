@@ -674,6 +674,35 @@ def admin_delete_student(student_id):
     return redirect(url_for("admin_students"))
 
 
+@app.post("/admin/teachers/update/<username>")
+@require_portal("ADMIN")
+def admin_update_teacher(username):
+    token = session.get("token")
+    display_name = request.form.get("displayName")
+    email = request.form.get("email")
+    try:
+        api_request("PUT", f"/api/admin/teachers/{username}", token=token, payload={"displayName": display_name, "email": email})
+        flash(f"Teacher {username} updated successfully")
+    except Exception as e:
+        flash(str(e))
+    return redirect(url_for("admin_teachers"))
+
+
+@app.post("/admin/students/update/<student_id>")
+@require_portal("ADMIN")
+def admin_update_student(student_id):
+    token = session.get("token")
+    first_name = request.form.get("firstName")
+    last_name = request.form.get("lastName")
+    class_id = request.form.get("classId")
+    try:
+        api_request("PUT", f"/api/admin/students/{student_id}", token=token, payload={"firstName": first_name, "lastName": last_name, "classId": class_id})
+        flash(f"Student {student_id} updated successfully")
+    except Exception as e:
+        flash(str(e))
+    return redirect(url_for("admin_students"))
+
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=True)
