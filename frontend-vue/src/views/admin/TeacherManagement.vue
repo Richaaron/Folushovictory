@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { 
   Search, 
   Trash2, 
@@ -10,32 +10,84 @@ import {
 import api from '../../services/api'
 
 const teachers = ref<any[]>([])
+const classes = ref<any[]>([])
+const subjects = ref<any[]>([])
 const loading = ref(true)
 const creating = ref(false)
 const searchQuery = ref('')
 const showAddModal = ref(false)
-const newTeacher = ref({ displayName: '', email: '' })
+const newTeacher = ref({ 
+  displayName: '', 
+  email: '',
+  formClassId: '',
+  assignedSubjectIds: [] as string[]
+})
 
 const fetchTeachers = async () => {
   loading.value = true
   try {
-    const { data } = await api.get('/api/admin/teachers')
-    teachers.value = data.teachers || []
+    const [tResp, cResp, sResp] = await Promise.all([
+      api.get('/api/admin/teachers'),
+      api.get('/api/admin/classes'),
+      api.get('/api/admin/subjects')
+    ])
+    teachers.value = tResp.data.teachers || []
+    classes.value = cResp.data.classes || []
+    subjects.value = sResp.data.subjects || []
   } catch (err) {
-    console.error('Error fetching teachers:', err)
+    console.error('Error fetching teachers data:', err)
   } finally {
     loading.value = false
   }
 }
 
+// Auto-assign subjects for Primary/Nursery classes
+watch(() => newTeacher.value.formClassId, (newId) => {
+  if (!newId) {
+    newTeacher.value.assignedSubjectIds = []
+    return
+  }
+  const selectedClass = classes.value.find(c => c.id === newId)
+  if (selectedClass) {
+    const level = String(selectedClass.level).toUpperCase()
+    const isPrimaryOrNursery = level.includes('PRY') || level.includes('NUR') || level.includes('PRE')
+    if (isPrimaryOrNursery) {
+      newTeacher.value.assignedSubjectIds = subjects.value.map(s => s.id)
+    } else {
+      newTeacher.value.assignedSubjectIds = []
+    }
+  }
+})
+
 const handleAddTeacher = async () => {
   if (!newTeacher.value.displayName) return
   creating.value = true
   try {
-    await api.post('/api/admin/teachers', newTeacher.value)
+    const { data: teacher } = await api.post('/api/admin/teachers', {
+      displayName: newTeacher.value.displayName,
+      email: newTeacher.value.email
+    })
+    
+    // 1. Assign Form Class Role (if selected)
+    if (newTeacher.value.formClassId) {
+      await api.put(`/api/admin/classes/${newTeacher.value.formClassId}/subjects`, {
+        formTeacherUsername: teacher.username
+      })
+    }
+
+    // 2. Assign Specific Subjects (Subject Teacher Role)
+    if (newTeacher.value.assignedSubjectIds.length > 0 && newTeacher.value.formClassId) {
+      await api.post('/api/admin/assignments', {
+        teacherUsername: teacher.username,
+        classIds: [newTeacher.value.formClassId],
+        subjectIds: newTeacher.value.assignedSubjectIds
+      })
+    }
+
     showAddModal.value = false
-    newTeacher.value = { displayName: '', email: '' }
+    newTeacher.value = { displayName: '', email: '', formClassId: '', assignedSubjectIds: [] }
     await fetchTeachers()
+    alert(`Staff Account Created Successfully!\n\nUsername: ${teacher.username}\nPassword: ${teacher.password}\n\nPlease copy the password now. It will not be shown again.`)
   } catch (err) {
     console.error('Error adding teacher:', err)
   } finally {
@@ -78,17 +130,9 @@ onMounted(fetchTeachers)
         <input 
           v-model="searchQuery"
           type="text" 
-          placeholder="Search by name, username or subject..."
+          placeholder="Search by name, username..."
           class="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl text-sm font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-royal-purple outline-none transition-all"
         />
-      </div>
-      <div class="flex items-center gap-2 w-full md:w-auto">
-        <select class="flex-grow md:flex-none pl-4 pr-10 py-4 bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl text-xs font-black uppercase tracking-widest text-slate-500 focus:ring-2 focus:ring-royal-purple outline-none cursor-pointer">
-          <option>All Departments</option>
-          <option>Science</option>
-          <option>Arts</option>
-          <option>Commercial</option>
-        </select>
       </div>
     </div>
 
@@ -135,16 +179,13 @@ onMounted(fetchTeachers)
           No staff members found matching your search.
         </div>
       </div>
-      <div v-if="!loading" class="p-6 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between">
-        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Showing {{ filteredTeachers.length }} staff members</p>
-      </div>
     </div>
 
     <!-- Add Teacher Modal -->
     <transition name="fade">
       <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAddModal = false"></div>
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-lg p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800">
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-lg p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
           <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8 flex items-center gap-3">
             <UserPlus class="w-6 h-6 text-royal-purple" /> Add New Staff
           </h2>
@@ -160,9 +201,32 @@ onMounted(fetchTeachers)
               <input v-model="newTeacher.email" type="email" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="s.okafor@fvs.edu" />
             </div>
 
+            <div class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Primary Class Assignment (Form Role)</label>
+              <select v-model="newTeacher.formClassId" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-royal-purple outline-none">
+                <option value="">None (Subject Teacher only)</option>
+                <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+              </select>
+            </div>
+
+            <div v-if="newTeacher.formClassId" class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assigned Subjects</label>
+              <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <label v-for="sub in subjects" :key="sub.id" class="flex items-center gap-3 cursor-pointer group">
+                  <input type="checkbox" :value="sub.id" v-model="newTeacher.assignedSubjectIds" class="w-4 h-4 rounded border-slate-300 text-royal-purple focus:ring-royal-purple" />
+                  <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-royal-purple transition-colors">{{ sub.name }}</span>
+                </label>
+              </div>
+              <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] px-2 italic mt-2">
+                * Primary/Nursery staff are automatically mapped to all subjects upon selection.
+              </p>
+            </div>
+
             <div class="pt-6 flex gap-4">
               <button @click="showAddModal = false" class="flex-grow py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
-              <button @click="handleAddTeacher" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30">Create Account</button>
+              <button @click="handleAddTeacher" :disabled="creating" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 disabled:opacity-50">
+                {{ creating ? 'Creating...' : 'Create Account' }}
+              </button>
             </div>
           </div>
         </div>
@@ -174,4 +238,10 @@ onMounted(fetchTeachers)
 <style scoped>
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* Custom scrollbar for subject list */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
 </style>
