@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { 
   BookOpen, 
-  Users, 
   ClipboardCheck, 
   ArrowRight,
   TrendingUp,

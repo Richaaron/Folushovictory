@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { 
-  Plus, 
   Search, 
-  MoreHorizontal, 
-  Mail, 
   Trash2, 
   Edit2, 
   UserPlus,
-  ArrowUpDown,
   Loader2
 } from 'lucide-vue-next'
 import api from '../../services/api'

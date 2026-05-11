@@ -7,7 +7,6 @@ import {
   Users, 
   ChevronRight,
   School,
-  Hash,
   Loader2
 } from 'lucide-vue-next'
 import api from '../../services/api'

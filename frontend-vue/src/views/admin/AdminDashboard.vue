@@ -7,7 +7,8 @@ import {
   TrendingUp, 
   ArrowUpRight,
   Calendar,
-  Bell
+  Bell,
+  BarChart3
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
