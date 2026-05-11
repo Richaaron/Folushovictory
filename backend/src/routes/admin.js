@@ -76,16 +76,37 @@ adminRouter.post(
 
     if (email) {
       try {
+        const portalUrl = process.env.FRONTEND_URL || "https://folushovictoryschool.onrender.com";
         await sendEmail({
           to: email,
           subject: "Your FVS Teacher Portal Credentials",
           html: `
-            <h1>Welcome to Folusho Victory Schools</h1>
-            <p>Dear ${displayName},</p>
-            <p>Your staff portal account has been created successfully.</p>
-            <p><strong>Username:</strong> ${username}</p>
-            <p><strong>Password:</strong> ${password}</p>
-            <p>Please log in at <a href="${process.env.FRONTEND_ORIGIN}/login">${process.env.FRONTEND_ORIGIN}/login</a></p>
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+              <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
+              </div>
+              <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+                <h2 style="margin-top: 0; color: #5D3FD3;">Welcome, ${displayName}!</h2>
+                <p>Your academic staff portal account has been created successfully. You can now manage your classes, subjects, and results digitally.</p>
+                
+                <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                  <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Login Credentials</p>
+                  <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${username}</span></p>
+                  <p style="margin: 5px 0 0; font-size: 16px;"><strong>Temporary Password:</strong> <span style="color: #0B6E4F;">${password}</span></p>
+                </div>
+
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="${portalUrl}/teacher/login" 
+                     style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                     Access Staff Portal
+                  </a>
+                </div>
+
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; pt: 16px;">
+                  This is an automated security message. Please do not share your credentials with anyone.
+                </p>
+              </div>
+            </div>
           `
         });
       } catch (err) {
@@ -146,17 +167,39 @@ adminRouter.post(
 
     if (parentEmail) {
       try {
+        const portalUrl = process.env.FRONTEND_URL || "https://folushovictoryschool.onrender.com";
         await sendEmail({
           to: parentEmail,
-          subject: "Your FVS Parent Portal Credentials",
+          subject: "FVS Parent Portal: Access Your Child's Records",
           html: `
-            <h1>Welcome to Folusho Victory Schools</h1>
-            <p>Dear ${parentName},</p>
-            <p>An account has been created for you to track the progress of <strong>${firstName} ${lastName}</strong>.</p>
-            <p><strong>Parent Username:</strong> ${parentUsername}</p>
-            <p><strong>One-time Password:</strong> ${parentPassword}</p>
-            <p><strong>Student ID:</strong> ${studentId}</p>
-            <p>Please log in at <a href="${process.env.FRONTEND_ORIGIN}/login">${process.env.FRONTEND_ORIGIN}/login</a></p>
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+              <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
+              </div>
+              <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+                <h2 style="margin-top: 0; color: #5D3FD3;">Hello ${parentName},</h2>
+                <p>An official parent portal account has been created for you to monitor the academic progress of <strong>${firstName} ${lastName}</strong>.</p>
+                
+                <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                  <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Parent Login Access</p>
+                  <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${parentUsername}</span></p>
+                  <p style="margin: 5px 0 0; font-size: 16px;"><strong>Password:</strong> <span style="color: #0B6E4F;">${parentPassword}</span></p>
+                </div>
+
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="${portalUrl}/parent/login" 
+                     style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                     Login to Parent Portal
+                  </a>
+                </div>
+
+                <p style="font-size: 14px; color: #64748b;">Through this portal, you can view results, track attendance, and stay updated with school announcements.</p>
+                
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; pt: 16px;">
+                  Folusho Victory Schools: Excellence, Integrity, and Academic Leadership.
+                </p>
+              </div>
+            </div>
           `
         });
       } catch (err) {
