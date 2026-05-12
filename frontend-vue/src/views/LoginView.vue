@@ -51,54 +51,70 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-12">
-    <div class="max-w-md w-full space-y-8 fade-in">
+  <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#020617] px-4 py-12 relative overflow-hidden">
+    <!-- Dynamic Background Elements -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-nebula-500/20 blur-[120px] rounded-full animate-pulse-slow"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/20 blur-[120px] rounded-full animate-pulse-slow" style="animation-delay: 2s"></div>
+    <div class="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-emerald-500/10 blur-[80px] rounded-full animate-float"></div>
+
+    <div class="max-w-md w-full space-y-10 fade-in relative z-10">
       <div class="text-center">
-        <div class="mx-auto h-20 w-20 bg-white dark:bg-slate-900 rounded-2xl p-3 shadow-xl border border-purple-50 dark:border-purple-900/30 flex items-center justify-center mb-6">
-          <img src="/logo.png" alt="Logo" class="object-contain w-full h-full" />
+        <div class="relative inline-block group">
+          <div class="absolute inset-0 bg-nebula-500 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
+          <div class="relative mx-auto h-24 w-24 bg-white dark:bg-slate-900 rounded-[2rem] p-4 shadow-2xl border border-white/50 dark:border-slate-700 flex items-center justify-center mb-8 transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+            <img src="/logo.png" alt="Logo" class="object-contain w-full h-full" />
+          </div>
         </div>
-        <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          {{ portalTitle }} <span class="text-royal-purple">Login</span>
-        </h2>
-        <p class="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-          Folusho Victory Schools Digital Access
-        </p>
+        
+        <div class="space-y-2">
+          <div class="flex items-center justify-center gap-3">
+            <div class="h-px w-8 bg-nebula-500/30"></div>
+            <span class="text-[10px] font-black uppercase tracking-[0.4em] text-nebula-500">Secure Gateway</span>
+            <div class="h-px w-8 bg-nebula-500/30"></div>
+          </div>
+          <h2 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+            {{ portalTitle }} <span class="text-transparent bg-clip-text nebula-gradient">Login</span>
+          </h2>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em]">
+            Institutional Control & Academic Management
+          </p>
+        </div>
       </div>
 
-      <div class="academic-card rounded-3xl p-8 shadow-2xl">
-        <form @submit.prevent="handleLogin" class="space-y-6">
-          <div v-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl p-4 flex items-start gap-3">
-            <AlertCircle class="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-            <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ error }}</p>
+      <div class="glass-card rounded-[3rem] p-10 shadow-2xl border border-white/40 dark:border-slate-800/50">
+        <form @submit.prevent="handleLogin" class="space-y-8">
+          <div v-if="error" class="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 rounded-2xl p-4 flex items-start gap-3 animate-shake">
+            <AlertCircle class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+            <p class="text-xs font-bold text-rose-700 dark:text-rose-400 leading-snug">{{ error }}</p>
           </div>
 
-          <div class="space-y-1">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Username / ID</label>
+          <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Access Identifier</label>
             <div class="relative group">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-royal-purple transition-colors">
+              <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-nebula-500 transition-colors duration-300">
                 <User class="h-5 w-5" />
               </div>
               <input 
                 v-model="username"
                 type="text" 
                 required
-                class="block w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-royal-purple transition-all outline-none"
-                placeholder="Enter your credentials"
+                class="block w-full pl-14 pr-6 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 focus:ring-4 focus:ring-nebula-500/10 transition-all outline-none font-bold"
+                placeholder="Staff ID or Username"
               />
             </div>
           </div>
 
-          <div class="space-y-1">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Secret Password</label>
+          <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Secure Keyphrase</label>
             <div class="relative group">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-royal-purple transition-colors">
+              <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-nebula-500 transition-colors duration-300">
                 <Lock class="h-5 w-5" />
               </div>
               <input 
                 v-model="password"
                 type="password" 
                 required
-                class="block w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-royal-purple transition-all outline-none"
+                class="block w-full pl-14 pr-6 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 focus:ring-4 focus:ring-nebula-500/10 transition-all outline-none font-bold"
                 placeholder="••••••••"
               />
             </div>
@@ -107,28 +123,41 @@ const handleLogin = async () => {
           <button 
             type="submit"
             :disabled="loading"
-            class="w-full flex items-center justify-center rounded-2xl purple-gradient px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
+            class="w-full flex items-center justify-center rounded-[1.5rem] nebula-gradient px-8 py-5 text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 hover:scale-[1.02] hover:shadow-nebula-500/40 active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
           >
             <Loader2 v-if="loading" class="w-5 h-5 animate-spin mr-3" />
             <span v-else>Authorize Access</span>
           </button>
         </form>
 
-        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
-          <div class="flex items-center justify-between text-xs font-black uppercase tracking-widest text-slate-400">
-            <span>Change Portal:</span>
-            <div class="flex gap-4">
-              <button @click="portal = 'admin'" :class="{'text-royal-purple': portal === 'admin'}" class="hover:text-royal-purple transition-colors">Admin</button>
-              <button @click="portal = 'teacher'" :class="{'text-royal-purple': portal === 'teacher'}" class="hover:text-royal-purple transition-colors">Teacher</button>
-              <button @click="portal = 'parent'" :class="{'text-royal-purple': portal === 'parent'}" class="hover:text-royal-purple transition-colors">Parent</button>
+        <div class="mt-10 pt-8 border-t border-slate-200/50 dark:border-slate-800/50">
+          <div class="flex flex-col gap-4">
+            <span class="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 text-center">Switch Operational Portal</span>
+            <div class="flex justify-center gap-3">
+              <button 
+                v-for="p in ['admin', 'teacher', 'parent']" 
+                :key="p"
+                @click="portal = p" 
+                :class="[portal === p ? 'bg-nebula-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700']" 
+                class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300"
+              >
+                {{ p }}
+              </button>
             </div>
           </div>
         </div>
       </div>
       
-      <p class="text-center text-xs font-medium text-slate-400 tracking-wide">
-        &copy; 2026 Folusho Victory Schools. Secure Academic Gateway.
-      </p>
+      <div class="text-center space-y-4">
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+          &copy; 2026 Folusho Victory Schools. Unified Academic Engine.
+        </p>
+        <div class="flex justify-center gap-6 opacity-30 group">
+          <div class="h-1 w-8 bg-nebula-500 rounded-full group-hover:w-12 transition-all"></div>
+          <div class="h-1 w-8 bg-purple-500 rounded-full group-hover:w-12 transition-all"></div>
+          <div class="h-1 w-8 bg-emerald-500 rounded-full group-hover:w-12 transition-all"></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

@@ -197,72 +197,86 @@ const filteredSubjects = computed(() => {
 onMounted(fetchTeachers)
 </script>
 
-<template>
-  <div class="space-y-8 fade-in">
+  <div class="space-y-10 fade-in py-6">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
       <div>
-        <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Staff <span class="text-royal-purple">Faculty</span></h1>
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Manage Teachers and Academic Assignments</p>
+        <div class="flex items-center gap-3 mb-2">
+          <div class="h-1 w-12 bg-nebula-500 rounded-full"></div>
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-nebula-500">Personnel Core</span>
+        </div>
+        <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Staff <span class="text-transparent bg-clip-text nebula-gradient">Faculty</span></h1>
+        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] mt-1">Institutional Onboarding & Resource Allocation</p>
       </div>
       <button 
         @click="showAddModal = true"
-        class="flex items-center gap-3 rounded-2xl purple-gradient px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95"
+        class="flex items-center gap-3 rounded-[1.5rem] nebula-gradient px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 transition hover:scale-105 active:scale-95 group"
       >
-        <UserPlus class="w-4 h-4" /> Add New Staff
+        <UserPlus class="w-5 h-5 group-hover:rotate-12 transition-transform" /> 
+        Enroll New Faculty
       </button>
     </div>
 
     <!-- Filters & Search -->
-    <div class="academic-card rounded-3xl p-4 flex flex-col md:flex-row gap-4 items-center">
+    <div class="glass-card rounded-[2.5rem] p-4 flex flex-col md:flex-row gap-4 items-center border-white/40 dark:border-slate-800/50">
       <div class="relative flex-grow">
-        <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search class="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-nebula-500" />
         <input 
           v-model="searchQuery"
           type="text" 
-          placeholder="Search by name, username..."
-          class="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl text-sm font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-royal-purple outline-none transition-all"
+          placeholder="Filter faculty by name, username or ID..."
+          class="w-full pl-16 pr-8 py-5 bg-slate-100/50 dark:bg-slate-800/30 border-none rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-nebula-500/10 outline-none transition-all placeholder-slate-400"
         />
       </div>
     </div>
 
     <!-- Teachers Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden min-h-[400px] flex flex-col">
+    <div class="academic-card overflow-hidden min-h-[500px] flex flex-col border-white/40 dark:border-slate-800/50">
       <div v-if="loading" class="flex-grow flex items-center justify-center">
-        <Loader2 class="w-10 h-10 text-royal-purple animate-spin" />
+        <div class="relative">
+          <div class="absolute inset-0 bg-nebula-500 blur-2xl opacity-20 animate-pulse"></div>
+          <Loader2 class="w-12 h-12 text-nebula-500 animate-spin relative z-10" />
+        </div>
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left">
           <thead>
-            <tr class="bg-slate-50 dark:bg-slate-800/50">
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Teacher Profile</th>
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-right">Actions</th>
+            <tr class="bg-slate-100/50 dark:bg-slate-800/30">
+              <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Faculty Member</th>
+              <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 text-right">Operations</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
-            <tr v-for="teacher in filteredTeachers" :key="teacher.username" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-              <td class="px-8 py-6">
-                <div class="flex items-center gap-4">
-                  <div class="h-12 w-12 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-royal-purple font-black text-lg">
-                    {{ teacher.displayName.charAt(0) }}
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr v-for="teacher in filteredTeachers" :key="teacher.username" class="group hover:bg-nebula-500/[0.03] transition-colors">
+              <td class="px-10 py-8">
+                <div class="flex items-center gap-6">
+                  <div class="relative group/avatar">
+                    <div class="absolute inset-0 bg-nebula-500 blur-lg opacity-0 group-hover/avatar:opacity-30 transition-opacity"></div>
+                    <div class="h-14 w-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-nebula-500 font-black text-xl shadow-xl transition-transform group-hover/avatar:scale-110">
+                      {{ teacher.displayName.charAt(0) }}
+                    </div>
                   </div>
                   <div>
-                    <p class="text-sm font-black text-slate-900 dark:text-white">{{ teacher.displayName }}</p>
-                    <p class="text-xs font-bold text-slate-400">@{{ teacher.username }}</p>
+                    <p class="text-base font-black text-slate-900 dark:text-white tracking-tight">{{ teacher.displayName }}</p>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span class="text-[10px] font-black text-nebula-500 bg-nebula-500/5 px-2 py-0.5 rounded-md">@{{ teacher.username }}</span>
+                      <div class="h-1 w-1 bg-slate-300 rounded-full"></div>
+                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ teacher.email || 'No Email' }}</span>
+                    </div>
                   </div>
                 </div>
               </td>
-              <td class="px-8 py-6 text-right">
-                <div class="flex items-center justify-end gap-2">
+              <td class="px-10 py-8 text-right">
+                <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
                     @click="openEditModal(teacher)"
-                    class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-royal-purple transition-colors"
+                    class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-nebula-500 hover:border-nebula-500/30 hover:shadow-lg transition-all"
                   >
                     <Edit2 class="w-4 h-4" />
                   </button>
                   <button 
                     @click="handleDelete(teacher.username)"
-                    class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors"
+                    class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 hover:shadow-lg transition-all"
                   >
                     <Trash2 class="w-4 h-4" />
                   </button>
@@ -271,125 +285,149 @@ onMounted(fetchTeachers)
             </tr>
           </tbody>
         </table>
-        <div v-if="filteredTeachers.length === 0" class="p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
-          No staff members found matching your search.
+        <div v-if="filteredTeachers.length === 0" class="p-24 text-center">
+          <div class="mx-auto h-20 w-20 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-400 mb-6">
+            <Search class="w-8 h-8" />
+          </div>
+          <p class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Zero faculty matches found</p>
+          <p class="text-[10px] text-slate-500 mt-2">Adjust your filter or enroll a new faculty member</p>
         </div>
       </div>
     </div>
 
     <!-- Add Teacher Modal -->
-    <transition name="fade">
+    <transition 
+      enter-active-class="transition duration-500 ease-out"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition duration-300 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
       <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAddModal = false"></div>
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-lg p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
-          <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8 flex items-center gap-3">
-            <UserPlus class="w-6 h-6 text-royal-purple" /> Add New Staff
-          </h2>
-          
-          <div class="space-y-6">
-            <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Display Name</label>
-              <input v-model="newTeacher.displayName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="e.g. Samuel Okafor" />
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xl transition-opacity" @click="showAddModal = false"></div>
+        <div class="glass-card rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl relative z-10 border border-white/40 dark:border-slate-700/50 max-h-[90vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center gap-5">
+              <div class="h-14 w-14 rounded-2xl nebula-gradient flex items-center justify-center text-white shadow-2xl shadow-nebula-500/30">
+                <UserPlus class="w-7 h-7" />
+              </div>
+              <div>
+                <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Enroll Faculty</h2>
+                <p class="text-[10px] font-black text-nebula-500 uppercase tracking-[0.2em] mt-2">Staff Access Generation</p>
+              </div>
             </div>
-            
-            <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address (Optional)</label>
-              <input v-model="newTeacher.email" type="email" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="s.okafor@fvs.edu" />
+            <button @click="showAddModal = false" class="h-12 w-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all">
+              <Trash2 class="w-5 h-5 rotate-45" />
+            </button>
+          </div>
+          
+          <div class="space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Legal Full Name</label>
+                <input v-model="newTeacher.displayName" type="text" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" placeholder="e.g. Samuel Okafor" />
+              </div>
+              
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Official Email</label>
+                <input v-model="newTeacher.email" type="email" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" placeholder="s.okafor@fvs.edu" />
+              </div>
             </div>
 
             <!-- Department Selection -->
-            <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Department</label>
-              <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-3">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Operational Department</label>
+              <div class="grid grid-cols-2 gap-4 p-2 bg-slate-100/50 dark:bg-slate-800/50 rounded-[2rem] border border-slate-200 dark:border-slate-700">
                 <button 
                   @click="newTeacher.department = 'Primary/Nursery'"
-                  :class="newTeacher.department === 'Primary/Nursery' ? 'purple-gradient text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'"
-                  class="py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
+                  :class="newTeacher.department === 'Primary/Nursery' ? 'nebula-gradient text-white shadow-xl shadow-nebula-500/20' : 'text-slate-500 hover:bg-white/50 dark:hover:bg-slate-700/50'"
+                  class="py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all"
                 >Primary/Nursery</button>
                 <button 
                   @click="newTeacher.department = 'Secondary'"
-                  :class="newTeacher.department === 'Secondary' ? 'purple-gradient text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'"
-                  class="py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
+                  :class="newTeacher.department === 'Secondary' ? 'nebula-gradient text-white shadow-xl shadow-nebula-500/20' : 'text-slate-500 hover:bg-white/50 dark:hover:bg-slate-700/50'"
+                  class="py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all"
                 >Secondary</button>
               </div>
             </div>
 
             <!-- Role Selection (for Secondary) -->
-            <div v-if="newTeacher.department === 'Secondary'" class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Academic Role</label>
-              <div class="grid grid-cols-3 gap-2">
+            <div v-if="newTeacher.department === 'Secondary'" class="space-y-3 animate-slide-up">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Academic Specialization</label>
+              <div class="grid grid-cols-3 gap-3">
                 <button 
                   v-for="role in ['Form Teacher', 'Subject Teacher', 'Dual Role']" 
                   :key="role"
                   @click="newTeacher.roleType = role"
-                  :class="newTeacher.roleType === role ? 'bg-royal-purple text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'"
-                  class="py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                  :class="newTeacher.roleType === role ? 'bg-nebula-500 text-white shadow-lg' : 'bg-slate-100/50 dark:bg-slate-800/50 text-slate-500 border border-transparent hover:border-nebula-500/20'"
+                  class="py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.1em] transition-all"
                 >{{ role }}</button>
               </div>
             </div>
 
             <!-- Class Assignment -->
-            <div v-if="newTeacher.roleType === 'Form Teacher' || newTeacher.roleType === 'Dual Role'" class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assigned Class (Form Role)</label>
-              <select v-model="newTeacher.formClassId" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-royal-purple outline-none">
-                <option value="">Select a class...</option>
+            <div v-if="newTeacher.roleType === 'Form Teacher' || newTeacher.roleType === 'Dual Role'" class="space-y-3 animate-slide-up">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Primary Class Governance</label>
+              <select v-model="newTeacher.formClassId" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all cursor-pointer">
+                <option value="">Select Governing Class...</option>
                 <option v-for="cls in filteredClasses" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
               </select>
             </div>
 
-            <!-- Level Selection (for Subject/Dual Teacher) -->
-            <div v-if="newTeacher.department === 'Secondary' && (newTeacher.roleType === 'Subject Teacher' || newTeacher.roleType === 'Dual Role')" class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Teaching Levels (Subjects)</label>
-              <div class="grid grid-cols-3 gap-2">
-                <button 
-                  v-for="lvl in ['JSS', 'SSS', 'Both']" 
-                  :key="lvl"
-                  @click="newTeacher.secondaryLevel = lvl"
-                  :class="newTeacher.secondaryLevel === lvl ? 'bg-amber-500 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500'"
-                  class="py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
-                >{{ lvl }}</button>
-              </div>
-            </div>
-
             <!-- Multi-Class Selection (for Subject/Dual Teacher) -->
-            <div v-if="newTeacher.department === 'Secondary' && (newTeacher.roleType === 'Subject Teacher' || newTeacher.roleType === 'Dual Role')" class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Teaching Classes</label>
-              <div class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <label v-for="cls in filteredClasses" :key="cls.id" class="flex items-center gap-3 cursor-pointer group">
-                  <input type="checkbox" :value="cls.id" v-model="newTeacher.selectedClassIds" class="w-4 h-4 rounded border-slate-300 text-royal-purple focus:ring-royal-purple" />
-                  <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest group-hover:text-royal-purple transition-colors">{{ cls.name }}</span>
+            <div v-if="newTeacher.department === 'Secondary' && (newTeacher.roleType === 'Subject Teacher' || newTeacher.roleType === 'Dual Role')" class="space-y-4 animate-slide-up">
+              <div class="flex items-center justify-between px-4">
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Target Instructional Classes</label>
+                <div class="flex gap-2">
+                  <button v-for="lvl in ['JSS', 'SSS', 'Both']" :key="lvl" @click="newTeacher.secondaryLevel = lvl" :class="[newTeacher.secondaryLevel === lvl ? 'bg-nebula-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400']" class="px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">{{ lvl }}</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-48 overflow-y-auto p-6 bg-slate-100/30 dark:bg-slate-800/30 rounded-[2rem] border border-slate-200 dark:border-slate-700 scrollbar-premium">
+                <label v-for="cls in filteredClasses" :key="cls.id" class="relative flex flex-col p-4 rounded-2xl cursor-pointer group transition-all" :class="[newTeacher.selectedClassIds.includes(cls.id) ? 'bg-nebula-500 text-white shadow-xl shadow-nebula-500/20' : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-nebula-50 dark:hover:bg-nebula-900/30 border border-slate-100 dark:border-slate-800']">
+                  <input type="checkbox" :value="cls.id" v-model="newTeacher.selectedClassIds" class="hidden" />
+                  <span class="text-[10px] font-black uppercase tracking-widest">{{ cls.name }}</span>
+                  <span class="text-[8px] font-bold opacity-60 mt-1">{{ cls.level }}</span>
+                  <div v-if="newTeacher.selectedClassIds.includes(cls.id)" class="absolute top-2 right-2 h-2 w-2 bg-white rounded-full"></div>
                 </label>
               </div>
             </div>
 
             <!-- Automated Subject Assignment -->
-            <div v-if="(newTeacher.formClassId || newTeacher.selectedClassIds.length > 0) && newTeacher.roleType !== 'Form Teacher'" class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assigned Subjects (Automated Filtering)</label>
-              <div v-if="newTeacher.department === 'Primary/Nursery'" class="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <p class="text-[10px] font-bold text-royal-purple uppercase tracking-widest">Master Class Role</p>
-                <p class="text-[9px] text-slate-400 mt-1 uppercase font-medium italic">* All Primary subjects automatically assigned.</p>
-                <div class="mt-4 grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-                   <div v-for="sub in filteredSubjects" :key="sub.id" class="flex items-center gap-2">
-                     <div class="w-1 h-1 rounded-full bg-emerald-500"></div>
-                     <span class="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-tight">{{ sub.name }}</span>
+            <div v-if="(newTeacher.formClassId || newTeacher.selectedClassIds.length > 0) && newTeacher.roleType !== 'Form Teacher'" class="space-y-4 animate-slide-up">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Curriculum Specializations</label>
+              <div v-if="newTeacher.department === 'Primary/Nursery'" class="p-8 bg-nebula-500/[0.03] rounded-[2.5rem] border border-nebula-500/20 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 h-32 w-32 bg-nebula-500 blur-[60px] opacity-10"></div>
+                <p class="text-[11px] font-black text-nebula-500 uppercase tracking-[0.3em] flex items-center gap-3 mb-4">
+                  <div class="h-1.5 w-1.5 rounded-full bg-nebula-500 animate-pulse"></div>
+                  Master Instructor Curriculum
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                   <div v-for="sub in filteredSubjects" :key="sub.id" class="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                     <span class="text-[10px] font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-tight">{{ sub.name }}</span>
                    </div>
                 </div>
               </div>
-              <div v-else class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-inner">
-                <label v-for="sub in filteredSubjects" :key="sub.id" class="flex items-center gap-3 cursor-pointer group p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all">
-                  <input type="checkbox" :value="sub.id" v-model="newTeacher.assignedSubjectIds" class="w-4 h-4 rounded border-slate-300 text-royal-purple focus:ring-royal-purple" />
-                  <div class="flex flex-col">
-                    <span class="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest group-hover:text-royal-purple transition-colors">{{ sub.name }}</span>
-                    <span class="text-[8px] font-bold text-slate-400 uppercase">{{ sub.level }}</span>
-                  </div>
+              <div v-else class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-6 bg-slate-100/30 dark:bg-slate-800/30 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 scrollbar-premium">
+                <label v-for="sub in filteredSubjects" :key="sub.id" class="relative flex flex-col p-4 rounded-2xl cursor-pointer group transition-all" :class="[newTeacher.assignedSubjectIds.includes(sub.id) ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-500/20' : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 border border-slate-100 dark:border-slate-800']">
+                  <input type="checkbox" :value="sub.id" v-model="newTeacher.assignedSubjectIds" class="hidden" />
+                  <span class="text-[10px] font-black uppercase tracking-widest leading-tight">{{ sub.name }}</span>
+                  <span class="text-[8px] font-bold opacity-60 mt-1 uppercase">{{ sub.level }}</span>
+                  <div v-if="newTeacher.assignedSubjectIds.includes(sub.id)" class="absolute top-2 right-2 h-2 w-2 bg-white rounded-full"></div>
                 </label>
               </div>
             </div>
 
-            <div class="pt-6 flex gap-4">
-              <button @click="showAddModal = false" class="flex-grow py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
-              <button @click="handleAddTeacher" :disabled="creating" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 disabled:opacity-50">
-                {{ creating ? 'Creating...' : 'Create Staff Account' }}
+            <div class="pt-10 flex gap-4">
+              <button @click="showAddModal = false" class="flex-grow py-5 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Abort</button>
+              <button @click="handleAddTeacher" :disabled="creating" class="flex-[2.5] py-5 rounded-[1.5rem] nebula-gradient text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-2xl shadow-nebula-500/30 disabled:opacity-50 group">
+                <span v-if="!creating" class="flex items-center justify-center gap-3">
+                  Commit Enrollment <UserPlus class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+                <span v-else class="flex items-center justify-center gap-3">
+                  <Loader2 class="w-4 h-4 animate-spin" /> Synchronizing...
+                </span>
               </button>
             </div>
           </div>
@@ -398,40 +436,55 @@ onMounted(fetchTeachers)
     </transition>
 
     <!-- Edit Teacher Modal -->
-    <transition name="fade">
+    <transition 
+      enter-active-class="transition duration-500 ease-out"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition duration-300 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
       <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showEditModal = false"></div>
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-lg p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800">
-          <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8 flex items-center gap-3">
-            <Edit2 class="w-6 h-6 text-royal-purple" /> Edit Staff Info
-          </h2>
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xl transition-opacity" @click="showEditModal = false"></div>
+        <div class="glass-card rounded-[3rem] w-full max-w-lg p-12 shadow-2xl relative z-10 border border-white/40 dark:border-slate-700/50">
+          <div class="flex items-center gap-5 mb-10">
+            <div class="h-14 w-14 rounded-2xl bg-nebula-500/10 flex items-center justify-center text-nebula-500 border border-nebula-500/20">
+              <Edit2 class="w-7 h-7" />
+            </div>
+            <div>
+              <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Modify Info</h2>
+              <p class="text-[10px] font-black text-nebula-500 uppercase tracking-[0.2em] mt-2">Update Faculty Metadata</p>
+            </div>
+          </div>
           
-          <div class="space-y-6" v-if="editingTeacher">
-            <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Staff Username</label>
-              <input :value="editingTeacher.username" disabled type="text" class="w-full px-6 py-4 bg-slate-100 dark:bg-slate-800/50 border-none rounded-2xl text-sm font-bold text-slate-500 outline-none cursor-not-allowed" />
+          <div class="space-y-8" v-if="editingTeacher">
+            <div class="space-y-2 group">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4 group-focus-within:text-nebula-500 transition-colors">Faculty Identifier</label>
+              <div class="relative">
+                <input :value="editingTeacher.username" disabled type="text" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-black text-slate-400 outline-none cursor-not-allowed italic" />
+                <Lock class="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+              </div>
             </div>
 
             <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Display Name</label>
-              <input v-model="editingTeacher.displayName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Updated Display Name</label>
+              <input v-model="editingTeacher.displayName" type="text" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" />
             </div>
             
             <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
-              <input v-model="editingTeacher.email" type="email" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Updated Official Email</label>
+              <input v-model="editingTeacher.email" type="email" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" />
             </div>
 
-            <div class="pt-6 flex gap-4">
-              <button @click="showEditModal = false" class="flex-grow py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
-              <button @click="handleUpdateTeacher" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30">Save Changes</button>
+            <div class="pt-8 flex gap-4">
+              <button @click="showEditModal = false" class="flex-grow py-5 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:bg-slate-200 transition-colors">Discard</button>
+              <button @click="handleUpdateTeacher" class="flex-[2.5] py-5 rounded-[1.5rem] nebula-gradient text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-2xl shadow-nebula-500/30">Apply Updates</button>
             </div>
           </div>
         </div>
       </div>
     </transition>
   </div>
-</template>
 
 <style scoped>
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
