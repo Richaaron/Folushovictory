@@ -197,6 +197,7 @@ const filteredSubjects = computed(() => {
 onMounted(fetchTeachers)
 </script>
 
+<template>
   <div class="space-y-10 fade-in py-6">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
@@ -485,7 +486,7 @@ onMounted(fetchTeachers)
       </div>
     </transition>
   </div>
-
+</template>
 <style scoped>
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
