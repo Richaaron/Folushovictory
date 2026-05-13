@@ -11,13 +11,15 @@ import {
   Phone, 
   MapPin,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-vue-next'
 import api from '../services/api'
 
 const loading = ref(true)
 const saving = ref(false)
 const success = ref(false)
+const error = ref('')
 const settings = ref({
   name: 'Folusho Victory Schools',
   motto: 'Fountain of Knowledge',
@@ -44,11 +46,25 @@ const fetchSettings = async () => {
 const handleSave = async () => {
   saving.value = true
   success.value = false
+  error.value = ''
   try {
     await api.post('/api/config/school', settings.value)
     success.value = true
     setTimeout(() => success.value = false, 3000)
-  } catch (err) {
+  } catch (err: any) {
+    const status = err.response?.status
+    const message = err.response?.data?.error || err.message
+    
+    if (status === 401) {
+      error.value = 'Unauthorized: Please log in again'
+    } else if (status === 403) {
+      error.value = 'Forbidden: You do not have permission to update settings'
+    } else if (status === 400) {
+      error.value = `Invalid data: ${message}`
+    } else {
+      error.value = message || 'Failed to save settings'
+    }
+    
     console.error('Error saving settings:', err)
   } finally {
     saving.value = false
@@ -116,6 +132,11 @@ onMounted(fetchSettings)
           <div v-if="success" class="mb-8 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl flex items-center gap-4 text-emerald-600 fade-in">
             <CheckCircle2 class="w-6 h-6" />
             <span class="text-sm font-black uppercase tracking-widest">Settings synchronized successfully!</span>
+          </div>
+
+          <div v-if="error" class="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-4 text-red-600 fade-in">
+            <AlertCircle class="w-6 h-6 flex-shrink-0" />
+            <span class="text-sm font-black uppercase tracking-widest">{{ error }}</span>
           </div>
 
           <div class="space-y-8">
