@@ -13,7 +13,9 @@ authRouter.post(
 
     const user = await getUserByUsername(String(username).trim());
     if (!user) return res.status(401).json({ error: "Invalid credentials" });
-    if (user.portal !== portal) return res.status(403).json({ error: "Wrong portal" });
+    if (user.portal && portal && String(user.portal).toUpperCase() !== String(portal).toUpperCase()) {
+      return res.status(403).json({ error: "Wrong portal" });
+    }
 
     const ok = await verifyPassword(password, user.passwordHash || "");
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
