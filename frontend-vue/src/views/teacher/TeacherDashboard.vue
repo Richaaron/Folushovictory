@@ -37,7 +37,16 @@ const fetchData = async () => {
       api.get('/api/teacher/form-classes'),
       api.get('/api/config/school')
     ])
-    assignments.value = assignResp.data.assignments || []
+    
+    // Deduplicate assignments by classId and subjectId
+    const uniqueAssignments = new Map()
+    for (const a of (assignResp.data.assignments || [])) {
+      const key = `${a.classId}-${a.subjectId}`
+      if (!uniqueAssignments.has(key)) {
+        uniqueAssignments.set(key, a)
+      }
+    }
+    assignments.value = Array.from(uniqueAssignments.values())
     formClasses.value = formResp.data.classes || []
     
     if (schoolResp.data) {

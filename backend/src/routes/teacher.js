@@ -30,8 +30,19 @@ teacherRouter.get(
   "/assignments",
   asyncHandler(async (req, res) => {
     const assignments = await listAssignmentsByTeacher(req.user.username);
+    
+    // Deduplicate by classId and subjectId
+    const uniqueAssignments = new Map();
+    for (const a of assignments) {
+      const key = `${a.classId}-${a.subjectId}`;
+      if (!uniqueAssignments.has(key)) {
+        uniqueAssignments.set(key, a);
+      }
+    }
+    
+    const deduped = Array.from(uniqueAssignments.values());
     const enriched = await Promise.all(
-      assignments.map(async (a) => {
+      deduped.map(async (a) => {
         const [cls, subj] = await Promise.all([getClassById(a.classId), getSubjectById(a.subjectId)]);
         return {
           ...a,
