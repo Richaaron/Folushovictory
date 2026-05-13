@@ -8,6 +8,7 @@ import { adminRouter } from "./routes/admin.js";
 import { teacherRouter } from "./routes/teacher.js";
 import { parentRouter } from "./routes/parent.js";
 import { resultsRouter } from "./routes/results.js";
+import { configRouter } from "./routes/config.js";
 import { errorHandler, notFound } from "./http.js";
 
 assertConfig();
@@ -28,6 +29,7 @@ app.get("/health", (req, res) => res.json({ ok: true }));
 
 app.use("/api/auth", authRouter);
 app.use("/api", meRouter);
+app.use("/api", configRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/teacher", teacherRouter);
 app.use("/api/parent", parentRouter);
