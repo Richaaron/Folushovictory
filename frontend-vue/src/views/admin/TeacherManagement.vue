@@ -125,7 +125,7 @@ const handleAddTeacher = async () => {
     if (newTeacher.value.roleType === 'Subject Teacher') {
       targetClassIds = newTeacher.value.selectedClassIds
     } else if (newTeacher.value.roleType === 'Dual Role') {
-      const uniqueIds = new Set(newTeacher.value.selectedClassIds)
+      const uniqueIds = new Set<string>(newTeacher.value.selectedClassIds)
       if (newTeacher.value.formClassId) uniqueIds.add(newTeacher.value.formClassId)
       targetClassIds = Array.from(uniqueIds)
     } else if (newTeacher.value.roleType === 'Form Teacher') {
@@ -309,7 +309,7 @@ const handleUpdateTeacher = async () => {
     if (editingTeacher.value.roleType === 'Subject Teacher') {
       targetClassIds = editingTeacher.value.selectedClassIds
     } else if (editingTeacher.value.roleType === 'Dual Role') {
-      const uniqueIds = new Set(editingTeacher.value.selectedClassIds)
+      const uniqueIds = new Set<string>(editingTeacher.value.selectedClassIds)
       if (editingTeacher.value.formClassId) uniqueIds.add(editingTeacher.value.formClassId)
       targetClassIds = Array.from(uniqueIds)
     } else if (editingTeacher.value.roleType === 'Form Teacher') {
