@@ -12,7 +12,8 @@ import {
   MapPin,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Lock
 } from 'lucide-vue-next'
 import api from '../services/api'
 
@@ -27,6 +28,15 @@ const settings = ref({
   email: 'info@folushovictory.edu',
   phone: '+234 800 000 0000',
   website: 'www.folushovictory.edu'
+})
+
+const savingPassword = ref(false)
+const passwordSuccess = ref(false)
+const passwordError = ref('')
+const passwordForm = ref({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
 })
 
 const fetchSettings = async () => {
@@ -68,6 +78,36 @@ const handleSave = async () => {
     console.error('Error saving settings:', err)
   } finally {
     saving.value = false
+  }
+}
+
+const handleChangePassword = async () => {
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    passwordError.value = 'New passwords do not match'
+    return
+  }
+
+  if (passwordForm.value.newPassword.length < 6) {
+    passwordError.value = 'New password must be at least 6 characters'
+    return
+  }
+
+  savingPassword.value = true
+  passwordSuccess.value = false
+  passwordError.value = ''
+
+  try {
+    await api.post('/api/change-password', {
+      oldPassword: passwordForm.value.oldPassword,
+      newPassword: passwordForm.value.newPassword
+    })
+    passwordSuccess.value = true
+    passwordForm.value = { oldPassword: '', newPassword: '', confirmPassword: '' }
+    setTimeout(() => passwordSuccess.value = false, 3000)
+  } catch (err: any) {
+    passwordError.value = err.response?.data?.error || 'Failed to update password. Ensure current password is correct.'
+  } finally {
+    savingPassword.value = false
   }
 }
 
@@ -184,6 +224,57 @@ onMounted(fetchSettings)
               <input v-model="settings.website" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="https://www.folushovictory.edu" />
             </div>
           </div>
+        </div>
+
+        <!-- Security Settings Section -->
+        <div class="academic-card rounded-[2.5rem] p-8 sm:p-12">
+          <div class="flex items-center gap-3 mb-8">
+            <div class="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+              <Lock class="w-5 h-5" />
+            </div>
+            <div>
+              <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Security Settings</h3>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Update your access credentials</p>
+            </div>
+          </div>
+
+          <div v-if="passwordSuccess" class="mb-8 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl flex items-center gap-4 text-emerald-600 fade-in">
+            <CheckCircle2 class="w-6 h-6" />
+            <span class="text-sm font-black uppercase tracking-widest">Password updated successfully!</span>
+          </div>
+
+          <div v-if="passwordError" class="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-4 text-red-600 fade-in">
+            <AlertCircle class="w-6 h-6 flex-shrink-0" />
+            <span class="text-sm font-black uppercase tracking-widest">{{ passwordError }}</span>
+          </div>
+
+          <form @submit.prevent="handleChangePassword" class="space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Current Password</label>
+                <input v-model="passwordForm.oldPassword" type="password" required class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">New Password</label>
+                <input v-model="passwordForm.newPassword" type="password" required class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Confirm New Password</label>
+                <input v-model="passwordForm.confirmPassword" type="password" required class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none" />
+              </div>
+              <button 
+                type="submit"
+                :disabled="savingPassword"
+                class="flex items-center justify-center gap-3 rounded-2xl bg-slate-900 dark:bg-slate-700 px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl transition hover:bg-slate-800 active:scale-95 disabled:opacity-50 h-[52px]"
+              >
+                <component :is="savingPassword ? Loader2 : Lock" class="w-4 h-4" :class="{'animate-spin': savingPassword}" /> 
+                Update Password
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
