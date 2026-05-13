@@ -13,18 +13,51 @@ import { setReleaseStatus } from "../repos/releases.js";
 import { getStudentById } from "../repos/students.js";
 import { getUserByUsername } from "../repos/users.js";
 import { sendResultReleasedEmail } from "../services/email.js";
+import { getDb } from "../firebase.js";
 
 export const teacherRouter = express.Router();
 
-// Public debug endpoint (no auth required)
+// Public debug endpoint - list all teachers and their assignment counts
+teacherRouter.get(
+  "/assignments-debug-public/list",
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const userSnap = await db.collection("users").where("role", "==", Roles.TEACHER).get();
+    const teachers = userSnap.docs.map(d => d.data());
+    
+    const result = await Promise.all(
+      teachers.map(async (t) => {
+        const assignments = await listAssignmentsByTeacher(t.username);
+        const keys = assignments.map(a => `${a.classId}-${a.subjectId}`);
+        const uniqueKeys = new Set(keys);
+        return {
+          username: t.username,
+          displayName: t.displayName,
+          totalAssignments: assignments.length,
+          uniqueKeys: uniqueKeys.size,
+          duplicateCount: assignments.length - uniqueKeys.size,
+          assignments: assignments
+        };
+      })
+    );
+    
+    return res.json(result);
+  })
+);
+
 teacherRouter.get(
   "/assignments-debug-public/:username",
   asyncHandler(async (req, res) => {
     const { username } = req.params;
     const assignments = await listAssignmentsByTeacher(username);
+    const keys = assignments.map(a => `${a.classId}-${a.subjectId}`);
+    const uniqueKeys = new Set(keys);
+    
     return res.json({ 
       username,
       totalFromDb: assignments.length,
+      uniqueKeys: uniqueKeys.size,
+      duplicateCount: assignments.length - uniqueKeys.size,
       allAssignments: assignments.map(a => ({
         id: a.id,
         classId: a.classId,
