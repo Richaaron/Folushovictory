@@ -6,8 +6,8 @@ import { generateTeacherUsername, generateStudentId, generateParentUsername } fr
 import { generateRandomPassword, hashPassword } from "../security.js";
 import { createUser, deleteUser, getUserByUsername, updateUser } from "../repos/users.js";
 import { createStudent, listStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
-import { createClass, listClasses, updateClass } from "../repos/classes.js";
-import { createSubject, listSubjects } from "../repos/subjects.js";
+import { createClass, listClasses, updateClass, getClassById } from "../repos/classes.js";
+import { createSubject, listSubjects, getSubjectById } from "../repos/subjects.js";
 import { createAssignment } from "../repos/assignments.js";
 import { getGradingScale, setGradingScale, setTermMeta, getSchoolSettings, setSchoolSettings } from "../repos/config.js";
 import { setReleaseStatus } from "../repos/releases.js";
@@ -425,10 +425,28 @@ adminRouter.post(
     const subjectIds = Array.isArray(req.body.subjectIds) ? req.body.subjectIds : [subjectId];
 
     const assignmentPromises = [];
+    
+    // Pre-fetch class and subject info for level validation
+    const classDocs = await Promise.all(classIds.filter(id => !!id).map(id => getClassById(id)));
+    const subjectDocs = await Promise.all(subjectIds.filter(id => !!id).map(id => getSubjectById(id)));
+    
+    const classMap = Object.fromEntries(classDocs.filter(c => !!c).map(c => [c.id, c]));
+    const subjectMap = Object.fromEntries(subjectDocs.filter(s => !!s).map(s => [s.id, s]));
+
     for (const cid of classIds) {
-      if (!cid) continue;
+      if (!cid || !classMap[cid]) continue;
+      const classLevel = classMap[cid].level; // e.g., "JSS", "SSS"
+
       for (const sid of subjectIds) {
-        if (!sid) continue;
+        if (!sid || !subjectMap[sid]) continue;
+        const subjectLevel = subjectMap[sid].level;
+
+        // Strict Validation: Skip if levels are both set but don't match
+        if (classLevel && subjectLevel && classLevel !== subjectLevel) {
+          console.warn(`⚠️ Skipping assignment: Level mismatch between Class ${classMap[cid].name} (${classLevel}) and Subject ${subjectMap[sid].name} (${subjectLevel})`);
+          continue;
+        }
+
         assignmentPromises.push(
           createAssignment({
             teacherUsername: String(teacherUsername),
@@ -440,7 +458,13 @@ adminRouter.post(
     }
 
     const assignments = await Promise.all(assignmentPromises);
-    return res.status(201).json({ count: assignments.length, assignments });
+    return res.status(201).json({ 
+      count: assignments.length, 
+      assignments,
+      message: assignments.length === (classIds.length * subjectIds.length) 
+        ? "✅ All assignments created successfully!"
+        : `✅ Created ${assignments.length} valid assignments. Some were skipped due to level mismatch.`
+    });
   })
 );
 
