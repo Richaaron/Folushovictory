@@ -2,7 +2,9 @@ import admin from "firebase-admin";
 import { getDb } from "../firebase.js";
 
 function publishId({ classId, session, term }) {
-  return `${session}_${term}_${classId}`;
+  // Replace / with - in session to avoid Firestore document ID issues
+  const safeSession = String(session).replace(/\//g, '-');
+  return `${safeSession}_${term}_${classId}`;
 }
 
 export async function isPublished({ classId, session, term }) {

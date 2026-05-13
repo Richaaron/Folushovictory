@@ -136,9 +136,11 @@ resultsRouter.get(
         };
         
         if (cumulative.previousTerms.length > 0 && row) {
-            const allTotals = [...cumulative.previousTerms.map(r => r.total), row.total];
-            cumulative.sessionTotal = allTotals.reduce((a, b) => a + b, 0);
-            cumulative.sessionAverage = (cumulative.sessionTotal / allTotals.length).toFixed(2);
+            const allTotals = [...cumulative.previousTerms.filter(r => r.total !== undefined).map(r => r.total), row.total];
+            if (allTotals.length > 0) {
+              cumulative.sessionTotal = allTotals.reduce((a, b) => a + b, 0);
+              cumulative.sessionAverage = (cumulative.sessionTotal / allTotals.length).toFixed(2);
+            }
         }
       }
     }

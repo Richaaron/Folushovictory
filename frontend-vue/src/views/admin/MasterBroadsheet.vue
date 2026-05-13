@@ -179,7 +179,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
                 </div>
               </td>
               <template v-for="sub in broadsheet.subjects" :key="sub.id + '-score'">
-                <template v-if="student.scores[sub.id]">
+                <template v-if="student.scores && student.scores[sub.id]">
                   <td class="px-1 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-[9px] font-bold text-slate-500">{{ student.scores[sub.id].ca1 }}</td>
                   <td class="px-1 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-[9px] font-bold text-slate-500">{{ student.scores[sub.id].ca2 }}</td>
                   <td class="px-1 py-4 border-r border-slate-200 dark:border-slate-700 text-center text-[9px] font-bold text-slate-500">{{ student.scores[sub.id].exam }}</td>

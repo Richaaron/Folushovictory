@@ -9,6 +9,9 @@ export function notFound(req, res) {
 export function errorHandler(err, req, res, next) {
   const status = Number(err.statusCode || 500);
   const message = status >= 500 ? "Server Error" : err.message || "Error";
+  if (status >= 500) {
+    console.error("Server Error:", err);
+  }
   res.status(status).json({ error: message });
 }
 

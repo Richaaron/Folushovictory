@@ -45,7 +45,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
   // Step 1: Compute basic rows with totals and averages
   const rows = students.map((st) => {
     const perSubject = subjectIds.map((subjectId) => {
-      const key = `${st.studentId}_${subjectId}`;
+      const key = `${st.id}_${subjectId}`;
       const sc = scoresByKey.get(key);
       const ca1 = Number(sc?.ca1 || 0);
       const ca2 = Number(sc?.ca2 || 0);
@@ -79,11 +79,17 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
     const sum = perSubject.reduce((acc, p) => acc + p.total, 0);
     const average = subjectIds.length ? Number((sum / subjectIds.length).toFixed(2)) : 0;
     
+    const scores = {};
+    perSubject.forEach(ps => {
+      scores[ps.subjectId] = ps;
+    });
+
     return {
-      studentId: st.studentId,
+      studentId: st.id,
       firstName: st.firstName,
       lastName: st.lastName,
-      perSubject,
+      scores,
+      perSubject, // Keep for backward compatibility or other uses
       total: sum,
       average: average
     };
@@ -92,16 +98,21 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
   // Step 2: Compute Position in Subject for Secondary (JSS & SSS)
   if (isSecondary) {
     subjectIds.forEach(subId => {
-      const subjectScores = rows.map(r => ({ 
-        studentId: r.studentId, 
-        total: r.perSubject.find(ps => ps.subjectId === subId).total 
-      }));
+      const subjectScores = rows.map(r => {
+        const ps = r.perSubject.find(ps => ps.subjectId === subId);
+        return { 
+          studentId: r.studentId,
+          total: ps ? ps.total : 0
+        };
+      });
       const rankedSub = computeSubjectPositions(subjectScores);
       const posMap = new Map(rankedSub.map(rs => [rs.studentId, rs.subjectPosition]));
       
       rows.forEach(r => {
         const ps = r.perSubject.find(ps => ps.subjectId === subId);
-        ps.subjectPosition = posMap.get(r.studentId);
+        if (ps) {
+          ps.subjectPosition = posMap.get(r.studentId);
+        }
       });
     });
   }
@@ -109,9 +120,10 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
   // Step 3: Compute Overall Positions
   const ranked = computePositions(rows);
   const byId = new Map(ranked.map((r) => [r.studentId, r]));
+  
   return {
     subjects,
-    students: students.map((s) => byId.get(s.studentId))
+    students: students.map((s) => byId.get(s.id)).filter(Boolean)
   };
 }
 
@@ -119,7 +131,7 @@ export function traitSheet({ students, subjects, scoresByKey }) {
   const subjectIds = subjects.map((s) => s.id);
   const rows = students.map((st) => {
     const perSubject = subjectIds.map((subjectId) => {
-      const key = `${st.studentId}_${subjectId}`;
+      const key = `${st.id}_${subjectId}`;
       const sc = scoresByKey.get(key);
       const rating = sc?.rating || "";
       return {
@@ -129,7 +141,7 @@ export function traitSheet({ students, subjects, scoresByKey }) {
       };
     });
     return {
-      studentId: st.studentId,
+      studentId: st.id,
       firstName: st.firstName,
       lastName: st.lastName,
       perSubject

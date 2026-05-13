@@ -16,9 +16,23 @@ getFirebaseApp();
 
 const app = express();
 
+// CORS configuration: allow both production and development origins
+const allowedOrigins = [
+  config.frontendOrigin,
+  'http://localhost:5173',
+  'http://localhost:5000',
+  'https://folushovictory.netlify.app'
+];
+
 app.use(
   cors({
-    origin: config.frontendOrigin,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true
   })
 );
