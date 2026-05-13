@@ -123,7 +123,17 @@ const handleAddTeacher = async () => {
       assignedSubjectIds: [] 
     }
     await fetchTeachers()
-    alert(`Staff Account Created Successfully!\n\nUsername: ${teacher.username}\nPassword: ${teacher.password}\n\nPlease copy the password now. It will not be shown again.`)
+    
+    // Show status message
+    let message = `Staff Account Created Successfully!\n\nUsername: ${teacher.username}\nPassword: ${teacher.password}\n\nPlease copy the password now. It will not be shown again.`
+    
+    if (teacher.warning) {
+      message += `\n\n⚠️ WARNING: ${teacher.warning}\nEmail Address: ${teacher.email}`
+    } else if (teacher.emailSent) {
+      message += `\n\n✅ Welcome email sent to: ${teacher.email}`
+    }
+    
+    alert(message)
   } catch (err) {
     console.error('Error adding teacher:', err)
   } finally {

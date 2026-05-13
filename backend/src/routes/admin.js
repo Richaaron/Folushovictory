@@ -100,6 +100,9 @@ adminRouter.post(
       passwordHash
     });
 
+    let emailSent = false;
+    let emailError = null;
+    
     if (email) {
       try {
         const portalUrl = process.env.FRONTEND_URL || "https://folushovictoryschool.onrender.com";
@@ -135,12 +138,27 @@ adminRouter.post(
             </div>
           `
         });
+        emailSent = true;
+        console.log(`✅ Welcome email sent successfully to ${email}`);
       } catch (err) {
-        console.error("Failed to send teacher email:", err);
+        emailError = err.message;
+        console.error(`❌ Failed to send teacher email to ${email}:`, err.message);
+        console.error("SMTP Configuration Check:");
+        console.error(`  - SMTP_HOST: ${process.env.SMTP_HOST}`);
+        console.error(`  - SMTP_PORT: ${process.env.SMTP_PORT}`);
+        console.error(`  - SMTP_USER: ${process.env.SMTP_USER}`);
+        console.error(`  - Email Address: ${email}`);
       }
     }
 
-    return res.status(201).json({ username, password });
+    return res.status(201).json({ 
+      username, 
+      password,
+      email: email || null,
+      emailSent,
+      emailError: emailError ? `Email notification failed: ${emailError}` : null,
+      warning: !emailSent && email ? "⚠️ Account created but email notification could not be sent" : null
+    });
   })
 );
 
