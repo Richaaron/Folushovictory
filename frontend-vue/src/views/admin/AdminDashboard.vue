@@ -46,11 +46,7 @@ const fetchDashboard = async () => {
 
 onMounted(fetchDashboard)
 
-const recentActivity = [
-  { id: 1, type: 'assignment', text: 'Mr. Smith assigned Mathematics to JSS 3A', time: '2 mins ago' },
-  { id: 2, type: 'result', text: 'Broadsheet for JSS 1 published by Principal', time: '1 hour ago' },
-  { id: 3, type: 'student', text: 'New student enrollment: Oluwaseun Adeleke', time: '3 hours ago' },
-]
+const recentActivity: Array<{ id: number; type: string; text: string; time: string }> = []
 </script>
 
 <template>
