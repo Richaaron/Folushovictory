@@ -19,7 +19,7 @@ const menuItems = [
   { name: 'Classes', icon: BookOpen, route: '/admin/classes' },
   { name: 'Students', icon: GraduationCap, route: '/admin/students' },
   { name: 'Broadsheet', icon: BarChart3, route: '/admin/broadsheet' },
-  { name: 'Settings', icon: Settings, route: '/settings' },
+  { name: 'Settings', icon: Settings, route: '/admin/settings' },
 ]
 </script>
 
@@ -43,7 +43,7 @@ const menuItems = [
               :to="item.route"
               class="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all duration-300 group relative focus-visible:ring-inset focus-visible:ring-4 focus-visible:ring-nebula-500/40 min-h-[44px]"
               :class="[
-                $route.path === item.route 
+                $route.path.startsWith(item.route) 
                   ? 'bg-nebula-500 text-white shadow-2xl shadow-nebula-500/40' 
                   : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-nebula-500 dark:hover:text-nebula-400'
               ]"

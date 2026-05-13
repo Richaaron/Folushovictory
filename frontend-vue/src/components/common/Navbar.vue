@@ -167,7 +167,7 @@ watch(mobileMenuOpen, (newVal) => {
 
           <!-- Settings Link -->
           <router-link 
-            to="/settings" 
+            to="/admin/settings" 
             @click="mobileMenuOpen = false"
             role="menuitem"
             class="flex items-center gap-3 p-3 rounded-lg text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-800/50 focus-visible:ring-4 focus-visible:ring-nebula-500/40 transition-colors active:scale-95"

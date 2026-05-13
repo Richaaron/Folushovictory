@@ -9,7 +9,8 @@ import {
   Calendar,
   Loader2,
   Trash2,
-  Edit2
+  Edit2,
+  FileText
 } from 'lucide-vue-next'
 import api from '../../services/api'
 

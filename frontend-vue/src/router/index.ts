@@ -52,7 +52,7 @@ const router = createRouter({
           component: () => import('../views/admin/MasterBroadsheet.vue')
         },
         {
-          path: '/settings',
+          path: 'settings',
           name: 'settings',
           component: () => import('../views/SettingsView.vue')
         }
