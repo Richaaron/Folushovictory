@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import admin from "firebase-admin";
+import { getDb } from "../firebase.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -14,8 +16,20 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async ({ to, subject, html }) => {
+  const db = getDb();
+  const logRef = db.collection("logs").doc();
+  const logData = {
+    to,
+    subject,
+    type: "EMAIL",
+    status: "PENDING",
+    createdAt: admin.firestore.FieldValue.serverTimestamp()
+  };
+
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    throw new Error("SMTP is not fully configured. Set SMTP_HOST, SMTP_USER, and SMTP_PASS.");
+    const error = "SMTP is not fully configured. Set SMTP_HOST, SMTP_USER, and SMTP_PASS.";
+    await logRef.set({ ...logData, status: "FAILED", error });
+    throw new Error(error);
   }
 
   try {
@@ -27,9 +41,11 @@ export const sendEmail = async ({ to, subject, html }) => {
       html,
     });
     console.log("Message sent: %s", info.messageId);
+    await logRef.set({ ...logData, status: "SENT", messageId: info.messageId });
     return info;
   } catch (error) {
     console.error("Error sending email:", error);
+    await logRef.set({ ...logData, status: "FAILED", error: error?.message || String(error) });
     throw error;
   }
 };

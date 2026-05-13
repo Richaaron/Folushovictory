@@ -488,14 +488,14 @@ adminRouter.post(
             <h1>Results are Out!</h1>
             <p>Dear ${s.parentName},</p>
             <p>The results for <strong>${s.firstName} ${s.lastName}</strong> for the <strong>${term} Term (${session})</strong> have been published.</p>
-            <p>You can now log in to the parent portal to view the report card: <a href="${process.env.FRONTEND_ORIGIN}/login">${process.env.FRONTEND_ORIGIN}/login</a></p>
+            <p>You can now log in to the parent portal to view the report card: <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login">${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login</a></p>
           `
         }).catch((err) => console.error(`Failed to notify parent of ${s.studentId}:`, err));
       });
     
-    // We don't necessarily need to await all of these to return the response, 
-    // but doing so ensures we know if they were sent. For a small class, it's fine.
-    Promise.all(notificationPromises);
+    // We await these so we know if they were sent before finishing the request.
+    // For large classes, we might want to make this fully background, but for now this is safer.
+    await Promise.all(notificationPromises);
 
     return res.json(published);
   })
