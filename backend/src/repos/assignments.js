@@ -3,8 +3,10 @@ import { getDb } from "../firebase.js";
 
 export async function createAssignment(data) {
   const db = getDb();
+  const teacherUsername = data.teacherUsername ? String(data.teacherUsername).toLowerCase().trim() : "";
   const ref = await db.collection("assignments").add({
     ...data,
+    teacherUsername,
     createdAt: admin.firestore.FieldValue.serverTimestamp()
   });
   const snap = await ref.get();
@@ -13,7 +15,8 @@ export async function createAssignment(data) {
 
 export async function listAssignmentsByTeacher(teacherUsername) {
   const db = getDb();
-  const snap = await db.collection("assignments").where("teacherUsername", "==", teacherUsername).get();
+  const normalized = teacherUsername ? String(teacherUsername).toLowerCase().trim() : "";
+  const snap = await db.collection("assignments").where("teacherUsername", "==", normalized).get();
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
@@ -25,9 +28,10 @@ export async function listAssignmentsByClass(classId) {
 
 export async function getAssignmentByTriplet({ teacherUsername, classId, subjectId }) {
   const db = getDb();
+  const normalized = teacherUsername ? String(teacherUsername).toLowerCase().trim() : "";
   const snap = await db
     .collection("assignments")
-    .where("teacherUsername", "==", teacherUsername)
+    .where("teacherUsername", "==", normalized)
     .where("classId", "==", classId)
     .where("subjectId", "==", subjectId)
     .get();
