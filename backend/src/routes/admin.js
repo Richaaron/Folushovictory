@@ -81,7 +81,11 @@ adminRouter.post(
   "/teachers",
   asyncHandler(async (req, res) => {
     const { displayName, email } = req.body || {};
+    const normalizedEmail = email ? String(email).trim() : null;
     if (!displayName) return res.status(400).json({ error: "Missing displayName" });
+    if (normalizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return res.status(400).json({ error: "Invalid email address" });
+    }
 
     const username = await generateTeacherUsername();
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
@@ -93,23 +97,19 @@ adminRouter.post(
 
     await createUser({
       username,
-      email: email ? String(email) : null,
+      email: normalizedEmail,
       portal: "TEACHER",
       role: Roles.TEACHER,
       displayName: String(displayName),
       passwordHash
     });
 
-    let emailSent = false;
+    let emailQueued = false;
     let emailError = null;
-    
-    if (email) {
-      try {
-        const portalUrl = process.env.FRONTEND_URL || "https://folushovictoryschool.onrender.com";
-        await sendEmail({
-          to: email,
-          subject: "Your FVS Teacher Portal Credentials",
-          html: `
+
+    if (normalizedEmail) {
+      emailQueued = true;
+      const emailHtml = `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
               <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
                 <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
@@ -136,28 +136,36 @@ adminRouter.post(
                 </p>
               </div>
             </div>
-          `
-        });
-        emailSent = true;
-        console.log(`✅ Welcome email sent successfully to ${email}`);
-      } catch (err) {
-        emailError = err.message;
-        console.error(`❌ Failed to send teacher email to ${email}:`, err.message);
-        console.error("SMTP Configuration Check:");
-        console.error(`  - SMTP_HOST: ${process.env.SMTP_HOST}`);
-        console.error(`  - SMTP_PORT: ${process.env.SMTP_PORT}`);
-        console.error(`  - SMTP_USER: ${process.env.SMTP_USER}`);
-        console.error(`  - Email Address: ${email}`);
-      }
+          `;
+
+      void (async () => {
+        try {
+          await sendEmail({
+            to: normalizedEmail,
+            subject: "Your FVS Teacher Portal Credentials",
+            html: emailHtml
+          });
+          console.log(`✅ Welcome email sent successfully to ${normalizedEmail}`);
+        } catch (err) {
+          emailError = err.message;
+          console.error(`❌ Failed to send teacher email to ${normalizedEmail}:`, err.message);
+          console.error("SMTP Configuration Check:");
+          console.error(`  - SMTP_HOST: ${process.env.SMTP_HOST}`);
+          console.error(`  - SMTP_PORT: ${process.env.SMTP_PORT}`);
+          console.error(`  - SMTP_USER: ${process.env.SMTP_USER}`);
+          console.error(`  - Email Address: ${normalizedEmail}`);
+        }
+      })();
     }
 
     return res.status(201).json({ 
       username, 
       password,
-      email: email || null,
-      emailSent,
+      email: normalizedEmail || null,
+      emailSent: false,
+      emailQueued,
       emailError: emailError ? `Email notification failed: ${emailError}` : null,
-      warning: !emailSent && email ? "⚠️ Account created but email notification could not be sent" : null
+      warning: emailQueued ? "✅ Account created. Welcome email is queued for delivery." : null
     });
   })
 );

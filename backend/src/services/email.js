@@ -14,12 +14,12 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async ({ to, subject, html }) => {
-  if (!process.env.SMTP_HOST) {
-    console.warn("SMTP_HOST not configured. Email not sent.");
-    return;
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    throw new Error("SMTP is not fully configured. Set SMTP_HOST, SMTP_USER, and SMTP_PASS.");
   }
 
   try {
+    await transporter.verify();
     const info = await transporter.sendMail({
       from: `"Folusho Victory Schools" <${process.env.SMTP_USER}>`,
       to,

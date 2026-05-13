@@ -5,7 +5,8 @@ import {
   Trash2, 
   Edit2, 
   UserPlus,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -75,23 +76,32 @@ watch(() => newTeacher.value.secondaryLevel, () => {
   newTeacher.value.assignedSubjectIds = []
 })
 
+const isValidEmailAddress = (value: string) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
 const handleAddTeacher = async () => {
   if (!newTeacher.value.displayName) return
+  const trimmedEmail = newTeacher.value.email ? newTeacher.value.email.trim() : ''
+  if (trimmedEmail && !isValidEmailAddress(trimmedEmail)) {
+    alert('Please enter a valid email address before enrolling a teacher.')
+    return
+  }
+
   creating.value = true
   try {
     const { data: teacher } = await api.post('/api/admin/teachers', {
       displayName: newTeacher.value.displayName,
-      email: newTeacher.value.email
+      email: trimmedEmail || null
     })
     
-    // 1. Assign Form Class Role (if applicable)
+    const followUpRequests = []
     if ((newTeacher.value.roleType === 'Form Teacher' || newTeacher.value.roleType === 'Dual Role') && newTeacher.value.formClassId) {
-      await api.put(`/api/admin/classes/${newTeacher.value.formClassId}/subjects`, {
+      followUpRequests.push(api.put(`/api/admin/classes/${newTeacher.value.formClassId}/subjects`, {
         formTeacherUsername: teacher.username
-      })
+      }))
     }
-    
-    // 2. Assign Specific Subjects (Subject Teacher / Dual Role)
+
     let targetClassIds: string[] = []
     if (newTeacher.value.roleType === 'Subject Teacher') {
       targetClassIds = newTeacher.value.selectedClassIds
@@ -104,11 +114,15 @@ const handleAddTeacher = async () => {
     }
 
     if (newTeacher.value.assignedSubjectIds.length > 0 && targetClassIds.length > 0) {
-      await api.post('/api/admin/assignments', {
+      followUpRequests.push(api.post('/api/admin/assignments', {
         teacherUsername: teacher.username,
         classIds: targetClassIds,
         subjectIds: newTeacher.value.assignedSubjectIds
-      })
+      }))
+    }
+
+    if (followUpRequests.length > 0) {
+      await Promise.all(followUpRequests)
     }
 
     showAddModal.value = false
@@ -123,19 +137,26 @@ const handleAddTeacher = async () => {
       assignedSubjectIds: [] 
     }
     await fetchTeachers()
-    
-    // Show status message
+
     let message = `Staff Account Created Successfully!\n\nUsername: ${teacher.username}\nPassword: ${teacher.password}\n\nPlease copy the password now. It will not be shown again.`
     
     if (teacher.warning) {
-      message += `\n\n⚠️ WARNING: ${teacher.warning}\nEmail Address: ${teacher.email}`
+      message += `\n\n${teacher.warning}`
+      if (teacher.email) message += `\nEmail Address: ${teacher.email}`
+    } else if (teacher.emailQueued) {
+      message += `\n\n📬 Welcome email is queued for delivery and should arrive shortly.`
     } else if (teacher.emailSent) {
       message += `\n\n✅ Welcome email sent to: ${teacher.email}`
+    }
+
+    if (teacher.emailError) {
+      message += `\n\nError details: ${teacher.emailError}`
     }
     
     alert(message)
   } catch (err) {
     console.error('Error adding teacher:', err)
+    alert('Unable to create faculty profile right now. Please check the email address and try again.')
   } finally {
     creating.value = false
   }
@@ -336,6 +357,12 @@ onMounted(fetchTeachers)
           </div>
           
           <div class="space-y-6 md:space-y-8">
+            <div v-if="creating" class="rounded-[1.5rem] bg-emerald-500/10 border border-emerald-500/20 p-4 text-emerald-900 dark:text-emerald-200 text-sm font-bold tracking-tight">
+              <div class="flex items-center gap-3">
+                <Loader2 class="w-4 h-4 animate-spin" aria-hidden="true" />
+                <span>Creating faculty profile and sending credentials. This may take a few seconds.</span>
+              </div>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               <div class="space-y-2">
                 <label for="new-display-name" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Legal Full Name</label>
@@ -434,7 +461,7 @@ onMounted(fetchTeachers)
 
             <div class="pt-10 flex gap-4">
               <button @click="showAddModal = false" class="flex-grow py-5 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Abort</button>
-              <button @click="handleAddTeacher" :disabled="creating" class="flex-[2.5] py-5 rounded-[1.5rem] nebula-gradient text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-2xl shadow-nebula-500/30 disabled:opacity-50 group">
+              <button @click="handleAddTeacher" :disabled="creating || !newTeacher.displayName || (!!newTeacher.email && !isValidEmailAddress(newTeacher.email))" class="flex-[2.5] py-5 rounded-[1.5rem] nebula-gradient text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-2xl shadow-nebula-500/30 disabled:opacity-50 group">
                 <span v-if="!creating" class="flex items-center justify-center gap-3">
                   Commit Enrollment <UserPlus class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
