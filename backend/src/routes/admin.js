@@ -105,7 +105,6 @@ adminRouter.post(
     });
 
     let emailQueued = false;
-    let emailError = null;
 
     if (normalizedEmail) {
       emailQueued = true;
@@ -147,12 +146,11 @@ adminRouter.post(
           });
           console.log(`✅ Welcome email sent successfully to ${normalizedEmail}`);
         } catch (err) {
-          emailError = err.message;
-          console.error(`❌ Failed to send teacher email to ${normalizedEmail}:`, err.message);
+          console.error(`❌ Failed to send teacher email to ${normalizedEmail}:`, err?.message || err);
           console.error("SMTP Configuration Check:");
-          console.error(`  - SMTP_HOST: ${process.env.SMTP_HOST}`);
-          console.error(`  - SMTP_PORT: ${process.env.SMTP_PORT}`);
-          console.error(`  - SMTP_USER: ${process.env.SMTP_USER}`);
+          console.error(`  - SMTP_HOST: ${process.env.SMTP_HOST || 'unset'}`);
+          console.error(`  - SMTP_PORT: ${process.env.SMTP_PORT || 'unset'}`);
+          console.error(`  - SMTP_USER: ${process.env.SMTP_USER || 'unset'}`);
           console.error(`  - Email Address: ${normalizedEmail}`);
         }
       })();
@@ -164,7 +162,6 @@ adminRouter.post(
       email: normalizedEmail || null,
       emailSent: false,
       emailQueued,
-      emailError: emailError ? `Email notification failed: ${emailError}` : null,
       warning: emailQueued ? "✅ Account created. Welcome email is queued for delivery." : null
     });
   })
