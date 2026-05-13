@@ -73,3 +73,103 @@ body {
 @media print {
   .no-print { display: none !important; }
 }
+
+/* Accessibility & Focus States */
+:focus-visible {
+  @apply outline-none ring-4 ring-nebula-500/40 ring-offset-2 dark:ring-offset-slate-950 transition-shadow;
+}
+
+/* Improved Keyboard Navigation */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  @apply ring-4 ring-nebula-500/50;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Accessible Tap Targets for Mobile */
+button,
+a,
+select,
+input[type="checkbox"],
+input[type="radio"],
+.clickable {
+  @apply min-h-[44px] min-w-[44px];
+}
+
+@media (max-width: 640px) {
+  button, a, select, input, textarea {
+    @apply min-h-[48px];
+  }
+}
+
+/* Screen Reader Only Utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Responsive Table Wrapper */
+.responsive-table-container {
+  @apply overflow-x-auto;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: more) {
+  :root {
+    --primary: #0a47a9;
+    --accent: #00621a;
+  }
+  
+  .glass-card,
+  .glass-nav,
+  .glass-sidebar {
+    @apply border-2 dark:border-slate-600;
+  }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  body {
+    @apply text-base;
+  }
+  
+  h1 {
+    @apply text-2xl;
+  }
+  
+  h2 {
+    @apply text-xl;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print { 
+    display: none !important; 
+  }
+  
+  * {
+    @apply bg-white text-black;
+  }
+}

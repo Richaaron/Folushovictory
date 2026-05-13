@@ -51,95 +51,115 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#020617] px-4 py-12 relative overflow-hidden">
+  <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#020617] px-3 sm:px-4 py-8 sm:py-12 relative overflow-hidden">
     <!-- Dynamic Background Elements -->
-    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-nebula-500/20 blur-[120px] rounded-full animate-pulse-slow"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/20 blur-[120px] rounded-full animate-pulse-slow" style="animation-delay: 2s"></div>
-    <div class="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-emerald-500/10 blur-[80px] rounded-full animate-float"></div>
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-nebula-500/20 blur-[120px] rounded-full animate-pulse-slow" aria-hidden="true"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/20 blur-[120px] rounded-full animate-pulse-slow" style="animation-delay: 2s" aria-hidden="true"></div>
+    <div class="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-emerald-500/10 blur-[80px] rounded-full animate-float" aria-hidden="true"></div>
 
-    <div class="max-w-md w-full space-y-10 fade-in relative z-10">
+    <div class="w-full max-w-md space-y-6 sm:space-y-8 lg:space-y-10 fade-in relative z-10">
+      <!-- Logo and Header -->
       <div class="text-center">
         <div class="relative inline-block group">
-          <div class="absolute inset-0 bg-nebula-500 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
-          <div class="relative mx-auto h-24 w-24 bg-white dark:bg-slate-900 rounded-[2rem] p-4 shadow-2xl border border-white/50 dark:border-slate-700 flex items-center justify-center mb-8 transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-            <img src="/logo.png" alt="Logo" class="object-contain w-full h-full" />
+          <div class="absolute inset-0 bg-nebula-500 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500" aria-hidden="true"></div>
+          <div class="relative mx-auto h-20 sm:h-24 w-20 sm:w-24 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2rem] p-3 sm:p-4 shadow-2xl border border-white/50 dark:border-slate-700 flex items-center justify-center mb-6 sm:mb-8 transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+            <img src="/logo.png" alt="Folusho Victory Schools Logo" class="object-contain w-full h-full" />
           </div>
         </div>
         
         <div class="space-y-2">
           <div class="flex items-center justify-center gap-3">
-            <div class="h-px w-8 bg-nebula-500/30"></div>
-            <span class="text-[10px] font-black uppercase tracking-[0.4em] text-nebula-500">Secure Gateway</span>
-            <div class="h-px w-8 bg-nebula-500/30"></div>
+            <div class="h-px w-6 sm:w-8 bg-nebula-500/30" aria-hidden="true"></div>
+            <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-nebula-500">Secure Gateway</span>
+            <div class="h-px w-6 sm:w-8 bg-nebula-500/30" aria-hidden="true"></div>
           </div>
-          <h2 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
             {{ portalTitle }} <span class="text-transparent bg-clip-text nebula-gradient">Login</span>
           </h2>
-          <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em]">
+          <p class="text-[9px] sm:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em]">
             Institutional Control & Academic Management
           </p>
         </div>
       </div>
 
-      <div class="glass-card rounded-[3rem] p-10 shadow-2xl border border-white/40 dark:border-slate-800/50">
-        <form @submit.prevent="handleLogin" class="space-y-8">
-          <div v-if="error" class="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 rounded-2xl p-4 flex items-start gap-3 animate-shake">
-            <AlertCircle class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
-            <p class="text-xs font-bold text-rose-700 dark:text-rose-400 leading-snug">{{ error }}</p>
+      <!-- Login Card -->
+      <div class="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-white/40 dark:border-slate-800/50">
+        <form @submit.prevent="handleLogin" class="space-y-5 sm:space-y-6 lg:space-y-8" novalidate>
+          <h3 id="login-title" class="sr-only">Login Form</h3>
+          
+          <!-- Error Alert -->
+          <div v-if="error" class="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 rounded-lg sm:rounded-2xl p-3 sm:p-4 flex items-start gap-3 animate-shake" role="alert" id="login-error">
+            <AlertCircle class="w-4 sm:w-5 h-4 sm:h-5 text-rose-500 shrink-0 mt-0.5" aria-hidden="true" />
+            <p class="text-xs sm:text-sm font-bold text-rose-700 dark:text-rose-400 leading-snug">{{ error }}</p>
           </div>
 
+          <!-- Username Field -->
           <div class="space-y-2">
-            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Access Identifier</label>
+            <label for="username" class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-3 sm:ml-4">Access Identifier</label>
             <div class="relative group">
-              <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-nebula-500 transition-colors duration-300">
-                <User class="h-5 w-5" />
+              <div class="absolute inset-y-0 left-0 pl-4 sm:pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-nebula-500 transition-colors duration-300">
+                <User class="h-4 sm:h-5 w-4 sm:w-5" aria-hidden="true" />
               </div>
               <input 
+                id="username"
                 v-model="username"
                 type="text" 
                 required
-                class="block w-full pl-14 pr-6 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 focus:ring-4 focus:ring-nebula-500/10 transition-all outline-none font-bold"
+                autocomplete="username"
+                class="block w-full pl-12 sm:pl-14 pr-4 sm:pr-6 py-4 sm:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-lg sm:rounded-[1.5rem] text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 focus:ring-4 focus:ring-nebula-500/10 transition-all outline-none font-bold text-sm sm:text-base min-h-[44px]"
                 placeholder="Staff ID or Username"
+                :aria-invalid="!!error"
+                aria-describedby="login-error"
               />
             </div>
           </div>
 
+          <!-- Password Field -->
           <div class="space-y-2">
-            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Secure Keyphrase</label>
+            <label for="password" class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-3 sm:ml-4">Secure Keyphrase</label>
             <div class="relative group">
-              <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-nebula-500 transition-colors duration-300">
-                <Lock class="h-5 w-5" />
+              <div class="absolute inset-y-0 left-0 pl-4 sm:pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-nebula-500 transition-colors duration-300">
+                <Lock class="h-4 sm:h-5 w-4 sm:w-5" aria-hidden="true" />
               </div>
               <input 
+                id="password"
                 v-model="password"
                 type="password" 
                 required
-                class="block w-full pl-14 pr-6 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 focus:ring-4 focus:ring-nebula-500/10 transition-all outline-none font-bold"
+                autocomplete="current-password"
+                class="block w-full pl-12 sm:pl-14 pr-4 sm:pr-6 py-4 sm:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-lg sm:rounded-[1.5rem] text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 focus:ring-4 focus:ring-nebula-500/10 transition-all outline-none font-bold text-sm sm:text-base min-h-[44px]"
                 placeholder="••••••••"
+                :aria-invalid="!!error"
+                aria-describedby="login-error"
               />
             </div>
           </div>
 
+          <!-- Submit Button -->
           <button 
             type="submit"
             :disabled="loading"
-            class="w-full flex items-center justify-center rounded-[1.5rem] nebula-gradient px-8 py-5 text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 hover:scale-[1.02] hover:shadow-nebula-500/40 active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
+            class="w-full flex items-center justify-center rounded-lg sm:rounded-[1.5rem] nebula-gradient px-6 sm:px-8 py-4 sm:py-5 text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 hover:scale-[1.02] hover:shadow-nebula-500/40 active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100 focus-visible:ring-4 focus-visible:ring-nebula-500/40 min-h-[48px]"
+            :aria-label="loading ? 'Authenticating...' : 'Authorize Access'"
           >
-            <Loader2 v-if="loading" class="w-5 h-5 animate-spin mr-3" />
-            <span v-else>Authorize Access</span>
+            <Loader2 v-if="loading" class="w-4 sm:w-5 h-4 sm:h-5 animate-spin mr-2 sm:mr-3" aria-hidden="true" />
+            <span>{{ loading ? 'Authenticating' : 'Authorize Access' }}</span>
           </button>
         </form>
 
-        <div class="mt-10 pt-8 border-t border-slate-200/50 dark:border-slate-800/50">
-          <div class="flex flex-col gap-4">
-            <span class="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 text-center">Switch Operational Portal</span>
-            <div class="flex justify-center gap-3">
+        <!-- Portal Selection -->
+        <div class="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-slate-200/50 dark:border-slate-800/50">
+          <div class="flex flex-col gap-3 sm:gap-4">
+            <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 text-center">Switch Operational Portal</span>
+            <div class="flex justify-center gap-2 sm:gap-3 flex-wrap" role="group" aria-label="Portal Selection">
               <button 
                 v-for="p in ['admin', 'teacher', 'parent']" 
                 :key="p"
                 @click="portal = p" 
+                :aria-pressed="portal === p"
                 :class="[portal === p ? 'bg-nebula-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700']" 
-                class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300"
+                class="px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all duration-300 min-w-[90px] sm:min-w-[100px] min-h-[44px] focus-visible:ring-4 focus-visible:ring-nebula-500/40"
+                type="button"
               >
                 {{ p }}
               </button>
@@ -148,14 +168,15 @@ const handleLogin = async () => {
         </div>
       </div>
       
-      <div class="text-center space-y-4">
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+      <!-- Footer -->
+      <div class="text-center space-y-3 sm:space-y-4">
+        <p class="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
           &copy; 2026 Folusho Victory Schools. Unified Academic Engine.
         </p>
-        <div class="flex justify-center gap-6 opacity-30 group">
-          <div class="h-1 w-8 bg-nebula-500 rounded-full group-hover:w-12 transition-all"></div>
-          <div class="h-1 w-8 bg-purple-500 rounded-full group-hover:w-12 transition-all"></div>
-          <div class="h-1 w-8 bg-emerald-500 rounded-full group-hover:w-12 transition-all"></div>
+        <div class="flex justify-center gap-4 sm:gap-6 opacity-30 group" aria-hidden="true">
+          <div class="h-1 w-6 sm:w-8 bg-nebula-500 rounded-full group-hover:w-10 sm:group-hover:w-12 transition-all"></div>
+          <div class="h-1 w-6 sm:w-8 bg-purple-500 rounded-full group-hover:w-10 sm:group-hover:w-12 transition-all"></div>
+          <div class="h-1 w-6 sm:w-8 bg-emerald-500 rounded-full group-hover:w-10 sm:group-hover:w-12 transition-all"></div>
         </div>
       </div>
     </div>

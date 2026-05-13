@@ -235,12 +235,12 @@ onMounted(fetchTeachers)
     <div class="academic-card overflow-hidden min-h-[500px] flex flex-col border-white/40 dark:border-slate-800/50">
       <div v-if="loading" class="flex-grow flex items-center justify-center">
         <div class="relative">
-          <div class="absolute inset-0 bg-nebula-500 blur-2xl opacity-20 animate-pulse"></div>
+          <div class="absolute inset-0 bg-nebula-500 blur-2xl opacity-20 animate-pulse" aria-hidden="true"></div>
           <Loader2 class="w-12 h-12 text-nebula-500 animate-spin relative z-10" />
         </div>
       </div>
-      <div v-else class="overflow-x-auto">
-        <table class="w-full text-left">
+      <div v-else class="responsive-table-container">
+        <table class="w-full text-left min-w-[600px]">
           <thead>
             <tr class="bg-slate-100/50 dark:bg-slate-800/30">
               <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Faculty Member</th>
@@ -252,7 +252,7 @@ onMounted(fetchTeachers)
               <td class="px-10 py-8">
                 <div class="flex items-center gap-6">
                   <div class="relative group/avatar">
-                    <div class="absolute inset-0 bg-nebula-500 blur-lg opacity-0 group-hover/avatar:opacity-30 transition-opacity"></div>
+                    <div class="absolute inset-0 bg-nebula-500 blur-lg opacity-0 group-hover/avatar:opacity-30 transition-opacity" aria-hidden="true"></div>
                     <div class="h-14 w-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-nebula-500 font-black text-xl shadow-xl transition-transform group-hover/avatar:scale-110">
                       {{ teacher.displayName.charAt(0) }}
                     </div>
@@ -261,25 +261,27 @@ onMounted(fetchTeachers)
                     <p class="text-base font-black text-slate-900 dark:text-white tracking-tight">{{ teacher.displayName }}</p>
                     <div class="flex items-center gap-2 mt-1">
                       <span class="text-[10px] font-black text-nebula-500 bg-nebula-500/5 px-2 py-0.5 rounded-md">@{{ teacher.username }}</span>
-                      <div class="h-1 w-1 bg-slate-300 rounded-full"></div>
+                      <div class="h-1 w-1 bg-slate-300 rounded-full" aria-hidden="true"></div>
                       <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ teacher.email || 'No Email' }}</span>
                     </div>
                   </div>
                 </div>
               </td>
               <td class="px-10 py-8 text-right">
-                <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="flex items-center justify-end gap-3 md:opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
                     @click="openEditModal(teacher)"
                     class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-nebula-500 hover:border-nebula-500/30 hover:shadow-lg transition-all"
+                    :aria-label="`Edit details for ${teacher.displayName}`"
                   >
-                    <Edit2 class="w-4 h-4" />
+                    <Edit2 class="w-4 h-4" aria-hidden="true" />
                   </button>
                   <button 
                     @click="handleDelete(teacher.username)"
                     class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 hover:shadow-lg transition-all"
+                    :aria-label="`Delete account for ${teacher.displayName}`"
                   >
-                    <Trash2 class="w-4 h-4" />
+                    <Trash2 class="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
               </td>
@@ -288,7 +290,7 @@ onMounted(fetchTeachers)
         </table>
         <div v-if="filteredTeachers.length === 0" class="p-24 text-center">
           <div class="mx-auto h-20 w-20 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-400 mb-6">
-            <Search class="w-8 h-8" />
+            <Search class="w-8 h-8" aria-hidden="true" />
           </div>
           <p class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Zero faculty matches found</p>
           <p class="text-[10px] text-slate-500 mt-2">Adjust your filter or enroll a new faculty member</p>
@@ -305,34 +307,34 @@ onMounted(fetchTeachers)
       leave-from-class="opacity-100 scale-100"
       leave-to-class="opacity-0 scale-95"
     >
-      <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="add-teacher-title">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xl transition-opacity" @click="showAddModal = false"></div>
-        <div class="glass-card rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl relative z-10 border border-white/40 dark:border-slate-700/50 max-h-[90vh] overflow-y-auto">
-          <div class="flex items-center justify-between mb-10">
+        <div class="glass-card rounded-[2.5rem] md:rounded-[3rem] w-full max-w-2xl p-6 md:p-12 shadow-2xl relative z-10 border border-white/40 dark:border-slate-700/50 max-h-[95vh] overflow-y-auto scrollbar-premium">
+          <div class="flex items-center justify-between mb-8 md:mb-10">
             <div class="flex items-center gap-5">
-              <div class="h-14 w-14 rounded-2xl nebula-gradient flex items-center justify-center text-white shadow-2xl shadow-nebula-500/30">
-                <UserPlus class="w-7 h-7" />
+              <div class="h-12 w-12 md:h-14 md:w-14 rounded-2xl nebula-gradient flex items-center justify-center text-white shadow-2xl shadow-nebula-500/30">
+                <UserPlus class="w-6 h-6 md:w-7 md:h-7" aria-hidden="true" />
               </div>
               <div>
-                <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Enroll Faculty</h2>
+                <h2 id="add-teacher-title" class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Enroll Faculty</h2>
                 <p class="text-[10px] font-black text-nebula-500 uppercase tracking-[0.2em] mt-2">Staff Access Generation</p>
               </div>
             </div>
-            <button @click="showAddModal = false" class="h-12 w-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all">
-              <Trash2 class="w-5 h-5 rotate-45" />
+            <button @click="showAddModal = false" class="h-10 w-10 md:h-12 md:w-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all" aria-label="Close Modal">
+              <X class="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
           
-          <div class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="space-y-6 md:space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Legal Full Name</label>
-                <input v-model="newTeacher.displayName" type="text" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" placeholder="e.g. Samuel Okafor" />
+                <label for="new-display-name" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Legal Full Name</label>
+                <input id="new-display-name" v-model="newTeacher.displayName" type="text" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" placeholder="e.g. Samuel Okafor" />
               </div>
               
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Official Email</label>
-                <input v-model="newTeacher.email" type="email" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" placeholder="s.okafor@fvs.edu" />
+                <label for="new-email" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Official Email</label>
+                <input id="new-email" v-model="newTeacher.email" type="email" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" placeholder="s.okafor@fvs.edu" />
               </div>
             </div>
 
@@ -445,41 +447,41 @@ onMounted(fetchTeachers)
       leave-from-class="opacity-100 scale-100"
       leave-to-class="opacity-0 scale-95"
     >
-      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="edit-teacher-title">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xl transition-opacity" @click="showEditModal = false"></div>
-        <div class="glass-card rounded-[3rem] w-full max-w-lg p-12 shadow-2xl relative z-10 border border-white/40 dark:border-slate-700/50">
-          <div class="flex items-center gap-5 mb-10">
-            <div class="h-14 w-14 rounded-2xl bg-nebula-500/10 flex items-center justify-center text-nebula-500 border border-nebula-500/20">
-              <Edit2 class="w-7 h-7" />
+        <div class="glass-card rounded-[2.5rem] md:rounded-[3rem] w-full max-w-lg p-8 md:p-12 shadow-2xl relative z-10 border border-white/40 dark:border-slate-700/50">
+          <div class="flex items-center gap-5 mb-8 md:mb-10">
+            <div class="h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-nebula-500/10 flex items-center justify-center text-nebula-500 border border-nebula-500/20">
+              <Edit2 class="w-6 h-6 md:w-7 md:h-7" aria-hidden="true" />
             </div>
             <div>
-              <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Modify Info</h2>
+              <h2 id="edit-teacher-title" class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Modify Info</h2>
               <p class="text-[10px] font-black text-nebula-500 uppercase tracking-[0.2em] mt-2">Update Faculty Metadata</p>
             </div>
           </div>
           
-          <div class="space-y-8" v-if="editingTeacher">
+          <div class="space-y-6 md:space-y-8" v-if="editingTeacher">
             <div class="space-y-2 group">
-              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4 group-focus-within:text-nebula-500 transition-colors">Faculty Identifier</label>
+              <label for="edit-username" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4 group-focus-within:text-nebula-500 transition-colors">Faculty Identifier</label>
               <div class="relative">
-                <input :value="editingTeacher.username" disabled type="text" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-black text-slate-400 outline-none cursor-not-allowed italic" />
-                <Lock class="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                <input id="edit-username" :value="editingTeacher.username" disabled type="text" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-black text-slate-400 outline-none cursor-not-allowed italic" />
+                <Lock class="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" aria-hidden="true" />
               </div>
             </div>
 
             <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Updated Display Name</label>
-              <input v-model="editingTeacher.displayName" type="text" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" />
+              <label for="edit-display-name" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Updated Display Name</label>
+              <input id="edit-display-name" v-model="editingTeacher.displayName" type="text" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" />
             </div>
             
             <div class="space-y-2">
-              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Updated Official Email</label>
-              <input v-model="editingTeacher.email" type="email" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" />
+              <label for="edit-email" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Updated Official Email</label>
+              <input id="edit-email" v-model="editingTeacher.email" type="email" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" />
             </div>
 
-            <div class="pt-8 flex gap-4">
-              <button @click="showEditModal = false" class="flex-grow py-5 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:bg-slate-200 transition-colors">Discard</button>
-              <button @click="handleUpdateTeacher" class="flex-[2.5] py-5 rounded-[1.5rem] nebula-gradient text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-2xl shadow-nebula-500/30">Apply Updates</button>
+            <div class="pt-6 md:pt-8 flex gap-4">
+              <button @click="showEditModal = false" class="flex-grow py-4 md:py-5 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:bg-slate-200 transition-colors">Discard</button>
+              <button @click="handleUpdateTeacher" class="flex-[2.5] py-4 md:py-5 rounded-[1.5rem] nebula-gradient text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-2xl shadow-nebula-500/30">Apply Updates</button>
             </div>
           </div>
         </div>
