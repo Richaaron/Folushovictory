@@ -288,23 +288,7 @@ const handleUpdateTeacher = async () => {
   if (!editingTeacher.value?.displayName) return
   creating.value = true // Reuse creating spinner
   try {
-    // 1. Update basic info
-    await api.put(`/api/admin/teachers/${editingTeacher.value.username}`, {
-      displayName: editingTeacher.value.displayName,
-      email: editingTeacher.value.email
-    })
-    
-    const followUpRequests = []
-    
-    // 2. Update Form Teacher Status (Set to null first then re-assign if needed)
-    // Actually, we should probably have a better backend way, but for now:
-    if (editingTeacher.value.formClassId) {
-       followUpRequests.push(api.put(`/api/admin/classes/${editingTeacher.value.formClassId}/subjects`, {
-         formTeacherUsername: editingTeacher.value.username
-       }))
-    }
-
-    // 3. Update Assignments
+    // 1. Calculate Target Classes & Subjects
     let targetClassIds: string[] = []
     if (editingTeacher.value.roleType === 'Subject Teacher') {
       targetClassIds = editingTeacher.value.selectedClassIds
@@ -316,20 +300,15 @@ const handleUpdateTeacher = async () => {
       targetClassIds = editingTeacher.value.formClassId ? [editingTeacher.value.formClassId] : []
     }
 
-    // NOTE: This OVERWRITES all previous assignments in the backend currently?
-    // Let's check admin.js POST /assignments.
-    if (targetClassIds.length > 0 && editingTeacher.value.assignedSubjectIds.length > 0) {
-      followUpRequests.push(api.post('/api/admin/assignments', {
-        teacherUsername: editingTeacher.value.username,
-        classIds: targetClassIds,
-        subjectIds: editingTeacher.value.assignedSubjectIds
-      }))
-    }
-
-    if (followUpRequests.length > 0) {
-      await Promise.all(followUpRequests)
-    }
-
+    // 2. Atomic Update (Metadata + Form Class + Assignments)
+    await api.put(`/api/admin/teachers/${editingTeacher.value.username}`, {
+      displayName: editingTeacher.value.displayName,
+      email: editingTeacher.value.email,
+      formClassId: editingTeacher.value.formClassId || '',
+      classIds: targetClassIds,
+      subjectIds: editingTeacher.value.assignedSubjectIds || []
+    })
+    
     showEditModal.value = false
     await fetchTeachers()
     alert('Faculty profile updated successfully!')

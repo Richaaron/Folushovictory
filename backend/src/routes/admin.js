@@ -6,9 +6,9 @@ import { generateTeacherUsername, generateStudentId, generateParentUsername } fr
 import { generateRandomPassword, hashPassword } from "../security.js";
 import { createUser, deleteUser, getUserByUsername, updateUser } from "../repos/users.js";
 import { createStudent, listStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
-import { createClass, listClasses, updateClass, getClassById } from "../repos/classes.js";
+import { createClass, listClasses, updateClass, getClassById, revokeFormTeacherStatus } from "../repos/classes.js";
 import { createSubject, listSubjects, getSubjectById } from "../repos/subjects.js";
-import { createAssignment } from "../repos/assignments.js";
+import { createAssignment, deleteAssignmentsByTeacher } from "../repos/assignments.js";
 import { getGradingScale, setGradingScale, setTermMeta, getSchoolSettings, setSchoolSettings } from "../repos/config.js";
 import { setReleaseStatus } from "../repos/releases.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
@@ -165,11 +165,40 @@ adminRouter.put(
   "/teachers/:username",
   asyncHandler(async (req, res) => {
     const { username } = req.params;
-    const { displayName, email } = req.body || {};
+    const { displayName, email, formClassId } = req.body || {};
+    
+    // 1. Update User Record
     const updated = await updateUser(username, { 
       ...(displayName ? { displayName: String(displayName) } : {}),
       ...(email ? { email: String(email) } : {})
     });
+
+    // 2. Handle Form Teacher Revocation/Assignment
+    if (formClassId !== undefined) {
+      await revokeFormTeacherStatus(username);
+      if (formClassId) {
+        await updateClass(formClassId, { formTeacherUsername: username });
+      }
+    }
+
+    // 3. Handle Atomic Assignment Replacement
+    const { classIds, subjectIds } = req.body || {};
+    if (Array.isArray(classIds) && Array.isArray(subjectIds)) {
+      await deleteAssignmentsByTeacher(username);
+      const assignments = [];
+      for (const cId of classIds) {
+        for (const sId of subjectIds) {
+          assignments.push(createAssignment({
+            teacherUsername: username,
+            classId: cId,
+            subjectId: sId,
+            createdAt: new Date().toISOString()
+          }));
+        }
+      }
+      if (assignments.length > 0) await Promise.all(assignments);
+    }
+
     return res.json(updated);
   })
 );
@@ -443,6 +472,11 @@ adminRouter.post(
 
     const classIds = Array.isArray(req.body.classIds) ? req.body.classIds : [classId];
     const subjectIds = Array.isArray(req.body.subjectIds) ? req.body.subjectIds : [subjectId];
+
+    // Clear old assignments if updating in bulk for a teacher
+    if (teacherUsername && (req.body.classIds || req.body.subjectIds)) {
+      await deleteAssignmentsByTeacher(teacherUsername);
+    }
 
     const assignmentPromises = [];
     

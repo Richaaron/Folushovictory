@@ -44,4 +44,11 @@ export async function getAssignmentById(assignmentId) {
   const snap = await db.collection("assignments").doc(assignmentId).get();
   return snap.exists ? { id: snap.id, ...snap.data() } : null;
 }
-
+export async function deleteAssignmentsByTeacher(teacherUsername) {
+  const db = getDb();
+  const normalized = teacherUsername ? String(teacherUsername).toLowerCase().trim() : "";
+  const snap = await db.collection("assignments").where("teacherUsername", "==", normalized).get();
+  const batch = db.batch();
+  snap.docs.forEach((doc) => batch.delete(doc.ref));
+  await batch.commit();
+}
