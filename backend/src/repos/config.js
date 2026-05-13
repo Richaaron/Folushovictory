@@ -52,7 +52,9 @@ export async function getSchoolSettings() {
     phone: "",
     email: "",
     principalName: "",
-    principalSignatureUrl: ""
+    principalSignatureUrl: "",
+    currentSession: "2023/2024",
+    currentTerm: "First"
   };
 }
 

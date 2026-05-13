@@ -30,13 +30,18 @@ const term = ref('First')
 const fetchStudents = async () => {
   loading.value = true
   try {
-    const { data } = await api.get(`/api/teacher/classes/${classId}/students`)
-    students.value = data.students.map((s: any) => ({
+    const [studentsResp, schoolResp] = await Promise.all([
+      api.get(`/api/teacher/classes/${classId}/students`),
+      api.get('/api/config/school')
+    ])
+    students.value = studentsResp.data.students.map((s: any) => ({
       ...s,
       ca1: '',
       ca2: '',
       exam: ''
     }))
+    if (schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
+    if (schoolResp.data?.currentTerm) term.value = schoolResp.data.currentTerm
   } catch (err) {
     error.value = 'Failed to load students'
   } finally {

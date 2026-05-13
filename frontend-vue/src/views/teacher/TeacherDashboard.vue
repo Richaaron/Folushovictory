@@ -32,12 +32,18 @@ const roleDescription = computed(() => {
 const fetchData = async () => {
   loading.value = true
   try {
-    const [assignResp, formResp] = await Promise.all([
+    const [assignResp, formResp, schoolResp] = await Promise.all([
       api.get('/api/teacher/assignments'),
-      api.get('/api/teacher/form-classes')
+      api.get('/api/teacher/form-classes'),
+      api.get('/api/config/school')
     ])
     assignments.value = assignResp.data.assignments || []
     formClasses.value = formResp.data.classes || []
+    
+    if (schoolResp.data) {
+      // Optional: Use schoolResp.data.currentSession and schoolResp.data.currentTerm
+      // for UI display if needed.
+    }
   } catch (err) {
     console.error('Error fetching teacher data:', err)
   } finally {

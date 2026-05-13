@@ -31,7 +31,9 @@ const settings = ref({
   address: 'Barnawa Kaduna South, Kaduna State',
   email: 'info@folushovictory.edu',
   phone: '+234 800 000 0000',
-  website: 'www.folushovictory.edu'
+  website: 'www.folushovictory.edu',
+  currentSession: '2023/2024',
+  currentTerm: 'First'
 })
 
 const savingPassword = ref(false)
@@ -231,6 +233,26 @@ onMounted(fetchSettings)
                 <Globe class="w-3 h-3" /> School Website
               </label>
               <input v-model="settings.website" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="https://www.folushovictory.edu" />
+            </div>
+
+            <div class="pt-8 border-t border-slate-100 dark:border-slate-800">
+              <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                <Globe class="w-3 h-3 text-royal-purple" /> Academic Calendar
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-2">
+                  <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Current Academic Session</label>
+                  <input v-model="settings.currentSession" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="e.g. 2023/2024" />
+                </div>
+                <div class="space-y-2">
+                  <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Current Term</label>
+                  <select v-model="settings.currentTerm" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none appearance-none">
+                    <option value="First">First Term</option>
+                    <option value="Second">Second Term</option>
+                    <option value="Third">Third Term</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
         </div>
