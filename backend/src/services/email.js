@@ -61,7 +61,7 @@ export const sendResultReleasedEmail = async ({ parentEmail, parentName, student
         <p>We are pleased to inform you that the academic result for <strong>${studentName}</strong> for the <strong>${term} Term (${session})</strong> has been released.</p>
         <p>You can now view and download the digital report card from our parent portal.</p>
         <div style="margin: 32px 0; text-align: center;">
-          <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/parent" 
+          <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login" 
              style="background-color: #D4AF37; color: #000; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
              View Result Now
           </a>
