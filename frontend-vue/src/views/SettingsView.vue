@@ -16,6 +16,10 @@ import {
   Lock
 } from 'lucide-vue-next'
 import api from '../services/api'
+import { useAuthStore } from '../stores/authStore'
+
+const authStore = useAuthStore()
+const isAdmin = authStore.userRole === 'ADMIN'
 
 const loading = ref(true)
 const saving = ref(false)
@@ -40,6 +44,10 @@ const passwordForm = ref({
 })
 
 const fetchSettings = async () => {
+  if (!isAdmin) {
+    loading.value = false
+    return
+  }
   loading.value = true
   try {
     const { data } = await api.get('/api/config/school')
@@ -120,9 +128,10 @@ onMounted(fetchSettings)
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">System <span class="text-royal-purple">Configuration</span></h1>
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Manage Institutional Identity and Global Settings</p>
+        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">{{ isAdmin ? 'Manage Institutional Identity and Global Settings' : 'Manage your personal security settings' }}</p>
       </div>
       <button 
+        v-if="isAdmin"
         @click="handleSave"
         :disabled="saving"
         class="flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50"
@@ -138,7 +147,7 @@ onMounted(fetchSettings)
 
     <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Left Column: Branding -->
-      <div class="lg:col-span-1 space-y-8">
+      <div v-if="isAdmin" class="lg:col-span-1 space-y-8">
         <div class="academic-card rounded-[2.5rem] p-8 text-center">
           <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">Institutional Logo</h3>
           <div class="relative inline-block group">
@@ -167,8 +176,8 @@ onMounted(fetchSettings)
       </div>
 
       <!-- Right Column: Form -->
-      <div class="lg:col-span-2 space-y-6">
-        <div class="academic-card rounded-[2.5rem] p-8 sm:p-12">
+      <div :class="[isAdmin ? 'lg:col-span-2' : 'lg:col-span-3']" class="space-y-6">
+        <div v-if="isAdmin" class="academic-card rounded-[2.5rem] p-8 sm:p-12">
           <div v-if="success" class="mb-8 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl flex items-center gap-4 text-emerald-600 fade-in">
             <CheckCircle2 class="w-6 h-6" />
             <span class="text-sm font-black uppercase tracking-widest">Settings synchronized successfully!</span>

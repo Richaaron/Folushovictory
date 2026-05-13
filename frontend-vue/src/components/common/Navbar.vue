@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Menu, X, Settings, LogOut, Sun, Moon } from 'lucide-vue-next'
 
@@ -43,8 +43,9 @@ watch(mobileMenuOpen, (newVal) => {
   } else {
     document.removeEventListener('keydown', handleKeyDown)
   }
-}, { immediate: true })
-
+const settingsPath = computed(() => {
+  return `/${props.portal.toLowerCase()}/settings`
+})
 </script>
 
 <template>
@@ -88,13 +89,13 @@ watch(mobileMenuOpen, (newVal) => {
             <Moon v-else class="h-5 w-5" aria-hidden="true" />
           </button>
 
-          <button 
+          <router-link 
+            :to="settingsPath"
             class="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 transition hover:bg-white dark:hover:bg-slate-700 hover:text-nebula-500 dark:hover:text-nebula-400 active:scale-95 focus-visible:ring-4 focus-visible:ring-nebula-500/40"
             aria-label="System Settings"
-            type="button"
           >
             <Settings class="h-5 w-5" aria-hidden="true" />
-          </button>
+          </router-link>
         </div>
 
         <button 

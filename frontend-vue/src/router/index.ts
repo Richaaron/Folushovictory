@@ -71,6 +71,11 @@ const router = createRouter({
           path: 'scores/:id',
           name: 'teacher-scores',
           component: () => import('../views/teacher/ScoreEntryView.vue')
+        },
+        {
+          path: 'settings',
+          name: 'teacher-settings',
+          component: () => import('../views/SettingsView.vue')
         }
       ]
     },
@@ -82,6 +87,11 @@ const router = createRouter({
           path: '',
           name: 'parent-dashboard',
           component: () => import('../views/parent/ParentDashboard.vue')
+        },
+        {
+          path: 'settings',
+          name: 'parent-settings',
+          component: () => import('../views/SettingsView.vue')
         }
       ]
     }
