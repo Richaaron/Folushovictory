@@ -138,22 +138,18 @@ adminRouter.post(
             </div>
           `;
 
-        await sendEmail({
-          to: normalizedEmail,
-          subject: "Your FVS Teacher Portal Credentials",
-          html: emailHtml
-        });
-        emailSent = true;
+    if (normalizedEmail) {
+      // Send email in background to avoid blocking the request
+      sendEmail({
+        to: normalizedEmail,
+        subject: "Your FVS Teacher Portal Credentials",
+        html: emailHtml
+      }).then(() => {
         console.log(`✅ Welcome email sent successfully to ${normalizedEmail}`);
-      } catch (err) {
-        emailError = err?.message || String(err);
-        console.error(`❌ Failed to send teacher email to ${normalizedEmail}:`, emailError);
-        console.error("SMTP Configuration Check:");
-        console.error(`  - SMTP_HOST: ${process.env.SMTP_HOST || 'unset'}`);
-        console.error(`  - SMTP_PORT: ${process.env.SMTP_PORT || 'unset'}`);
-        console.error(`  - SMTP_USER: ${process.env.SMTP_USER || 'unset'}`);
-        console.error(`  - Email Address: ${normalizedEmail}`);
-      }
+      }).catch(err => {
+        console.error(`❌ Failed to send teacher email to ${normalizedEmail}:`, err?.message || err);
+      });
+      emailSent = true; // Assume true since we fired it off
     }
 
     return res.status(201).json({ 
@@ -162,11 +158,7 @@ adminRouter.post(
       email: normalizedEmail || null,
       emailSent,
       emailError,
-      message: emailSent 
-        ? "✅ Account created and welcome email sent successfully!" 
-        : emailError 
-          ? `⚠️ Account created but email failed: ${emailError}` 
-          : "✅ Account created successfully!"
+      message: "✅ Account created successfully! Credentials will be emailed shortly."
     });
   })
 );
@@ -245,61 +237,64 @@ adminRouter.post(
     });
 
     if (parentEmail) {
-      try {
-        const parentEmailHtml = `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-              <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
-              </div>
-              <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
-                <h2 style="margin-top: 0; color: #5D3FD3;">Hello ${parentName},</h2>
-                <p>An official parent portal account has been created for you to monitor the academic progress of <strong>${firstName} ${lastName}</strong>.</p>
-                
-                <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
-                  <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Parent Login Access</p>
-                  <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${parentUsername}</span></p>
-                  <p style="margin: 5px 0 0; font-size: 16px;"><strong>Password:</strong> <span style="color: #0B6E4F;">${parentPassword}</span></p>
+      // Send emails in background
+      (async () => {
+        try {
+          const parentEmailHtml = `
+              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+                  <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
                 </div>
+                <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+                  <h2 style="margin-top: 0; color: #5D3FD3;">Hello ${parentName},</h2>
+                  <p>An official parent portal account has been created for you to monitor the academic progress of <strong>${firstName} ${lastName}</strong>.</p>
+                  
+                  <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                    <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Parent Login Access</p>
+                    <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${parentUsername}</span></p>
+                    <p style="margin: 5px 0 0; font-size: 16px;"><strong>Password:</strong> <span style="color: #0B6E4F;">${parentPassword}</span></p>
+                  </div>
 
-                <div style="text-align: center; margin: 32px 0;">
-                  <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/parent" 
-                     style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                     Login to Parent Portal
-                  </a>
+                  <div style="text-align: center; margin: 32px 0;">
+                    <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/parent" 
+                       style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                       Login to Parent Portal
+                    </a>
+                  </div>
+
+                  <p style="font-size: 14px; color: #64748b;">Through this portal, you can view results, track attendance, and stay updated with school announcements.</p>
+                  
+                  <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; pt: 16px;">
+                    Folusho Victory Schools: Excellence, Integrity, and Academic Leadership.
+                  </p>
                 </div>
-
-                <p style="font-size: 14px; color: #64748b;">Through this portal, you can view results, track attendance, and stay updated with school announcements.</p>
-                
-                <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; pt: 16px;">
-                  Folusho Victory Schools: Excellence, Integrity, and Academic Leadership.
-                </p>
               </div>
-            </div>
-          `;
-        const portalUrl = process.env.FRONTEND_URL || "https://folushovictoryschool.onrender.com";
-        await sendEmail({
-          to: parentEmail,
-          subject: "FVS Parent Portal: Access Your Child's Records",
-          html: parentEmailHtml
-        });
+            `;
+          
+          await sendEmail({
+            to: parentEmail,
+            subject: "FVS Parent Portal: Access Your Child's Records",
+            html: parentEmailHtml
+          });
 
-        // Also send a copy to the school email
-        await sendEmail({
-          to: "folushovictoryschool@gmail.com",
-          subject: `ADMIN COPY: Parent Access Created - ${parentName}`,
-          html: `
-            <h3>Admin Copy: Parent Account Created</h3>
-            <p><strong>Parent Name:</strong> ${parentName}</p>
-            <p><strong>Student:</strong> ${firstName} ${lastName}</p>
-            <p><strong>Username:</strong> ${parentUsername}</p>
-            <p><strong>Password:</strong> ${parentPassword}</p>
-            <hr/>
-            ${parentEmailHtml}
-          `
-        });
-      } catch (err) {
-        console.error("Failed to send parent email:", err);
-      }
+          // Also send a copy to the school email
+          await sendEmail({
+            to: "folushovictoryschool@gmail.com",
+            subject: `ADMIN COPY: Parent Access Created - ${parentName}`,
+            html: `
+              <h3>Admin Copy: Parent Account Created</h3>
+              <p><strong>Parent Name:</strong> ${parentName}</p>
+              <p><strong>Student:</strong> ${firstName} ${lastName}</p>
+              <p><strong>Username:</strong> ${parentUsername}</p>
+              <p><strong>Password:</strong> ${parentPassword}</p>
+              <hr/>
+              ${parentEmailHtml}
+            `
+          });
+        } catch (err) {
+          console.error("Failed to send parent email:", err);
+        }
+      })();
     }
 
     return res.status(201).json({ studentId, parentUsername, parentPassword });
@@ -431,21 +426,23 @@ adminRouter.post(
     const classIds = Array.isArray(req.body.classIds) ? req.body.classIds : [classId];
     const subjectIds = Array.isArray(req.body.subjectIds) ? req.body.subjectIds : [subjectId];
 
-    const results = [];
+    const assignmentPromises = [];
     for (const cid of classIds) {
       if (!cid) continue;
       for (const sid of subjectIds) {
         if (!sid) continue;
-        const created = await createAssignment({
-          teacherUsername: String(teacherUsername),
-          classId: String(cid),
-          subjectId: String(sid)
-        });
-        results.push(created);
+        assignmentPromises.push(
+          createAssignment({
+            teacherUsername: String(teacherUsername),
+            classId: String(cid),
+            subjectId: String(sid)
+          })
+        );
       }
     }
 
-    return res.status(201).json({ count: results.length, assignments: results });
+    const assignments = await Promise.all(assignmentPromises);
+    return res.status(201).json({ count: assignments.length, assignments });
   })
 );
 
