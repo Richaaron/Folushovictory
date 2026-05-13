@@ -16,21 +16,14 @@ import { sendResultReleasedEmail } from "../services/email.js";
 
 export const teacherRouter = express.Router();
 
-teacherRouter.use(authRequired, requireRole(Roles.TEACHER));
-
+// Public debug endpoint (no auth required)
 teacherRouter.get(
-  "/form-classes",
+  "/assignments-debug-public/:username",
   asyncHandler(async (req, res) => {
-    const classes = await listClassesByFormTeacher(req.user.username);
-    return res.json({ classes });
-  })
-);
-
-teacherRouter.get(
-  "/assignments-debug",
-  asyncHandler(async (req, res) => {
-    const assignments = await listAssignmentsByTeacher(req.user.username);
+    const { username } = req.params;
+    const assignments = await listAssignmentsByTeacher(username);
     return res.json({ 
+      username,
       totalFromDb: assignments.length,
       allAssignments: assignments.map(a => ({
         id: a.id,
@@ -39,6 +32,16 @@ teacherRouter.get(
         key: `${a.classId}-${a.subjectId}`
       }))
     });
+  })
+);
+
+teacherRouter.use(authRequired, requireRole(Roles.TEACHER));
+
+teacherRouter.get(
+  "/form-classes",
+  asyncHandler(async (req, res) => {
+    const classes = await listClassesByFormTeacher(req.user.username);
+    return res.json({ classes });
   })
 );
 
