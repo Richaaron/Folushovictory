@@ -27,6 +27,22 @@ teacherRouter.get(
 );
 
 teacherRouter.get(
+  "/assignments-debug",
+  asyncHandler(async (req, res) => {
+    const assignments = await listAssignmentsByTeacher(req.user.username);
+    return res.json({ 
+      totalFromDb: assignments.length,
+      allAssignments: assignments.map(a => ({
+        id: a.id,
+        classId: a.classId,
+        subjectId: a.subjectId,
+        key: `${a.classId}-${a.subjectId}`
+      }))
+    });
+  })
+);
+
+teacherRouter.get(
   "/assignments",
   asyncHandler(async (req, res) => {
     const assignments = await listAssignmentsByTeacher(req.user.username);
