@@ -174,7 +174,7 @@ onMounted(fetchStudents)
               <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+          <tbody v-if="students.length > 0" class="divide-y divide-slate-50 dark:divide-slate-800">
             <tr v-for="st in students" :key="st.studentId" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
               <td class="px-8 py-6">
                 <div class="flex items-center gap-4">
@@ -196,44 +196,49 @@ onMounted(fetchStudents)
                 ></textarea>
               </td>
               <td class="px-8 py-6 text-center">
-                <span 
-                  v-if="st.released" 
-                  class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest"
+                <div 
+                  :class="st.released ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'"
+                  class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
                 >
-                  Released
-                </span>
-                <span 
-                  v-else 
-                  class="px-3 py-1 rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest"
-                >
-                  Draft
-                </span>
+                  <div class="h-1.5 w-1.5 rounded-full" :class="st.released ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'"></div>
+                  {{ st.released ? 'Live' : 'Draft' }}
+                </div>
               </td>
               <td class="px-8 py-6 text-center">
-                <div class="flex items-center justify-center gap-2">
+                <div class="flex items-center justify-center gap-3">
                   <button 
                     @click="router.push({ name: 'student-report', params: { studentId: st.studentId } })"
-                    class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-royal-purple transition-colors"
+                    class="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-royal-purple transition-all flex items-center justify-center"
                     title="Preview Report Card"
                   >
                     <FileText class="w-4 h-4" />
                   </button>
+                  <div class="w-px h-6 bg-slate-100 dark:bg-slate-800"></div>
                   <button 
                     v-if="!st.released"
                     @click="releaseResult(st.studentId, true)"
-                    class="p-2 rounded-xl bg-royal-purple/10 text-royal-purple hover:bg-royal-purple hover:text-white transition-all"
-                    title="Release Result"
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-royal-purple text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-purple-200 dark:shadow-none hover:scale-105 active:scale-95 transition-all"
                   >
-                    <Send class="w-4 h-4" />
+                    <Send class="w-3 h-3" /> Release
                   </button>
                   <button 
                     v-else
                     @click="releaseResult(st.studentId, false)"
-                    class="p-2 rounded-xl bg-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-all"
-                    title="Un-release Result"
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
                   >
-                    <AlertCircle class="w-4 h-4" />
+                    <AlertCircle class="w-3 h-3" /> Revoke
                   </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-else>
+            <tr>
+              <td colspan="4" class="px-8 py-20 text-center">
+                <div class="flex flex-col items-center justify-center text-slate-400">
+                  <Users class="w-12 h-12 mb-4 opacity-20" />
+                  <p class="text-sm font-black uppercase tracking-widest">No students found in this class</p>
+                  <p class="text-xs mt-1">Assignments may need to be updated by the admin</p>
                 </div>
               </td>
             </tr>

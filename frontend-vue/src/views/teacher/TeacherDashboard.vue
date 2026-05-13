@@ -77,8 +77,10 @@ onMounted(fetchData)
           <span class="text-2xl font-black text-royal-purple">{{ assignments.length }}</span>
         </div>
         <div class="academic-card rounded-2xl px-6 py-4 flex flex-col items-center justify-center min-w-[120px]">
-          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Students</span>
-          <span class="text-2xl font-black text-slate-800 dark:text-slate-200">63</span>
+          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Focus</span>
+          <span class="text-2xl font-black text-slate-800 dark:text-slate-200">
+            {{ formClasses.reduce((acc, c) => acc + (c.studentIds?.length || 0), 0) }}
+          </span>
         </div>
       </div>
     </div>
