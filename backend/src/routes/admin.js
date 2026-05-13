@@ -188,11 +188,31 @@ adminRouter.get(
   asyncHandler(async (req, res) => {
     const db = getDb();
     const snap = await db.collection("users").where("role", "==", Roles.TEACHER).get();
-    const teachers = snap.docs.map((d) => {
+    
+    const teachers = await Promise.all(snap.docs.map(async (d) => {
       const u = d.data();
-      return { username: u.username, displayName: u.displayName || "" };
-    });
-    // Sort in memory to avoid index requirements
+      const username = u.username;
+      
+      // Fetch assignments
+      const assignSnap = await db.collection("assignments").where("teacherUsername", "==", username).get();
+      const assignedSubjectIds = [...new Set(assignSnap.docs.map(doc => doc.data().subjectId))];
+      const selectedClassIds = [...new Set(assignSnap.docs.map(doc => doc.data().classId))];
+      
+      // Fetch form class
+      const classSnap = await db.collection("classes").where("formTeacherUsername", "==", username).get();
+      const formClassId = classSnap.docs[0]?.id || "";
+      
+      return { 
+        username, 
+        displayName: u.displayName || "", 
+        email: u.email || "",
+        assignedSubjectIds,
+        selectedClassIds,
+        formClassId
+      };
+    }));
+
+    // Sort in memory
     teachers.sort((a, b) => a.username.localeCompare(b.username));
     return res.json({ teachers });
   })

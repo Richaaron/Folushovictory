@@ -71,9 +71,28 @@ watch(() => newTeacher.value.department, (newDept) => {
   }
 })
 
-// Reset subjects on secondary level change
-watch(() => newTeacher.value.secondaryLevel, () => {
-  newTeacher.value.assignedSubjectIds = []
+// Edit Modal Watchers
+watch(() => editingTeacher.value?.department, (newDept) => {
+  if (!editingTeacher.value || !newDept) return
+  editingTeacher.value.formClassId = ''
+  editingTeacher.value.selectedClassIds = []
+  editingTeacher.value.assignedSubjectIds = []
+  if (newDept === 'Primary/Nursery') {
+    editingTeacher.value.roleType = 'Dual Role'
+  } else {
+    editingTeacher.value.roleType = 'Subject Teacher'
+    editingTeacher.value.secondaryLevel = 'Both'
+  }
+})
+
+watch(() => editingTeacher.value?.secondaryLevel, () => {
+  if (!editingTeacher.value) return
+  editingTeacher.value.assignedSubjectIds = []
+})
+
+watch(() => editingTeacher.value?.formClassId, (newId) => {
+  if (!editingTeacher.value || !newId || editingTeacher.value.department !== 'Primary/Nursery') return
+  editingTeacher.value.assignedSubjectIds = subjects.value.map(s => s.id)
 })
 
 const isValidEmailAddress = (value: string) => {
@@ -173,22 +192,35 @@ const handleDelete = async (username: string) => {
 }
 
 const openEditModal = (teacher: any) => {
-  editingTeacher.value = { ...teacher }
-  showEditModal.value = true
-}
-
-const handleUpdateTeacher = async () => {
-  if (!editingTeacher.value?.displayName) return
-  try {
-    await api.put(`/api/admin/teachers/${editingTeacher.value.username}`, {
-      displayName: editingTeacher.value.displayName,
-      email: editingTeacher.value.email
-    })
-    showEditModal.value = false
-    await fetchTeachers()
-  } catch (err) {
-    console.error('Error updating teacher:', err)
+  // Infer department and role from assignments
+  let department = 'Secondary'
+  if (teacher.assignedSubjectIds?.length > 0) {
+    const isPry = subjects.value.some(s => teacher.assignedSubjectIds.includes(s.id) && s.level === 'Primary')
+    if (isPry) department = 'Primary/Nursery'
   }
+
+  let roleType = 'Subject Teacher'
+  if (teacher.formClassId && teacher.selectedClassIds?.length > 0) roleType = 'Dual Role'
+  else if (teacher.formClassId) roleType = 'Form Teacher'
+
+  let secondaryLevel = 'Both'
+  if (teacher.assignedSubjectIds?.length > 0) {
+    const hasJss = subjects.value.some(s => teacher.assignedSubjectIds.includes(s.id) && s.level === 'JSS')
+    const hasSss = subjects.value.some(s => teacher.assignedSubjectIds.includes(s.id) && s.level === 'SSS')
+    if (hasJss && !hasSss) secondaryLevel = 'JSS'
+    else if (!hasJss && hasSss) secondaryLevel = 'SSS'
+  }
+
+  editingTeacher.value = { 
+    ...teacher, 
+    department, 
+    roleType, 
+    secondaryLevel,
+    formClassId: teacher.formClassId || '',
+    selectedClassIds: [...(teacher.selectedClassIds || [])],
+    assignedSubjectIds: [...(teacher.assignedSubjectIds || [])]
+  }
+  showEditModal.value = true
 }
 
 const filteredTeachers = computed(() => {
@@ -224,6 +256,90 @@ const filteredSubjects = computed(() => {
   if (level === 'Both') return subjects.value.filter(s => s.level === 'JSS' || s.level === 'SSS')
   return subjects.value.filter(s => s.level === level)
 })
+
+const filteredEditClasses = computed(() => {
+  if (!editingTeacher.value) return []
+  if (editingTeacher.value.department === 'Primary/Nursery') {
+    return classes.value.filter(c => {
+      const lvl = String(c.level).toUpperCase()
+      return lvl.includes('PRY') || lvl.includes('NUR') || lvl.includes('PRE')
+    })
+  }
+  const level = editingTeacher.value.secondaryLevel
+  if (level === 'Both') return classes.value.filter(c => {
+    const lvl = String(c.level).toUpperCase()
+    return lvl.includes('JSS') || lvl.includes('SSS') || lvl.includes('SS')
+  })
+  return classes.value.filter(c => String(c.level).toUpperCase().includes(level))
+})
+
+const filteredEditSubjects = computed(() => {
+  if (!editingTeacher.value) return []
+  if (editingTeacher.value.department === 'Primary/Nursery') {
+    return subjects.value.filter(s => s.level === 'Primary')
+  }
+  
+  const level = editingTeacher.value.secondaryLevel
+  if (level === 'Both') return subjects.value.filter(s => s.level === 'JSS' || s.level === 'SSS')
+  return subjects.value.filter(s => s.level === level)
+})
+
+const handleUpdateTeacher = async () => {
+  if (!editingTeacher.value?.displayName) return
+  creating.value = true // Reuse creating spinner
+  try {
+    // 1. Update basic info
+    await api.put(`/api/admin/teachers/${editingTeacher.value.username}`, {
+      displayName: editingTeacher.value.displayName,
+      email: editingTeacher.value.email
+    })
+    
+    const followUpRequests = []
+    
+    // 2. Update Form Teacher Status (Set to null first then re-assign if needed)
+    // Actually, we should probably have a better backend way, but for now:
+    if (editingTeacher.value.formClassId) {
+       followUpRequests.push(api.put(`/api/admin/classes/${editingTeacher.value.formClassId}/subjects`, {
+         formTeacherUsername: editingTeacher.value.username
+       }))
+    }
+
+    // 3. Update Assignments
+    let targetClassIds: string[] = []
+    if (editingTeacher.value.roleType === 'Subject Teacher') {
+      targetClassIds = editingTeacher.value.selectedClassIds
+    } else if (editingTeacher.value.roleType === 'Dual Role') {
+      const uniqueIds = new Set(editingTeacher.value.selectedClassIds)
+      if (editingTeacher.value.formClassId) uniqueIds.add(editingTeacher.value.formClassId)
+      targetClassIds = Array.from(uniqueIds)
+    } else if (editingTeacher.value.roleType === 'Form Teacher') {
+      targetClassIds = editingTeacher.value.formClassId ? [editingTeacher.value.formClassId] : []
+    }
+
+    // NOTE: This OVERWRITES all previous assignments in the backend currently?
+    // Let's check admin.js POST /assignments.
+    if (targetClassIds.length > 0 && editingTeacher.value.assignedSubjectIds.length > 0) {
+      followUpRequests.push(api.post('/api/admin/assignments', {
+        teacherUsername: editingTeacher.value.username,
+        classIds: targetClassIds,
+        subjectIds: editingTeacher.value.assignedSubjectIds
+      }))
+    }
+
+    if (followUpRequests.length > 0) {
+      await Promise.all(followUpRequests)
+    }
+
+    showEditModal.value = false
+    await fetchTeachers()
+    alert('Faculty profile updated successfully!')
+  } catch (err) {
+    console.error('Error updating teacher:', err)
+    alert('Failed to update teacher profile.')
+  } finally {
+    creating.value = false
+  }
+}
 
 onMounted(fetchTeachers)
 </script>
@@ -475,7 +591,6 @@ onMounted(fetchTeachers)
       </div>
     </transition>
 
-    <!-- Edit Teacher Modal -->
     <transition 
       enter-active-class="transition duration-500 ease-out"
       enter-from-class="opacity-0 scale-95"
@@ -486,29 +601,36 @@ onMounted(fetchTeachers)
     >
       <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="edit-teacher-title">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xl transition-opacity" @click="showEditModal = false"></div>
-        <div class="glass-card rounded-[2.5rem] md:rounded-[3rem] w-full max-w-lg p-8 md:p-12 shadow-2xl relative z-10 border border-white/40 dark:border-slate-700/50">
-          <div class="flex items-center gap-5 mb-8 md:mb-10">
-            <div class="h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-nebula-500/10 flex items-center justify-center text-nebula-500 border border-nebula-500/20">
-              <Edit2 class="w-6 h-6 md:w-7 md:h-7" aria-hidden="true" />
+        <div class="glass-card rounded-[2.5rem] md:rounded-[3rem] w-full max-w-2xl p-6 md:p-12 shadow-2xl relative z-10 border border-white/40 dark:border-slate-700/50 max-h-[95vh] overflow-y-auto scrollbar-premium">
+          <div class="flex items-center justify-between mb-8 md:mb-10">
+            <div class="flex items-center gap-5">
+              <div class="h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-nebula-500/10 flex items-center justify-center text-nebula-500 border border-nebula-500/20">
+                <Edit2 class="w-6 h-6 md:w-7 md:h-7" aria-hidden="true" />
+              </div>
+              <div>
+                <h2 id="edit-teacher-title" class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Modify Info</h2>
+                <p class="text-[10px] font-black text-nebula-500 uppercase tracking-[0.2em] mt-2">Update Faculty Metadata</p>
+              </div>
             </div>
-            <div>
-              <h2 id="edit-teacher-title" class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Modify Info</h2>
-              <p class="text-[10px] font-black text-nebula-500 uppercase tracking-[0.2em] mt-2">Update Faculty Metadata</p>
-            </div>
+            <button @click="showEditModal = false" class="h-10 w-10 md:h-12 md:w-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all" aria-label="Close Modal">
+              <X class="w-5 h-5" aria-hidden="true" />
+            </button>
           </div>
           
           <div class="space-y-6 md:space-y-8" v-if="editingTeacher">
-            <div class="space-y-2 group">
-              <label for="edit-username" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4 group-focus-within:text-nebula-500 transition-colors">Faculty Identifier</label>
-              <div class="relative">
-                <input id="edit-username" :value="editingTeacher.username" disabled type="text" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-black text-slate-400 outline-none cursor-not-allowed italic" />
-                <Lock class="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" aria-hidden="true" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              <div class="space-y-2 group">
+                <label for="edit-username" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4 group-focus-within:text-nebula-500 transition-colors">Faculty Identifier</label>
+                <div class="relative">
+                  <input id="edit-username" :value="editingTeacher.username" disabled type="text" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-black text-slate-400 outline-none cursor-not-allowed italic" />
+                  <Lock class="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" aria-hidden="true" />
+                </div>
               </div>
-            </div>
 
-            <div class="space-y-2">
-              <label for="edit-display-name" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Updated Display Name</label>
-              <input id="edit-display-name" v-model="editingTeacher.displayName" type="text" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" />
+              <div class="space-y-2">
+                <label for="edit-display-name" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Updated Display Name</label>
+                <input id="edit-display-name" v-model="editingTeacher.displayName" type="text" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" />
+              </div>
             </div>
             
             <div class="space-y-2">
@@ -516,9 +638,95 @@ onMounted(fetchTeachers)
               <input id="edit-email" v-model="editingTeacher.email" type="email" class="w-full px-8 py-4 md:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all" />
             </div>
 
+            <!-- Department Selection -->
+            <div class="space-y-3">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Operational Department</label>
+              <div class="grid grid-cols-2 gap-4 p-2 bg-slate-100/50 dark:bg-slate-800/50 rounded-[2rem] border border-slate-200 dark:border-slate-700">
+                <button 
+                  @click="editingTeacher.department = 'Primary/Nursery'"
+                  :class="editingTeacher.department === 'Primary/Nursery' ? 'nebula-gradient text-white shadow-xl shadow-nebula-500/20' : 'text-slate-500 hover:bg-white/50 dark:hover:bg-slate-700/50'"
+                  class="py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                >Primary/Nursery</button>
+                <button 
+                  @click="editingTeacher.department = 'Secondary'"
+                  :class="editingTeacher.department === 'Secondary' ? 'nebula-gradient text-white shadow-xl shadow-nebula-500/20' : 'text-slate-500 hover:bg-white/50 dark:hover:bg-slate-700/50'"
+                  class="py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                >Secondary</button>
+              </div>
+            </div>
+
+            <!-- Role Selection (for Secondary) -->
+            <div v-if="editingTeacher.department === 'Secondary'" class="space-y-3 animate-slide-up">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Academic Specialization</label>
+              <div class="grid grid-cols-3 gap-3">
+                <button 
+                  v-for="role in ['Form Teacher', 'Subject Teacher', 'Dual Role']" 
+                  :key="role"
+                  @click="editingTeacher.roleType = role"
+                  :class="editingTeacher.roleType === role ? 'bg-nebula-500 text-white shadow-lg' : 'bg-slate-100/50 dark:bg-slate-800/50 text-slate-500 border border-transparent hover:border-nebula-500/20'"
+                  class="py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.1em] transition-all"
+                >{{ role }}</button>
+              </div>
+            </div>
+
+            <!-- Class Assignment -->
+            <div v-if="editingTeacher.roleType === 'Form Teacher' || editingTeacher.roleType === 'Dual Role'" class="space-y-3 animate-slide-up">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Primary Class Governance</label>
+              <select v-model="editingTeacher.formClassId" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all cursor-pointer">
+                <option value="">Select Governing Class...</option>
+                <option v-for="cls in filteredEditClasses" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+              </select>
+            </div>
+
+            <!-- Multi-Class Selection (for Subject/Dual Teacher) -->
+            <div v-if="editingTeacher.department === 'Secondary' && (editingTeacher.roleType === 'Subject Teacher' || editingTeacher.roleType === 'Dual Role')" class="space-y-4 animate-slide-up">
+              <div class="flex items-center justify-between px-4">
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Target Instructional Classes</label>
+                <div class="flex gap-2">
+                  <button v-for="lvl in ['JSS', 'SSS', 'Both']" :key="lvl" @click="editingTeacher.secondaryLevel = lvl" :class="[editingTeacher.secondaryLevel === lvl ? 'bg-nebula-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400']" class="px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">{{ lvl }}</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-48 overflow-y-auto p-6 bg-slate-100/30 dark:bg-slate-800/30 rounded-[2rem] border border-slate-200 dark:border-slate-700 scrollbar-premium">
+                <label v-for="cls in filteredEditClasses" :key="cls.id" class="relative flex flex-col p-4 rounded-2xl cursor-pointer group transition-all" :class="[editingTeacher.selectedClassIds.includes(cls.id) ? 'bg-nebula-500 text-white shadow-xl shadow-nebula-500/20' : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-nebula-50 dark:hover:bg-nebula-900/30 border border-slate-100 dark:border-slate-800']">
+                  <input type="checkbox" :value="cls.id" v-model="editingTeacher.selectedClassIds" class="hidden" />
+                  <span class="text-[10px] font-black uppercase tracking-widest">{{ cls.name }}</span>
+                  <span class="text-[8px] font-bold opacity-60 mt-1">{{ cls.level }}</span>
+                  <div v-if="editingTeacher.selectedClassIds.includes(cls.id)" class="absolute top-2 right-2 h-2 w-2 bg-white rounded-full"></div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Automated Subject Assignment -->
+            <div v-if="(editingTeacher.formClassId || editingTeacher.selectedClassIds.length > 0) && editingTeacher.roleType !== 'Form Teacher'" class="space-y-4 animate-slide-up">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Curriculum Specializations</label>
+              <div v-if="editingTeacher.department === 'Primary/Nursery'" class="p-8 bg-nebula-500/[0.03] rounded-[2.5rem] border border-nebula-500/20 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 h-32 w-32 bg-nebula-500 blur-[60px] opacity-10"></div>
+                <p class="text-[11px] font-black text-nebula-500 uppercase tracking-[0.3em] flex items-center gap-3 mb-4">
+                  <div class="h-1.5 w-1.5 rounded-full bg-nebula-500 animate-pulse"></div>
+                  Master Instructor Curriculum
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                   <div v-for="sub in filteredEditSubjects" :key="sub.id" class="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                     <span class="text-[10px] font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-tight">{{ sub.name }}</span>
+                   </div>
+                </div>
+              </div>
+              <div v-else class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-6 bg-slate-100/30 dark:bg-slate-800/30 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 scrollbar-premium">
+                <label v-for="sub in filteredEditSubjects" :key="sub.id" class="relative flex flex-col p-4 rounded-2xl cursor-pointer group transition-all" :class="[editingTeacher.assignedSubjectIds.includes(sub.id) ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-500/20' : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 border border-slate-100 dark:border-slate-800']">
+                  <input type="checkbox" :value="sub.id" v-model="editingTeacher.assignedSubjectIds" class="hidden" />
+                  <span class="text-[10px] font-black uppercase tracking-widest leading-tight">{{ sub.name }}</span>
+                  <span class="text-[8px] font-bold opacity-60 mt-1 uppercase">{{ sub.level }}</span>
+                  <div v-if="editingTeacher.assignedSubjectIds.includes(sub.id)" class="absolute top-2 right-2 h-2 w-2 bg-white rounded-full"></div>
+                </label>
+              </div>
+            </div>
+
             <div class="pt-6 md:pt-8 flex gap-4">
-              <button @click="showEditModal = false" class="flex-grow py-4 md:py-5 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:bg-slate-200 transition-colors">Discard</button>
-              <button @click="handleUpdateTeacher" class="flex-[2.5] py-4 md:py-5 rounded-[1.5rem] nebula-gradient text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-2xl shadow-nebula-500/30">Apply Updates</button>
+              <button @click="showEditModal = false" class="flex-grow py-4 md:py-5 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:bg-slate-200 transition-colors">Abort</button>
+              <button @click="handleUpdateTeacher" :disabled="creating" class="flex-[2.5] py-4 md:py-5 rounded-[1.5rem] nebula-gradient text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-2xl shadow-nebula-500/30">
+                {{ creating ? 'Synchronizing...' : 'Apply Updates' }}
+              </button>
             </div>
           </div>
         </div>
