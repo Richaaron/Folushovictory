@@ -23,8 +23,17 @@ async function subjectsForClass(cls) {
     const subs = await Promise.all(cls.subjectIds.map((id) => getSubjectById(id)));
     return subs.filter(Boolean).map((s) => ({ id: s.id, name: s.name }));
   }
+  
   const all = await listSubjects();
-  return all.map((s) => ({ id: s.id, name: s.name }));
+  // Map class level codes to subject level names
+  let levelFilter = cls.level;
+  if (levelFilter === 'PRY') levelFilter = 'Primary';
+  
+  // If no subjects assigned, return subjects matching the class level
+  // to avoid showing JSS subjects in SSS sheets and vice versa
+  return all
+    .filter(s => s.level === levelFilter)
+    .map((s) => ({ id: s.id, name: s.name }));
 }
 
 resultsRouter.get(
