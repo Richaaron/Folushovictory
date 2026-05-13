@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Lock, User, Loader2, AlertCircle } from 'lucide-vue-next'
+import { Lock, User, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-vue-next'
 
 import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
@@ -13,6 +13,7 @@ const authStore = useAuthStore()
 const portal = ref(String(route.params.portal || 'admin').toLowerCase())
 const username = ref('')
 const password = ref('')
+const passwordVisible = ref(false)
 const loading = ref(false)
 const error = ref('')
 
@@ -124,14 +125,23 @@ const handleLogin = async () => {
               <input 
                 id="password"
                 v-model="password"
-                type="password" 
+                :type="passwordVisible ? 'text' : 'password'"
                 required
                 autocomplete="current-password"
-                class="block w-full pl-12 sm:pl-14 pr-4 sm:pr-6 py-4 sm:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-lg sm:rounded-[1.5rem] text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 focus:ring-4 focus:ring-nebula-500/10 transition-all outline-none font-bold text-sm sm:text-base min-h-[44px]"
+                class="block w-full pl-12 sm:pl-14 pr-12 sm:pr-14 py-4 sm:py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-lg sm:rounded-[1.5rem] text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 focus:ring-4 focus:ring-nebula-500/10 transition-all outline-none font-bold text-sm sm:text-base min-h-[44px]"
                 placeholder="••••••••"
                 :aria-invalid="!!error"
                 aria-describedby="login-error"
               />
+              <button
+                type="button"
+                @click="passwordVisible = !passwordVisible"
+                :aria-label="passwordVisible ? 'Hide password' : 'Show password'"
+                class="absolute inset-y-0 right-0 pr-4 sm:pr-5 flex items-center text-slate-400 hover:text-nebula-500 transition-colors duration-300 focus-visible:ring-4 focus-visible:ring-nebula-500/40 rounded"
+              >
+                <Eye v-if="!passwordVisible" class="h-4 sm:h-5 w-4 sm:w-5" aria-hidden="true" />
+                <EyeOff v-else class="h-4 sm:h-5 w-4 sm:w-5" aria-hidden="true" />
+              </button>
             </div>
           </div>
 
