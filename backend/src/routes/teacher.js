@@ -30,6 +30,7 @@ teacherRouter.get(
   "/assignments",
   asyncHandler(async (req, res) => {
     const assignments = await listAssignmentsByTeacher(req.user.username);
+    console.log(`[DEBUG] Teacher ${req.user.username}: Found ${assignments.length} total assignments from DB`);
     
     // Deduplicate by classId and subjectId
     const uniqueAssignments = new Map();
@@ -37,10 +38,15 @@ teacherRouter.get(
       const key = `${a.classId}-${a.subjectId}`;
       if (!uniqueAssignments.has(key)) {
         uniqueAssignments.set(key, a);
+        console.log(`[DEBUG] Keeping: ${key}`);
+      } else {
+        console.log(`[DEBUG] Skipping duplicate: ${key}`);
       }
     }
     
     const deduped = Array.from(uniqueAssignments.values());
+    console.log(`[DEBUG] After dedup: ${deduped.length} unique assignments`);
+    
     const enriched = await Promise.all(
       deduped.map(async (a) => {
         const [cls, subj] = await Promise.all([getClassById(a.classId), getSubjectById(a.subjectId)]);
@@ -52,6 +58,7 @@ teacherRouter.get(
         };
       })
     );
+    console.log(`[DEBUG] Returning enriched assignments:`, enriched.map(e => `${e.subjectName} (${e.className})`));
     return res.json({ assignments: enriched });
   })
 );
