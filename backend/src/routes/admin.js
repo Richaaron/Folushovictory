@@ -108,37 +108,35 @@ adminRouter.post(
     let emailError = null;
 
     if (normalizedEmail) {
-      try {
-        const emailHtml = `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-              <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
-              </div>
-              <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
-                <h2 style="margin-top: 0; color: #5D3FD3;">Welcome, ${displayName}!</h2>
-                <p>Your academic staff portal account has been created successfully. You can now manage your classes, subjects, and results digitally.</p>
-                
-                <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
-                  <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Login Credentials</p>
-                  <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${username}</span></p>
-                  <p style="margin: 5px 0 0; font-size: 16px;"><strong>Temporary Password:</strong> <span style="color: #0B6E4F;">${password}</span></p>
-                </div>
-
-                <div style="text-align: center; margin: 32px 0;">
-                  <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/teacher" 
-                     style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                     Access Staff Portal
-                  </a>
-                </div>
-
-                <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; pt: 16px;">
-                  This is an automated security message. Please do not share your credentials with anyone.
-                </p>
-              </div>
+      const emailHtml = `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+            <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
             </div>
-          `;
+            <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+              <h2 style="margin-top: 0; color: #5D3FD3;">Welcome, ${displayName}!</h2>
+              <p>Your academic staff portal account has been created successfully. You can now manage your classes, subjects, and results digitally.</p>
+              
+              <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Login Credentials</p>
+                <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${username}</span></p>
+                <p style="margin: 5px 0 0; font-size: 16px;"><strong>Temporary Password:</strong> <span style="color: #0B6E4F;">${password}</span></p>
+              </div>
 
-    if (normalizedEmail) {
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/teacher" 
+                   style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                   Access Staff Portal
+                </a>
+              </div>
+
+              <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; pt: 16px;">
+                This is an automated security message. Please do not share your credentials with anyone.
+              </p>
+            </div>
+          </div>
+        `;
+
       // Send email in background to avoid blocking the request
       sendEmail({
         to: normalizedEmail,
