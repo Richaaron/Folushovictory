@@ -36,13 +36,14 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 }
 
-// Watch for mobile menu changes and add/remove keydown listener
 watch(mobileMenuOpen, (newVal) => {
   if (newVal) {
     document.addEventListener('keydown', handleKeyDown)
   } else {
     document.removeEventListener('keydown', handleKeyDown)
   }
+}, { immediate: true })
+
 const settingsPath = computed(() => {
   return `/${props.portal.toLowerCase()}/settings`
 })
