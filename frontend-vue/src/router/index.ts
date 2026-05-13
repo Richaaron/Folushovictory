@@ -73,6 +73,11 @@ const router = createRouter({
           component: () => import('../views/teacher/ScoreEntryView.vue')
         },
         {
+          path: 'form-class/:classId',
+          name: 'teacher-form-class',
+          component: () => import('../views/teacher/FormClassManagement.vue')
+        },
+        {
           path: 'settings',
           name: 'teacher-settings',
           component: () => import('../views/SettingsView.vue')

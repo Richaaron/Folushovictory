@@ -49,9 +49,16 @@ teacherRouter.get(
   "/classes/:classId/students",
   asyncHandler(async (req, res) => {
     const { classId } = req.params;
-    const assignments = await listAssignmentsByTeacher(req.user.username);
-    const allowed = assignments.some((a) => a.classId === classId);
-    if (!allowed) return res.status(403).json({ error: "Forbidden" });
+    const [assignments, cls] = await Promise.all([
+      listAssignmentsByTeacher(req.user.username),
+      getClassById(classId)
+    ]);
+    const isSubjectTeacher = assignments.some((a) => a.classId === classId);
+    const isFormTeacher = cls?.formTeacherUsername === req.user.username;
+    
+    if (!isSubjectTeacher && !isFormTeacher) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
     const students = await listStudentsByClass(classId);
     return res.json({ students });
   })

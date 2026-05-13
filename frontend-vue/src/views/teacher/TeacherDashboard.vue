@@ -162,15 +162,20 @@ onMounted(fetchData)
             <Award class="w-5 h-5 text-royal-gold" /> Form Classes
           </h3>
           <div class="space-y-4">
-            <div v-for="cls in formClasses" :key="cls.id" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 group hover:bg-white dark:hover:bg-slate-700 transition-all shadow-sm border border-transparent hover:border-royal-gold/30">
+            <div 
+              v-for="cls in formClasses" 
+              :key="cls.id" 
+              @click="router.push({ name: 'teacher-form-class', params: { classId: cls.id }, query: { className: cls.name } })"
+              class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 group hover:bg-white dark:hover:bg-slate-700 transition-all shadow-sm border border-transparent hover:border-royal-gold/30 cursor-pointer"
+            >
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-black text-slate-900 dark:text-white">{{ cls.name }}</p>
                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ cls.studentIds?.length || 0 }} Students</p>
                 </div>
-                <button class="p-2 rounded-xl text-slate-300 group-hover:text-royal-gold transition-colors">
+                <div class="p-2 rounded-xl text-slate-300 group-hover:text-royal-gold transition-colors">
                   <ArrowRight class="w-5 h-5" />
-                </button>
+                </div>
               </div>
             </div>
             <div v-if="formClasses.length === 0" class="py-4 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">
