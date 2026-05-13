@@ -104,11 +104,12 @@ adminRouter.post(
       passwordHash
     });
 
-    let emailQueued = false;
+    let emailSent = false;
+    let emailError = null;
 
     if (normalizedEmail) {
-      emailQueued = true;
-      const emailHtml = `
+      try {
+        const emailHtml = `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
               <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
                 <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
@@ -137,32 +138,35 @@ adminRouter.post(
             </div>
           `;
 
-      void (async () => {
-        try {
-          await sendEmail({
-            to: normalizedEmail,
-            subject: "Your FVS Teacher Portal Credentials",
-            html: emailHtml
-          });
-          console.log(`✅ Welcome email sent successfully to ${normalizedEmail}`);
-        } catch (err) {
-          console.error(`❌ Failed to send teacher email to ${normalizedEmail}:`, err?.message || err);
-          console.error("SMTP Configuration Check:");
-          console.error(`  - SMTP_HOST: ${process.env.SMTP_HOST || 'unset'}`);
-          console.error(`  - SMTP_PORT: ${process.env.SMTP_PORT || 'unset'}`);
-          console.error(`  - SMTP_USER: ${process.env.SMTP_USER || 'unset'}`);
-          console.error(`  - Email Address: ${normalizedEmail}`);
-        }
-      })();
+        await sendEmail({
+          to: normalizedEmail,
+          subject: "Your FVS Teacher Portal Credentials",
+          html: emailHtml
+        });
+        emailSent = true;
+        console.log(`✅ Welcome email sent successfully to ${normalizedEmail}`);
+      } catch (err) {
+        emailError = err?.message || String(err);
+        console.error(`❌ Failed to send teacher email to ${normalizedEmail}:`, emailError);
+        console.error("SMTP Configuration Check:");
+        console.error(`  - SMTP_HOST: ${process.env.SMTP_HOST || 'unset'}`);
+        console.error(`  - SMTP_PORT: ${process.env.SMTP_PORT || 'unset'}`);
+        console.error(`  - SMTP_USER: ${process.env.SMTP_USER || 'unset'}`);
+        console.error(`  - Email Address: ${normalizedEmail}`);
+      }
     }
 
     return res.status(201).json({ 
       username, 
       password,
       email: normalizedEmail || null,
-      emailSent: false,
-      emailQueued,
-      warning: emailQueued ? "✅ Account created. Welcome email is queued for delivery." : null
+      emailSent,
+      emailError,
+      message: emailSent 
+        ? "✅ Account created and welcome email sent successfully!" 
+        : emailError 
+          ? `⚠️ Account created but email failed: ${emailError}` 
+          : "✅ Account created successfully!"
     });
   })
 );
