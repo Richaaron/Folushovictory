@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Menu, X, Settings, LogOut, Sun, Moon, LayoutDashboard } from 'lucide-vue-next'
+import { Menu, X, Settings, LogOut, Sun, Moon } from 'lucide-vue-next'
 
 const props = defineProps<{
   portal: 'Admin' | 'Teacher' | 'Parent'
@@ -24,12 +24,6 @@ const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
 }
 
-const handleToggleSidebar = () => {
-  if (props.onToggleSidebar) {
-    props.onToggleSidebar()
-  }
-  mobileMenuOpen.value = false
-}
 
 const handleLogout = () => {
   // Logic for logout
