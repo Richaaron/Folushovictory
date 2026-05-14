@@ -163,9 +163,10 @@ const handleAddTeacher = async () => {
     }
     
     alert(message)
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error adding teacher:', err)
-    alert('Unable to create faculty profile right now. Please check the email address and try again.')
+    const errorMsg = err.response?.data?.error || 'Unable to create faculty profile right now. Please try again.'
+    alert(`❌ Enrollment Failed: ${errorMsg}`)
   } finally {
     creating.value = false
   }

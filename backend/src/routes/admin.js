@@ -558,8 +558,10 @@ adminRouter.post(
   "/assignments",
   asyncHandler(async (req, res) => {
     let { teacherUsername, classId, subjectId } = req.body || {};
-    if (!teacherUsername || (!classId && !req.body.classIds) || (!subjectId && !req.body.subjectIds)) {
-      return res.status(400).json({ error: "Missing fields" });
+    // Validation: Require teacher and AT LEAST one of (subjectId/subjectIds)
+    // classId/classIds are now optional as the system auto-expands subjects to all matching classes
+    if (!teacherUsername || (!subjectId && !req.body.subjectIds)) {
+      return res.status(400).json({ error: "Missing teacherUsername or subject selection" });
     }
 
     const classIds = Array.isArray(req.body.classIds) ? req.body.classIds : [classId];
