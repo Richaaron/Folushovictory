@@ -186,16 +186,37 @@ adminRouter.put(
     if (Array.isArray(classIds) && Array.isArray(subjectIds)) {
       await deleteAssignmentsByTeacher(username);
       const assignments = [];
-      for (const cId of classIds) {
-        for (const sId of subjectIds) {
-          assignments.push(createAssignment({
-            teacherUsername: username,
-            classId: cId,
-            subjectId: sId,
-            createdAt: new Date().toISOString()
-          }));
+      
+      // Fetch all subjects to determine their levels
+      const subjectDocs = await Promise.all(subjectIds.filter(id => !!id).map(id => getSubjectById(id)));
+      const subjectMap = Object.fromEntries(subjectDocs.filter(s => !!s).map(s => [s.id, s]));
+      
+      // Determine all required levels from the subjects
+      const requiredLevels = new Set();
+      for (const sId of subjectIds) {
+        if (subjectMap[sId]?.level) {
+          requiredLevels.add(subjectMap[sId].level);
         }
       }
+      
+      // Fetch ALL classes and filter to those matching the required levels
+      const allClasses = await listClasses();
+      const targetClasses = allClasses.filter(cls => requiredLevels.has(cls.level));
+      
+      // Create assignments for ALL classes at the subject's level
+      for (const cls of targetClasses) {
+        for (const sId of subjectIds) {
+          if (subjectMap[sId]?.level === cls.level) {
+            assignments.push(createAssignment({
+              teacherUsername: username,
+              classId: cls.id,
+              subjectId: sId,
+              createdAt: new Date().toISOString()
+            }));
+          }
+        }
+      }
+      
       if (assignments.length > 0) await Promise.all(assignments);
     }
 
@@ -481,34 +502,34 @@ adminRouter.post(
 
     const assignmentPromises = [];
     
-    // Pre-fetch class and subject info for level validation
-    const classDocs = await Promise.all(classIds.filter(id => !!id).map(id => getClassById(id)));
+    // Pre-fetch subject info to determine levels
     const subjectDocs = await Promise.all(subjectIds.filter(id => !!id).map(id => getSubjectById(id)));
-    
-    const classMap = Object.fromEntries(classDocs.filter(c => !!c).map(c => [c.id, c]));
     const subjectMap = Object.fromEntries(subjectDocs.filter(s => !!s).map(s => [s.id, s]));
 
-    for (const cid of classIds) {
-      if (!cid || !classMap[cid]) continue;
-      const classLevel = classMap[cid].level; // e.g., "JSS", "SSS"
+    // Determine all required levels from the subjects
+    const requiredLevels = new Set();
+    for (const sId of subjectIds) {
+      if (subjectMap[sId]?.level) {
+        requiredLevels.add(subjectMap[sId].level);
+      }
+    }
 
-      for (const sid of subjectIds) {
-        if (!sid || !subjectMap[sid]) continue;
-        const subjectLevel = subjectMap[sid].level;
+    // Fetch ALL classes and filter to those matching the required levels
+    const allClasses = await listClasses();
+    const targetClasses = allClasses.filter(cls => requiredLevels.has(cls.level));
 
-        // Strict Validation: Skip if levels are both set but don't match
-        if (classLevel && subjectLevel && classLevel !== subjectLevel) {
-          console.warn(`⚠️ Skipping assignment: Level mismatch between Class ${classMap[cid].name} (${classLevel}) and Subject ${subjectMap[sid].name} (${subjectLevel})`);
-          continue;
+    // Create assignments for ALL classes at the subject's level
+    for (const cls of targetClasses) {
+      for (const sId of subjectIds) {
+        if (subjectMap[sId]?.level === cls.level) {
+          assignmentPromises.push(
+            createAssignment({
+              teacherUsername: String(teacherUsername),
+              classId: String(cls.id),
+              subjectId: String(sId)
+            })
+          );
         }
-
-        assignmentPromises.push(
-          createAssignment({
-            teacherUsername: String(teacherUsername),
-            classId: String(cid),
-            subjectId: String(sid)
-          })
-        );
       }
     }
 
@@ -516,9 +537,9 @@ adminRouter.post(
     return res.status(201).json({ 
       count: assignments.length, 
       assignments,
-      message: assignments.length === (classIds.length * subjectIds.length) 
-        ? "✅ All assignments created successfully!"
-        : `✅ Created ${assignments.length} valid assignments. Some were skipped due to level mismatch.`
+      message: assignments.length > 0 
+        ? `✅ Created ${assignments.length} assignments across all classes at the required levels`
+        : "⚠️ No assignments created. Check subject/class levels."
     });
   })
 );
