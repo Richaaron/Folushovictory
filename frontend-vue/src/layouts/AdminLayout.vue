@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Navbar from '../components/common/Navbar.vue'
 import { 
   LayoutDashboard, 
@@ -8,143 +9,81 @@ import {
   GraduationCap, 
   BarChart3, 
   Settings,
+  ChevronLeft,
   ChevronRight
 } from 'lucide-vue-next'
 
-const sidebarOpen = ref(false)
-
-const menuItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, route: '/admin' },
-  { name: 'Teachers', icon: Users, route: '/admin/teachers' },
-  { name: 'Classes', icon: BookOpen, route: '/admin/classes' },
-  { name: 'Students', icon: GraduationCap, route: '/admin/students' },
-  { name: 'Broadsheet', icon: BarChart3, route: '/admin/broadsheet' },
-  { name: 'Settings', icon: Settings, route: '/admin/settings' },
-]
+const router = useRouter()
+const sidebarOpen = ref(true)
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
 }
 
 const closeSidebar = () => {
-  sidebarOpen.value = false
+  if (window.innerWidth < 1024) {
+    sidebarOpen.value = false
+  }
 }
+
+const menuItems = [
+  { name: 'Dashboard', icon: LayoutDashboard, route: '/admin' },
+  { name: 'Faculty', icon: Users, route: '/admin/teachers' },
+  { name: 'Classes', icon: BookOpen, route: '/admin/classes' },
+  { name: 'Students', icon: GraduationCap, route: '/admin/students' },
+  { name: 'Results', icon: BarChart3, route: '/admin/broadsheet' },
+  { name: 'Settings', icon: Settings, route: '/admin/settings' },
+]
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-[#020617] selection:bg-nebula-500 selection:text-white">
+  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
     <Navbar portal="Admin" username="Admin User" :menuItems="menuItems" :onToggleSidebar="toggleSidebar" />
 
-    <div class="flex-grow flex flex-col lg:flex-row p-1 sm:p-4 lg:p-6 gap-3 sm:gap-4 lg:gap-6">
-      <!-- Floating Sidebar - Mobile drawer/drawer, desktop sticky -->
+    <div class="flex-grow flex p-1 sm:p-4 lg:p-6 gap-4">
+      <!-- Desktop Sidebar -->
       <aside 
-        class="glass-sidebar rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden 
-        hidden lg:flex sticky lg:relative flex-col flex-shrink-0
-        h-[calc(100vh-10rem)]
-        z-auto"
-        :class="[
-          sidebarOpen ? 'translate-x-0 lg:w-72' : '-translate-x-full lg:translate-x-0 lg:w-24'
-        ]"
-        role="navigation"
-        aria-label="Sidebar Navigation"
+        class="hidden lg:flex flex-col flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden transition-all duration-300"
+        :class="[sidebarOpen ? 'w-64' : 'w-20']"
       >
-        <div class="p-4 sm:p-6 h-full flex flex-col">
-          <div class="space-y-2 sm:space-y-3 flex-grow overflow-y-auto">
+        <div class="p-4 flex flex-col h-full">
+          <button @click="toggleSidebar" class="self-end p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 mb-4">
+            <ChevronLeft v-if="sidebarOpen" class="w-5 h-5" />
+            <ChevronRight v-else class="w-5 h-5" />
+          </button>
+          
+          <nav class="space-y-1 flex-grow">
             <router-link 
               v-for="item in menuItems" 
               :key="item.name"
               :to="item.route"
-              @click="closeSidebar"
-              class="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all duration-300 group relative focus-visible:ring-inset focus-visible:ring-4 focus-visible:ring-nebula-500/40 min-h-[44px]"
+              class="flex items-center gap-3 p-3 rounded-lg transition-colors font-bold text-sm"
               :class="[
-                $route.path.startsWith(item.route) 
-                  ? 'bg-nebula-500 text-white shadow-2xl shadow-nebula-500/40' 
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-nebula-500 dark:hover:text-nebula-400'
+                $route.path === item.route 
+                  ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' 
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
               ]"
             >
-              <div class="relative z-10">
-                <component :is="item.icon" class="w-5 sm:w-6 h-5 sm:h-6 shrink-0 transition-transform duration-500 group-hover:scale-110" aria-hidden="true" />
-              </div>
-              <span v-if="sidebarOpen" class="font-black text-[10px] sm:text-[11px] uppercase tracking-[0.2em] whitespace-nowrap relative z-10">{{ item.name }}</span>
-              
-              <!-- Indicator for active route -->
-              <div v-if="$route.path === item.route" class="absolute inset-y-4 right-4 w-1.5 bg-white rounded-full" aria-hidden="true"></div>
-
-              <!-- Tooltip for collapsed state -->
-              <div v-if="!sidebarOpen" class="absolute left-full ml-4 px-3 sm:px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg sm:rounded-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 translate-x-[-10px] group-hover:translate-x-0 z-50 shadow-2xl whitespace-nowrap">
-                {{ item.name }}
-              </div>
+              <component :is="item.icon" class="w-5 h-5 flex-shrink-0" />
+              <span v-if="sidebarOpen" class="truncate">{{ item.name }}</span>
             </router-link>
-          </div>
-          
-          <!-- Collapse/Expand Button - Desktop only -->
-          <button 
-            @click="sidebarOpen = !sidebarOpen"
-            class="hidden lg:flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl sm:rounded-3xl text-slate-400 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 group focus-visible:ring-4 focus-visible:ring-nebula-500/40 mt-4 min-h-[44px]"
-            :aria-label="sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'"
-            type="button"
-          >
-            <div class="bg-slate-100 dark:bg-slate-800 p-2 rounded-lg sm:rounded-xl group-hover:bg-nebula-500 group-hover:text-white transition-colors">
-              <ChevronRight class="w-4 sm:w-5 h-4 sm:h-5 transition-transform duration-500" :class="{'rotate-180': sidebarOpen}" aria-hidden="true" />
-            </div>
-            <span v-if="sidebarOpen" class="font-black text-[10px] uppercase tracking-[0.2em]">Collapse</span>
-          </button>
+          </nav>
         </div>
       </aside>
 
-      <!-- Mobile Sidebar Overlay -->
-      <transition 
-        enter-active-class="transition duration-300"
-        enter-from-class="opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="transition duration-200"
-        leave-from-class="opacity-100"
-        leave-to-class="opacity-0"
-      >
-        <div 
-          v-if="sidebarOpen"
-          @click="sidebarOpen = false"
-          class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-30 lg:hidden"
-          aria-hidden="true"
-        ></div>
-      </transition>
-
       <!-- Main Content -->
-      <main class="flex-grow min-w-0" role="main">
-        <div class="mx-auto max-w-7xl h-full w-full">
-          <router-view v-slot="{ Component }">
-            <transition 
-              name="page" 
-              mode="out-in"
-              enter-active-class="transition duration-500 ease-out"
-              enter-from-class="opacity-0 translate-y-8 scale-95"
-              enter-to-class="opacity-100 translate-y-0 scale-100"
-              leave-active-class="transition duration-300 ease-in"
-              leave-from-class="opacity-100 translate-y-0 scale-100"
-              leave-to-class="opacity-0 -translate-y-8 scale-95"
-            >
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </div>
+      <main class="flex-grow overflow-x-hidden">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </main>
     </div>
   </div>
 </template>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

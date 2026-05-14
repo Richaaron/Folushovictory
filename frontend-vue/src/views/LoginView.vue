@@ -53,10 +53,6 @@ const handleLogin = async () => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#020617] px-3 sm:px-4 py-8 sm:py-12 relative overflow-hidden">
-    <!-- Dynamic Background Elements -->
-    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-nebula-500/20 blur-[120px] rounded-full animate-pulse-slow" aria-hidden="true"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/20 blur-[120px] rounded-full animate-pulse-slow" style="animation-delay: 2s" aria-hidden="true"></div>
-    <div class="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-emerald-500/10 blur-[80px] rounded-full animate-float" aria-hidden="true"></div>
 
     <div class="w-full max-w-md space-y-6 sm:space-y-8 lg:space-y-10 fade-in relative z-10">
       <!-- Logo and Header -->
@@ -83,8 +79,7 @@ const handleLogin = async () => {
         </div>
       </div>
 
-      <!-- Login Card -->
-      <div class="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-white/40 dark:border-slate-800/50">
+      <div class="bg-white dark:bg-slate-900 rounded-xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-md">
         <form @submit.prevent="handleLogin" class="space-y-5 sm:space-y-6 lg:space-y-8" novalidate>
           <h3 id="login-title" class="sr-only">Login Form</h3>
           

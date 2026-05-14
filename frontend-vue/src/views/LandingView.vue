@@ -81,21 +81,9 @@ const navigateToLogin = (portal: string) => {
             </div>
           </div>
           
-          <!-- Decorative elements -->
-          <div class="absolute -right-12 -top-12 -z-10 h-48 w-48 rounded-full bg-purple-100/50 dark:bg-purple-900/20 blur-3xl"></div>
-          <div class="absolute -bottom-12 -left-12 -z-10 h-64 w-64 rounded-full bg-amber-100/50 dark:bg-amber-900/10 blur-3xl"></div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.academic-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-}
-.dark .academic-card {
-  background: rgba(15, 23, 42, 0.6);
-}
-</style>
