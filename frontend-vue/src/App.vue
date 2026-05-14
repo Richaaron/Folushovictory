@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import AcademicBackground from './components/common/AcademicBackground.vue'
 
 onMounted(() => {
   // Restore theme from localStorage
@@ -13,11 +14,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <router-view v-slot="{ Component }">
-    <transition name="page" mode="out-in">
-      <component :is="Component" />
-    </transition>
-  </router-view>
+  <AcademicBackground />
+  <div class="relative z-10">
+    <router-view v-slot="{ Component }">
+      <transition name="page" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </div>
 </template>
 
 <style>
