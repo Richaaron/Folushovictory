@@ -123,19 +123,19 @@ const handleAddTeacher = async () => {
 
     let targetClassIds: string[] = []
     if (newTeacher.value.roleType === 'Subject Teacher') {
-      targetClassIds = newTeacher.value.selectedClassIds
+      // Don't need to select classes - teachers auto-assigned to all classes at subject level
+      targetClassIds = []
     } else if (newTeacher.value.roleType === 'Dual Role') {
-      const uniqueIds = new Set<string>(newTeacher.value.selectedClassIds)
-      if (newTeacher.value.formClassId) uniqueIds.add(newTeacher.value.formClassId)
-      targetClassIds = Array.from(uniqueIds)
+      // For Dual Role, only include formClassId, subjects auto-assign to all classes at level
+      targetClassIds = newTeacher.value.formClassId ? [newTeacher.value.formClassId] : []
     } else if (newTeacher.value.roleType === 'Form Teacher') {
       targetClassIds = newTeacher.value.formClassId ? [newTeacher.value.formClassId] : []
     }
 
-    if (newTeacher.value.assignedSubjectIds.length > 0 && targetClassIds.length > 0) {
+    // Subject assignments - backend auto-expands to all classes at subject level
+    if (newTeacher.value.assignedSubjectIds.length > 0) {
       followUpRequests.push(api.post('/api/admin/assignments', {
         teacherUsername: teacher.username,
-        classIds: targetClassIds,
         subjectIds: newTeacher.value.assignedSubjectIds
       }))
     }
@@ -291,11 +291,11 @@ const handleUpdateTeacher = async () => {
     // 1. Calculate Target Classes & Subjects
     let targetClassIds: string[] = []
     if (editingTeacher.value.roleType === 'Subject Teacher') {
-      targetClassIds = editingTeacher.value.selectedClassIds
+      // Don't need to select classes - teachers auto-assigned to all classes at subject level
+      targetClassIds = []
     } else if (editingTeacher.value.roleType === 'Dual Role') {
-      const uniqueIds = new Set<string>(editingTeacher.value.selectedClassIds)
-      if (editingTeacher.value.formClassId) uniqueIds.add(editingTeacher.value.formClassId)
-      targetClassIds = Array.from(uniqueIds)
+      // For Dual Role, only include formClassId, subjects auto-assign to all classes at level
+      targetClassIds = editingTeacher.value.formClassId ? [editingTeacher.value.formClassId] : []
     } else if (editingTeacher.value.roleType === 'Form Teacher') {
       targetClassIds = editingTeacher.value.formClassId ? [editingTeacher.value.formClassId] : []
     }
@@ -510,26 +510,10 @@ onMounted(fetchTeachers)
               </select>
             </div>
 
-            <!-- Multi-Class Selection (for Subject/Dual Teacher) -->
-            <div v-if="newTeacher.department === 'Secondary' && (newTeacher.roleType === 'Subject Teacher' || newTeacher.roleType === 'Dual Role')" class="space-y-4 animate-slide-up">
-              <div class="flex items-center justify-between px-4">
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Target Instructional Classes</label>
-                <div class="flex gap-2">
-                  <button v-for="lvl in ['JSS', 'SSS', 'Both']" :key="lvl" @click="newTeacher.secondaryLevel = lvl" :class="[newTeacher.secondaryLevel === lvl ? 'bg-nebula-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400']" class="px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">{{ lvl }}</button>
-                </div>
-              </div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-48 overflow-y-auto p-6 bg-slate-100/30 dark:bg-slate-800/30 rounded-[2rem] border border-slate-200 dark:border-slate-700 scrollbar-premium">
-                <label v-for="cls in filteredClasses" :key="cls.id" class="relative flex flex-col p-4 rounded-2xl cursor-pointer group transition-all" :class="[newTeacher.selectedClassIds.includes(cls.id) ? 'bg-nebula-500 text-white shadow-xl shadow-nebula-500/20' : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-nebula-50 dark:hover:bg-nebula-900/30 border border-slate-100 dark:border-slate-800']">
-                  <input type="checkbox" :value="cls.id" v-model="newTeacher.selectedClassIds" class="hidden" />
-                  <span class="text-[10px] font-black uppercase tracking-widest">{{ cls.name }}</span>
-                  <span class="text-[8px] font-bold opacity-60 mt-1">{{ cls.level }}</span>
-                  <div v-if="newTeacher.selectedClassIds.includes(cls.id)" class="absolute top-2 right-2 h-2 w-2 bg-white rounded-full"></div>
-                </label>
-              </div>
-            </div>
+            <!-- Multi-Class Selection removed - teachers automatically assigned to all classes at subject level -->
 
             <!-- Automated Subject Assignment -->
-            <div v-if="(newTeacher.formClassId || newTeacher.selectedClassIds.length > 0) && newTeacher.roleType !== 'Form Teacher'" class="space-y-4 animate-slide-up">
+            <div v-if="newTeacher.roleType === 'Subject Teacher' || newTeacher.roleType === 'Dual Role'" class="space-y-4 animate-slide-up">
               <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Curriculum Specializations</label>
               <div v-if="newTeacher.department === 'Primary/Nursery'" class="p-8 bg-nebula-500/[0.03] rounded-[2.5rem] border border-nebula-500/20 relative overflow-hidden">
                 <div class="absolute -right-10 -bottom-10 h-32 w-32 bg-nebula-500 blur-[60px] opacity-10"></div>
@@ -657,26 +641,10 @@ onMounted(fetchTeachers)
               </select>
             </div>
 
-            <!-- Multi-Class Selection (for Subject/Dual Teacher) -->
-            <div v-if="editingTeacher.department === 'Secondary' && (editingTeacher.roleType === 'Subject Teacher' || editingTeacher.roleType === 'Dual Role')" class="space-y-4 animate-slide-up">
-              <div class="flex items-center justify-between px-4">
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Target Instructional Classes</label>
-                <div class="flex gap-2">
-                  <button v-for="lvl in ['JSS', 'SSS', 'Both']" :key="lvl" @click="editingTeacher.secondaryLevel = lvl" :class="[editingTeacher.secondaryLevel === lvl ? 'bg-nebula-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400']" class="px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">{{ lvl }}</button>
-                </div>
-              </div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-48 overflow-y-auto p-6 bg-slate-100/30 dark:bg-slate-800/30 rounded-[2rem] border border-slate-200 dark:border-slate-700 scrollbar-premium">
-                <label v-for="cls in filteredEditClasses" :key="cls.id" class="relative flex flex-col p-4 rounded-2xl cursor-pointer group transition-all" :class="[editingTeacher.selectedClassIds.includes(cls.id) ? 'bg-nebula-500 text-white shadow-xl shadow-nebula-500/20' : 'bg-white dark:bg-slate-900 text-slate-500 hover:bg-nebula-50 dark:hover:bg-nebula-900/30 border border-slate-100 dark:border-slate-800']">
-                  <input type="checkbox" :value="cls.id" v-model="editingTeacher.selectedClassIds" class="hidden" />
-                  <span class="text-[10px] font-black uppercase tracking-widest">{{ cls.name }}</span>
-                  <span class="text-[8px] font-bold opacity-60 mt-1">{{ cls.level }}</span>
-                  <div v-if="editingTeacher.selectedClassIds.includes(cls.id)" class="absolute top-2 right-2 h-2 w-2 bg-white rounded-full"></div>
-                </label>
-              </div>
-            </div>
+            <!-- Multi-Class Selection removed - teachers automatically assigned to all classes at subject level -->
 
             <!-- Automated Subject Assignment -->
-            <div v-if="(editingTeacher.formClassId || editingTeacher.selectedClassIds.length > 0) && editingTeacher.roleType !== 'Form Teacher'" class="space-y-4 animate-slide-up">
+            <div v-if="editingTeacher.roleType === 'Subject Teacher' || editingTeacher.roleType === 'Dual Role'" class="space-y-4 animate-slide-up">
               <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Curriculum Specializations</label>
               <div v-if="editingTeacher.department === 'Primary/Nursery'" class="p-8 bg-nebula-500/[0.03] rounded-[2.5rem] border border-nebula-500/20 relative overflow-hidden">
                 <div class="absolute -right-10 -bottom-10 h-32 w-32 bg-nebula-500 blur-[60px] opacity-10"></div>
