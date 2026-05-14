@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 import Navbar from '../components/common/Navbar.vue'
 import { 
   LayoutDashboard, 
@@ -13,18 +12,12 @@ import {
   ChevronRight
 } from 'lucide-vue-next'
 
-const router = useRouter()
 const sidebarOpen = ref(true)
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
 }
 
-const closeSidebar = () => {
-  if (window.innerWidth < 1024) {
-    sidebarOpen.value = false
-  }
-}
 
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, route: '/admin' },

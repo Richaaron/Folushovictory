@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Menu, X, Settings, LogOut, Sun, Moon } from 'lucide-vue-next'
+import { Menu, X, LogOut, Sun, Moon } from 'lucide-vue-next'
 
 const props = defineProps<{
   portal: 'Admin' | 'Teacher' | 'Parent'
@@ -41,14 +41,6 @@ watch(() => router.currentRoute.value.path, () => {
   mobileMenuOpen.value = false
 })
 
-const activePortalClass = computed(() => {
-  switch (props.portal) {
-    case 'Admin': return 'text-indigo-600 dark:text-indigo-400'
-    case 'Teacher': return 'text-emerald-600 dark:text-emerald-400'
-    case 'Parent': return 'text-purple-600 dark:text-purple-400'
-    default: return 'text-slate-600'
-  }
-})
 </script>
 
 <template>
