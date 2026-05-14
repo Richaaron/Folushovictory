@@ -9,7 +9,8 @@ import {
   ArrowUpRight,
   Calendar,
   Bell,
-  BarChart3
+  BarChart3,
+  Settings
 } from 'lucide-vue-next'
 import api from '../../services/api'
 const router = useRouter()

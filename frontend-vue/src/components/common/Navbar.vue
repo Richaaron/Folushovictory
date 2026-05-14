@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Menu, X, Settings, LogOut, Sun, Moon } from 'lucide-vue-next'
+import { Menu, X, Settings, LogOut, Sun, Moon, LayoutDashboard } from 'lucide-vue-next'
 
 const props = defineProps<{
   portal: 'Admin' | 'Teacher' | 'Parent'
   username?: string
   menuItems?: Array<{ name: string, icon: any, route: string }>
+  onToggleSidebar?: () => void
 }>()
 
 const router = useRouter()
@@ -21,6 +22,13 @@ const toggleTheme = () => {
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
+}
+
+const handleToggleSidebar = () => {
+  if (props.onToggleSidebar) {
+    props.onToggleSidebar()
+  }
+  mobileMenuOpen.value = false
 }
 
 const handleLogout = () => {
@@ -79,7 +87,21 @@ const settingsPath = computed(() => {
           <span class="text-[10px] sm:text-xs font-extrabold text-slate-700 dark:text-slate-200 truncate">{{ username }}</span>
         </div>
 
-        <div class="flex items-center bg-slate-100/50 dark:bg-slate-800/50 p-1 sm:p-1.5 rounded-lg sm:rounded-2xl border border-slate-200/50 dark:border-slate-700/50 gap-1">
+        <!-- Mobile Menu Toggle -->
+        <button 
+          @click="toggleMobileMenu" 
+          class="lg:hidden flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg sm:rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 text-slate-900 dark:text-white transition hover:bg-nebula-500 hover:text-white border border-slate-200/50 dark:border-slate-700/50 focus-visible:ring-4 focus-visible:ring-nebula-500/40 active:scale-95"
+          :aria-expanded="mobileMenuOpen"
+          aria-controls="mobile-menu"
+          :aria-label="mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'"
+          type="button"
+        >
+          <Menu v-if="!mobileMenuOpen" class="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+          <X v-else class="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+        </button>
+
+        <!-- Theme Toggle and Profile Actions (Desktop/Tablet) -->
+        <div class="hidden sm:flex items-center bg-slate-100/50 dark:bg-slate-800/50 p-1 sm:p-1.5 rounded-lg sm:rounded-2xl border border-slate-200/50 dark:border-slate-700/50 gap-1">
           <button 
             @click="toggleTheme" 
             class="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 transition hover:bg-white dark:hover:bg-slate-700 hover:text-nebula-500 dark:hover:text-nebula-400 active:scale-95 focus-visible:ring-4 focus-visible:ring-nebula-500/40"
@@ -109,17 +131,6 @@ const settingsPath = computed(() => {
           <span class="hidden md:inline">Sign Out</span>
         </button>
 
-        <button 
-          @click="toggleMobileMenu" 
-          class="flex h-12 w-12 items-center justify-center rounded-lg sm:rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 text-slate-900 dark:text-white transition hover:bg-slate-200 dark:hover:bg-slate-700 sm:hidden border border-slate-200 dark:border-slate-700 focus-visible:ring-4 focus-visible:ring-nebula-500/40"
-          :aria-expanded="mobileMenuOpen"
-          aria-controls="mobile-menu"
-          :aria-label="mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'"
-          type="button"
-        >
-          <Menu v-if="!mobileMenuOpen" class="h-6 w-6" aria-hidden="true" />
-          <X v-else class="h-6 w-6" aria-hidden="true" />
-        </button>
       </div>
     </div>
 
@@ -137,7 +148,7 @@ const settingsPath = computed(() => {
         id="mobile-menu"
         role="navigation"
         aria-label="Mobile Navigation"
-        class="sm:hidden absolute top-full left-2 right-2 mt-2 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-white/30 dark:border-slate-800/50 shadow-2xl p-4 sm:p-6 space-y-4 z-50 overflow-y-auto max-h-[calc(100vh-120px)]"
+        class="lg:hidden absolute top-full left-2 right-2 mt-2 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-white/30 dark:border-slate-800/50 shadow-2xl p-4 sm:p-6 space-y-4 z-50 overflow-y-auto max-h-[calc(100vh-120px)]"
       >
         <!-- Mobile User Profile Section -->
         <div v-if="username" class="flex items-center gap-3 p-3 rounded-lg bg-slate-100 dark:bg-slate-800/50 mb-4">

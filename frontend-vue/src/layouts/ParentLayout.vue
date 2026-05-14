@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import Navbar from '../components/common/Navbar.vue'
+import { LayoutDashboard, Settings } from 'lucide-vue-next'
+
+const menuItems = [
+  { name: 'Dashboard', icon: LayoutDashboard, route: '/parent' },
+  { name: 'Settings', icon: Settings, route: '/parent/settings' },
+]
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
-    <Navbar portal="Parent" username="Parent User" />
+    <Navbar portal="Parent" username="Parent User" :menuItems="menuItems" />
     <main class="flex-grow p-4 sm:p-8 overflow-x-hidden">
       <div class="mx-auto max-w-7xl">
         <router-view v-slot="{ Component }">

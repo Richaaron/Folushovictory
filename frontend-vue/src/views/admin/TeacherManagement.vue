@@ -344,7 +344,7 @@ onMounted(fetchTeachers)
           <Loader2 class="w-12 h-12 text-nebula-500 animate-spin relative z-10" />
         </div>
       </div>
-      <div v-else class="overflow-x-auto">
+      <div v-else class="w-full overflow-x-auto">
         <table class="w-full text-left text-xs sm:text-sm">
           <thead>
             <tr class="bg-slate-100/50 dark:bg-slate-800/30 sticky top-0">
@@ -358,15 +358,15 @@ onMounted(fetchTeachers)
                 <div class="flex items-center gap-3 sm:gap-6">
                   <div class="relative group/avatar flex-shrink-0">
                     <div class="absolute inset-0 bg-nebula-500 blur-lg opacity-0 group-hover/avatar:opacity-30 transition-opacity" aria-hidden="true"></div>
-                    <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-nebula-500 font-black text-xs sm:text-xl shadow-xl transition-transform group-hover/avatar:scale-110">
+                    <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-nebula-500 font-black text-xs sm:text-xl shadow-xl transition-transform group-hover/avatar:scale-110 flex-shrink-0">
                       {{ teacher.displayName.charAt(0) }}
                     </div>
                   </div>
-                  <div class="min-w-0">
+                  <div class="min-w-0 flex-1">
                     <p class="text-xs sm:text-base font-black text-slate-900 dark:text-white tracking-tight truncate">{{ teacher.displayName }}</p>
-                    <div class="flex items-center gap-1 sm:gap-2 mt-1 min-w-0">
+                    <div class="flex items-center gap-1 sm:gap-2 mt-1 min-w-0 flex-wrap">
                       <span class="text-[7px] sm:text-[10px] font-black text-nebula-500 bg-nebula-500/5 px-2 py-0.5 rounded-md flex-shrink-0">@{{ teacher.username }}</span>
-                      <div class="h-1 w-1 bg-slate-300 rounded-full flex-shrink-0" aria-hidden="true"></div>
+                      <div class="h-1 w-1 bg-slate-300 rounded-full flex-shrink-0 hidden sm:block" aria-hidden="true"></div>
                       <span class="text-[7px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest truncate hidden sm:inline">{{ teacher.email || 'No Email' }}</span>
                     </div>
                   </div>
@@ -376,14 +376,14 @@ onMounted(fetchTeachers)
                 <div class="flex items-center justify-end gap-1 sm:gap-3">
                   <button 
                     @click="openEditModal(teacher)"
-                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-nebula-500 hover:border-nebula-500/30 hover:shadow-lg transition-all min-h-[36px] min-w-[36px] flex items-center justify-center"
+                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-nebula-500 hover:border-nebula-500/30 hover:shadow-lg transition-all min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0"
                     :aria-label="`Edit details for ${teacher.displayName}`"
                   >
                     <Edit2 class="w-4 h-4" aria-hidden="true" />
                   </button>
                   <button 
                     @click="handleDelete(teacher.username)"
-                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 hover:shadow-lg transition-all min-h-[36px] min-w-[36px] flex items-center justify-center"
+                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 hover:shadow-lg transition-all min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0"
                     :aria-label="`Delete account for ${teacher.displayName}`"
                   >
                     <Trash2 class="w-4 h-4" aria-hidden="true" />
