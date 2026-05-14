@@ -303,87 +303,87 @@ onMounted(fetchTeachers)
 </script>
 
 <template>
-  <div class="space-y-10 fade-in py-6">
+  <div class="space-y-4 sm:space-y-8 lg:space-y-10 fade-in py-3 sm:py-6">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 px-1 sm:px-2">
       <div>
-        <div class="flex items-center gap-3 mb-2">
-          <div class="h-1 w-12 bg-nebula-500 rounded-full"></div>
-          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-nebula-500">Personnel Core</span>
+        <div class="flex items-center gap-2 sm:gap-3 mb-2">
+          <div class="h-1 w-8 sm:w-12 bg-nebula-500 rounded-full"></div>
+          <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-nebula-500">Personnel Core</span>
         </div>
-        <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Staff <span class="text-transparent bg-clip-text nebula-gradient">Faculty</span></h1>
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] mt-1">Institutional Onboarding & Resource Allocation</p>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Staff <span class="text-transparent bg-clip-text nebula-gradient">Faculty</span></h1>
+        <p class="text-[9px] sm:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] mt-1">Institutional Onboarding & Resource Allocation</p>
       </div>
       <button 
         @click="showAddModal = true"
-        class="flex items-center gap-3 rounded-[1.5rem] nebula-gradient px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 transition hover:scale-105 active:scale-95 group"
+        class="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 rounded-lg sm:rounded-[1.5rem] nebula-gradient px-4 sm:px-8 py-3 sm:py-4 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 transition hover:scale-105 active:scale-95 group min-h-[44px] min-w-[44px] sm:min-w-[auto]"
       >
-        <UserPlus class="w-5 h-5 group-hover:rotate-12 transition-transform" /> 
-        Enroll New Faculty
+        <UserPlus class="w-4 sm:w-5 h-4 sm:h-5 group-hover:rotate-12 transition-transform flex-shrink-0" /> 
+        <span class="hidden sm:inline">Enroll New Faculty</span><span class="sm:hidden">Add</span>
       </button>
     </div>
 
     <!-- Filters & Search -->
-    <div class="glass-card rounded-[2.5rem] p-4 flex flex-col md:flex-row gap-4 items-center border-white/40 dark:border-slate-800/50">
+    <div class="glass-card rounded-lg sm:rounded-[2.5rem] p-3 sm:p-4 flex flex-col gap-3 sm:gap-4 border-white/40 dark:border-slate-800/50">
       <div class="relative flex-grow">
-        <Search class="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-nebula-500" />
+        <Search class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-nebula-500 flex-shrink-0" />
         <input 
           v-model="searchQuery"
           type="text" 
-          placeholder="Filter faculty by name, username or ID..."
-          class="w-full pl-16 pr-8 py-5 bg-slate-100/50 dark:bg-slate-800/30 border-none rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-nebula-500/10 outline-none transition-all placeholder-slate-400"
+          placeholder="Search faculty..."
+          class="w-full pl-10 sm:pl-16 pr-4 sm:pr-8 py-3 sm:py-5 bg-slate-100/50 dark:bg-slate-800/30 border-none rounded-lg sm:rounded-[1.5rem] text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-nebula-500/10 outline-none transition-all placeholder-slate-400 min-h-[44px]"
         />
       </div>
     </div>
 
     <!-- Teachers Table -->
-    <div class="academic-card overflow-hidden min-h-[500px] flex flex-col border-white/40 dark:border-slate-800/50">
+    <div class="academic-card overflow-hidden min-h-[400px] flex flex-col border-white/40 dark:border-slate-800/50">
       <div v-if="loading" class="flex-grow flex items-center justify-center">
         <div class="relative">
           <div class="absolute inset-0 bg-nebula-500 blur-2xl opacity-20 animate-pulse" aria-hidden="true"></div>
           <Loader2 class="w-12 h-12 text-nebula-500 animate-spin relative z-10" />
         </div>
       </div>
-      <div v-else class="responsive-table-container">
-        <table class="w-full text-left min-w-[600px]">
+      <div v-else class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm">
           <thead>
-            <tr class="bg-slate-100/50 dark:bg-slate-800/30">
-              <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Faculty Member</th>
-              <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 text-right">Operations</th>
+            <tr class="bg-slate-100/50 dark:bg-slate-800/30 sticky top-0">
+              <th class="px-3 sm:px-10 py-4 sm:py-8 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 whitespace-nowrap">Faculty Member</th>
+              <th class="px-3 sm:px-10 py-4 sm:py-8 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
             <tr v-for="teacher in filteredTeachers" :key="teacher.username" class="group hover:bg-nebula-500/[0.03] transition-colors">
-              <td class="px-10 py-8">
-                <div class="flex items-center gap-6">
-                  <div class="relative group/avatar">
+              <td class="px-3 sm:px-10 py-4 sm:py-8">
+                <div class="flex items-center gap-3 sm:gap-6">
+                  <div class="relative group/avatar flex-shrink-0">
                     <div class="absolute inset-0 bg-nebula-500 blur-lg opacity-0 group-hover/avatar:opacity-30 transition-opacity" aria-hidden="true"></div>
-                    <div class="h-14 w-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-nebula-500 font-black text-xl shadow-xl transition-transform group-hover/avatar:scale-110">
+                    <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-nebula-500 font-black text-xs sm:text-xl shadow-xl transition-transform group-hover/avatar:scale-110">
                       {{ teacher.displayName.charAt(0) }}
                     </div>
                   </div>
-                  <div>
-                    <p class="text-base font-black text-slate-900 dark:text-white tracking-tight">{{ teacher.displayName }}</p>
-                    <div class="flex items-center gap-2 mt-1">
-                      <span class="text-[10px] font-black text-nebula-500 bg-nebula-500/5 px-2 py-0.5 rounded-md">@{{ teacher.username }}</span>
-                      <div class="h-1 w-1 bg-slate-300 rounded-full" aria-hidden="true"></div>
-                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ teacher.email || 'No Email' }}</span>
+                  <div class="min-w-0">
+                    <p class="text-xs sm:text-base font-black text-slate-900 dark:text-white tracking-tight truncate">{{ teacher.displayName }}</p>
+                    <div class="flex items-center gap-1 sm:gap-2 mt-1 min-w-0">
+                      <span class="text-[7px] sm:text-[10px] font-black text-nebula-500 bg-nebula-500/5 px-2 py-0.5 rounded-md flex-shrink-0">@{{ teacher.username }}</span>
+                      <div class="h-1 w-1 bg-slate-300 rounded-full flex-shrink-0" aria-hidden="true"></div>
+                      <span class="text-[7px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest truncate hidden sm:inline">{{ teacher.email || 'No Email' }}</span>
                     </div>
                   </div>
                 </div>
               </td>
-              <td class="px-10 py-8 text-right">
-                <div class="flex items-center justify-end gap-3 md:opacity-0 group-hover:opacity-100 transition-opacity">
+              <td class="px-3 sm:px-10 py-4 sm:py-8 text-right">
+                <div class="flex items-center justify-end gap-1 sm:gap-3">
                   <button 
                     @click="openEditModal(teacher)"
-                    class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-nebula-500 hover:border-nebula-500/30 hover:shadow-lg transition-all"
+                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-nebula-500 hover:border-nebula-500/30 hover:shadow-lg transition-all min-h-[36px] min-w-[36px] flex items-center justify-center"
                     :aria-label="`Edit details for ${teacher.displayName}`"
                   >
                     <Edit2 class="w-4 h-4" aria-hidden="true" />
                   </button>
                   <button 
                     @click="handleDelete(teacher.username)"
-                    class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 hover:shadow-lg transition-all"
+                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 hover:shadow-lg transition-all min-h-[36px] min-w-[36px] flex items-center justify-center"
                     :aria-label="`Delete account for ${teacher.displayName}`"
                   >
                     <Trash2 class="w-4 h-4" aria-hidden="true" />
@@ -393,11 +393,11 @@ onMounted(fetchTeachers)
             </tr>
           </tbody>
         </table>
-        <div v-if="filteredTeachers.length === 0" class="p-24 text-center">
-          <div class="mx-auto h-20 w-20 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-400 mb-6">
-            <Search class="w-8 h-8" aria-hidden="true" />
+        <div v-if="filteredTeachers.length === 0" class="p-8 sm:p-24 text-center">
+          <div class="mx-auto h-16 sm:h-20 w-16 sm:w-20 bg-slate-100 dark:bg-slate-800 rounded-2xl sm:rounded-3xl flex items-center justify-center text-slate-400 mb-4 sm:mb-6">
+            <Search class="w-6 sm:w-8 h-6 sm:h-8" aria-hidden="true" />
           </div>
-          <p class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Zero faculty matches found</p>
+          <p class="text-[8px] sm:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Zero faculty matches found</p>
           <p class="text-[10px] text-slate-500 mt-2">Adjust your filter or enroll a new faculty member</p>
         </div>
       </div>

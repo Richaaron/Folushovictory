@@ -127,67 +127,67 @@ onMounted(async () => {
 <template>
   <div class="space-y-8 fade-in">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 px-1 sm:px-2">
       <div>
-        <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Student <span class="text-royal-purple">Enrollment</span></h1>
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Manage Registry and Student Records</p>
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Student <span class="text-royal-purple">Enrollment</span></h1>
+        <p class="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Manage Registry and Student Records</p>
       </div>
-      <div class="flex items-center gap-3">
-        <button class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white dark:bg-slate-900 text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-royal-purple transition-all">
-          <Download class="w-5 h-5" />
+      <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+        <button class="flex-shrink-0 h-10 sm:h-12 w-10 sm:w-12 items-center justify-center rounded-lg sm:rounded-2xl bg-white dark:bg-slate-900 text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-royal-purple transition-all flex">
+          <Download class="w-4 sm:w-5 h-4 sm:h-5" />
         </button>
         <button 
           @click="showAddModal = true"
-          class="flex items-center gap-3 rounded-2xl purple-gradient px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95"
+          class="flex-grow sm:flex-grow-0 flex items-center justify-center sm:justify-start gap-2 sm:gap-3 rounded-lg sm:rounded-2xl purple-gradient px-3 sm:px-6 py-3 sm:py-4 text-[9px] sm:text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 min-h-[44px] sm:min-h-[48px]"
         >
-          <UserPlus class="w-4 h-4" /> Register Student
+          <UserPlus class="w-4 sm:w-4 h-4 sm:h-4 flex-shrink-0" /> <span class="hidden sm:inline">Register Student</span><span class="sm:hidden">Add</span>
         </button>
       </div>
     </div>
 
     <!-- Registry Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="academic-card rounded-3xl p-6 flex items-center gap-6">
-        <div class="h-14 w-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center">
-          <GraduationCap class="w-7 h-7" />
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+      <div class="academic-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-3 sm:gap-6">
+        <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center flex-shrink-0">
+          <GraduationCap class="w-5 sm:w-7 h-5 sm:h-7" />
         </div>
-        <div>
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Enrollment</p>
-          <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ stats.total.toLocaleString() }}</h3>
-        </div>
-      </div>
-      <div class="academic-card rounded-3xl p-6 flex items-center gap-6">
-        <div class="h-14 w-14 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center">
-          <Calendar class="w-7 h-7" />
-        </div>
-        <div>
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">New This Term</p>
-          <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ stats.newlyEnrolled.toLocaleString() }}</h3>
+        <div class="min-w-0">
+          <p class="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Active Enrollment</p>
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">{{ stats.total.toLocaleString() }}</h3>
         </div>
       </div>
-      <div class="academic-card rounded-3xl p-6 flex items-center gap-6">
-        <div class="h-14 w-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center">
-          <FileText class="w-7 h-7" />
+      <div class="academic-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-3 sm:gap-6">
+        <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center flex-shrink-0">
+          <Calendar class="w-5 sm:w-7 h-5 sm:h-7" />
         </div>
-        <div>
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Awaiting Results</p>
-          <h3 class="text-2xl font-black text-slate-900 dark:text-white">{{ stats.awaiting.toLocaleString() }}</h3>
+        <div class="min-w-0">
+          <p class="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">New This Term</p>
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">{{ stats.newlyEnrolled.toLocaleString() }}</h3>
+        </div>
+      </div>
+      <div class="academic-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-3 sm:gap-6 sm:col-span-2 lg:col-span-1">
+        <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center flex-shrink-0">
+          <FileText class="w-5 sm:w-7 h-5 sm:h-7" />
+        </div>
+        <div class="min-w-0">
+          <p class="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Awaiting Results</p>
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">{{ stats.awaiting.toLocaleString() }}</h3>
         </div>
       </div>
     </div>
 
     <!-- Filter Bar -->
-    <div class="academic-card rounded-3xl p-4 flex flex-col md:flex-row gap-4">
+    <div class="academic-card rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col lg:flex-row gap-2 sm:gap-4">
       <div class="relative flex-grow">
-        <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input v-model="searchQuery" type="text" placeholder="Search by name or Admission ID..." class="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+        <Search class="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <input v-model="searchQuery" type="text" placeholder="Search by name or ID..." class="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs sm:text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
       </div>
-      <div class="flex gap-2">
-        <select v-model="selectedClassId" class="pl-4 pr-10 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest text-slate-500 focus:ring-2 focus:ring-royal-purple outline-none">
+      <div class="flex gap-2 sm:gap-3 flex-wrap">
+        <select v-model="selectedClassId" class="pl-3 sm:pl-4 pr-8 sm:pr-10 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-500 focus:ring-2 focus:ring-royal-purple outline-none flex-1 sm:flex-initial">
           <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
         </select>
-        <button class="flex items-center gap-2 px-6 py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 transition-all">
-          <Filter class="w-4 h-4" /> Filter
+        <button class="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 transition-all min-h-[44px]">
+          <Filter class="w-4 h-4" /> <span class="hidden sm:inline">Filter</span>
         </button>
       </div>
     </div>
@@ -198,49 +198,51 @@ onMounted(async () => {
         <Loader2 class="w-12 h-12 text-royal-purple animate-spin" />
       </div>
       <div v-else class="overflow-x-auto">
-        <table class="w-full text-left">
+        <table class="w-full text-left text-xs sm:text-sm">
           <thead>
-            <tr class="bg-slate-50 dark:bg-slate-800/50">
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Admission ID</th>
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Student Name</th>
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Gender</th>
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Guardian Info</th>
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Registry</th>
+            <tr class="bg-slate-50 dark:bg-slate-800/50 sticky top-0">
+              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">ID</th>
+              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">Name</th>
+              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:table-cell whitespace-nowrap">Gender</th>
+              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell whitespace-nowrap">Guardian</th>
+              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
             <tr v-for="student in students" :key="student.id" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-              <td class="px-8 py-6">
-                <span class="text-xs font-black text-royal-purple bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-lg border border-purple-100 dark:border-purple-900/30">
+              <td class="px-3 sm:px-6 py-3 sm:py-6">
+                <span class="text-[7px] sm:text-xs font-black text-royal-purple bg-purple-50 dark:bg-purple-900/20 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-purple-100 dark:border-purple-900/30 whitespace-nowrap">
                   {{ student.studentId }}
                 </span>
               </td>
-              <td class="px-8 py-6">
-                <div class="flex items-center gap-3">
-                  <div class="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                    <GraduationCap class="w-5 h-5" />
+              <td class="px-3 sm:px-6 py-3 sm:py-6">
+                <div class="flex items-center gap-2 sm:gap-3">
+                  <div class="h-8 sm:h-10 w-8 sm:w-10 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 flex-shrink-0">
+                    <GraduationCap class="w-4 sm:w-5 h-4 sm:h-5" />
                   </div>
-                  <p class="text-sm font-black text-slate-900 dark:text-white">{{ student.firstName }} {{ student.lastName }}</p>
+                  <p class="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">{{ student.firstName }} {{ student.lastName }}</p>
                 </div>
               </td>
-              <td class="px-8 py-6">
-                <span class="text-xs font-bold text-slate-500 uppercase">{{ student.gender }}</span>
+              <td class="px-3 sm:px-6 py-3 sm:py-6 hidden sm:table-cell">
+                <span class="text-[8px] sm:text-xs font-bold text-slate-500 uppercase">{{ student.gender }}</span>
               </td>
-              <td class="px-8 py-6">
-                <p class="text-xs font-black text-slate-700 dark:text-slate-300">{{ student.parentName }}</p>
-                <p class="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-1">Verified Parent</p>
+              <td class="px-3 sm:px-6 py-3 sm:py-6 hidden md:table-cell">
+                <p class="text-[8px] sm:text-xs font-black text-slate-700 dark:text-slate-300 truncate">{{ student.parentName }}</p>
+                <p class="text-[7px] sm:text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-1 hidden sm:block">Verified Parent</p>
               </td>
-              <td class="px-8 py-6 text-right">
-                <div class="flex items-center justify-end gap-2">
+              <td class="px-3 sm:px-6 py-3 sm:py-6 text-right">
+                <div class="flex items-center justify-end gap-1 sm:gap-2">
                   <button 
                     @click="openEditModal(student)"
-                    class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-royal-purple transition-colors"
+                    class="p-2 rounded-lg sm:rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-royal-purple transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                    aria-label="Edit student"
                   >
                     <Edit2 class="w-4 h-4" />
                   </button>
                   <button 
                     @click="handleDelete(student.studentId)"
-                    class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors"
+                    class="p-2 rounded-lg sm:rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                    aria-label="Delete student"
                   >
                     <Trash2 class="w-4 h-4" />
                   </button>
@@ -249,64 +251,64 @@ onMounted(async () => {
             </tr>
           </tbody>
         </table>
-        <div v-if="students.length === 0" class="p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
+        <div v-if="students.length === 0" class="p-6 sm:p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px] sm:text-xs">
           No students enrolled in this class.
         </div>
       </div>
-      <div v-if="!loading" class="p-6 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-50 dark:border-slate-800 flex items-center justify-center">
-        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">End of Registry List</p>
+      <div v-if="!loading" class="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-50 dark:border-slate-800 flex items-center justify-center">
+        <p class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">End of Registry List</p>
       </div>
     </div>
 
     <!-- Add Student Modal -->
     <transition name="fade">
-      <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAddModal = false"></div>
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-xl p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800">
-          <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8">Register New <span class="text-royal-purple">Student</span></h2>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
+          <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8">Register New <span class="text-royal-purple">Student</span></h2>
           
-          <div class="space-y-6">
-            <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-4 sm:space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">First Name</label>
-                <input v-model="newStudent.firstName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">First Name</label>
+                <input v-model="newStudent.firstName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
               </div>
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Name</label>
-                <input v-model="newStudent.lastName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Name</label>
+                <input v-model="newStudent.lastName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
-                <select v-model="newStudent.gender" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
+                <select v-model="newStudent.gender" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
                   <option>Male</option>
                   <option>Female</option>
                 </select>
               </div>
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assign to Class</label>
-                <select v-model="newStudent.classId" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assign to Class</label>
+                <select v-model="newStudent.classId" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
                   <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
                 </select>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
-                <input v-model="newStudent.parentName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="e.g. Chief Adeleke" />
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
+                <input v-model="newStudent.parentName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="e.g. Chief Adeleke" />
               </div>
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email <span class="text-slate-500 lowercase">(Optional)</span></label>
-                <input v-model="newStudent.parentEmail" type="email" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" placeholder="guardian@example.com" />
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email <span class="text-slate-500 lowercase">(Optional)</span></label>
+                <input v-model="newStudent.parentEmail" type="email" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="guardian@example.com" />
               </div>
             </div>
 
-            <div class="pt-6 flex gap-4">
-              <button @click="showAddModal = false" class="flex-grow py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
-              <button @click="handleAddStudent" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30">Enroll Student</button>
+            <div class="pt-4 sm:pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+              <button @click="showAddModal = false" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl bg-slate-100 dark:bg-slate-800 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors min-h-[44px]">Cancel</button>
+              <button @click="handleAddStudent" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl purple-gradient text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 min-h-[44px]">Enroll Student</button>
             </div>
           </div>
         </div>
@@ -315,55 +317,55 @@ onMounted(async () => {
 
     <!-- Edit Student Modal -->
     <transition name="fade">
-      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showEditModal = false"></div>
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-xl p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800">
-          <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8 flex items-center gap-3">
-            <Edit2 class="w-6 h-6 text-royal-purple" /> Edit Student Info
+        <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
+          <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8 flex items-center gap-2 sm:gap-3">
+            <Edit2 class="w-5 sm:w-6 h-5 sm:h-6 text-royal-purple" /> Edit Student Info
           </h2>
           
-          <div class="space-y-6" v-if="editingStudent">
-            <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-4 sm:space-y-6" v-if="editingStudent">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">First Name</label>
-                <input v-model="editingStudent.firstName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">First Name</label>
+                <input v-model="editingStudent.firstName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
               </div>
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Name</label>
-                <input v-model="editingStudent.lastName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Name</label>
+                <input v-model="editingStudent.lastName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
-                <select v-model="editingStudent.gender" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
+                <select v-model="editingStudent.gender" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
                   <option>Male</option>
                   <option>Female</option>
                 </select>
               </div>
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Class</label>
-                <select v-model="editingStudent.classId" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Class</label>
+                <select v-model="editingStudent.classId" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
                   <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
                 </select>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Name</label>
-                <input v-model="editingStudent.parentName" type="text" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Name</label>
+                <input v-model="editingStudent.parentName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
               </div>
               <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email</label>
-                <input v-model="editingStudent.parentEmail" type="email" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email</label>
+                <input v-model="editingStudent.parentEmail" type="email" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
               </div>
             </div>
 
-            <div class="pt-6 flex gap-4">
-              <button @click="showEditModal = false" class="flex-grow py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">Cancel</button>
-              <button @click="handleUpdateStudent" class="flex-[2] py-4 rounded-2xl purple-gradient text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30">Save Changes</button>
+            <div class="pt-4 sm:pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+              <button @click="showEditModal = false" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl bg-slate-100 dark:bg-slate-800 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors min-h-[44px]">Cancel</button>
+              <button @click="handleUpdateStudent" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl purple-gradient text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 min-h-[44px]">Save Changes</button>
             </div>
           </div>
         </div>
