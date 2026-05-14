@@ -6,7 +6,8 @@ import {
   Edit2, 
   UserPlus,
   Loader2,
-  X
+  X,
+  Mail
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -165,6 +166,27 @@ const handleAddTeacher = async () => {
   } catch (err) {
     console.error('Error adding teacher:', err)
     alert('Unable to create faculty profile right now. Please check the email address and try again.')
+  } finally {
+    creating.value = false
+  }
+}
+
+const handleResendCredentials = async (teacher: any) => {
+  if (!confirm(`Are you sure you want to reset and resend credentials for ${teacher.displayName}? This will generate a new password.`)) return
+  
+  creating.value = true // Show loading state
+  try {
+    const { data } = await api.post(`/api/admin/teachers/${teacher.username}/resend-credentials`)
+    alert(`✅ New Credentials Generated!\n\nUsername: ${teacher.username}\nPassword: ${data.password}\n\n${data.message}\n\nPlease copy the new password now.`)
+  } catch (err: any) {
+    console.error('Error resending credentials:', err)
+    const errorMsg = err.response?.data?.error || 'Failed to resend credentials.'
+    const password = err.response?.data?.password
+    if (password) {
+      alert(`⚠️ ${errorMsg}\n\nHowever, a new password was generated: ${password}\nPlease provide it to the teacher manually.`)
+    } else {
+      alert(`❌ ${errorMsg}`)
+    }
   } finally {
     creating.value = false
   }
@@ -374,6 +396,14 @@ onMounted(fetchTeachers)
               </td>
               <td class="px-3 sm:px-10 py-4 sm:py-8 text-right">
                 <div class="flex items-center justify-end gap-1 sm:gap-3">
+                  <button 
+                    v-if="teacher.email"
+                    @click="handleResendCredentials(teacher)"
+                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-emerald-500 hover:border-emerald-500/30 hover:shadow-lg transition-all min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0"
+                    :aria-label="`Resend credentials for ${teacher.displayName}`"
+                  >
+                    <Mail class="w-4 h-4" aria-hidden="true" />
+                  </button>
                   <button 
                     @click="openEditModal(teacher)"
                     class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-nebula-500 hover:border-nebula-500/30 hover:shadow-lg transition-all min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0"

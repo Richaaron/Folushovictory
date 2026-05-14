@@ -161,6 +161,76 @@ adminRouter.post(
   })
 );
 
+adminRouter.post(
+  "/teachers/:username/resend-credentials",
+  asyncHandler(async (req, res) => {
+    const { username } = req.params;
+    const user = await getUserByUsername(username);
+    if (!user) return res.status(404).json({ error: "Teacher not found" });
+    if (!user.email) return res.status(400).json({ error: "Teacher has no email address" });
+
+    // Generate new random password
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+    let password = "";
+    for (let i = 0; i < 8; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const passwordHash = await hashPassword(password);
+
+    // Update user record with new password
+    await updateUser(username, { passwordHash });
+
+    const emailHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
+        </div>
+        <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+          <h2 style="margin-top: 0; color: #5D3FD3;">Hello ${user.displayName}!</h2>
+          <p>Your academic staff portal credentials have been reset at your request or by an administrator.</p>
+          
+          <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
+            <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">New Login Credentials</p>
+            <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${username}</span></p>
+            <p style="margin: 5px 0 0; font-size: 16px;"><strong>Temporary Password:</strong> <span style="color: #0B6E4F;">${password}</span></p>
+          </div>
+
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/teacher" 
+               style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+               Access Staff Portal
+            </a>
+          </div>
+
+          <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; pt: 16px;">
+            This is an automated security message. Please do not share your credentials with anyone.
+          </p>
+        </div>
+      </div>
+    `;
+
+    // Wait for email to send so we can report failure immediately
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "FVS: Your Teacher Portal Credentials",
+        html: emailHtml
+      });
+      return res.json({ 
+        success: true, 
+        message: `✅ New credentials sent to ${user.email}`,
+        password // Also return it so admin can copy it manually
+      });
+    } catch (err) {
+      console.error("Failed to resend credentials:", err);
+      return res.status(500).json({ 
+        error: "Failed to send email. However, the password was reset.",
+        password // Still return it so admin can provide it manually
+      });
+    }
+  })
+);
+
 adminRouter.put(
   "/teachers/:username",
   asyncHandler(async (req, res) => {
