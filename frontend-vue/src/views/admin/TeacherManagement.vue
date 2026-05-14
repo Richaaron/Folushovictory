@@ -121,17 +121,6 @@ const handleAddTeacher = async () => {
       }))
     }
 
-    let targetClassIds: string[] = []
-    if (newTeacher.value.roleType === 'Subject Teacher') {
-      // Don't need to select classes - teachers auto-assigned to all classes at subject level
-      targetClassIds = []
-    } else if (newTeacher.value.roleType === 'Dual Role') {
-      // For Dual Role, only include formClassId, subjects auto-assign to all classes at level
-      targetClassIds = newTeacher.value.formClassId ? [newTeacher.value.formClassId] : []
-    } else if (newTeacher.value.roleType === 'Form Teacher') {
-      targetClassIds = newTeacher.value.formClassId ? [newTeacher.value.formClassId] : []
-    }
-
     // Subject assignments - backend auto-expands to all classes at subject level
     if (newTeacher.value.assignedSubjectIds.length > 0) {
       followUpRequests.push(api.post('/api/admin/assignments', {
@@ -288,24 +277,14 @@ const handleUpdateTeacher = async () => {
   if (!editingTeacher.value?.displayName) return
   creating.value = true // Reuse creating spinner
   try {
-    // 1. Calculate Target Classes & Subjects
-    let targetClassIds: string[] = []
-    if (editingTeacher.value.roleType === 'Subject Teacher') {
-      // Don't need to select classes - teachers auto-assigned to all classes at subject level
-      targetClassIds = []
-    } else if (editingTeacher.value.roleType === 'Dual Role') {
-      // For Dual Role, only include formClassId, subjects auto-assign to all classes at level
-      targetClassIds = editingTeacher.value.formClassId ? [editingTeacher.value.formClassId] : []
-    } else if (editingTeacher.value.roleType === 'Form Teacher') {
-      targetClassIds = editingTeacher.value.formClassId ? [editingTeacher.value.formClassId] : []
-    }
-
-    // 2. Atomic Update (Metadata + Form Class + Assignments)
+    // Atomic Update (Metadata + Form Class + Assignments)
     await api.put(`/api/admin/teachers/${editingTeacher.value.username}`, {
       displayName: editingTeacher.value.displayName,
       email: editingTeacher.value.email,
       formClassId: editingTeacher.value.formClassId || '',
-      classIds: targetClassIds,
+      classIds: editingTeacher.value.roleType === 'Form Teacher' 
+        ? (editingTeacher.value.formClassId ? [editingTeacher.value.formClassId] : [])
+        : [],
       subjectIds: editingTeacher.value.assignedSubjectIds || []
     })
     
