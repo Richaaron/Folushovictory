@@ -53,7 +53,7 @@ const recentActivity: Array<{ id: number; type: string; text: string; time: stri
 <template>
   <div class="space-y-6 sm:space-y-8 lg:space-y-10 fade-in py-3 sm:py-6">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 px-1 sm:px-2">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 px-1">
       <div>
         <div class="flex items-center gap-3 mb-2">
           <div class="h-1 w-12 bg-nebula-500 rounded-full" aria-hidden="true"></div>
@@ -111,9 +111,9 @@ const recentActivity: Array<{ id: number; type: string; text: string; time: stri
     </div>
 
     <!-- Recent Activity and Charts Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-10">
       <!-- Recent Activity -->
-      <div class="lg:col-span-2 space-y-8">
+      <div class="md:col-span-2 lg:col-span-2 space-y-8">
         <div class="academic-card p-6 md:p-10 relative overflow-hidden">
           <div class="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none" aria-hidden="true">
             <Bell class="w-48 h-48" />

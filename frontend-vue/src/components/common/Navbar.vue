@@ -52,7 +52,7 @@ const settingsPath = computed(() => {
 </script>
 
 <template>
-  <header class="no-print glass-nav mx-2 sm:mx-4 mt-2 sm:mt-4 rounded-2xl sm:rounded-3xl py-3 sm:py-4 shadow-2xl shadow-nebula-500/10 border border-white/20 dark:border-slate-800/30 overflow-hidden relative">
+  <header class="no-print glass-nav mx-0 sm:mx-4 mt-0 sm:mt-4 rounded-none sm:rounded-3xl py-3 sm:py-4 shadow-2xl shadow-nebula-500/10 border-b sm:border border-white/20 dark:border-slate-800/30 overflow-hidden relative">
     <!-- Subtle Background Glow -->
     <div class="absolute -top-10 -left-10 w-40 h-40 bg-nebula-500/20 blur-[100px] pointer-events-none" aria-hidden="true"></div>
     <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-purple-500/20 blur-[100px] pointer-events-none" aria-hidden="true"></div>
@@ -142,7 +142,7 @@ const settingsPath = computed(() => {
         id="mobile-menu"
         role="navigation"
         aria-label="Mobile Navigation"
-        class="lg:hidden absolute top-full left-2 right-2 mt-2 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-white/30 dark:border-slate-800/50 shadow-2xl p-4 sm:p-6 space-y-4 z-50 overflow-y-auto max-h-[calc(100vh-120px)]"
+        class="lg:hidden absolute top-full left-0 right-0 sm:left-2 sm:right-2 mt-0 sm:mt-2 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-none sm:rounded-2xl border-t sm:border border-white/30 dark:border-slate-800/50 shadow-2xl p-4 sm:p-6 space-y-4 z-50 overflow-y-auto max-h-[calc(100vh-120px)]"
       >
         <!-- Mobile User Profile Section -->
         <div v-if="username" class="flex items-center gap-3 p-3 rounded-lg bg-slate-100 dark:bg-slate-800/50 mb-4">

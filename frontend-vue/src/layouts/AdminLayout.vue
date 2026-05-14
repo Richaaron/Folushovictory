@@ -35,7 +35,7 @@ const closeSidebar = () => {
   <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-[#020617] selection:bg-nebula-500 selection:text-white">
     <Navbar portal="Admin" username="Admin User" :menuItems="menuItems" :onToggleSidebar="toggleSidebar" />
 
-    <div class="flex-grow flex flex-col lg:flex-row p-2 sm:p-4 lg:p-6 gap-3 sm:gap-4 lg:gap-6">
+    <div class="flex-grow flex flex-col lg:flex-row p-1 sm:p-4 lg:p-6 gap-3 sm:gap-4 lg:gap-6">
       <!-- Floating Sidebar - Mobile drawer/drawer, desktop sticky -->
       <aside 
         class="glass-sidebar rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden 

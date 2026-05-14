@@ -17,10 +17,10 @@ const navigateToLogin = (portal: string) => {
           <div class="mb-10 flex h-20 w-20 items-center justify-center rounded-2xl bg-white dark:bg-slate-900 p-3 shadow-2xl shadow-purple-200 dark:shadow-purple-900/20 border border-purple-50 dark:border-purple-900/30">
             <img src="/logo.png" alt="School Logo" class="object-contain w-full h-full" />
           </div>
-          <h1 class="text-5xl font-black tracking-tight text-slate-900 dark:text-white sm:text-7xl leading-[1.1]">
+          <h1 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-7xl leading-[1.1]">
             Excellence <br/>Defined by <span class="text-royal-purple">Legacy</span>.
           </h1>
-          <p class="mt-8 text-lg font-medium leading-8 text-slate-500 dark:text-slate-400 max-w-lg">
+          <p class="mt-6 sm:mt-8 text-base sm:text-lg font-medium leading-normal sm:leading-8 text-slate-500 dark:text-slate-400 max-w-lg">
             Welcome to the Folusho Victory Schools digital citadel. A sanctuary of academic precision, teacher empowerment, and parental partnership.
           </p>
           <div class="mt-12 flex flex-col sm:flex-row items-center gap-4 sm:gap-x-6">
@@ -45,8 +45,8 @@ const navigateToLogin = (portal: string) => {
           </div>
         </div>
 
-        <div class="relative">
-          <div class="academic-card rounded-[3rem] p-10 float border border-royal-gold/20">
+        <div class="relative mt-12 lg:mt-0">
+          <div class="academic-card rounded-[2.5rem] sm:rounded-[3rem] p-6 sm:p-10 float border border-royal-gold/20">
             <div class="mb-10 flex items-center gap-4">
               <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white dark:bg-slate-800 p-2 shadow-inner border border-purple-100 dark:border-purple-900/30">
                 <ShieldCheck class="w-6 h-6 text-royal-purple" />
