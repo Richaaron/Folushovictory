@@ -38,26 +38,15 @@ const fetchData = async () => {
       api.get('/api/config/school')
     ])
     
-    console.log('[FETCH] Raw API response assignments:', assignResp.data.assignments)
-    
     // Deduplicate assignments by classId and subjectId
     const uniqueAssignments = new Map()
     for (const a of (assignResp.data.assignments || [])) {
       const key = `${a.classId}-${a.subjectId}`
-      console.log(`[DEDUP] Processing: ${a.subjectName} (${a.className}) - Key: ${key}`)
       if (!uniqueAssignments.has(key)) {
         uniqueAssignments.set(key, a)
-        console.log(`[DEDUP]   ✓ Kept (new)`)
-      } else {
-        console.log(`[DEDUP]   ✗ Skipped (duplicate)`)
       }
     }
-    
-    const deduped = Array.from(uniqueAssignments.values())
-    console.log('[DEDUP] Final deduplicated assignments:', deduped)
-    console.log('[DEDUP] Count before:', assignResp.data.assignments?.length, 'Count after:', deduped.length)
-    
-    assignments.value = deduped
+    assignments.value = Array.from(uniqueAssignments.values())
     formClasses.value = formResp.data.classes || []
     
     if (schoolResp.data) {
