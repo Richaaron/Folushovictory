@@ -1,21 +1,10 @@
 import { assertConfig } from "../src/config.js";
 import { getFirebaseApp, getDb } from "../src/firebase.js";
-import { getGradingScale, setGradingScale } from "../src/repos/config.js";
 
 assertConfig();
 getFirebaseApp();
 
-const defaultScale = {
-  grades: [
-    { letter: "A", min: 70, max: 100, remark: "Excellent" },
-    { letter: "B", min: 60, max: 69, remark: "Very Good" },
-    { letter: "C", min: 50, max: 59, remark: "Good" },
-    { letter: "D", min: 45, max: 49, remark: "Pass" },
-    { letter: "F", min: 0, max: 44, remark: "Fail" }
-  ]
-};
-
-const subjects = [
+const correctSubjects = [
   // PRIMARY (P1-P6)
   { name: "Mathematics", level: "Primary" },
   { name: "English Language", level: "Primary" },
@@ -74,28 +63,16 @@ const subjects = [
 
 const db = getDb();
 
-const scale = await getGradingScale();
-if (!scale || !Array.isArray(scale.grades) || scale.grades.length === 0) {
-  await setGradingScale(defaultScale);
-  process.stdout.write("Seeded grading scale\n");
-}
-
-// Clear and re-seed subjects if they don't have levels, to avoid mixup
-const existingSubjects = await db.collection("subjects").get();
-let needsReseed = false;
-if (existingSubjects.size > 0) {
-  const first = existingSubjects.docs[0].data();
-  if (!first.level) needsReseed = true;
-} else {
-  needsReseed = true;
-}
-
-if (needsReseed) {
-  process.stdout.write("Updating subjects to include academic levels and tracks...\n");
+try {
+  console.log("Deleting all existing subjects...");
+  const existingSubjects = await db.collection("subjects").get();
   for (const doc of existingSubjects.docs) {
     await doc.ref.delete();
   }
-  for (const sub of subjects) {
+  console.log(`Deleted ${existingSubjects.size} subjects`);
+
+  console.log("Seeding correct subjects...");
+  for (const sub of correctSubjects) {
     const subjectData = { 
       name: sub.name, 
       level: sub.level,
@@ -106,49 +83,16 @@ if (needsReseed) {
     }
     await db.collection("subjects").add(subjectData);
   }
-  process.stdout.write(`Seeded ${subjects.length} leveled subjects with track information\n`);
-} else {
-  process.stdout.write("Leveled subjects already exist, skipping\n");
+  console.log(`✓ Successfully seeded ${correctSubjects.length} subjects with correct structure`);
+  console.log("\nSubjects by level:");
+  console.log("- Primary: 17 subjects");
+  console.log("- JSS: 13 subjects");
+  console.log("- SSS General: 7 subjects");
+  console.log("- SSS Science: 2 subjects");
+  console.log("- SSS Art: 2 subjects");
+  console.log("- SSS Commercial: 2 subjects");
+  process.exit(0);
+} catch (error) {
+  console.error("Error updating subjects:", error);
+  process.exit(1);
 }
-
-const defaultClasses = [
-  { name: "PRE-NURSERY", level: "NUR" },
-  { name: "NURSERY 1", level: "NUR" },
-  { name: "NURSERY 2", level: "NUR" },
-  { name: "PRIMARY 1", level: "PRY" },
-  { name: "PRIMARY 2", level: "PRY" },
-  { name: "PRIMARY 3", level: "PRY" },
-  { name: "PRIMARY 4", level: "PRY" },
-  { name: "PRIMARY 5", level: "PRY" },
-  { name: "PRIMARY 6", level: "PRY" },
-  { name: "JSS 1", level: "JSS" },
-  { name: "JSS 2", level: "JSS" },
-  { name: "JSS 3", level: "JSS" },
-  { name: "SSS 1", level: "SSS" },
-  { name: "SSS 2", level: "SSS" },
-  { name: "SSS 3", level: "SSS" }
-];
-
-const existingClasses = await db.collection("classes").get();
-process.stdout.write("Synchronizing academic levels for all classes...\n");
-const classMap = new Map(existingClasses.docs.map(d => [d.data().name.toUpperCase(), d]));
-
-for (const cls of defaultClasses) {
-  const existingDoc = classMap.get(cls.name);
-  if (existingDoc) {
-    // Update level if it's non-standard
-    if (existingDoc.data().level !== cls.level) {
-      await existingDoc.ref.update({ level: cls.level });
-      process.stdout.write(`Updated level for ${cls.name} -> ${cls.level}\n`);
-    }
-  } else {
-    // Add missing class
-    await db.collection("classes").add({
-      ...cls,
-      createdAt: new Date().toISOString()
-    });
-    process.stdout.write(`Added missing class: ${cls.name}\n`);
-  }
-}
-process.stdout.write("Institutional class structure synchronized.\n");
-

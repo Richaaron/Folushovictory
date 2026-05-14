@@ -452,11 +452,12 @@ adminRouter.get(
 adminRouter.post(
   "/subjects",
   asyncHandler(async (req, res) => {
-    const { name, level } = req.body || {};
+    const { name, level, track } = req.body || {};
     if (!name || !level) return res.status(400).json({ error: "Missing name or level" });
     const created = await createSubject({ 
       name: String(name),
-      level: String(level) // 'Primary', 'JSS', 'SSS'
+      level: String(level), // 'Primary', 'JSS', 'SSS'
+      track: track ? String(track) : null // 'General', 'Science', 'Art', 'Commercial' for SSS
     });
     return res.status(201).json(created);
   })

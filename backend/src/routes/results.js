@@ -29,11 +29,20 @@ async function subjectsForClass(cls) {
   let levelFilter = cls.level;
   if (levelFilter === 'PRY') levelFilter = 'Primary';
   
-  // If no subjects assigned, return subjects matching the class level
+  // Filter by level
+  let filtered = all.filter(s => s.level === levelFilter);
+  
+  // For SSS (Senior Secondary), apply track filtering
+  if (levelFilter === 'SSS' && cls.track) {
+    // Include general subjects and track-specific subjects
+    filtered = filtered.filter(s => 
+      s.track === 'General' || s.track === cls.track
+    );
+  }
+  
+  // If no subjects assigned, return subjects matching the class level (and track if applicable)
   // to avoid showing JSS subjects in SSS sheets and vice versa
-  return all
-    .filter(s => s.level === levelFilter)
-    .map((s) => ({ id: s.id, name: s.name }));
+  return filtered.map((s) => ({ id: s.id, name: s.name }));
 }
 
 resultsRouter.get(
