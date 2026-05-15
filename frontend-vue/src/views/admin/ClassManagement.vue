@@ -15,6 +15,25 @@ const classes = ref<any[]>([])
 const loading = ref(true)
 const showAddModal = ref(false)
 const newClass = ref({ name: '', level: 'JSS', track: '' })
+const showStudentsModal = ref(false)
+const studentsInClass = ref<any[]>([])
+const currentClass = ref<any>(null)
+
+const fetchStudentsForClass = async (classId: string) => {
+  try {
+    const { data } = await api.get(`/api/admin/classes/${classId}/students`)
+    studentsInClass.value = data.students || []
+  } catch (err) {
+    console.error('Error fetching class students:', err)
+    studentsInClass.value = []
+  }
+}
+
+const openStudents = async (cls: any) => {
+  currentClass.value = cls
+  await fetchStudentsForClass(cls.id)
+  showStudentsModal.value = true
+}
 
 const fetchClasses = async () => {
   loading.value = true
@@ -107,7 +126,7 @@ onMounted(fetchClasses)
             <button class="flex-grow py-2 sm:py-3 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-800 text-[7px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:bg-royal-purple hover:text-white transition-all flex items-center justify-center gap-1 sm:gap-2 min-h-[36px] sm:min-h-[44px]">
               <Settings2 class="w-3 sm:w-4 h-3 sm:h-4" /> <span class="hidden sm:inline">Config</span>
             </button>
-            <button class="px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-royal-purple transition-all min-h-[36px] min-w-[36px] sm:min-h-[44px] flex items-center justify-center">
+            <button @click.prevent="openStudents(cls)" class="px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-royal-purple transition-all min-h-[36px] min-w-[36px] sm:min-h-[44px] flex items-center justify-center">
               <ChevronRight class="w-4 sm:w-5 h-4 sm:h-5" />
             </button>
           </div>
@@ -162,6 +181,29 @@ onMounted(fetchClasses)
               <button @click="handleAddClass" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl purple-gradient text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 min-h-[44px]">Create Class</button>
             </div>
           </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Students Modal -->
+    <transition name="fade">
+      <div v-if="showStudentsModal" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showStudentsModal = false"></div>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-2xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800 max-h-[80vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Students — <span class="text-royal-purple">{{ currentClass?.name }}</span></h3>
+            <button @click="showStudentsModal = false" class="text-slate-500 hover:text-slate-900">Close</button>
+          </div>
+          <div v-if="studentsInClass.length === 0" class="py-10 text-center text-slate-500">No students found for this class.</div>
+          <ul v-else class="space-y-3">
+            <li v-for="s in studentsInClass" :key="s.studentId" class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
+              <div>
+                <div class="text-sm font-black text-slate-900 dark:text-white">{{ s.lastName }} {{ s.firstName }}</div>
+                <div class="text-xs text-slate-400">{{ s.studentId }}</div>
+              </div>
+              <div class="text-xs text-slate-400">{{ s.parentName || '' }}</div>
+            </li>
+          </ul>
         </div>
       </div>
     </transition>
