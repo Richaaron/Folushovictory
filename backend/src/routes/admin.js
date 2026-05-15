@@ -372,8 +372,7 @@ adminRouter.post(
       role: Roles.PARENT,
       displayName: String(parentName),
       passwordHash: parentPasswordHash,
-      studentId,
-      stream: stream ? String(stream) : null
+      studentId
     });
 
     if (parentEmail) {
