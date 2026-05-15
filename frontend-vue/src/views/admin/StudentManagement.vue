@@ -74,7 +74,8 @@ const newStudent = ref({
   gender: 'Male',
   parentName: '',
   parentEmail: '',
-  classId: ''
+  classId: '',
+  stream: ''
 })
 
 const handleAddStudent = async () => {
@@ -295,6 +296,16 @@ onMounted(async () => {
               </div>
             </div>
 
+            <div v-if="newStudent.classId && classes.find(c => c.id === newStudent.classId)?.name?.includes('SSS')" class="space-y-2">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stream</label>
+              <select v-model="newStudent.stream" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
+                <option value="">Select Stream</option>
+                <option value="Science">Science</option>
+                <option value="Art">Art</option>
+                <option value="Commercial">Commercial</option>
+              </select>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-2">
                 <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
@@ -350,6 +361,16 @@ onMounted(async () => {
                   <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
                 </select>
               </div>
+            </div>
+
+            <div v-if="editingStudent.classId && classes.find(c => c.id === editingStudent.classId)?.name?.includes('SSS')" class="space-y-2">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stream</label>
+              <select v-model="editingStudent.stream" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
+                <option value="">Select Stream</option>
+                <option value="Science">Science</option>
+                <option value="Art">Art</option>
+                <option value="Commercial">Commercial</option>
+              </select>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">

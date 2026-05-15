@@ -341,7 +341,7 @@ adminRouter.get(
 adminRouter.post(
   "/students",
   asyncHandler(async (req, res) => {
-    const { firstName, lastName, classId, gender, parentName, parentEmail } = req.body || {};
+    const { firstName, lastName, classId, gender, parentName, parentEmail, stream } = req.body || {};
     if (!firstName || !lastName || !classId || !parentName) return res.status(400).json({ error: "Missing fields" });
 
     const studentId = await generateStudentId();
@@ -361,6 +361,7 @@ adminRouter.post(
       classId: String(classId),
       parentName: String(parentName),
       parentEmail: parentEmail ? String(parentEmail) : null,
+      stream: stream ? String(stream) : "",
       createdBy: req.user.username
     });
 
@@ -371,7 +372,8 @@ adminRouter.post(
       role: Roles.PARENT,
       displayName: String(parentName),
       passwordHash: parentPasswordHash,
-      studentId
+      studentId,
+      stream: stream ? String(stream) : null
     });
 
     if (parentEmail) {
@@ -391,6 +393,7 @@ adminRouter.post(
                     <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Parent Login Access</p>
                     <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${parentUsername}</span></p>
                     <p style="margin: 5px 0 0; font-size: 16px;"><strong>Password:</strong> <span style="color: #0B6E4F;">${parentPassword}</span></p>
+                    ${stream ? `<p style="margin: 5px 0 0; font-size: 16px;"><strong>Stream:</strong> <span style="color: #0B6E4F;">${stream}</span></p>` : ''}
                   </div>
 
                   <div style="text-align: center; margin: 32px 0;">
@@ -443,14 +446,15 @@ adminRouter.put(
   "/students/:studentId",
   asyncHandler(async (req, res) => {
     const { studentId } = req.params;
-    const { firstName, lastName, classId, gender, parentName, parentEmail } = req.body || {};
+    const { firstName, lastName, classId, gender, parentName, parentEmail, stream } = req.body || {};
     const updated = await updateStudent(studentId, {
       ...(firstName ? { firstName: String(firstName) } : {}),
       ...(lastName ? { lastName: String(lastName) } : {}),
       ...(classId ? { classId: String(classId) } : {}),
       ...(gender ? { gender: String(gender) } : {}),
       ...(parentName ? { parentName: String(parentName) } : {}),
-      ...(parentEmail ? { parentEmail: String(parentEmail) } : {})
+      ...(parentEmail ? { parentEmail: String(parentEmail) } : {}),
+      ...(stream ? { stream: String(stream) } : {})
     });
     return res.json(updated);
   })
