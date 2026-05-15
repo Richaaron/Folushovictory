@@ -9,6 +9,7 @@ import { createStudent, listStudentsByClass, updateStudent, deleteStudent, getSt
 import { createClass, listClasses, updateClass, getClassById, revokeFormTeacherStatus } from "../repos/classes.js";
 import { createSubject, listSubjects, getSubjectById } from "../repos/subjects.js";
 import { createAssignment, deleteAssignmentsByTeacher } from "../repos/assignments.js";
+import { upsertNumericScore, listScoresForStudent } from "../repos/scores.js";
 import { getGradingScale, setGradingScale, setTermMeta, getSchoolSettings, setSchoolSettings } from "../repos/config.js";
 import { setReleaseStatus } from "../repos/releases.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
@@ -491,6 +492,65 @@ adminRouter.delete(
 
     await deleteStudent(studentId);
     return res.json({ success: true });
+  })
+);
+
+// GET scores for a specific student
+adminRouter.get(
+  "/students/:studentId/scores",
+  asyncHandler(async (req, res) => {
+    const { studentId } = req.params;
+    const { session, term } = req.query;
+    
+    if (!session || !term) {
+      return res.status(400).json({ error: "Missing session or term query parameter" });
+    }
+
+    const scores = await listScoresForStudent({ 
+      session: String(session), 
+      term: String(term), 
+      studentId: String(studentId) 
+    });
+    
+    return res.json({ scores });
+  })
+);
+
+// POST/UPSERT scores for a student
+adminRouter.post(
+  "/students/:studentId/scores",
+  asyncHandler(async (req, res) => {
+    const { studentId } = req.params;
+    const { session, term, classId, scores } = req.body || {};
+    
+    if (!session || !term || !classId || !Array.isArray(scores)) {
+      return res.status(400).json({ error: "Missing required fields: session, term, classId, scores" });
+    }
+
+    // Upsert all scores for this student
+    const enteredBy = req.user?.username || "admin";
+    
+    for (const score of scores) {
+      const { subjectId, ca1, ca2, exam } = score;
+      if (!subjectId) continue;
+      
+      await upsertNumericScore({
+        session: String(session),
+        term: String(term),
+        classId: String(classId),
+        studentId: String(studentId),
+        subjectId: String(subjectId),
+        ca1: Number(ca1 || 0),
+        ca2: Number(ca2 || 0),
+        exam: Number(exam || 0),
+        enteredBy
+      });
+    }
+
+    return res.json({ 
+      success: true, 
+      message: `Scores saved for ${scores.length} subject(s)` 
+    });
   })
 );
 

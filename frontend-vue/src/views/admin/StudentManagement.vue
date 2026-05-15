@@ -10,9 +10,11 @@ import {
   Loader2,
   Trash2,
   Edit2,
-  FileText
+  FileText,
+  BookOpen
 } from 'lucide-vue-next'
 import api from '../../services/api'
+import StudentScoreModal from '../../components/admin/StudentScoreModal.vue'
 
 const students = ref<any[]>([])
 const classes = ref<any[]>([])
@@ -22,6 +24,8 @@ const selectedClassId = ref('')
 const searchQuery = ref('')
 const showEditModal = ref(false)
 const editingStudent = ref<any>(null)
+const showScoreModal = ref(false)
+const selectedStudent = ref<any>(null)
 const stats = ref({
   total: 0,
   newlyEnrolled: 0,
@@ -123,6 +127,16 @@ const handleUpdateStudent = async () => {
   } catch (err) {
     console.error('Error updating student:', err)
   }
+}
+
+const openScoreModal = (student: any) => {
+  selectedStudent.value = student
+  showScoreModal.value = true
+}
+
+const handleScoreSaved = () => {
+  showScoreModal.value = false
+  selectedStudent.value = null
 }
 
 watch(selectedClassId, fetchStudents)
@@ -242,6 +256,14 @@ onMounted(async () => {
               </td>
               <td class="px-3 sm:px-6 py-3 sm:py-6 text-right">
                 <div class="flex items-center justify-end gap-1 sm:gap-2">
+                  <button 
+                    @click="openScoreModal(student)"
+                    class="p-2 rounded-lg sm:rounded-xl hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-400 hover:text-amber-600 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                    aria-label="Enter scores"
+                    title="Enter Scores"
+                  >
+                    <BookOpen class="w-4 h-4" />
+                  </button>
                   <button 
                     @click="openEditModal(student)"
                     class="p-2 rounded-lg sm:rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-royal-purple transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
@@ -401,5 +423,15 @@ onMounted(async () => {
         </div>
       </div>
     </transition>
+
+    <!-- Student Score Modal -->
+    <StudentScoreModal 
+      v-if="selectedStudent"
+      :is-open="showScoreModal"
+      :student="selectedStudent"
+      :class-id="selectedStudent.classId || selectedClassId"
+      @close="showScoreModal = false"
+      @saved="handleScoreSaved"
+    />
   </div>
 </template>
