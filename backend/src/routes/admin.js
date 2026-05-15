@@ -537,8 +537,18 @@ adminRouter.get(
   "/classes",
   asyncHandler(async (req, res) => {
     // ADMIN: Returns ALL classes regardless of teacher assignment
+    // Also include student counts so the admin UI can show accurate numbers
     const classes = await listClasses();
-    return res.json({ classes });
+    const db = getDb();
+    const studentsSnap = await db.collection("students").get();
+    const students = studentsSnap.docs.map(d => d.data());
+    const countMap = {};
+    for (const s of students) {
+      const cid = s.classId || "";
+      countMap[cid] = (countMap[cid] || 0) + 1;
+    }
+    const enriched = classes.map(c => ({ ...c, studentCount: countMap[c.id] || 0 }));
+    return res.json({ classes: enriched });
   })
 );
 

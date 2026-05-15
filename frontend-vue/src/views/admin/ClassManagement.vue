@@ -91,7 +91,7 @@ onMounted(fetchClasses)
               <span class="text-[7px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Students</span>
               <div class="flex items-center gap-2 mt-1">
                 <Users class="w-3 sm:w-4 h-3 sm:h-4 text-royal-purple" />
-                <span class="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200">{{ cls.studentIds?.length || 0 }}</span>
+                <span class="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200">{{ (cls.studentCount !== undefined) ? cls.studentCount : (cls.studentIds?.length || 0) }}</span>
               </div>
             </div>
             <div class="flex flex-col">
