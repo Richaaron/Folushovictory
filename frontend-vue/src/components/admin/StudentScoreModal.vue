@@ -52,21 +52,25 @@ const fetchData = async () => {
   scores.value.clear()
   
   try {
-    // Fetch class details to get subjects
+    // Fetch class details
     const [classResp, schoolResp] = await Promise.all([
       api.get(`/api/admin/classes/${props.classId}`),
       api.get('/api/config/school')
     ])
     
     const cls = classResp.data.class
-    const subjectIds = cls.subjectIds || []
     
     // Fetch all subjects
     const allSubjectsResp = await api.get('/api/admin/subjects')
     const allSubjects = allSubjectsResp.data.subjects || []
     
-    // Filter to only subjects assigned to this class
-    subjects.value = allSubjects.filter((s: any) => subjectIds.includes(s.id))
+    // Filter subjects by class level (and track for SSS)
+    subjects.value = allSubjects.filter((s: any) => {
+      if (s.level !== cls.level) return false
+      // For SSS, also match track if it exists
+      if (cls.level === 'SSS' && s.track && s.track !== cls.track) return false
+      return true
+    })
     subjects.value.sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
     
     // Set current session/term
