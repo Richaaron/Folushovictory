@@ -12,11 +12,26 @@ import { createAssignment, deleteAssignmentsByTeacher } from "../repos/assignmen
 import { getGradingScale, setGradingScale, setTermMeta, getSchoolSettings, setSchoolSettings } from "../repos/config.js";
 import { setReleaseStatus } from "../repos/releases.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
-import { setPrincipalRemark } from "../repos/remarks.js";
+import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
 import { getDb } from "../firebase.js";
 import { sendEmail, sendResultReleasedEmail } from "../services/email.js";
 
 export const adminRouter = express.Router();
+
+// ==========================================
+// ADMIN ACCESS POLICY
+// ==========================================
+// The Admin role has UNRESTRICTED access to all classes, students, and operations
+// regardless of form teacher assignment status.
+//
+// Key principles:
+// - Admins can manage ALL classes even if no form teacher is assigned
+// - Admins can access student data for ANY class
+// - Admins can publish results for ANY class without teacher approval
+// - Admins can add remarks (teacher/principal) for ANY student
+// - Admins can release results for ANY student
+// - No operation should check or restrict based on formTeacherUsername for admins
+// ==========================================
 
 adminRouter.use(authRequired, requireRole(Roles.ADMIN));
 
@@ -521,19 +536,67 @@ adminRouter.post(
 adminRouter.get(
   "/classes",
   asyncHandler(async (req, res) => {
+    // ADMIN: Returns ALL classes regardless of teacher assignment
     const classes = await listClasses();
     return res.json({ classes });
+  })
+);
+
+adminRouter.get(
+  "/classes/:classId",
+  asyncHandler(async (req, res) => {
+    // ADMIN: Get full class details including students - accessible regardless of form teacher assignment
+    const { classId } = req.params;
+    const [cls, students] = await Promise.all([
+      getClassById(classId),
+      listStudentsByClass(classId)
+    ]);
+    
+    if (!cls) return res.status(404).json({ error: "Class not found" });
+    
+    return res.json({
+      class: cls,
+      students: students || []
+    });
+  })
+);
+
+adminRouter.get(
+  "/classes/:classId/students",
+  asyncHandler(async (req, res) => {
+    // ADMIN: Get students in any class - no teacher assignment required
+    const { classId } = req.params;
+    const students = await listStudentsByClass(classId);
+    return res.json({ students });
   })
 );
 
 adminRouter.put(
   "/classes/:classId/subjects",
   asyncHandler(async (req, res) => {
+    // ADMIN: Configure subjects for any class - no teacher assignment required
     const { classId } = req.params;
     const { subjectIds, formTeacherUsername } = req.body || {};
     const updated = await updateClass(classId, { 
       ...(Array.isArray(subjectIds) ? { subjectIds } : {}),
       formTeacherUsername: formTeacherUsername || null
+    });
+    return res.json(updated);
+  })
+);
+
+adminRouter.put(
+  "/classes/:classId",
+  asyncHandler(async (req, res) => {
+    // ADMIN: Update any class properties - no teacher assignment required
+    const { classId } = req.params;
+    const { name, level, track, assessmentType, formTeacherUsername } = req.body || {};
+    const updated = await updateClass(classId, {
+      ...(name ? { name: String(name) } : {}),
+      ...(level ? { level: String(level) } : {}),
+      ...(track !== undefined ? { track: track ? String(track) : null } : {}),
+      ...(assessmentType ? { assessmentType: String(assessmentType) } : {}),
+      ...(formTeacherUsername !== undefined ? { formTeacherUsername: formTeacherUsername || null } : {})
     });
     return res.json(updated);
   })
@@ -691,6 +754,7 @@ adminRouter.post(
 adminRouter.post(
   "/remarks/principal",
   asyncHandler(async (req, res) => {
+    // ADMIN: Set principal remarks for any student, regardless of form teacher assignment
     const { session, term, studentId, principalRemark } = req.body || {};
     if (!session || !term || !studentId) return res.status(400).json({ error: "Missing fields" });
     await setPrincipalRemark({
@@ -698,6 +762,23 @@ adminRouter.post(
       term: String(term),
       studentId: String(studentId),
       principalRemark: principalRemark ? String(principalRemark) : "",
+      setBy: req.user.username
+    });
+    return res.json({ ok: true });
+  })
+);
+
+adminRouter.post(
+  "/remarks/teacher",
+  asyncHandler(async (req, res) => {
+    // ADMIN: Set teacher/form teacher remarks for any student, regardless of form teacher assignment
+    const { session, term, studentId, teacherRemark } = req.body || {};
+    if (!session || !term || !studentId) return res.status(400).json({ error: "Missing fields" });
+    await setTeacherRemark({
+      session: String(session),
+      term: String(term),
+      studentId: String(studentId),
+      teacherRemark: teacherRemark ? String(teacherRemark) : "",
       setBy: req.user.username
     });
     return res.json({ ok: true });
@@ -723,6 +804,7 @@ adminRouter.post(
 adminRouter.post(
   "/results/release",
   asyncHandler(async (req, res) => {
+    // ADMIN: Release results for any student, regardless of form teacher assignment
     const { session, term, studentId, released } = req.body || {};
     if (!session || !term || !studentId) return res.status(400).json({ error: "Missing fields" });
     const result = await setReleaseStatus({
