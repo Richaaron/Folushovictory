@@ -485,9 +485,13 @@ adminRouter.get(
     const { classId } = req.query;
     const db = getDb();
     let q = db.collection("students");
-    if (classId) q = q.where("classId", "==", String(classId));
-    const snap = await q.orderBy("lastName").get();
+    if (classId) {
+      q = q.where("classId", "==", String(classId));
+    }
+    const snap = await q.get();
     const students = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    // Sort by lastName on the backend
+    students.sort((a, b) => String(a.lastName || "").localeCompare(String(b.lastName || "")));
     return res.json({ students });
   })
 );
