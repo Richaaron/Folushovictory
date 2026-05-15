@@ -490,8 +490,8 @@ adminRouter.get(
     }
     const snap = await q.get();
     const students = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    // Sort by lastName on the backend
-    students.sort((a, b) => String(a.lastName || "").localeCompare(String(b.lastName || "")));
+    // Sort by studentId (admission number)
+    students.sort((a, b) => String(a.studentId || "").localeCompare(String(b.studentId || ""), undefined, { numeric: true }));
     return res.json({ students });
   })
 );
