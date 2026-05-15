@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { X, Loader2, Save, AlertCircle, CheckCircle2 } from 'lucide-vue-next'
 import api from '../../services/api'
 
