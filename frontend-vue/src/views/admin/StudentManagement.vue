@@ -82,6 +82,15 @@ const handleAddStudent = async () => {
   try {
     await api.post('/api/admin/students', newStudent.value)
     showAddModal.value = false
+    newStudent.value = {
+      firstName: '',
+      lastName: '',
+      gender: 'Male',
+      parentName: '',
+      parentEmail: '',
+      classId: '',
+      stream: ''
+    }
     await fetchStudents()
     await fetchStats()
   } catch (err) {
