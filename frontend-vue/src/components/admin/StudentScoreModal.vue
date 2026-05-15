@@ -64,14 +64,41 @@ const fetchData = async () => {
     const allSubjectsResp = await api.get('/api/admin/subjects')
     const allSubjects = allSubjectsResp.data.subjects || []
     
-    // Filter subjects by class level (and track for SSS)
-    subjects.value = allSubjects.filter((s: any) => {
-      if (s.level !== cls.level) return false
-      // For SSS, also match track if it exists
-      if (cls.level === 'SSS' && s.track && s.track !== cls.track) return false
-      return true
-    })
-    subjects.value.sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
+    // Filter subjects based on class level
+    let filteredSubjects: any[] = []
+    
+    if (cls.level === 'SSS') {
+      // For SSS: combine track-specific subjects with manually assigned subjects
+      const trackSubjectNames = {
+        'Science': ['Chemistry', 'Physics'],
+        'Art': ['Government', 'Literature in English'],
+        'Commercial': ['Accounting', 'Commercial']
+      }
+      
+      // Get automatically added track subjects
+      const trackSubjects = allSubjects.filter((s: any) => 
+        s.level === 'SSS' && 
+        trackSubjectNames[cls.track as keyof typeof trackSubjectNames]?.includes(s.name)
+      )
+      
+      // Get manually assigned subjects
+      const manualSubjectIds = cls.subjectIds || []
+      const manualSubjects = allSubjects.filter((s: any) => 
+        manualSubjectIds.includes(s.id)
+      )
+      
+      // Combine both, avoiding duplicates
+      const subjectMap = new Map()
+      trackSubjects.forEach((s: any) => subjectMap.set(s.id, s))
+      manualSubjects.forEach((s: any) => subjectMap.set(s.id, s))
+      
+      filteredSubjects = Array.from(subjectMap.values())
+    } else {
+      // For Primary and JSS: show all subjects matching the level
+      filteredSubjects = allSubjects.filter((s: any) => s.level === cls.level)
+    }
+    
+    subjects.value = filteredSubjects.sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
     
     // Set current session/term
     if (schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
