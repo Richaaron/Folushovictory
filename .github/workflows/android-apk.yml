@@ -115,10 +115,16 @@ jobs:
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || 'builditutor' }}
         run: |
           cd frontend-vue
-          npx cap add android || true
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+          if [ ! -f android/gradlew ]; then
+            echo "Android gradle wrapper missing; recreating platform"
+            rm -rf android
+            npx cap add android
+          fi
+          chmod +x android/gradlew
           npx cap sync android
-          chmod +x android/gradlew || true
-          
           npx cap build android -- \
             --keystorepath=android/app/build-keystore.jks \
             --keystorepass="$KEYSTORE_PASSWORD" \
