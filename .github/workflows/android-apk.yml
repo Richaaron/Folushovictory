@@ -116,6 +116,7 @@ jobs:
         run: |
           cd frontend-vue
           npx cap sync android
+          chmod +x android/gradlew
           
           npx cap build android -- \
             --keystorepath=android/app/build-keystore.jks \
