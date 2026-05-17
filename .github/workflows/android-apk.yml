@@ -1,0 +1,59 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK components
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip wget
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
+
+      - name: Decode Android keystore
+        run: |
+          mkdir -p frontend-vue/android/app
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > frontend-vue/android/app/build-keystore.jks
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend-vue
+          npm ci
+
+      - name: Build Android APK
+        run: |
+          cd frontend-vue
+          npm run build:web
+          npx cap sync android
+          npx cap build android -- --keystorepath=android/app/build-keystore.jks --keystorepass="$ANDROID_KEYSTORE_PASSWORD" --keystorealias="$ANDROID_KEY_ALIAS" --keystorealiaspass="$ANDROID_KEY_PASSWORD"
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-it-apk
+          path: frontend-vue/android/app/build/outputs/apk/release/app-release.apk
