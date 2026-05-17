@@ -125,7 +125,7 @@ jobs:
           fi
           chmod +x android/gradlew
           npx cap sync android
-          npx cap build android -- \
+          npx cap build android --release \
             --keystorepath=android/app/build-keystore.jks \
             --keystorepass="$KEYSTORE_PASSWORD" \
             --keystorealias="$KEY_ALIAS" \
