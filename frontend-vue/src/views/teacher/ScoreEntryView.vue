@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { 
   ArrowLeft, 
@@ -57,12 +57,12 @@ const computeTotal = (st: any) => {
 }
 
 // Auto-generate positions locally for preview
-const studentsWithPositions = computed(() => {
+const studentPositions = computed(() => {
   const sorted = [...students.value].sort((a, b) => computeTotal(b) - computeTotal(a))
   let lastTotal: number | null = null
   let lastPos = 0
-  
-  const posMap = new Map()
+  const posMap = new Map<string, number>()
+
   sorted.forEach((s, idx) => {
     const t = computeTotal(s)
     if (lastTotal === null || t !== lastTotal) {
@@ -72,12 +72,22 @@ const studentsWithPositions = computed(() => {
     posMap.set(s.studentId, lastPos)
   })
 
-  return students.value.map(s => ({
-    ...s,
-    total: computeTotal(s),
-    position: posMap.get(s.studentId)
-  }))
+  return posMap
 })
+
+// Visual flash when a student's total changes while typing
+const totalFlash = ref(new Map())
+watch(students, (newVal, oldVal) => {
+  newVal.forEach((s: any) => {
+    const prev = (oldVal || []).find((o: any) => o.studentId === s.studentId)
+    const newTotal = computeTotal(s)
+    const oldTotal = prev ? computeTotal(prev) : null
+    if (oldTotal !== null && newTotal !== oldTotal) {
+      totalFlash.value.set(s.studentId, true)
+      setTimeout(() => totalFlash.value.delete(s.studentId), 700)
+    }
+  })
+}, { deep: true })
 
 const handleSave = async () => {
   saving.value = true
@@ -172,7 +182,7 @@ onMounted(fetchStudents)
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
-            <tr v-for="st in studentsWithPositions" :key="st.studentId" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+            <tr v-for="st in students" :key="st.studentId" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
               <td class="px-8 py-6">
                 <p class="text-sm font-black text-slate-900 dark:text-white">{{ st.lastName }} {{ st.firstName }}</p>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
@@ -205,10 +215,13 @@ onMounted(fetchStudents)
                 />
               </td>
               <td class="px-4 py-6 text-center bg-slate-50/30 dark:bg-slate-800/30">
-                <span class="text-sm font-black" :class="st.total >= 40 ? 'text-emerald-500' : 'text-red-500'">{{ st.total }}</span>
+                <span
+                  class="text-sm font-black"
+                  :class="[ computeTotal(st) >= 40 ? 'text-emerald-500' : 'text-red-500', totalFlash.has(st.studentId) ? 'flash-total' : '' ]"
+                >{{ computeTotal(st) }}</span>
               </td>
               <td class="px-8 py-6 text-center">
-                <span class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500">{{ st.position }}</span>
+                <span class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500">{{ studentPositions.get(st.studentId) }}</span>
               </td>
             </tr>
           </tbody>
@@ -227,5 +240,11 @@ input::-webkit-inner-spin-button {
 }
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+.flash-total {
+  box-shadow: 0 0 0 8px rgba(212,175,55,0.08);
+  transition: box-shadow 0.35s ease-in-out;
+  border-radius: 0.5rem;
 }
 </style>

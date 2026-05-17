@@ -12,7 +12,9 @@ const API_BASE_URL = (() => {
     const host = window.location.hostname;
     // development on localhost -> talk to local backend
     if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:4000';
-    // otherwise, assume backend is reachable at same origin (or VITE_API_URL will be set in prod)
+    // production front-end deployed on Netlify should call the backend service on Render
+    if (host.endsWith('.netlify.app')) return 'https://folushovictory-backend.onrender.com';
+    // otherwise use same origin for bundled fullstack deployments
     return window.location.origin;
   }
   // fallback to production API

@@ -158,21 +158,29 @@ onMounted(fetchDashboardAndLogs)
           </div>
           
           <div class="space-y-8 relative z-10">
-            <div v-for="item in recentActivity" :key="item.id" class="flex gap-4 md:gap-6 group">
-              <div class="relative">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700 group-hover:border-nebula-500/30 transition-all">
-                  <TrendingUp class="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-hover:text-nebula-500 transition-colors" aria-hidden="true" />
+            <template v-if="recentActivity.length">
+              <div v-for="item in recentActivity" :key="item.id" class="flex gap-4 md:gap-6 group">
+                <div class="relative">
+                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700 group-hover:border-nebula-500/30 transition-all">
+                    <TrendingUp class="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-hover:text-nebula-500 transition-colors" aria-hidden="true" />
+                  </div>
+                  <div class="absolute top-10 md:top-12 left-1/2 -translate-x-1/2 w-px h-8 bg-slate-100 dark:bg-slate-800 group-last:hidden" aria-hidden="true"></div>
                 </div>
-                <div class="absolute top-10 md:top-12 left-1/2 -translate-x-1/2 w-px h-8 bg-slate-100 dark:bg-slate-800 group-last:hidden" aria-hidden="true"></div>
-              </div>
-              <div class="flex-grow pt-1">
-                <p class="text-sm md:text-base font-extrabold text-slate-800 dark:text-slate-200 leading-tight">{{ item.text }}</p>
-                <div class="flex items-center gap-3 mt-3">
-                  <span class="text-[10px] font-black uppercase tracking-widest text-nebula-500 bg-nebula-500/5 px-2 py-1 rounded-md">{{ item.type }}</span>
-                  <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ item.time }}</span>
+                <div class="flex-grow pt-1">
+                  <p class="text-sm md:text-base font-extrabold text-slate-800 dark:text-slate-200 leading-tight">{{ item.text }}</p>
+                  <div class="flex items-center gap-3 mt-3">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-nebula-500 bg-nebula-500/5 px-2 py-1 rounded-md">{{ item.type }}</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ item.time }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
+            <template v-else>
+              <div class="rounded-3xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-8 text-center">
+                <p class="text-sm font-black text-slate-500 dark:text-slate-400">No recent admin activity found.</p>
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-2">Once teachers start entering scores, remarks, or releasing results, the audit feed will appear here.</p>
+              </div>
+            </template>
           </div>
         </div>
 
