@@ -115,8 +115,9 @@ jobs:
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || 'builditutor' }}
         run: |
           cd frontend-vue
+          npx cap add android || true
           npx cap sync android
-          chmod +x android/gradlew
+          chmod +x android/gradlew || true
           
           npx cap build android -- \
             --keystorepath=android/app/build-keystore.jks \
