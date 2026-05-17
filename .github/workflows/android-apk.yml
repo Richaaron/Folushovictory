@@ -51,10 +51,32 @@ jobs:
           echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
 
-      - name: Decode Android keystore
+      - name: Decode Android keystore or generate one
         run: |
           mkdir -p frontend-vue/android/app
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > frontend-vue/android/app/build-keystore.jks
+          
+          # Check if the keystore secret is provided
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "Warning: ANDROID_KEYSTORE_BASE64 secret not set"
+            echo "Generating a debug keystore for testing..."
+            
+            keytool -genkey -v -keystore frontend-vue/android/app/build-keystore.jks \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -alias builditutor \
+              -storepass builditutor \
+              -keypass builditutor \
+              -dname "CN=Build IT, O=Build IT, L=Local, ST=Local, C=US"
+          else
+            echo "Decoding keystore from secret..."
+            echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > frontend-vue/android/app/build-keystore.jks
+            
+            if [ ! -f frontend-vue/android/app/build-keystore.jks ] || [ ! -s frontend-vue/android/app/build-keystore.jks ]; then
+              echo "ERROR: Keystore decoding failed or file is empty"
+              exit 1
+            fi
+          fi
+          
+          ls -lh frontend-vue/android/app/build-keystore.jks
 
       - name: Install frontend dependencies
         run: |
@@ -70,11 +92,17 @@ jobs:
         run: |
           cd frontend-vue
           npx cap sync android
-          npx cap build android -- --keystorepath=android/app/build-keystore.jks --keystorepass="$ANDROID_KEYSTORE_PASSWORD" --keystorealias="$ANDROID_KEY_ALIAS" --keystorealiaspass="$ANDROID_KEY_PASSWORD"
-        env:
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          
+          # Use secrets if available, otherwise use debug defaults
+          KEYSTORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }:-builditutor}"
+          KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }:-builditutor}"
+          KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }:-builditutor}"
+          
+          npx cap build android -- \
+            --keystorepath=android/app/build-keystore.jks \
+            --keystorepass="$KEYSTORE_PASSWORD" \
+            --keystorealias="$KEY_ALIAS" \
+            --keystorealiaspass="$KEY_PASSWORD"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
