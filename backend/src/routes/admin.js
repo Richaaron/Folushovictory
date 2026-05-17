@@ -41,14 +41,17 @@ adminRouter.get(
   asyncHandler(async (req, res) => {
     const { session, term } = req.query;
     const db = getDb();
-    const [studentsSnap, teachersSnap, classes, termMeta] = await Promise.all([
+    const [studentsSnap, teachersSnap, classes, schoolSettings] = await Promise.all([
       db.collection("students").get(),
       db.collection("users").where("role", "==", Roles.TEACHER).get(),
       listClasses(),
-      db.collection("config").doc("termMeta").get()
+      getSchoolSettings()
     ]);
 
-    const activeTerm = termMeta.exists ? termMeta.data() : { session: "2026/2027", term: "SECOND TERM" };
+    const activeTerm = {
+      session: schoolSettings.currentSession,
+      term: schoolSettings.currentTerm
+    };
     const currentSession = session || activeTerm.session;
     const currentTerm = term || activeTerm.term;
 

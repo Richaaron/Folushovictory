@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   Users, 
@@ -17,6 +17,17 @@ const router = useRouter()
 
 const loading = ref(true)
 const dashboardData = ref<any>(null)
+
+const activeTermLabel = computed(() => {
+  const activeTerm = dashboardData.value?.activeTerm
+  if (!activeTerm) return 'Loading...'
+  const session = String(activeTerm.session || '').trim()
+  let term = String(activeTerm.term || '').trim().toUpperCase()
+  if (term && !term.includes('TERM')) {
+    term = `${term} TERM`
+  }
+  return `${session} ${term}`.trim()
+})
 
 const stats = ref([
   { name: 'Total Students', key: 'studentsCount', value: '0', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20', trend: '...', route: '/admin/students' },
@@ -70,7 +81,7 @@ const recentActivity: Array<{ id: number; type: string; text: string; time: stri
           </div>
           <div class="flex flex-col min-w-0">
             <span class="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Academic Term</span>
-            <span class="text-[9px] sm:text-xs font-black text-slate-700 dark:text-slate-200 mt-1 truncate">2026/2027 SECOND TERM</span>
+            <span class="text-[9px] sm:text-xs font-black text-slate-700 dark:text-slate-200 mt-1 truncate">{{ activeTermLabel }}</span>
           </div>
         </div>
       </div>
