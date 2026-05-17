@@ -4,7 +4,11 @@ REM Build APK with proper Java and Android SDK environment setup
 setlocal enabledelayedexpansion
 
 REM Set Java home to Eclipse Adoptium JDK
-set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-25.0.3.9-hotspot"
+set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot"
+
+REM Set Android SDK location
+set "ANDROID_HOME=C:\Users\PASTOR\AppData\Local\Android\Sdk"
+set "ANDROID_SDK_ROOT=C:\Users\PASTOR\AppData\Local\Android\Sdk"
 
 REM Validate JAVA_HOME
 if not exist "%JAVA_HOME%\bin\java.exe" (
@@ -13,8 +17,15 @@ if not exist "%JAVA_HOME%\bin\java.exe" (
     exit /b 1
 )
 
-REM Update PATH to include Java
-set "PATH=%JAVA_HOME%\bin;%PATH%"
+REM Validate Android SDK
+if not exist "%ANDROID_HOME%\platform-tools\adb.exe" (
+    echo ERROR: Android SDK not found at %ANDROID_HOME%
+    echo Please ensure the Android SDK is installed and the path is correct
+    exit /b 1
+)
+
+REM Update PATH to include Java and Android SDK commands
+set "PATH=%JAVA_HOME%\bin;%ANDROID_HOME%\platform-tools;%ANDROID_HOME%\tools\bin;%PATH%"
 
 REM Verify Java is accessible
 echo Verifying Java setup...
@@ -44,11 +55,8 @@ if errorlevel 1 (
 
 echo.
 echo Building APK...
-call npx cap build android -- ^
-  --keystorepath=android/app/build-keystore.jks ^
-  --keystorepass=yourpass ^
-  --keystorealias=builditutor ^
-  --keystorealiaspass=yourpass
+set "KEYSTORE_PATH=C:\Users\PASTOR\Desktop\BUILDI~1\frontend-vue\android\app\build-keystore.jks"
+call npx cap build android --androidreleasetype APK --keystorepath="%KEYSTORE_PATH%" --keystorepass="yourpass" --keystorealias="builditutor" --keystorealiaspass="yourpass"
 
 if errorlevel 1 (
     echo ERROR: APK build failed

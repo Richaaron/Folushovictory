@@ -38,6 +38,17 @@ This repo already includes a GitHub Actions workflow at `.github/workflows/andro
    - `ANDROID_KEY_ALIAS` — key alias (for example: `builditutor`)
    - `ANDROID_KEY_PASSWORD` — key password for the alias
 
+Tip: You can generate `ANDROID_KEYSTORE_BASE64` locally with:
+
+```bash
+cd frontend-vue
+./scripts/encode-keystore.sh
+cat keystore.b64
+```
+Copy the output and paste into the `ANDROID_KEYSTORE_BASE64` secret.
+
+CI: A GitHub Actions workflow has been added at `.github/workflows/android-apk.yml` that will build the app and upload artifacts. To enable signing in CI add the `ANDROID_KEYSTORE_BASE64` secret and the password/alias secrets above.
+
 #### Generate the base64 keystore secret
 From the repo root in PowerShell:
 
