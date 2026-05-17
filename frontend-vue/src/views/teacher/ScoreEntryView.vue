@@ -42,6 +42,18 @@ const fetchStudents = async () => {
     }))
     if (schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
     if (schoolResp.data?.currentTerm) term.value = schoolResp.data.currentTerm
+    // Fetch broadsheet to obtain overall class positions/averages
+    try {
+      const { data } = await api.get(`/api/results/class/${classId}/broadsheet`, {
+        params: { session: session.value, term: term.value }
+      })
+      overallPositions.value = new Map((data.students || []).map((s: any) => [s.studentId, s.position]))
+      overallAverages.value = new Map((data.students || []).map((s: any) => [s.studentId, s.average]))
+    } catch (err) {
+      // ignore: broadsheet may not exist yet
+      overallPositions.value = new Map()
+      overallAverages.value = new Map()
+    }
   } catch (err) {
     error.value = 'Failed to load students'
   } finally {
@@ -74,6 +86,9 @@ const studentPositions = computed(() => {
 
   return posMap
 })
+
+const overallPositions = ref<Map<string, number>>(new Map())
+const overallAverages = ref<Map<string, number>>(new Map())
 
 // Visual flash when a student's total changes while typing
 const totalFlash = ref(new Map())
@@ -221,7 +236,9 @@ onMounted(fetchStudents)
                 >{{ computeTotal(st) }}</span>
               </td>
               <td class="px-8 py-6 text-center">
-                <span class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500">{{ studentPositions.get(st.studentId) }}</span>
+                <span class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500">
+                  {{ overallPositions.get(st.studentId) || studentPositions.get(st.studentId) || '-' }}
+                </span>
               </td>
             </tr>
           </tbody>
