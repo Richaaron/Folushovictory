@@ -1,0 +1,42 @@
+{
+  "appId": "com.builditutor.app",
+  "productName": "Build IT",
+  "directories": {
+    "buildResources": "electron/assets",
+    "output": "dist-electron"
+  },
+  "files": [
+    "dist/**/*",
+    "electron/main.js",
+    "electron/preload.js",
+    "node_modules/**/*",
+    "package.json"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "certificateFile": null,
+    "certificatePassword": null,
+    "signingHashAlgorithms": ["sha256"],
+    "sign": null,
+    "certificateURI": null
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Build IT"
+  },
+  "portable": {
+    "artifactName": "Build-IT-${version}.exe"
+  }
+}

@@ -1,6 +1,9 @@
-# Folusho Victory Schools — Result Computing System
+# Build IT — Multi-Platform School Results System
 
-A full-stack school result management system with three role-based portals (Admin, Teacher, Parent), built with **Node.js/Express** (backend), **Python/Flask** (frontend), and **Firebase Firestore** (database).
+A multi-platform school result management system with a Node.js/Express backend and a Vue 3 frontend. The repository includes:
+
+- `backend/` — Express API, Firebase Firestore integration, JWT auth, admin/teacher/parent routes.
+- `frontend-vue/` — Vue 3 + Vite frontend with Electron and Capacitor configuration for desktop and mobile builds.
 
 ---
 
@@ -9,57 +12,45 @@ A full-stack school result management system with three role-based portals (Admi
 ```
 Build IT/
 ├── backend/          # Node.js + Express API (JWT auth, Firebase)
-│   ├── scripts/
-│   │   ├── createAdmin.js    # One-time: create the admin user
-│   │   └── seedDefaults.js   # Seed subjects & default grading scale
-│   └── src/
-│       ├── routes/           # auth, admin, teacher, parent, results
-│       ├── repos/            # Firestore data-access layer
-│       ├── compute.js        # Grade/position/broadsheet computation
-│       └── index.js          # Express entry point
-│
-└── frontend/         # Python Flask (server-side rendered, Tailwind CSS)
-    ├── app.py                # All Flask routes
-    ├── templates/
-    │   ├── base.html         # Shared layout
-    │   ├── landing.html      # Portal selection page
-    │   ├── login.html        # Shared login form
-    │   ├── admin/            # Admin portal templates
-    │   ├── teacher/          # Teacher portal templates
-    │   └── parent/           # Parent portal + printable report card
-    └── static/
-        └── logo.svg
+│   ├── scripts/      # One-time bootstrapping scripts
+│   └── src/          # Server source code
+└── frontend-vue/     # Vue 3 + TypeScript frontend
+    ├── src/          # UI, router, stores, services
+    ├── android/      # Capacitor Android app files
+    ├── electron/     # Electron desktop app files
+    ├── public/       # Static assets
+    └── dist/         # Built web output
 ```
-
----
 
 ## Prerequisites
 
-| Tool | Min Version |
-|------|------------|
+| Tool | Minimum Version |
+|------|-----------------|
 | Node.js | 18+ |
-| Python | 3.10+ |
-| Firebase project | Firestore enabled |
+| npm | latest compatible with Node 18+ |
+| Firebase | Firestore enabled |
+
+> Android SDK / Java JDK are only required if you build the mobile APK.
 
 ---
 
-## 1 — Firebase Setup
+## Backend Setup
 
-1. Go to [Firebase Console](https://console.firebase.google.com/) → Create a project.
-2. Enable **Firestore** (Native mode).
-3. Go to **Project Settings → Service Accounts → Generate New Private Key**.
-4. Save the JSON file somewhere safe (e.g., `backend/serviceAccountKey.json`).
-
----
-
-## 2 — Backend Setup
+1. Open a terminal and navigate to `backend`:
 
 ```bash
 cd backend
+```
+
+2. Copy the sample environment file:
+
+```powershell
 copy .env.example .env
 ```
 
-Edit `.env`:
+3. Edit `backend/.env` and set your Firebase and application values.
+
+Key variables:
 
 ```env
 PORT=4000
@@ -67,160 +58,154 @@ JWT_SECRET=your_long_random_secret
 JWT_EXPIRES_IN=12h
 FIREBASE_PROJECT_ID=your-firebase-project-id
 GOOGLE_APPLICATION_CREDENTIALS=C:\absolute\path\to\serviceAccountKey.json
-FRONTEND_ORIGIN=http://localhost:5000
+FRONTEND_ORIGIN=http://localhost:5173
 ```
 
-Install dependencies and bootstrap:
+4. Install backend dependencies:
 
 ```bash
 npm install
+```
 
-# 1. Create the admin user (first time only)
+5. Bootstrap the app once:
+
+```bash
 npm run create-admin
-#   → prints: username: admin | password: <generated>
-
-# 2. Seed default subjects + grading scale
 npm run seed-defaults
+```
 
-# 3. Start the dev server
+6. Start the backend server:
+
+```bash
 npm run dev
 ```
 
-Backend runs on **http://localhost:4000**
+The backend will run on `http://localhost:4000`.
 
 ---
 
-## 3 — Frontend Setup
+## Frontend Setup
+
+1. Open a terminal and navigate to `frontend-vue`:
 
 ```bash
-cd frontend
-copy .env.example .env
+cd frontend-vue
 ```
 
-Edit `.env`:
-
-```env
-FLASK_SECRET_KEY=any_random_string
-BACKEND_URL=http://localhost:4000
-PORT=5000
-```
-
-Install Python dependencies and run:
+2. Install dependencies:
 
 ```bash
-pip install -r requirements.txt
-python app.py
+npm install
 ```
 
-Frontend runs on **http://localhost:5000**
+3. Start the development frontend:
+
+```bash
+npm run dev
+```
+
+The frontend will run on `http://localhost:5173` by default.
 
 ---
 
-## 4 — First Login
+## Frontend API Configuration
 
-Open **http://localhost:5000** and choose **Admin Portal**.
+The frontend resolves the API base URL using `VITE_API_URL` first, then falls back to:
 
-- **Username:** `admin`
-- **Password:** (printed by `npm run create-admin`)
+- `http://localhost:4000` for local browser development
+- `https://folushovictory-backend.onrender.com` for production deployments
 
----
-
-## 5 — Admin Workflow
-
-| Step | Where |
-|------|-------|
-| Create teachers | Admin → Teachers (username + temp password shown once) |
-| Create classes | Admin → Classes & Subjects |
-| Assign subjects to classes | Admin → Classes & Subjects → Save Subjects |
-| Enrol students | Admin → Students (parent credentials auto-generated) |
-| Assign teacher ↔ class ↔ subject | Admin → Assignments |
-| Configure grading scale | Admin → Grading Scale |
-| Set term & resumption date | Admin → Term Settings |
-| View broadsheet | Admin → Broadsheet |
-| Publish results | Admin → Broadsheet → Publish Results |
-| Add principal's remark | Admin → Term Settings → Principal's Remark |
+If you need a custom endpoint, set `VITE_API_URL` in `frontend-vue/.env`.
 
 ---
 
-## 6 — Teacher Workflow
+## Running the App
 
-Login at **http://localhost:5000/teacher/login**
+1. Start the backend:
 
-- View assigned classes and subjects on the dashboard
-- Click **Enter Scores** → select session & term → fill CA + Exam columns
-- Scores are automatically locked once admin publishes results
-- Click **Remarks** to add written remarks per student
+```bash
+cd backend
+npm run dev
+```
 
----
+2. Start the frontend:
 
-## 7 — Parent Workflow
+```bash
+cd frontend-vue
+npm run dev
+```
 
-Login at **http://localhost:5000/parent/login** using credentials given by admin.
-
-- See child's info on the dashboard
-- Select session + term → view **Report Card**
-- Click **Print / Save PDF** to export
-
----
-
-## 8 — Assessment Types
-
-| Level | Type | Entry |
-|-------|------|-------|
-| Pre-Nursery, Nursery | Trait | Excellent / Good / Fair / Poor |
-| Primary 1–6 | Numeric | CA (0–40) + Exam (0–60) = Total (0–100) |
-| JSS 1–3 | Numeric | CA (0–40) + Exam (0–60) = Total (0–100) |
-| SS 1–3 (Science / Art / Commercial) | Numeric | CA (0–40) + Exam (0–60) = Total (0–100) |
-
-Assessment type is automatically derived from the class **level** field:
-- If `level` contains `nursery` → `TRAIT`
-- Everything else → `NUMERIC`
+3. Open the browser at `http://localhost:5173`.
 
 ---
 
-## 9 — Default Grading Scale
+## Build Targets
 
-| Grade | Range | Remark |
-|-------|-------|--------|
-| A | 70–100 | Excellent |
-| B | 60–69 | Very Good |
-| C | 50–59 | Good |
-| D | 45–49 | Pass |
-| F | 0–44 | Fail |
+### Web
 
-Configurable by admin at any time without re-seeding.
+```bash
+cd frontend-vue
+npm run build:web
+```
+
+### Android APK (Local build prerequisites)
+
+To build locally you need:
+- Java JDK 17+ installed
+- `JAVA_HOME` set to the JDK install path
+- `JAVA_HOME\bin` on your `PATH`
+- Android SDK installed
+
+The local build command is:
+
+```bash
+cd frontend-vue
+npm run build:apk
+```
+
+If `npm run build:apk` fails with `JAVA_HOME is not set`:
+1. Install a JDK
+2. Set `JAVA_HOME` to the JDK folder
+3. Add `%JAVA_HOME%\bin` to `PATH`
+4. Re-open the terminal and rerun the build
+
+### GitHub Actions APK Build
+
+This repository includes `.github/workflows/android-apk.yml` to build a signed Android APK automatically.
+
+Required GitHub secrets:
+- `ANDROID_KEYSTORE_BASE64` — base64-encoded `android/app/build-keystore.jks`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+Generate a keystore locally:
+
+```bash
+keytool -genkeypair -v -keystore android/app/build-keystore.jks -alias builditutor -keyalg RSA -keysize 2048 -validity 10000
+base64 android/app/build-keystore.jks > keystore.b64
+```
+
+Then copy the contents of `keystore.b64` into the `ANDROID_KEYSTORE_BASE64` secret.
+
+### Electron (Windows)
+
+```bash
+cd frontend-vue
+npm run build:exe
+```
+
+### Android APK
+
+```bash
+cd frontend-vue
+npm run build:apk
+```
 
 ---
 
-## School Colors
+## Notes
 
-| Color | Hex |
-|-------|-----|
-| School Green | `#0B6E4F` |
-| School Gold | `#D4AF37` |
-
----
-
-## API Summary (Backend)
-
-| Method | Endpoint | Role |
-|--------|----------|------|
-| POST | `/api/auth/login` | Public |
-| GET | `/api/admin/dashboard` | Admin |
-| POST | `/api/admin/teachers` | Admin |
-| POST | `/api/admin/students` | Admin |
-| POST | `/api/admin/classes` | Admin |
-| PUT | `/api/admin/classes/:id/subjects` | Admin |
-| POST | `/api/admin/assignments` | Admin |
-| GET/POST | `/api/admin/grading-scale` | Admin |
-| POST | `/api/admin/term-meta` | Admin |
-| POST | `/api/admin/publish-results` | Admin |
-| POST | `/api/admin/remarks/principal` | Admin |
-| GET | `/api/teacher/assignments` | Teacher |
-| GET | `/api/teacher/classes/:id/students` | Teacher |
-| POST | `/api/teacher/scores` | Teacher |
-| POST | `/api/teacher/traits` | Teacher |
-| POST | `/api/teacher/remarks` | Teacher |
-| GET | `/api/parent/student` | Parent |
-| GET | `/api/results/class/:id/broadsheet` | Admin |
-| GET | `/api/results/student/:id/report` | Admin/Teacher/Parent |
+- The repository uses `frontend-vue/`, not a Python Flask frontend.
+- `backend/` is the active Express API implementation.
+- Keep sensitive keys out of source control; do not commit `backend/.env` or `frontend-vue/.env`.

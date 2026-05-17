@@ -6,7 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:web": "vue-tsc -b && vite build",
+    "build:android": "call build-apk.bat",
+    "build:apk": "call build-apk.bat",
+    "build:electron": "npm run build:web && electron-builder --win",
+    "build:exe": "npm run build:web && electron-builder --win --publish never",
+    "electron:dev": "vite",
+    "electron:start": "wait-on http://localhost:5173 && electron .",
+    "start:electron": "concurrently npm:dev npm:electron:start",
+    "cap:add": "npx cap add android",
+    "cap:sync": "npx cap sync",
+    "cap:build": "npx cap build android"
   },
   "dependencies": {
     "axios": "^1.16.0",
@@ -20,14 +31,22 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
     "@types/node": "^24.12.3",
     "@vitejs/plugin-vue": "^6.0.6",
     "@vue/tsconfig": "^0.9.1",
     "autoprefixer": "^10.5.0",
+    "concurrently": "^9.0.0",
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0",
+    "electron-is-dev": "^3.0.1",
     "postcss": "^8.5.14",
     "tailwindcss": "3.4",
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
-    "vue-tsc": "^3.2.8"
+    "vue-tsc": "^3.2.8",
+    "wait-on": "^8.0.0"
   }
 }

@@ -10,7 +10,19 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist-electron
 *.local
+
+# Electron build
+out/
+dist-*-unpacked/
+*.dmg
+*.exe.blockmap
+
+# Android build
+android/
+capacitor.config.json.tmp
+local.properties
 
 # Editor directories and files
 .vscode/*

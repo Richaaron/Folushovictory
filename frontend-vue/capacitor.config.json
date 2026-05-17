@@ -1,0 +1,21 @@
+{
+  "appId": "com.builditutor.app",
+  "appName": "Build IT",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000
+    }
+  },
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "android/app/build-keystore.jks",
+      "keystoreAlias": "builditutor",
+      "packageType": "apk"
+    }
+  }
+}
