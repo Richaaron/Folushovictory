@@ -16,11 +16,16 @@ getFirebaseApp();
 
 const app = express();
 
-// CORS configuration: allow both production and development origins
+// CORS configuration: allow both production, development, and native Capacitor origins.
+// Capacitor Android apps send requests from capacitor://localhost, so it must be whitelisted
+// or the native app will see a generic network error on API calls.
 const allowedOrigins = [
   config.frontendOrigin,
   'http://localhost:5173',
   'http://localhost:5000',
+  'http://localhost',
+  'http://127.0.0.1',
+  'capacitor://localhost',
   'https://folushovictory.netlify.app'
 ];
 

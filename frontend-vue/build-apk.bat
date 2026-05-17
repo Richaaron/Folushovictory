@@ -40,7 +40,7 @@ echo.
 
 REM Run the build
 echo Building web resources...
-call npm run build:web
+call npm run build:web -- --mode production
 if errorlevel 1 (
     echo ERROR: Web build failed
     exit /b 1

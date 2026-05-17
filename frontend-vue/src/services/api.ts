@@ -6,12 +6,15 @@ import { useAuthStore } from '../stores/authStore'
 // - If running in a browser on localhost, default to local backend at port 4000 for dev.
 // - Otherwise use the current origin so the frontend will call the same host when deployed
 const API_BASE_URL = (() => {
-  const envUrl = import.meta.env.VITE_API_URL;
+  const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
   if (envUrl) return envUrl;
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
-    // development on localhost -> talk to local backend
+    const protocol = window.location.protocol;
+    // development on localhost -> talk to local backend at port 4000 for dev.
     if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:4000';
+    // Capacitor native builds use capacitor://localhost as the origin.
+    if (protocol === 'capacitor:') return 'https://folushovictory-backend.onrender.com';
     // production front-end deployed on Netlify should call the backend service on Render
     if (host.endsWith('.netlify.app')) return 'https://folushovictory-backend.onrender.com';
     // otherwise use same origin for bundled fullstack deployments
