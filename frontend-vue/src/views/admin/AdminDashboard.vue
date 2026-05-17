@@ -17,6 +17,7 @@ const router = useRouter()
 
 const loading = ref(true)
 const dashboardData = ref<any>(null)
+const recentActivity = ref<Array<{ id: string; type: string; text: string; time: string }>>([])
 
 const activeTermLabel = computed(() => {
   const activeTerm = dashboardData.value?.activeTerm
@@ -35,6 +36,20 @@ const stats = ref([
   { name: 'Active Classes', key: 'classesCount', value: '0', icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20', trend: '...', route: '/admin/classes' },
   { name: 'Avg. Performance', key: 'avgPerformance', value: '0%', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20', trend: '...', route: '/admin/broadsheet' },
 ])
+
+const fetchActivityLogs = async () => {
+  try {
+    const { data } = await api.get('/api/admin/activity-logs', { params: { limit: 5 } })
+    recentActivity.value = data.logs.map((log: any) => ({
+      id: log.id,
+      type: log.role === 'TEACHER' ? 'Teacher Activity' : 'System',
+      text: `${log.actor} — ${log.action}`,
+      time: log.createdAt ? new Date(log.createdAt).toLocaleString() : 'Just now'
+    }))
+  } catch (err) {
+    console.error('Activity log error:', err)
+  }
+}
 
 const fetchDashboard = async () => {
   try {
@@ -56,9 +71,11 @@ const fetchDashboard = async () => {
   }
 }
 
-onMounted(fetchDashboard)
+const fetchDashboardAndLogs = async () => {
+  await Promise.all([fetchDashboard(), fetchActivityLogs()])
+}
 
-const recentActivity: Array<{ id: number; type: string; text: string; time: string }> = []
+onMounted(fetchDashboardAndLogs)
 </script>
 
 <template>
@@ -137,7 +154,7 @@ const recentActivity: Array<{ id: number; type: string; text: string; time: stri
               </div>
               <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">System Pulse</h3>
             </div>
-            <button class="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-nebula-500 hover:text-white transition-all">Audit Log</button>
+            <button @click="fetchActivityLogs" class="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-nebula-500 hover:text-white transition-all">Audit Log</button>
           </div>
           
           <div class="space-y-8 relative z-10">

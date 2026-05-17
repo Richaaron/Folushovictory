@@ -2,6 +2,8 @@ import express from "express";
 import { asyncHandler } from "../http.js";
 import { getUserByUsername } from "../repos/users.js";
 import { verifyPassword, signJwt } from "../security.js";
+import { Roles } from "../constants.js";
+import { logActivity } from "../services/activityLog.js";
 
 export const authRouter = express.Router();
 
@@ -26,6 +28,18 @@ authRouter.post(
       portal: user.portal,
       studentId: user.studentId || null
     });
+
+    if (user.role === Roles.TEACHER) {
+      void logActivity({
+        actor: user.username,
+        role: user.role,
+        action: "Teacher login",
+        details: { portal: String(user.portal) },
+        resourceType: "login",
+        resourceId: user.username
+      }).catch((error) => console.error("Activity log failed:", error));
+    }
+
     return res.json({
       token,
       user: {

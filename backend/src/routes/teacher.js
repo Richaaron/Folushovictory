@@ -13,6 +13,7 @@ import { setReleaseStatus } from "../repos/releases.js";
 import { getStudentById } from "../repos/students.js";
 import { getUserByUsername } from "../repos/users.js";
 import { sendResultReleasedEmail } from "../services/email.js";
+import { logActivity } from "../services/activityLog.js";
 
 export const teacherRouter = express.Router();
 
@@ -116,6 +117,14 @@ teacherRouter.post(
     });
 
     await Promise.all(writes);
+    void logActivity({
+      actor: req.user.username,
+      role: req.user.role,
+      action: "Entered numeric scores",
+      details: { session: String(session), term: String(term), classId: String(classId), subjectId: String(subjectId), recordCount: scores.length },
+      resourceType: "numeric-scores",
+      resourceId: `${session}_${term}_${classId}_${subjectId}`
+    }).catch((error) => console.error("Activity log failed:", error));
     return res.json({ ok: true });
   })
 );
@@ -156,6 +165,14 @@ teacherRouter.post(
     });
 
     await Promise.all(writes);
+    void logActivity({
+      actor: req.user.username,
+      role: req.user.role,
+      action: "Entered trait ratings",
+      details: { session: String(session), term: String(term), classId: String(classId), subjectId: String(subjectId), recordCount: ratings.length },
+      resourceType: "trait-scores",
+      resourceId: `${session}_${term}_${classId}_${subjectId}`
+    }).catch((error) => console.error("Activity log failed:", error));
     return res.json({ ok: true });
   })
 );
@@ -181,6 +198,14 @@ teacherRouter.post(
       teacherRemark: teacherRemark ? String(teacherRemark) : "",
       setBy: req.user.username
     });
+    void logActivity({
+      actor: req.user.username,
+      role: req.user.role,
+      action: "Added teacher remark",
+      details: { session: String(session), term: String(term), studentId: String(studentId) },
+      resourceType: "teacher-remark",
+      resourceId: String(studentId)
+    }).catch((error) => console.error("Activity log failed:", error));
     return res.json({ ok: true });
   })
 );
@@ -228,6 +253,15 @@ teacherRouter.post(
         }
       })();
     }
+
+    void logActivity({
+      actor: req.user.username,
+      role: req.user.role,
+      action: released ? "Released student result" : "Unreleased student result",
+      details: { session: String(session), term: String(term), studentId: String(studentId), released: !!released },
+      resourceType: "result-release",
+      resourceId: String(studentId)
+    }).catch((error) => console.error("Activity log failed:", error));
 
     return res.json(result);
   })

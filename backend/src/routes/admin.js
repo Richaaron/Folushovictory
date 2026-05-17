@@ -16,6 +16,7 @@ import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
 import { getDb } from "../firebase.js";
 import { sendEmail, sendResultReleasedEmail } from "../services/email.js";
+import { logActivity } from "../services/activityLog.js";
 
 export const adminRouter = express.Router();
 
@@ -863,6 +864,33 @@ adminRouter.get(
   asyncHandler(async (req, res) => {
     const settings = await getSchoolSettings();
     return res.json(settings);
+  })
+);
+
+adminRouter.get(
+  "/activity-logs",
+  asyncHandler(async (req, res) => {
+    const { teacher, limit = 25 } = req.query;
+    const db = getDb();
+    let query = db.collection("activityLogs").orderBy("createdAt", "desc");
+    if (teacher) {
+      query = db.collection("activityLogs").where("actor", "==", String(teacher)).orderBy("createdAt", "desc");
+    }
+    const snap = await query.limit(Math.min(Number(limit), 100)).get();
+    const logs = snap.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        actor: data.actor,
+        role: data.role,
+        action: data.action,
+        details: data.details || {},
+        resourceType: data.resourceType,
+        resourceId: data.resourceId,
+        createdAt: data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toISOString() : null
+      };
+    });
+    return res.json({ logs });
   })
 );
 
