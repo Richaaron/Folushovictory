@@ -75,6 +75,7 @@ jobs:
                 echo "Successfully decoded keystore from secret"
               else
                 echo "Decoded file is empty, generating debug keystore..."
+                rm -f frontend-vue/android/app/build-keystore.jks
                 keytool -genkey -v -keystore frontend-vue/android/app/build-keystore.jks \
                   -keyalg RSA -keysize 2048 -validity 10000 \
                   -alias builditutor \
@@ -84,6 +85,7 @@ jobs:
               fi
             else
               echo "Base64 decoding failed, generating debug keystore..."
+              rm -f frontend-vue/android/app/build-keystore.jks
               keytool -genkey -v -keystore frontend-vue/android/app/build-keystore.jks \
                 -keyalg RSA -keysize 2048 -validity 10000 \
                 -alias builditutor \
