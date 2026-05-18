@@ -14,7 +14,9 @@
   "android": {
     "buildOptions": {
       "keystorePath": "android/app/build-keystore.jks",
+      "keystorePassword": "builditutor",
       "keystoreAlias": "builditutor",
+      "keystoreAliasPassword": "builditutor",
       "packageType": "apk"
     }
   }

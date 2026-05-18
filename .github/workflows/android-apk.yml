@@ -135,12 +135,7 @@ jobs:
           echo "Keystore file exists:"
           ls -lh android/app/build-keystore.jks
           
-          npx cap build android \
-            --androidreleasetype APK \
-            --keystorepath=app/build-keystore.jks \
-            --keystorepass="$KEYSTORE_PASSWORD" \
-            --keystorealias="$KEY_ALIAS" \
-            --keystorealiaspass="$KEY_PASSWORD"
+          npx cap build android --androidreleasetype APK
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
