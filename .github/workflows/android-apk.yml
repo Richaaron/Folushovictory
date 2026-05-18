@@ -1,12 +1,7 @@
 name: Build Android APK
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
-  pull_request:
-  release:
-    types: [published]
 
 jobs:
   build-apk:
@@ -161,7 +156,7 @@ jobs:
           asset_content_type: application/vnd.android.package-archive
 
       - name: Upload APK to Firebase App Distribution
-        if: secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 != ''
+        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 != '' }}
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
