@@ -43,8 +43,10 @@ export async function getSchoolSettings() {
         address: "",
         phone: "",
         email: "",
+        website: "",
         principalName: "",
         principalSignatureUrl: "",
+        logoUrl: "",
         currentSession: "2023/2024",
         currentTerm: "First"
       };

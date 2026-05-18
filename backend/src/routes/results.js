@@ -6,7 +6,7 @@ import { getClassById } from "../repos/classes.js";
 import { listStudentsByClass, getStudentById } from "../repos/students.js";
 import { listScoresForClass, listScoresForStudent } from "../repos/scores.js";
 import { getGradingScale, getTermMeta, getSchoolSettings } from "../repos/config.js";
-import { numericBroadsheet, traitSheet } from "../compute.js";
+import { gradeForTotal, numericBroadsheet, traitSheet } from "../compute.js";
 import { listSubjects, getSubjectById } from "../repos/subjects.js";
 import { getRemarks } from "../repos/remarks.js";
 import { getPublish } from "../repos/publishes.js";
@@ -45,6 +45,64 @@ async function subjectsForClass(cls) {
   return filtered.map((s) => ({ id: s.id, name: s.name }));
 }
 
+function generatedPerformanceRemarks(result) {
+  const average = Number(result?.average);
+
+  if (!Number.isFinite(average) || average <= 0) {
+    return {
+      teacherRemark: "Performance remark will be available when the student's scores have been completed.",
+      principalRemark: "Academic performance is awaiting complete score entry and verification."
+    };
+  }
+
+  if (average >= 90) {
+    return {
+      teacherRemark: "An outstanding performance. The student has shown excellent mastery and should keep up this exceptional standard.",
+      principalRemark: "A distinguished result. The student is highly commended for excellent academic performance."
+    };
+  }
+
+  if (average >= 80) {
+    return {
+      teacherRemark: "An excellent result. The student is focused, consistent, and should maintain this impressive performance.",
+      principalRemark: "A very commendable performance. The student should continue with the same level of commitment."
+    };
+  }
+
+  if (average >= 70) {
+    return {
+      teacherRemark: "A very good performance. The student has done well and can achieve even more with steady effort.",
+      principalRemark: "A strong result. The student is encouraged to work harder for greater excellence."
+    };
+  }
+
+  if (average >= 60) {
+    return {
+      teacherRemark: "A good performance. The student should pay closer attention to weaker subjects and keep improving.",
+      principalRemark: "A good result. More consistent study will help the student reach a higher standard."
+    };
+  }
+
+  if (average >= 50) {
+    return {
+      teacherRemark: "A fair performance. The student needs more concentration, regular practice, and closer supervision.",
+      principalRemark: "A satisfactory result, but there is clear room for improvement through greater effort."
+    };
+  }
+
+  if (average >= 40) {
+    return {
+      teacherRemark: "Performance is below expectation. The student should revise regularly and seek help in difficult subjects.",
+      principalRemark: "The student is advised to improve study habits and work closely with teachers for better results."
+    };
+  }
+
+  return {
+    teacherRemark: "Performance requires urgent improvement. The student needs serious attention, guided study, and consistent practice.",
+    principalRemark: "This result calls for urgent academic support. The student should be closely guided for improvement."
+  };
+}
+
 resultsRouter.get(
   "/class/:classId/broadsheet",
   asyncHandler(async (req, res) => {
@@ -71,6 +129,14 @@ resultsRouter.get(
         ? traitSheet({ students, subjects, scoresByKey })
         : numericBroadsheet({ students, subjects, scoresByKey, scale, level: cls.level });
 
+    if (row && String(cls.assessmentType).toUpperCase() !== "TRAIT") {
+      const overall = gradeForTotal(Number(row.average || 0), scale);
+      row.overallGrade = overall.letter || "";
+      row.overallGradeRemark = overall.remark || "";
+    }
+
+    const autoRemarks = generatedPerformanceRemarks(row);
+
     return res.json({
       class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
       session: String(session),
@@ -95,14 +161,15 @@ resultsRouter.get(
       if (!req.user.studentId || req.user.studentId !== studentId) return res.status(403).json({ error: "Forbidden" });
     }
 
-    if (req.user.role === Roles.TEACHER) {
-      const assignments = await listAssignmentsByTeacher(req.user.username);
-      const allowed = assignments.some((a) => a.classId === student.classId);
-      if (!allowed) return res.status(403).json({ error: "Forbidden" });
-    }
-
     const cls = await getClassById(student.classId);
     if (!cls) return res.status(404).json({ error: "Class not found" });
+
+    if (req.user.role === Roles.TEACHER) {
+      const assignments = await listAssignmentsByTeacher(req.user.username);
+      const assignedToClass = assignments.some((a) => a.classId === student.classId);
+      const isFormTeacher = cls.formTeacherUsername === req.user.username;
+      if (!assignedToClass && !isFormTeacher) return res.status(403).json({ error: "Forbidden" });
+    }
 
     const [subjects, scale, remarks, meta, publish, school, release] = await Promise.all([
       subjectsForClass(cls),
@@ -174,8 +241,8 @@ resultsRouter.get(
       term: String(term),
       published: Boolean(publish),
       resumptionDate: meta?.resumptionDate || "",
-      teacherRemark: remarks?.teacherRemark || "",
-      principalRemark: remarks?.principalRemark || "",
+      teacherRemark: remarks?.teacherRemark || autoRemarks.teacherRemark,
+      principalRemark: remarks?.principalRemark || autoRemarks.principalRemark,
       result: row
     });
   })
