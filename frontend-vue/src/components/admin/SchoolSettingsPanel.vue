@@ -34,11 +34,12 @@ const signaturePreview = ref('')
 
 const logoFileInput = ref<HTMLInputElement | null>(null)
 const signatureFileInput = ref<HTMLInputElement | null>(null)
+const SETTINGS_ENDPOINT = '/api/admin/school-settings'
 
 const fetchSettings = async () => {
   loading.value = true
   try {
-    const resp = await api.get('/api/config/school-settings')
+    const resp = await api.get(SETTINGS_ENDPOINT)
     settings.value = resp.data
     
     // Populate form fields
@@ -114,15 +115,15 @@ const saveSettings = async () => {
 
     // Add logo if provided (keep existing if not changed)
     if (logoFile.value) {
-      payload.logo = logoPreview.value  // This is the base64 data URL
+      payload.logoUrl = logoPreview.value  // This is the base64 data URL
     }
 
     // Add principal signature if provided (keep existing if not changed)
     if (signatureFile.value) {
-      payload.principalSignature = signaturePreview.value  // This is the base64 data URL
+      payload.principalSignatureUrl = signaturePreview.value  // This is the base64 data URL
     }
 
-    const resp = await api.post('/api/config/school-settings', payload)
+    const resp = await api.post(SETTINGS_ENDPOINT, payload)
 
     successMessage.value = 'School settings saved successfully!'
     settings.value = resp.data

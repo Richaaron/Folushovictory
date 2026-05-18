@@ -30,7 +30,7 @@ configRouter.post(
   authRequired,
   requireRole(Roles.ADMIN),
   asyncHandler(async (req, res) => {
-    const { name, motto, address, phone, email, website, principalName, logo, principalSignature } = req.body;
+    const { name, motto, address, phone, email, website, principalName, logo, logoUrl, principalSignature, principalSignatureUrl } = req.body;
     
     const updateData = {
       name: name || "",
@@ -43,13 +43,15 @@ configRouter.post(
     };
 
     // Handle logo upload (base64 or data URL)
-    if (logo && typeof logo === 'string') {
-      updateData.logoUrl = logo;
+    const nextLogoUrl = logoUrl || logo;
+    if (nextLogoUrl && typeof nextLogoUrl === 'string') {
+      updateData.logoUrl = nextLogoUrl;
     }
 
     // Handle principal signature upload (base64 or data URL)
-    if (principalSignature && typeof principalSignature === 'string') {
-      updateData.principalSignatureUrl = principalSignature;
+    const nextPrincipalSignatureUrl = principalSignatureUrl || principalSignature;
+    if (nextPrincipalSignatureUrl && typeof nextPrincipalSignatureUrl === 'string') {
+      updateData.principalSignatureUrl = nextPrincipalSignatureUrl;
     }
 
     const settings = await setSchoolSettings(updateData);
