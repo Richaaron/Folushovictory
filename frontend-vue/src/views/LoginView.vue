@@ -26,6 +26,48 @@ const portalTitle = computed(() => {
   }
 })
 
+const portalAccentTextClass = computed(() => {
+  switch (portal.value) {
+    case 'admin': return 'nebula-gradient'
+    case 'teacher': return 'from-purple-500 via-indigo-500 to-pink-500 bg-gradient-to-r'
+    case 'parent': return 'from-emerald-400 to-emerald-600 bg-gradient-to-r'
+    default: return 'nebula-gradient'
+  }
+})
+
+const portalAccentLineClass = computed(() => {
+  switch (portal.value) {
+    case 'admin': return 'bg-nebula-500/30'
+    case 'teacher': return 'bg-purple-500/30'
+    case 'parent': return 'bg-emerald-500/30'
+    default: return 'bg-nebula-500/30'
+  }
+})
+
+const portalButtonClass = computed(() => {
+  switch (portal.value) {
+    case 'admin': return 'nebula-gradient'
+    case 'teacher': return 'bg-gradient-to-r from-purple-500 to-indigo-500'
+    case 'parent': return 'bg-gradient-to-r from-emerald-500 to-teal-500'
+    default: return 'nebula-gradient'
+  }
+})
+
+const portalEmoji = computed(() => {
+  switch (portal.value) {
+    case 'admin': return '🛡️'
+    case 'teacher': return '📚'
+    case 'parent': return '👪'
+    default: return '🔑'
+  }
+})
+
+const switchPortal = (p: string) => {
+  portal.value = p
+  // update the URL param so the selected portal persists in the address bar
+  router.replace({ params: { ...route.params, portal: p } }).catch(() => {})
+}
+
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
@@ -66,12 +108,12 @@ const handleLogin = async () => {
         
         <div class="space-y-2">
           <div class="flex items-center justify-center gap-3">
-            <div class="h-px w-6 sm:w-8 bg-nebula-500/30" aria-hidden="true"></div>
-            <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-nebula-500">Secure Gateway</span>
-            <div class="h-px w-6 sm:w-8 bg-nebula-500/30" aria-hidden="true"></div>
+            <div class="h-px w-6 sm:w-8" :class="portalAccentLineClass" aria-hidden="true"></div>
+            <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.4em]" :class="portalAccentTextClass">Secure Gateway</span>
+            <div class="h-px w-6 sm:w-8" :class="portalAccentLineClass" aria-hidden="true"></div>
           </div>
           <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
-            {{ portalTitle }} <span class="text-transparent bg-clip-text nebula-gradient">Login</span>
+            {{ portalTitle }} <span class="ml-2">{{ portalEmoji }}</span> <span :class="['text-transparent bg-clip-text', portalAccentTextClass]">Login</span>
           </h2>
           <p class="text-[9px] sm:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em]">
             Institutional Control & Academic Management
@@ -144,7 +186,7 @@ const handleLogin = async () => {
           <button 
             type="submit"
             :disabled="loading"
-            class="w-full flex items-center justify-center rounded-lg sm:rounded-[1.5rem] nebula-gradient px-6 sm:px-8 py-4 sm:py-5 text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 hover:scale-[1.02] hover:shadow-nebula-500/40 active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100 focus-visible:ring-4 focus-visible:ring-nebula-500/40 min-h-[48px]"
+            :class="[portalButtonClass, 'w-full flex items-center justify-center rounded-lg sm:rounded-[1.5rem] px-6 sm:px-8 py-4 sm:py-5 text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 hover:scale-[1.02] hover:shadow-nebula-500/40 active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100 focus-visible:ring-4 focus-visible:ring-nebula-500/40 min-h-[48px]']"
             :aria-label="loading ? 'Authenticating...' : 'Authorize Access'"
           >
             <Loader2 v-if="loading" class="w-4 sm:w-5 h-4 sm:h-5 animate-spin mr-2 sm:mr-3" aria-hidden="true" />
@@ -160,7 +202,7 @@ const handleLogin = async () => {
               <button 
                 v-for="p in ['admin', 'teacher', 'parent']" 
                 :key="p"
-                @click="portal = p" 
+                @click="switchPortal(p)" 
                 :aria-pressed="portal === p"
                 :class="[portal === p ? 'bg-nebula-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700']" 
                 class="px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all duration-300 min-w-[90px] sm:min-w-[100px] min-h-[44px] focus-visible:ring-4 focus-visible:ring-nebula-500/40"
