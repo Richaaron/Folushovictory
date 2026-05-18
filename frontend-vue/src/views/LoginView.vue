@@ -13,12 +13,16 @@ const authStore = useAuthStore()
 type PortalKey = 'admin' | 'teacher' | 'parent'
 const portalKeys = ['admin', 'teacher', 'parent'] as const
 
-const validPortal = (value?: string): value is PortalKey => {
-  return !!value && portalKeys.includes(value as PortalKey)
+const validPortal = (value?: string | string[] | null): value is PortalKey => {
+  if (Array.isArray(value)) {
+    value = value[0]
+  }
+  return typeof value === 'string' && portalKeys.includes(value as PortalKey)
 }
 
-const normalizePortal = (value?: string): PortalKey => {
-  const lower = String(value || '').toLowerCase()
+const normalizePortal = (value?: string | string[] | null): PortalKey => {
+  const raw = Array.isArray(value) ? value[0] : value
+  const lower = String(raw || '').toLowerCase()
   return validPortal(lower) ? lower : 'admin'
 }
 
@@ -28,7 +32,7 @@ const getSavedPortal = (): PortalKey | null => {
   return validPortal(saved) ? saved : null
 }
 
-const portal = ref<PortalKey>(normalizePortal(route.params.portal as string))
+const portal = ref<PortalKey>(normalizePortal(route.params.portal as string | string[] | null))
 const username = ref('')
 const password = ref('')
 const passwordVisible = ref(false)
@@ -125,7 +129,7 @@ const selectPortal = (selected: PortalKey) => {
 
 onMounted(() => {
   const saved = getSavedPortal()
-  if (!validPortal(route.params.portal as string) && saved) {
+  if (!validPortal(route.params.portal as string | string[] | null) && saved) {
     portal.value = saved
     router.replace({ params: { ...route.params, portal: saved } }).catch(() => {})
   }
@@ -136,8 +140,8 @@ onMounted(() => {
 
 watch(
   () => route.params.portal,
-  (next) => {
-    const normalized = normalizePortal(next as string)
+  (next: string | string[] | null) => {
+    const normalized = normalizePortal(next)
     if (normalized !== portal.value) {
       portal.value = normalized
       localStorage.setItem('lastPortal', normalized)

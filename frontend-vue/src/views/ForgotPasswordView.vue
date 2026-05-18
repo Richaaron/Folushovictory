@@ -2,13 +2,21 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
+type PortalKey = 'admin' | 'teacher' | 'parent'
+
 const route = useRoute()
-const portal = computed(() => {
-  const raw = String(route.params.portal || 'admin').toLowerCase()
-  return ['admin', 'teacher', 'parent'].includes(raw) ? raw : 'admin'
+const portal = computed<PortalKey>(() => {
+  const raw = Array.isArray(route.params.portal) ? route.params.portal[0] : route.params.portal
+  const normalized = String(raw || 'admin').toLowerCase()
+  return ['admin', 'teacher', 'parent'].includes(normalized) ? (normalized as PortalKey) : 'admin'
 })
 
-const portalMeta = {
+const portalMeta: Record<PortalKey, {
+  title: string
+  emoji: string
+  helpText: string
+  cta: string
+}> = {
   admin: {
     title: 'Administrator',
     emoji: '🛡️',
@@ -27,7 +35,7 @@ const portalMeta = {
     helpText: 'If you forgot your Parent Access Code, contact the school office for a verified recovery path.',
     cta: 'Return to Parent Login'
   }
-} as const
+}
 
 const current = computed(() => portalMeta[portal.value])
 </script>
@@ -55,7 +63,7 @@ const current = computed(() => portalMeta[portal.value])
             </p>
           </div>
           <router-link
-            :to="`/login/${portal.value}`"
+            :to="`/login/${portal}`"
             class="inline-flex items-center justify-center rounded-full bg-nebula-600 text-white px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] shadow-lg hover:bg-nebula-700 transition"
           >
             {{ current.cta }}
