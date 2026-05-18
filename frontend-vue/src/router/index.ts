@@ -17,6 +17,12 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/forgot-password/:portal?',
+      name: 'forgot-password',
+      component: () => import('../views/ForgotPasswordView.vue'),
+      props: true
+    },
+    {
       path: '/report/:studentId',
       name: 'student-report',
       component: () => import('../views/common/StudentReportView.vue'),
