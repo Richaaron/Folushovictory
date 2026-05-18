@@ -29,8 +29,8 @@ const portalTitle = computed(() => {
 const portalAccentTextClass = computed(() => {
   switch (portal.value) {
     case 'admin': return 'nebula-gradient'
-    case 'teacher': return 'from-purple-500 via-indigo-500 to-pink-500 bg-gradient-to-r'
-    case 'parent': return 'from-emerald-400 to-emerald-600 bg-gradient-to-r'
+    case 'teacher': return 'from-purple-600 via-indigo-600 to-pink-600 bg-gradient-to-r'
+    case 'parent': return 'from-emerald-600 to-teal-600 bg-gradient-to-r'
     default: return 'nebula-gradient'
   }
 })
@@ -47,8 +47,8 @@ const portalAccentLineClass = computed(() => {
 const portalButtonClass = computed(() => {
   switch (portal.value) {
     case 'admin': return 'nebula-gradient'
-    case 'teacher': return 'bg-gradient-to-r from-purple-500 to-indigo-500'
-    case 'parent': return 'bg-gradient-to-r from-emerald-500 to-teal-500'
+    case 'teacher': return 'bg-gradient-to-r from-purple-600 to-indigo-600'
+    case 'parent': return 'bg-gradient-to-r from-emerald-600 to-teal-600'
     default: return 'nebula-gradient'
   }
 })
@@ -67,6 +67,24 @@ const switchPortal = (p: string) => {
   // update the URL param so the selected portal persists in the address bar
   router.replace({ params: { ...route.params, portal: p } }).catch(() => {})
 }
+
+const portalShadowClass = computed(() => {
+  switch (portal.value) {
+    case 'admin': return 'shadow-nebula-500/30'
+    case 'teacher': return 'shadow-purple-600/30'
+    case 'parent': return 'shadow-emerald-600/30'
+    default: return 'shadow-nebula-500/30'
+  }
+})
+
+const portalSecureGatewayClass = computed(() => {
+  switch (portal.value) {
+    case 'admin': return 'text-nebula-500'
+    case 'teacher': return 'text-purple-600'
+    case 'parent': return 'text-emerald-600'
+    default: return 'text-nebula-500'
+  }
+})
 
 const handleLogin = async () => {
   loading.value = true
@@ -109,7 +127,7 @@ const handleLogin = async () => {
         <div class="space-y-2">
           <div class="flex items-center justify-center gap-3">
             <div class="h-px w-6 sm:w-8" :class="portalAccentLineClass" aria-hidden="true"></div>
-            <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.4em]" :class="portalAccentTextClass">Secure Gateway</span>
+            <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.4em]" :class="portalSecureGatewayClass">Secure Gateway</span>
             <div class="h-px w-6 sm:w-8" :class="portalAccentLineClass" aria-hidden="true"></div>
           </div>
           <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
@@ -186,7 +204,7 @@ const handleLogin = async () => {
           <button 
             type="submit"
             :disabled="loading"
-            :class="[portalButtonClass, 'w-full flex items-center justify-center rounded-lg sm:rounded-[1.5rem] px-6 sm:px-8 py-4 sm:py-5 text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 hover:scale-[1.02] hover:shadow-nebula-500/40 active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100 focus-visible:ring-4 focus-visible:ring-nebula-500/40 min-h-[48px]']"
+            :class="[portalButtonClass, 'w-full flex items-center justify-center rounded-lg sm:rounded-[1.5rem] px-6 sm:px-8 py-4 sm:py-5 text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100 focus-visible:ring-4 focus-visible:ring-nebula-500/40 min-h-[48px]', portalShadowClass]"
             :aria-label="loading ? 'Authenticating...' : 'Authorize Access'"
           >
             <Loader2 v-if="loading" class="w-4 sm:w-5 h-4 sm:h-5 animate-spin mr-2 sm:mr-3" aria-hidden="true" />
