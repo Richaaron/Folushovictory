@@ -5,8 +5,9 @@ import { asyncHandler } from "../http.js";
 import { generateTeacherUsername, generateStudentId, generateParentUsername } from "../ids.js";
 import { generateRandomPassword, hashPassword } from "../security.js";
 import { createUser, deleteUser, getUserByUsername, updateUser } from "../repos/users.js";
-import { createStudent, listStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
+import { createStudent, createStudentWithParent, listStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
 import { createClass, listClasses, updateClass, getClassById, revokeFormTeacherStatus } from "../repos/classes.js";
+import { validateTeacherPayload, validateStudentPayload, validateStudentUpdatePayload } from "../validation.js";
 import { createSubject, listSubjects, getSubjectById } from "../repos/subjects.js";
 import { createAssignment, deleteAssignmentsByTeacher } from "../repos/assignments.js";
 import { upsertNumericScore, listScoresForStudent } from "../repos/scores.js";
@@ -17,6 +18,7 @@ import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
 import { getDb } from "../firebase.js";
 import { sendEmail, sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
+import { performHealthCheck, validateDataIntegrity, getCollectionMetrics } from "../firestore-utils/index.js";
 
 export const adminRouter = express.Router();
 
@@ -36,6 +38,31 @@ export const adminRouter = express.Router();
 // ==========================================
 
 adminRouter.use(authRequired, requireRole(Roles.ADMIN));
+
+// ==========================================
+// HEALTH AND MONITORING ENDPOINTS
+// ==========================================
+
+adminRouter.get(
+  "/health/database",
+  asyncHandler(async (req, res) => {
+    const [health, integrity, metrics] = await Promise.all([
+      performHealthCheck(),
+      validateDataIntegrity(),
+      getCollectionMetrics()
+    ]);
+
+    const isHealthy = health.status === "healthy" && integrity.issuesFound === 0;
+    const status = isHealthy ? 200 : 207; // 207 Multi-Status if issues found
+
+    res.status(status).json({
+      database: health,
+      dataIntegrity: integrity,
+      metrics: metrics.metrics,
+      timestamp: new Date().toISOString()
+    });
+  })
+);
 
 adminRouter.get(
   "/dashboard",
@@ -100,13 +127,7 @@ adminRouter.get(
 adminRouter.post(
   "/teachers",
   asyncHandler(async (req, res) => {
-    const { displayName, email } = req.body || {};
-    const normalizedEmail = email ? String(email).trim() : null;
-    if (!displayName) return res.status(400).json({ error: "Missing displayName" });
-    if (normalizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
-      return res.status(400).json({ error: "Invalid email address" });
-    }
-
+    const payload = validateTeacherPayload(req.body || {});
     const username = await generateTeacherUsername();
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
     let password = "";
@@ -117,24 +138,24 @@ adminRouter.post(
 
     await createUser({
       username,
-      email: normalizedEmail,
+      email: payload.email,
       portal: "TEACHER",
       role: Roles.TEACHER,
-      displayName: String(displayName),
+      displayName: payload.displayName,
       passwordHash
     });
 
     let emailSent = false;
     let emailError = null;
 
-    if (normalizedEmail) {
+    if (payload.email) {
       const emailHtml = `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
             <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
               <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
             </div>
             <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
-              <h2 style="margin-top: 0; color: #5D3FD3;">Welcome, ${displayName}!</h2>
+              <h2 style="margin-top: 0; color: #5D3FD3;">Welcome, ${payload.displayName}!</h2>
               <p>Your academic staff portal account has been created successfully. You can now manage your classes, subjects, and results digitally.</p>
               
               <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
@@ -159,13 +180,13 @@ adminRouter.post(
 
       // Send email in background to avoid blocking the request
       sendEmail({
-        to: normalizedEmail,
+        to: payload.email,
         subject: "Your FVS Teacher Portal Credentials",
         html: emailHtml
       }).then(() => {
-        console.log(`✅ Welcome email sent successfully to ${normalizedEmail}`);
+        console.log(`✅ Welcome email sent successfully to ${payload.email}`);
       }).catch(err => {
-        console.error(`❌ Failed to send teacher email to ${normalizedEmail}:`, err?.message || err);
+        console.error(`❌ Failed to send teacher email to ${payload.email}:`, err?.message || err);
       });
       emailSent = true; // Assume true since we fired it off
     }
@@ -173,7 +194,7 @@ adminRouter.post(
     return res.status(201).json({ 
       username, 
       password,
-      email: normalizedEmail || null,
+      email: payload.email || null,
       emailSent,
       emailError,
       message: "✅ Account created successfully! Credentials will be emailed shortly."
@@ -361,9 +382,7 @@ adminRouter.get(
 adminRouter.post(
   "/students",
   asyncHandler(async (req, res) => {
-    const { firstName, lastName, classId, gender, parentName, parentEmail, stream } = req.body || {};
-    if (!firstName || !lastName || !classId || !parentName) return res.status(400).json({ error: "Missing fields" });
-
+    const payload = validateStudentPayload(req.body || {});
     const studentId = await generateStudentId();
     const parentUsername = await generateParentUsername();
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
@@ -373,30 +392,31 @@ adminRouter.post(
     }
     const parentPasswordHash = await hashPassword(parentPassword);
 
-    await createStudent({
-      studentId,
-      firstName: String(firstName),
-      lastName: String(lastName),
-      gender: gender ? String(gender) : "",
-      classId: String(classId),
-      parentName: String(parentName),
-      parentEmail: parentEmail ? String(parentEmail) : null,
-      stream: stream ? String(stream) : "",
-      createdBy: req.user.username
+    await createStudentWithParent({
+      student: {
+        studentId,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        gender: payload.gender,
+        classId: payload.classId,
+        parentName: payload.parentName,
+        parentEmail: payload.parentEmail,
+        stream: payload.stream,
+        createdBy: req.user.username
+      },
+      parentUser: {
+        username: parentUsername,
+        email: payload.parentEmail,
+        portal: "PARENT",
+        role: Roles.PARENT,
+        displayName: payload.parentName,
+        passwordHash: parentPasswordHash,
+        studentId
+      }
     });
 
-    await createUser({
-      username: parentUsername,
-      email: parentEmail ? String(parentEmail) : null,
-      portal: "PARENT",
-      role: Roles.PARENT,
-      displayName: String(parentName),
-      passwordHash: parentPasswordHash,
-      studentId
-    });
-
-    if (parentEmail) {
-      // Send emails in background
+    if (payload.parentEmail) {
+      // Send emails in background to avoid blocking the request
       (async () => {
         try {
           const parentEmailHtml = `
@@ -405,14 +425,14 @@ adminRouter.post(
                   <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
                 </div>
                 <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
-                  <h2 style="margin-top: 0; color: #5D3FD3;">Hello ${parentName},</h2>
-                  <p>An official parent portal account has been created for you to monitor the academic progress of <strong>${firstName} ${lastName}</strong>.</p>
+                  <h2 style="margin-top: 0; color: #5D3FD3;">Hello ${payload.parentName},</h2>
+                  <p>An official parent portal account has been created for you to monitor the academic progress of <strong>${payload.firstName} ${payload.lastName}</strong>.</p>
                   
                   <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
                     <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Parent Login Access</p>
                     <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${parentUsername}</span></p>
                     <p style="margin: 5px 0 0; font-size: 16px;"><strong>Password:</strong> <span style="color: #0B6E4F;">${parentPassword}</span></p>
-                    ${stream ? `<p style="margin: 5px 0 0; font-size: 16px;"><strong>Stream:</strong> <span style="color: #0B6E4F;">${stream}</span></p>` : ''}
+                    ${payload.stream ? `<p style="margin: 5px 0 0; font-size: 16px;"><strong>Stream:</strong> <span style="color: #0B6E4F;">${payload.stream}</span></p>` : ''}
                   </div>
 
                   <div style="text-align: center; margin: 32px 0;">
@@ -432,19 +452,18 @@ adminRouter.post(
             `;
           
           await sendEmail({
-            to: parentEmail,
+            to: payload.parentEmail,
             subject: "FVS Parent Portal: Access Your Child's Records",
             html: parentEmailHtml
           });
 
-          // Also send a copy to the school email
           await sendEmail({
             to: "folushovictoryschool@gmail.com",
-            subject: `ADMIN COPY: Parent Access Created - ${parentName}`,
+            subject: `ADMIN COPY: Parent Access Created - ${payload.parentName}`,
             html: `
               <h3>Admin Copy: Parent Account Created</h3>
-              <p><strong>Parent Name:</strong> ${parentName}</p>
-              <p><strong>Student:</strong> ${firstName} ${lastName}</p>
+              <p><strong>Parent Name:</strong> ${payload.parentName}</p>
+              <p><strong>Student:</strong> ${payload.firstName} ${payload.lastName}</p>
               <p><strong>Username:</strong> ${parentUsername}</p>
               <p><strong>Password:</strong> ${parentPassword}</p>
               <hr/>
@@ -465,16 +484,8 @@ adminRouter.put(
   "/students/:studentId",
   asyncHandler(async (req, res) => {
     const { studentId } = req.params;
-    const { firstName, lastName, classId, gender, parentName, parentEmail, stream } = req.body || {};
-    const updated = await updateStudent(studentId, {
-      ...(firstName ? { firstName: String(firstName) } : {}),
-      ...(lastName ? { lastName: String(lastName) } : {}),
-      ...(classId ? { classId: String(classId) } : {}),
-      ...(gender ? { gender: String(gender) } : {}),
-      ...(parentName ? { parentName: String(parentName) } : {}),
-      ...(parentEmail ? { parentEmail: String(parentEmail) } : {}),
-      ...(stream ? { stream: String(stream) } : {})
-    });
+    const patch = validateStudentUpdatePayload(req.body || {});
+    const updated = await updateStudent(studentId, patch);
     return res.json(updated);
   })
 );

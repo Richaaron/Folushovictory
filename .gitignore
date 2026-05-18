@@ -20,3 +20,6 @@ __pycache__
 .github
 serviceAccountKey.json
 *serviceAccountKey*.json
+
+frontend-vue/firebase-service-account.json
+backend/serviceAccountKey.json

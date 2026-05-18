@@ -1,73 +1,58 @@
 import admin from "firebase-admin";
 import { getDb } from "../firebase.js";
+import { SafeDatabase } from "../firestore-utils/index.js";
 
 export async function getGradingScale() {
-  const db = getDb();
-  const snap = await db.collection("config").doc("gradingScale").get();
-  return snap.exists ? snap.data() : null;
+  try {
+    return await SafeDatabase.getById("config", "gradingScale");
+  } catch (error) {
+    if (error.statusCode === 404) return null;
+    throw error;
+  }
 }
 
 export async function setGradingScale(scale) {
-  const db = getDb();
-  const ref = db.collection("config").doc("gradingScale");
-  await ref.set(
-    {
-      ...scale,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    },
-    { merge: true }
-  );
-  const snap = await ref.get();
-  return snap.exists ? snap.data() : null;
+  return SafeDatabase.upsert("config", "gradingScale", scale);
 }
 
 export async function getTermMeta({ session, term }) {
-  const db = getDb();
-  const snap = await db.collection("termMeta").doc(`${session}_${term}`).get();
-  return snap.exists ? snap.data() : null;
+  try {
+    return await SafeDatabase.getById("termMeta", `${session}_${term}`);
+  } catch (error) {
+    if (error.statusCode === 404) return null;
+    throw error;
+  }
 }
 
 export async function setTermMeta({ session, term, resumptionDate }) {
-  const db = getDb();
-  const ref = db.collection("termMeta").doc(`${session}_${term}`);
-  await ref.set(
-    {
-      session,
-      term,
-      resumptionDate,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    },
-    { merge: true }
-  );
-  const snap = await ref.get();
-  return snap.exists ? snap.data() : null;
+  return SafeDatabase.upsert("termMeta", `${session}_${term}`, {
+    session,
+    term,
+    resumptionDate
+  });
 }
+
 export async function getSchoolSettings() {
-  const db = getDb();
-  const snap = await db.collection("config").doc("schoolSettings").get();
-  return snap.exists ? snap.data() : { 
-    name: "Folusho Victory Schools", 
-    motto: "Knowledge · Integrity · Excellence",
-    address: "",
-    phone: "",
-    email: "",
-    principalName: "",
-    principalSignatureUrl: "",
-    currentSession: "2023/2024",
-    currentTerm: "First"
-  };
+  try {
+    return await SafeDatabase.getById("config", "schoolSettings");
+  } catch (error) {
+    if (error.statusCode === 404) {
+      return {
+        name: "Folusho Victory Schools",
+        motto: "Knowledge · Integrity · Excellence",
+        address: "",
+        phone: "",
+        email: "",
+        principalName: "",
+        principalSignatureUrl: "",
+        currentSession: "2023/2024",
+        currentTerm: "First"
+      };
+    }
+    throw error;
+  }
 }
 
 export async function setSchoolSettings(settings) {
-  const db = getDb();
-  const ref = db.collection("config").doc("schoolSettings");
-  await ref.set(
-    {
-      ...settings,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    },
-    { merge: true }
-  );
-  const snap = await ref.get();
-  return snap.exists ? snap.data() : null;
+  return SafeDatabase.upsert("config", "schoolSettings", settings);
 }

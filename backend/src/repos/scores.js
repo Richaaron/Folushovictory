@@ -1,70 +1,65 @@
 import admin from "firebase-admin";
 import { getDb } from "../firebase.js";
+import { SafeDatabase } from "../firestore-utils/index.js";
 
 function scoreId({ session, term, classId, studentId, subjectId }) {
   return `${session}_${term}_${classId}_${studentId}_${subjectId}`;
 }
 
 export async function upsertNumericScore({ session, term, classId, studentId, subjectId, ca1, ca2, exam, enteredBy }) {
-  const db = getDb();
-  const ref = db.collection("scores").doc(scoreId({ session, term, classId, studentId, subjectId }));
-  await ref.set(
-    {
-      session,
-      term,
-      classId,
-      studentId,
-      subjectId,
-      type: "NUMERIC",
-      ca1: Number(ca1 || 0),
-      ca2: Number(ca2 || 0),
-      ca: Number(ca1 || 0) + Number(ca2 || 0),
-      exam: Number(exam || 0),
-      enteredBy,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    },
-    { merge: true }
-  );
+  const ref = getDb().collection("scores").doc(scoreId({ session, term, classId, studentId, subjectId }));
+  return SafeDatabase.upsert("scores", ref.id, {
+    session,
+    term,
+    classId,
+    studentId,
+    subjectId,
+    type: "NUMERIC",
+    ca1: Number(ca1 || 0),
+    ca2: Number(ca2 || 0),
+    ca: Number(ca1 || 0) + Number(ca2 || 0),
+    exam: Number(exam || 0),
+    enteredBy
+  });
 }
 
 export async function upsertTraitScore({ session, term, classId, studentId, subjectId, rating, enteredBy }) {
-  const db = getDb();
-  const ref = db.collection("scores").doc(scoreId({ session, term, classId, studentId, subjectId }));
-  await ref.set(
-    {
-      session,
-      term,
-      classId,
-      studentId,
-      subjectId,
-      type: "TRAIT",
-      rating,
-      enteredBy,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    },
-    { merge: true }
-  );
+  const ref = getDb().collection("scores").doc(scoreId({ session, term, classId, studentId, subjectId }));
+  return SafeDatabase.upsert("scores", ref.id, {
+    session,
+    term,
+    classId,
+    studentId,
+    subjectId,
+    type: "TRAIT",
+    rating,
+    enteredBy
+  });
 }
 
 export async function listScoresForClass({ session, term, classId }) {
-  const db = getDb();
-  const snap = await db
-    .collection("scores")
-    .where("session", "==", session)
-    .where("term", "==", term)
-    .where("classId", "==", classId)
-    .get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const { data } = await SafeDatabase.query(
+    "scores",
+    [
+      ["session", "==", session],
+      ["term", "==", term],
+      ["classId", "==", classId]
+    ],
+    { pageSize: 1000 }
+  );
+  return data;
 }
 
 export async function listScoresForStudent({ session, term, studentId }) {
-  const db = getDb();
-  const snap = await db
-    .collection("scores")
-    .where("session", "==", session)
-    .where("term", "==", term)
-    .where("studentId", "==", studentId)
-    .get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const { data } = await SafeDatabase.query(
+    "scores",
+    [
+      ["session", "==", session],
+      ["term", "==", term],
+      ["studentId", "==", studentId]
+    ],
+    { pageSize: 1000 }
+  );
+  return data;
 }
 

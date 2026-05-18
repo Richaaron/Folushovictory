@@ -1,54 +1,62 @@
 import admin from "firebase-admin";
 import { getDb } from "../firebase.js";
+import { SafeDatabase } from "../firestore-utils/index.js";
+import { executeBatch } from "../firestore-utils/transaction-helpers.js";
 
 export async function createAssignment(data) {
-  const db = getDb();
-  const teacherUsername = data.teacherUsername ? String(data.teacherUsername).toLowerCase().trim() : "";
-  const ref = await db.collection("assignments").add({
-    ...data,
-    teacherUsername,
-    createdAt: admin.firestore.FieldValue.serverTimestamp()
-  });
-  const snap = await ref.get();
-  return { id: snap.id, ...snap.data() };
+  return SafeDatabase.createWithValidation("assignments", data, "assignment", { checkDuplicates: false });
 }
 
 export async function listAssignmentsByTeacher(teacherUsername) {
-  const db = getDb();
   const normalized = teacherUsername ? String(teacherUsername).toLowerCase().trim() : "";
-  const snap = await db.collection("assignments").where("teacherUsername", "==", normalized).get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const { data } = await SafeDatabase.query(
+    "assignments",
+    [["teacherUsername", "==", normalized]],
+    { pageSize: 1000 }
+  );
+  return data;
 }
 
 export async function listAssignmentsByClass(classId) {
-  const db = getDb();
-  const snap = await db.collection("assignments").where("classId", "==", classId).get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const { data } = await SafeDatabase.query(
+    "assignments",
+    [["classId", "==", classId]],
+    { pageSize: 1000 }
+  );
+  return data;
 }
 
 export async function getAssignmentByTriplet({ teacherUsername, classId, subjectId }) {
-  const db = getDb();
   const normalized = teacherUsername ? String(teacherUsername).toLowerCase().trim() : "";
-  const snap = await db
-    .collection("assignments")
-    .where("teacherUsername", "==", normalized)
-    .where("classId", "==", classId)
-    .where("subjectId", "==", subjectId)
-    .get();
-  const doc = snap.docs[0];
-  return doc ? { id: doc.id, ...doc.data() } : null;
+  const { data } = await SafeDatabase.query(
+    "assignments",
+    [
+      ["teacherUsername", "==", normalized],
+      ["classId", "==", classId],
+      ["subjectId", "==", subjectId]
+    ],
+    { pageSize: 1 }
+  );
+  return data.length > 0 ? data[0] : null;
 }
 
 export async function getAssignmentById(assignmentId) {
-  const db = getDb();
-  const snap = await db.collection("assignments").doc(assignmentId).get();
-  return snap.exists ? { id: snap.id, ...snap.data() } : null;
+  try {
+    return await SafeDatabase.getById("assignments", assignmentId);
+  } catch (error) {
+    if (error.statusCode === 404) return null;
+    throw error;
+  }
 }
+
 export async function deleteAssignmentsByTeacher(teacherUsername) {
-  const db = getDb();
   const normalized = teacherUsername ? String(teacherUsername).toLowerCase().trim() : "";
-  const snap = await db.collection("assignments").where("teacherUsername", "==", normalized).get();
-  const batch = db.batch();
-  snap.docs.forEach((doc) => batch.delete(doc.ref));
-  await batch.commit();
+  const assignments = await listAssignmentsByTeacher(teacherUsername);
+  
+  return executeBatch(async (batch) => {
+    for (const assignment of assignments) {
+      const ref = getDb().collection("assignments").doc(assignment.id);
+      batch.delete(ref);
+    }
+  });
 }

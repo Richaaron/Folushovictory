@@ -1,40 +1,27 @@
 import admin from "firebase-admin";
 import { getDb } from "../firebase.js";
+import { SafeDatabase } from "../firestore-utils/index.js";
 
 export async function getUserByUsername(username) {
-  const db = getDb();
-  const normalized = String(username).toLowerCase().trim();
-  const snap = await db.collection("users").doc(normalized).get();
-  return snap.exists ? { id: snap.id, ...snap.data() } : null;
+  try {
+    const normalized = String(username).toLowerCase().trim();
+    return await SafeDatabase.getById("users", normalized);
+  } catch (error) {
+    if (error.statusCode === 404) return null;
+    throw error;
+  }
 }
 
 export async function createUser(user) {
-  const db = getDb();
-  const normalized = String(user.username).toLowerCase().trim();
-  const ref = db.collection("users").doc(normalized);
-  const payload = {
-    ...user,
-    username: normalized,
-    createdAt: admin.firestore.FieldValue.serverTimestamp()
-  };
-  await ref.create(payload);
-  const snap = await ref.get();
-  return { id: snap.id, ...snap.data() };
+  return SafeDatabase.createWithValidation("users", user, "user", { checkDuplicates: true });
 }
 
 export async function updateUser(username, patch) {
-  const db = getDb();
   const normalized = String(username).toLowerCase().trim();
-  const ref = db.collection("users").doc(normalized);
-  await ref.set({ ...patch, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
-  const snap = await ref.get();
-  return snap.exists ? { id: snap.id, ...snap.data() } : null;
+  return SafeDatabase.updateWithValidation("users", normalized, patch, "user");
 }
 
-
 export async function deleteUser(username) {
-  const db = getDb();
   const normalized = String(username).toLowerCase().trim();
-  await db.collection("users").doc(normalized).delete();
-  return true;
+  return SafeDatabase.deleteWithValidation("users", normalized);
 }
