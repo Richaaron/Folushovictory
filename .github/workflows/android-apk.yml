@@ -86,8 +86,8 @@ jobs:
           # Restore keystore after platform recreation
           if [ ! -f android/app/build-keystore.jks ]; then
             echo "Restoring keystore file..."
-            if [ -z "$KEYSTORE_SECRET" ]; then
-              echo "Generating debug keystore..."
+            if [ -z "$KEYSTORE_SECRET" ] || [ "$KEYSTORE_SECRET" = "" ]; then
+              echo "No keystore secret provided; generating debug keystore..."
               keytool -genkey -v -keystore android/app/build-keystore.jks \
                 -keyalg RSA -keysize 2048 -validity 10000 \
                 -alias builditutor \
@@ -95,8 +95,30 @@ jobs:
                 -keypass builditutor \
                 -dname "CN=Build IT, O=Build IT, L=Local, ST=Local, C=US"
             else
-              echo "Decoding keystore from secret..."
-              echo "$KEYSTORE_SECRET" | base64 --decode > android/app/build-keystore.jks
+              echo "Attempting to decode keystore from secret..."
+              if echo "$KEYSTORE_SECRET" | base64 --decode 2>/dev/null > android/app/build-keystore.jks; then
+                if [ -s android/app/build-keystore.jks ]; then
+                  echo "Successfully decoded keystore"
+                else
+                  echo "Decoded keystore is empty; generating debug keystore..."
+                  rm -f android/app/build-keystore.jks
+                  keytool -genkey -v -keystore android/app/build-keystore.jks \
+                    -keyalg RSA -keysize 2048 -validity 10000 \
+                    -alias builditutor \
+                    -storepass builditutor \
+                    -keypass builditutor \
+                    -dname "CN=Build IT, O=Build IT, L=Local, ST=Local, C=US"
+                fi
+              else
+                echo "Base64 decode failed; generating debug keystore..."
+                rm -f android/app/build-keystore.jks
+                keytool -genkey -v -keystore android/app/build-keystore.jks \
+                  -keyalg RSA -keysize 2048 -validity 10000 \
+                  -alias builditutor \
+                  -storepass builditutor \
+                  -keypass builditutor \
+                  -dname "CN=Build IT, O=Build IT, L=Local, ST=Local, C=US"
+              fi
             fi
           fi
           
