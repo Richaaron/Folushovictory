@@ -46,17 +46,16 @@ configRouter.post(
       currentTerm
     } = req.body;
     
-    const updateData = {
-      name: name || "",
-      motto: motto || "",
-      address: address || "",
-      phone: phone || "",
-      email: email || "",
-      website: website || "",
-      principalName: principalName || "",
-      ...(currentSession !== undefined ? { currentSession: String(currentSession) } : {}),
-      ...(currentTerm !== undefined ? { currentTerm: String(currentTerm) } : {})
-    };
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (motto !== undefined) updateData.motto = motto;
+    if (address !== undefined) updateData.address = address;
+    if (phone !== undefined) updateData.phone = phone;
+    if (email !== undefined) updateData.email = email;
+    if (website !== undefined) updateData.website = website;
+    if (principalName !== undefined) updateData.principalName = principalName;
+    if (currentSession !== undefined) updateData.currentSession = currentSession;
+    if (currentTerm !== undefined) updateData.currentTerm = currentTerm;
 
     // Handle logo upload (base64 or data URL)
     const nextLogoUrl = logoUrl || logo;

@@ -16,6 +16,30 @@ const defaultSchoolSettings = {
   currentTerm: "First"
 };
 
+const schoolSettingFields = [
+  "name",
+  "motto",
+  "address",
+  "phone",
+  "email",
+  "website",
+  "principalName",
+  "principalSignatureUrl",
+  "logoUrl",
+  "currentSession",
+  "currentTerm"
+];
+
+function normalizeSchoolSettings(settings = {}) {
+  const normalized = {};
+  for (const field of schoolSettingFields) {
+    if (settings[field] !== undefined && settings[field] !== null) {
+      normalized[field] = String(settings[field]);
+    }
+  }
+  return normalized;
+}
+
 export async function getGradingScale() {
   try {
     return await SafeDatabase.getById("config", "gradingScale");
@@ -61,5 +85,6 @@ export async function getSchoolSettings() {
 }
 
 export async function setSchoolSettings(settings) {
-  return SafeDatabase.upsert("config", "schoolSettings", settings);
+  await SafeDatabase.upsert("config", "schoolSettings", normalizeSchoolSettings(settings));
+  return getSchoolSettings();
 }
