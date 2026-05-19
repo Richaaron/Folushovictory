@@ -195,11 +195,18 @@ const handleResendCredentials = async (teacher: any) => {
 
 const handleDelete = async (username: string) => {
   if (!confirm(`Are you sure you want to delete staff account: ${username}? This action cannot be undone.`)) return
+  
+  loading.value = true
   try {
-    await api.delete(`/api/admin/teachers/${username}`)
+    const { data } = await api.delete(`/api/admin/teachers/${username}`)
     await fetchTeachers()
-  } catch (err) {
+    alert(data.message || `✅ Staff account ${username} deleted successfully.`)
+  } catch (err: any) {
     console.error('Error deleting teacher:', err)
+    const errorMsg = err.response?.data?.error || 'Failed to delete teacher account. Please check your connection and try again.'
+    alert(`❌ Deletion Failed: ${errorMsg}`)
+  } finally {
+    loading.value = false
   }
 }
 

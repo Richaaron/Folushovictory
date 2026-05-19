@@ -341,17 +341,32 @@ adminRouter.delete(
   "/teachers/:username",
   asyncHandler(async (req, res) => {
     const { username } = req.params;
+    console.log(`[Admin] Attempting to delete teacher: ${username}`);
     
-    // 1. Revoke form teacher status from any classes
-    await revokeFormTeacherStatus(username);
-    
-    // 2. Delete all assignments for this teacher
-    await deleteAssignmentsByTeacher(username);
-    
-    // 3. Delete the user record
-    await deleteUser(username);
-    
-    return res.json({ success: true, message: `Staff account ${username} and associated data deleted.` });
+    try {
+      // 1. Revoke form teacher status from any classes
+      console.log(`[Admin] Revoking form teacher status for: ${username}`);
+      await revokeFormTeacherStatus(username);
+      
+      // 2. Delete all assignments for this teacher
+      console.log(`[Admin] Deleting assignments for: ${username}`);
+      await deleteAssignmentsByTeacher(username);
+      
+      // 3. Delete the user record
+      console.log(`[Admin] Deleting user record for: ${username}`);
+      const result = await deleteUser(username);
+      
+      console.log(`[Admin] Successfully processed deletion for: ${username}`);
+      return res.json({ 
+        success: true, 
+        message: result.message || `✅ Staff account ${username} and associated data deleted.` 
+      });
+    } catch (error) {
+      console.error(`[Admin] Deletion failed for ${username}:`, error.message);
+      return res.status(error.statusCode || 500).json({ 
+        error: error.message || "Internal server error during deletion" 
+      });
+    }
   })
 );
 

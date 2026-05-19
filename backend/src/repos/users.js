@@ -50,8 +50,13 @@ export async function updateUser(username, patch) {
 }
 
 export async function deleteUser(username) {
-  const normalized = String(username).toLowerCase().trim();
-  const original = String(username).trim();
+  let cleanUsername = String(username).trim();
+  if (cleanUsername.startsWith("@")) {
+    cleanUsername = cleanUsername.substring(1);
+  }
+  
+  const normalized = cleanUsername.toLowerCase();
+  const original = cleanUsername;
 
   // Try normalized first
   try {
