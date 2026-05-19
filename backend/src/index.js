@@ -61,3 +61,5 @@ app.listen(config.port, () => {
   process.stdout.write(`Backend running on http://localhost:${config.port}\n`);
 });
 
+// Trigger redeployment to clear cached Firebase SDK quota states after plan upgrade
+
