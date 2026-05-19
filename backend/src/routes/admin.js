@@ -340,8 +340,17 @@ adminRouter.delete(
   "/teachers/:username",
   asyncHandler(async (req, res) => {
     const { username } = req.params;
+    
+    // 1. Revoke form teacher status from any classes
+    await revokeFormTeacherStatus(username);
+    
+    // 2. Delete all assignments for this teacher
+    await deleteAssignmentsByTeacher(username);
+    
+    // 3. Delete the user record
     await deleteUser(username);
-    return res.json({ success: true });
+    
+    return res.json({ success: true, message: `Staff account ${username} and associated data deleted.` });
   })
 );
 

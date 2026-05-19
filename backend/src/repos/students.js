@@ -8,9 +8,12 @@ export async function createStudent(student) {
 }
 
 export async function createStudentWithParent({ student, parentUser }) {
+  const normalizedStudentId = String(student.studentId).toLowerCase().trim();
+  const normalizedParentUsername = String(parentUser.username).toLowerCase().trim();
+
   return executeTransaction(async (tx) => {
-    const studentRef = getDb().collection("students").doc(student.studentId);
-    const parentRef = getDb().collection("users").doc(parentUser.username);
+    const studentRef = getDb().collection("students").doc(normalizedStudentId);
+    const parentRef = getDb().collection("users").doc(normalizedParentUsername);
 
     const [studentSnap, parentSnap] = await Promise.all([tx.get(studentRef), tx.get(parentRef)]);
     if (studentSnap.exists) {
@@ -26,10 +29,12 @@ export async function createStudentWithParent({ student, parentUser }) {
 
     tx.create(studentRef, {
       ...student,
+      studentId: normalizedStudentId,
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
     tx.create(parentRef, {
       ...parentUser,
+      username: normalizedParentUsername,
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
   });

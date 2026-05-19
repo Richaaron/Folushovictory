@@ -22,18 +22,18 @@ function pad(num, width) {
 export async function generateTeacherUsername() {
   const year = new Date().getFullYear();
   const n = await nextCounter(`teachers_${year}`);
-  return `TCH-${year}-${pad(n, 3)}`;
+  return `tch-${year}-${pad(n, 3)}`;
 }
 
 export async function generateStudentId(date = new Date()) {
   const year = date.getFullYear();
   const n = await nextCounter(`students_${year}`);
-  return `FVS-${year}-${pad(n, 4)}`;
+  return `fvs-${year}-${pad(n, 4)}`;
 }
 
 export async function generateParentUsername(date = new Date()) {
   const year = date.getFullYear();
   const n = await nextCounter(`parents_${year}`);
-  return `PAR-${year}-${pad(n, 4)}`;
+  return `par-${year}-${pad(n, 4)}`;
 }
 
