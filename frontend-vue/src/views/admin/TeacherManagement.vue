@@ -53,10 +53,10 @@ const fetchTeachers = async () => {
 watch(() => newTeacher.value.formClassId, (newId) => {
   if (!newId || newTeacher.value.department !== 'Primary/Nursery') return
   
-  const selectedClass = classes.value.find(c => c.id === newId)
-  if (selectedClass) {
-    newTeacher.value.assignedSubjectIds = subjects.value.map(s => s.id)
-  }
+  // ONLY assign Primary subjects to Primary teachers
+  newTeacher.value.assignedSubjectIds = subjects.value
+    .filter(s => s.level === 'Primary')
+    .map(s => s.id)
 })
 
 // Reset fields on department change
@@ -93,7 +93,10 @@ watch(() => editingTeacher.value?.secondaryLevel, () => {
 
 watch(() => editingTeacher.value?.formClassId, (newId) => {
   if (!editingTeacher.value || !newId || editingTeacher.value.department !== 'Primary/Nursery') return
-  editingTeacher.value.assignedSubjectIds = subjects.value.map(s => s.id)
+  // ONLY assign Primary subjects to Primary teachers
+  editingTeacher.value.assignedSubjectIds = subjects.value
+    .filter(s => s.level === 'Primary')
+    .map(s => s.id)
 })
 
 const isValidEmailAddress = (value: string) => {
@@ -112,7 +115,8 @@ const handleAddTeacher = async () => {
   try {
     const { data: teacher } = await api.post('/api/admin/teachers', {
       displayName: newTeacher.value.displayName,
-      email: trimmedEmail || null
+      email: trimmedEmail || null,
+      formClassId: newTeacher.value.formClassId || null
     })
     
     const followUpRequests = []
@@ -122,11 +126,17 @@ const handleAddTeacher = async () => {
       }))
     }
 
-    // Subject assignments - backend auto-expands to all classes at subject level
+    // Subject assignments
     if (newTeacher.value.assignedSubjectIds.length > 0) {
+      // For Primary/Nursery Dual Role, restrict to formClassId if selected
+      const classIds = (newTeacher.value.department === 'Primary/Nursery' && newTeacher.value.formClassId)
+        ? [newTeacher.value.formClassId]
+        : []
+
       followUpRequests.push(api.post('/api/admin/assignments', {
         teacherUsername: teacher.username,
-        subjectIds: newTeacher.value.assignedSubjectIds
+        subjectIds: newTeacher.value.assignedSubjectIds,
+        classIds
       }))
     }
 
@@ -308,22 +318,34 @@ const handleUpdateTeacher = async () => {
   creating.value = true // Reuse creating spinner
   try {
     // Atomic Update (Metadata + Form Class + Assignments)
+    // For Primary/Nursery Dual Role, restrict to formClassId if selected
+    const classIds = (editingTeacher.value.department === 'Primary/Nursery' && editingTeacher.value.formClassId)
+      ? [editingTeacher.value.formClassId]
+      : (editingTeacher.value.roleType === 'Form Teacher' ? [editingTeacher.value.formClassId] : [])
+
+    console.log('Update payload:', {
+      displayName: editingTeacher.value.displayName,
+      email: editingTeacher.value.email,
+      formClassId: editingTeacher.value.formClassId || '',
+      classIds,
+      subjectIds: editingTeacher.value.assignedSubjectIds || []
+    })
+
     await api.put(`/api/admin/teachers/${editingTeacher.value.username}`, {
       displayName: editingTeacher.value.displayName,
       email: editingTeacher.value.email,
       formClassId: editingTeacher.value.formClassId || '',
-      classIds: editingTeacher.value.roleType === 'Form Teacher' 
-        ? (editingTeacher.value.formClassId ? [editingTeacher.value.formClassId] : [])
-        : [],
+      classIds,
       subjectIds: editingTeacher.value.assignedSubjectIds || []
     })
     
     showEditModal.value = false
     await fetchTeachers()
-    alert('Faculty profile updated successfully!')
-  } catch (err) {
+    alert('✅ Faculty profile updated successfully!')
+  } catch (err: any) {
     console.error('Error updating teacher:', err)
-    alert('Failed to update teacher profile.')
+    const errorMsg = err.response?.data?.error || 'Failed to update teacher profile. Please try again.'
+    alert(`❌ Update Failed: ${errorMsg}`)
   } finally {
     creating.value = false
   }
