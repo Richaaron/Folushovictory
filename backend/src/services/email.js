@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
-import admin from "firebase-admin";
-import { getDb } from "../firebase.js";
+import { SafeDatabase } from "../firestore-utils/index.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -18,19 +17,17 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async ({ to, subject, html }) => {
-  const db = getDb();
-  const logRef = db.collection("logs").doc();
+  const logId = Math.random().toString(36).substring(2, 15);
   const logData = {
     to,
     subject,
     type: "EMAIL",
-    status: "PENDING",
-    createdAt: admin.firestore.FieldValue.serverTimestamp()
+    status: "PENDING"
   };
 
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     const error = "SMTP is not fully configured. Set SMTP_HOST, SMTP_USER, and SMTP_PASS.";
-    await logRef.set({ ...logData, status: "FAILED", error });
+    await SafeDatabase.upsert("logs", logId, { ...logData, status: "FAILED", error });
     throw new Error(error);
   }
 
@@ -43,11 +40,11 @@ export const sendEmail = async ({ to, subject, html }) => {
       html,
     });
     console.log("Message sent: %s", info.messageId);
-    await logRef.set({ ...logData, status: "SENT", messageId: info.messageId });
+    await SafeDatabase.upsert("logs", logId, { ...logData, status: "SENT", messageId: info.messageId });
     return info;
   } catch (error) {
     console.error("Error sending email:", error);
-    await logRef.set({ ...logData, status: "FAILED", error: error?.message || String(error) });
+    await SafeDatabase.upsert("logs", logId, { ...logData, status: "FAILED", error: error?.message || String(error) });
     throw error;
   }
 };
@@ -66,7 +63,7 @@ export const sendResultReleasedEmail = async ({ parentEmail, parentName, student
           <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login" 
              style="background-color: #D4AF37; color: #000; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
              View Result Now
-          </a>
+             </a>
         </div>
         <p style="font-size: 14px; color: #64748b;">If you have any issues accessing the portal, please contact the school administration.</p>
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0;" />

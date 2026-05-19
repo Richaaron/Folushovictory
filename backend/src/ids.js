@@ -1,18 +1,11 @@
-import { getDb } from "./firebase.js";
+import { SafeDatabase } from "./firestore-utils/index.js";
 
 async function nextCounter(counterId) {
-  const db = getDb();
-  const ref = db.collection("counters").doc(counterId);
-
-  const next = await db.runTransaction(async (tx) => {
-    const snap = await tx.get(ref);
-    const current = snap.exists ? Number(snap.data().value || 0) : 0;
-    const value = current + 1;
-    tx.set(ref, { value }, { merge: true });
-    return value;
-  });
-
-  return next;
+  const exists = await SafeDatabase.exists("counters", counterId);
+  if (!exists) {
+    await SafeDatabase.upsert("counters", counterId, { value: 0 });
+  }
+  return await SafeDatabase.increment("counters", counterId, "value", 1);
 }
 
 function pad(num, width) {

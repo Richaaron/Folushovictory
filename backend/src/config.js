@@ -17,13 +17,13 @@ export const config = {
   smtpPort: Number(process.env.SMTP_PORT || 587),
   smtpSecure: process.env.SMTP_SECURE === "true",
   smtpUser: process.env.SMTP_USER || "",
-  smtpPass: process.env.SMTP_PASS || ""
+  smtpPass: process.env.SMTP_PASS || "",
+  supabaseUrl: process.env.SUPABASE_URL || "",
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 };
 
 export function assertConfig() {
   if (!config.jwtSecret) throw new Error("Missing JWT_SECRET");
-  if (!config.firebaseProjectId) throw new Error("Missing FIREBASE_PROJECT_ID");
-  if (!config.googleCredentialsPath && !config.firebaseServiceAccountJson) {
-    throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS or FIREBASE_SERVICE_ACCOUNT_JSON");
-  }
+  if (!config.supabaseUrl) throw new Error("Missing SUPABASE_URL");
+  if (!config.supabaseServiceRoleKey) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
 }

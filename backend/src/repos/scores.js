@@ -1,5 +1,3 @@
-import admin from "firebase-admin";
-import { getDb } from "../firebase.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
 
 function scoreId({ session, term, classId, studentId, subjectId }) {
@@ -7,8 +5,8 @@ function scoreId({ session, term, classId, studentId, subjectId }) {
 }
 
 export async function upsertNumericScore({ session, term, classId, studentId, subjectId, ca1, ca2, exam, enteredBy }) {
-  const ref = getDb().collection("scores").doc(scoreId({ session, term, classId, studentId, subjectId }));
-  return SafeDatabase.upsert("scores", ref.id, {
+  const customDocId = scoreId({ session, term, classId, studentId, subjectId });
+  return SafeDatabase.upsert("scores", customDocId, {
     session,
     term,
     classId,
@@ -24,8 +22,8 @@ export async function upsertNumericScore({ session, term, classId, studentId, su
 }
 
 export async function upsertTraitScore({ session, term, classId, studentId, subjectId, rating, enteredBy }) {
-  const ref = getDb().collection("scores").doc(scoreId({ session, term, classId, studentId, subjectId }));
-  return SafeDatabase.upsert("scores", ref.id, {
+  const customDocId = scoreId({ session, term, classId, studentId, subjectId });
+  return SafeDatabase.upsert("scores", customDocId, {
     session,
     term,
     classId,
@@ -40,26 +38,25 @@ export async function upsertTraitScore({ session, term, classId, studentId, subj
 export async function listScoresForClass({ session, term, classId }) {
   const { data } = await SafeDatabase.query(
     "scores",
-    [],
+    [
+      ["session", "==", String(session)],
+      ["term", "==", String(term)],
+      ["classId", "==", String(classId)]
+    ],
     { pageSize: 1000 }
   );
-  return data.filter((score) =>
-    String(score.session) === String(session) &&
-    String(score.term) === String(term) &&
-    String(score.classId) === String(classId)
-  );
+  return data;
 }
 
 export async function listScoresForStudent({ session, term, studentId }) {
   const { data } = await SafeDatabase.query(
     "scores",
-    [],
+    [
+      ["session", "==", String(session)],
+      ["term", "==", String(term)],
+      ["studentId", "==", String(studentId)]
+    ],
     { pageSize: 1000 }
   );
-  return data.filter((score) =>
-    String(score.session) === String(session) &&
-    String(score.term) === String(term) &&
-    String(score.studentId) === String(studentId)
-  );
+  return data;
 }
-

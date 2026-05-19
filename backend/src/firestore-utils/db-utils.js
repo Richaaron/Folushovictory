@@ -1,13 +1,20 @@
-import admin from "firebase-admin";
-import { getDb } from "../firebase.js";
+import { getSupabase } from "../supabase.js";
 import { validateBeforeCreate, buildDuplicateCheckRules } from "./db-validation.js";
-import { executeTransaction, executeBatch, atomicUpdate, atomicIncrement } from "./transaction-helpers.js";
-import { withErrorHandling, DatabaseErrorLogger } from "./error-recovery.js";
+import { withErrorHandling } from "./error-recovery.js";
 
 /**
- * Safe database operations with built-in validation, error handling, and retry logic
+ * Maps standard collection names to their respective primary key columns in Postgres
  */
+export function getIdColumnName(collectionName) {
+  if (collectionName === "students") return "studentId";
+  if (collectionName === "users") return "username";
+  if (collectionName === "config" || collectionName === "counters") return "key";
+  return "id";
+}
 
+/**
+ * Safe database operations with built-in validation and Supabase integration
+ */
 export class SafeDatabase {
   /**
    * Create document with validation and duplicate check
@@ -27,13 +34,15 @@ export class SafeDatabase {
         const duplicateFields = buildDuplicateCheckRules(schemaKey);
         for (const field of duplicateFields) {
           if (validated[field]) {
-            const existing = await getDb()
-              .collection(collectionName)
-              .where(field, "==", validated[field])
-              .limit(1)
-              .get();
+            const { data: existing, error } = await getSupabase()
+              .from(collectionName)
+              .select(getIdColumnName(collectionName))
+              .eq(field, validated[field])
+              .limit(1);
 
-            if (!existing.empty) {
+            if (error) throw error;
+
+            if (existing && existing.length > 0) {
               const error = new Error(`${schemaKey} with ${field} "${validated[field]}" already exists`);
               error.statusCode = 409;
               throw error;
@@ -43,20 +52,34 @@ export class SafeDatabase {
       }
 
       // Create document
-      return executeTransaction(async (tx) => {
-        const docId = options.docId || getDb().collection(collectionName).doc().id;
-        const ref = getDb().collection(collectionName).doc(docId);
-        const dataWithTimestamp = {
-          ...validated,
-          createdAt: admin.firestore.FieldValue.serverTimestamp()
-        };
+      const idCol = getIdColumnName(collectionName);
+      const docId = options.docId || validated[idCol] || validated.username || validated.id || Math.random().toString(36).substring(2, 15);
+      
+      const finalData = collectionName === "config" ? {
+        [idCol]: docId,
+        value: validated,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      } : {
+        ...validated,
+        [idCol]: docId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
-        tx.create(ref, dataWithTimestamp);
+      const { data: inserted, error: insertErr } = await getSupabase()
+        .from(collectionName)
+        .insert([finalData])
+        .select()
+        .single();
 
-        // Return created document
-        const snapshot = await ref.get();
-        return { id: snapshot.id, ...snapshot.data() };
-      });
+      if (insertErr) throw insertErr;
+
+      if (collectionName === "config") {
+        return { id: docId, ...inserted.value };
+      }
+
+      return { id: docId, ...inserted };
     }, `create_${schemaKey}`);
   }
 
@@ -71,25 +94,49 @@ export class SafeDatabase {
     options = {}
   ) {
     return withErrorHandling(async () => {
-      const ref = getDb().collection(collectionName).doc(docId);
+      const idCol = getIdColumnName(collectionName);
+      let updateData;
+      
+      if (collectionName === "config") {
+        const existing = await SafeDatabase.getById(collectionName, docId);
+        updateData = {
+          value: {
+            ...existing,
+            ...data
+          },
+          updatedAt: new Date().toISOString()
+        };
+        delete updateData.value.id;
+      } else {
+        updateData = { 
+          ...data,
+          updatedAt: new Date().toISOString()
+        };
+        delete updateData[idCol];
+        delete updateData.id;
+      }
 
-      // Check existence
-      const snapshot = await ref.get();
-      if (!snapshot.exists) {
-        const error = new Error(`${collectionName} document ${docId} not found`);
-        error.statusCode = 404;
+      const { data: updated, error } = await getSupabase()
+        .from(collectionName)
+        .update(updateData)
+        .eq(idCol, docId)
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === "PGRST116") { // PostgREST single row not found
+          const err = new Error(`${collectionName} document ${docId} not found`);
+          err.statusCode = 404;
+          throw err;
+        }
         throw error;
       }
 
-      return atomicUpdate(ref, async () => {
-        const currentData = snapshot.data() || {};
-        const updateData = { ...data };
+      if (collectionName === "config") {
+        return { id: docId, ...updated.value };
+      }
 
-        // Add timestamp
-        updateData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
-
-        return { ...currentData, ...updateData };
-      });
+      return { id: docId, ...updated };
     }, `update_${schemaKey || collectionName}`);
   }
 
@@ -98,18 +145,27 @@ export class SafeDatabase {
    */
   static async getById(collectionName, docId) {
     return withErrorHandling(async () => {
-      const snapshot = await getDb()
-        .collection(collectionName)
-        .doc(docId)
-        .get();
+      const idCol = getIdColumnName(collectionName);
+      const { data, error } = await getSupabase()
+        .from(collectionName)
+        .select("*")
+        .eq(idCol, docId)
+        .single();
 
-      if (!snapshot.exists) {
-        const error = new Error(`${collectionName} document ${docId} not found`);
-        error.statusCode = 404;
+      if (error) {
+        if (error.code === "PGRST116") {
+          const err = new Error(`${collectionName} document ${docId} not found`);
+          err.statusCode = 404;
+          throw err;
+        }
         throw error;
       }
 
-      return { id: snapshot.id, ...snapshot.data() };
+      if (collectionName === "config") {
+        return { id: docId, ...data.value };
+      }
+
+      return { id: docId, ...data };
     }, `get_${collectionName}`);
   }
 
@@ -123,26 +179,45 @@ export class SafeDatabase {
   ) {
     return withErrorHandling(async () => {
       const pageSize = Math.min(options.pageSize || 100, 1000); // Cap at 1000
-      let query = getDb().collection(collectionName);
+      let q = getSupabase().from(collectionName).select("*");
 
       // Apply constraints
       for (const [field, operator, value] of constraints) {
-        query = query.where(field, operator, value);
+        if (operator === "==") {
+          q = q.eq(field, value);
+        } else if (operator === ">") {
+          q = q.gt(field, value);
+        } else if (operator === "<") {
+          q = q.lt(field, value);
+        } else if (operator === ">=") {
+          q = q.gte(field, value);
+        } else if (operator === "<=") {
+          q = q.lte(field, value);
+        } else if (operator === "array-contains") {
+          // In Postgres, use jsonb contains
+          q = q.contains(field, JSON.stringify([value]));
+        } else if (operator === "in") {
+          q = q.in(field, value);
+        }
       }
 
       // Apply ordering
       if (options.orderBy) {
-        query = query.orderBy(options.orderBy, options.orderDirection || "asc");
+        const isAsc = (options.orderDirection || "asc") === "asc";
+        q = q.order(options.orderBy, { ascending: isAsc });
+      } else {
+        const idCol = getIdColumnName(collectionName);
+        q = q.order(idCol, { ascending: true });
       }
 
       // Apply pagination
-      query = query.limit(pageSize);
-      if (options.startAfter) {
-        query = query.startAfter(options.startAfter);
-      }
+      q = q.limit(pageSize);
 
-      const snapshot = await query.get();
-      const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const { data, error } = await q;
+      if (error) throw error;
+
+      const idCol = getIdColumnName(collectionName);
+      const docs = data.map((d) => ({ id: d[idCol], ...d }));
 
       return {
         data: docs,
@@ -162,11 +237,16 @@ export class SafeDatabase {
     options = {}
   ) {
     return withErrorHandling(async () => {
-      const ref = getDb().collection(collectionName).doc(docId);
+      const idCol = getIdColumnName(collectionName);
 
-      // Check existence
-      const snapshot = await ref.get();
-      if (!snapshot.exists) {
+      // Fetch current data for validation
+      const { data: current, error: getErr } = await getSupabase()
+        .from(collectionName)
+        .select("*")
+        .eq(idCol, docId)
+        .single();
+
+      if (getErr || !current) {
         const error = new Error(`${collectionName} document ${docId} not found`);
         error.statusCode = 404;
         throw error;
@@ -174,7 +254,7 @@ export class SafeDatabase {
 
       // Custom validation hook
       if (options.validateBeforeDelete) {
-        const validation = await options.validateBeforeDelete(snapshot.data());
+        const validation = await options.validateBeforeDelete(current);
         if (!validation.allowed) {
           const error = new Error(validation.reason);
           error.statusCode = 400;
@@ -182,28 +262,52 @@ export class SafeDatabase {
         }
       }
 
-      return executeTransaction((tx) => {
-        tx.delete(ref);
-      });
+      // Delete the record
+      const { error: delErr } = await getSupabase()
+        .from(collectionName)
+        .delete()
+        .eq(idCol, docId);
+
+      if (delErr) throw delErr;
+
+      return { success: true };
     }, `delete_${collectionName}`);
   }
 
   /**
-   * Batch operations with safety
+   * Batch operations with safety (Sequential inserts/updates in SQL)
    */
   static async batchWrite(operations, options = {}) {
     return withErrorHandling(async () => {
-      return executeBatch(async (batch) => {
-        for (const op of operations) {
-          if (op.type === "set") {
-            batch.set(op.ref, op.data, op.options);
-          } else if (op.type === "update") {
-            batch.update(op.ref, op.data);
-          } else if (op.type === "delete") {
-            batch.delete(op.ref);
-          }
+      for (const op of operations) {
+        const collectionName = op.collectionName;
+        const idCol = getIdColumnName(collectionName);
+
+        if (op.type === "set" || op.type === "upsert") {
+          const upsertData = {
+            ...op.data,
+            [idCol]: op.docId,
+            updatedAt: new Date().toISOString()
+          };
+          const { error } = await getSupabase()
+            .from(collectionName)
+            .upsert([upsertData]);
+          if (error) throw error;
+        } else if (op.type === "update") {
+          const { error } = await getSupabase()
+            .from(collectionName)
+            .update(op.data)
+            .eq(idCol, op.docId);
+          if (error) throw error;
+        } else if (op.type === "delete") {
+          const { error } = await getSupabase()
+            .from(collectionName)
+            .delete()
+            .eq(idCol, op.docId);
+          if (error) throw error;
         }
-      }, options);
+      }
+      return { success: true };
     }, "batch_write");
   }
 
@@ -217,8 +321,26 @@ export class SafeDatabase {
     delta = 1
   ) {
     return withErrorHandling(async () => {
-      const ref = getDb().collection(collectionName).doc(docId);
-      return atomicIncrement(ref, fieldName, delta);
+      const idCol = getIdColumnName(collectionName);
+      
+      // Atomic increment fetch-and-update
+      const { data: current, error: getErr } = await getSupabase()
+        .from(collectionName)
+        .select(fieldName)
+        .eq(idCol, docId)
+        .single();
+
+      const currentValue = current ? Number(current[fieldName] || 0) : 0;
+      const newValue = currentValue + delta;
+
+      const { error: updateErr } = await getSupabase()
+        .from(collectionName)
+        .update({ [fieldName]: newValue })
+        .eq(idCol, docId);
+
+      if (updateErr) throw updateErr;
+
+      return newValue;
     }, `increment_${collectionName}`);
   }
 
@@ -232,18 +354,25 @@ export class SafeDatabase {
     options = {}
   ) {
     return withErrorHandling(async () => {
-      const ref = getDb().collection(collectionName).doc(docId);
+      const idCol = getIdColumnName(collectionName);
+      
+      const upsertData = collectionName === "config" ? {
+        [idCol]: docId,
+        value: data,
+        updatedAt: new Date().toISOString()
+      } : {
+        ...data,
+        [idCol]: docId,
+        updatedAt: new Date().toISOString()
+      };
 
-      return executeTransaction((tx) => {
-        tx.set(
-          ref,
-          {
-            ...data,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-          },
-          { merge: true }
-        );
-      });
+      const { error } = await getSupabase()
+        .from(collectionName)
+        .upsert([upsertData]);
+
+      if (error) throw error;
+
+      return { id: docId, ...data };
     }, `upsert_${collectionName}`);
   }
 
@@ -252,11 +381,14 @@ export class SafeDatabase {
    */
   static async exists(collectionName, docId) {
     return withErrorHandling(async () => {
-      const snapshot = await getDb()
-        .collection(collectionName)
-        .doc(docId)
-        .get();
-      return snapshot.exists;
+      const idCol = getIdColumnName(collectionName);
+      const { data, error } = await getSupabase()
+        .from(collectionName)
+        .select(idCol)
+        .eq(idCol, docId);
+
+      if (error) throw error;
+      return data && data.length > 0;
     }, `exists_${collectionName}`);
   }
 
@@ -265,14 +397,25 @@ export class SafeDatabase {
    */
   static async count(collectionName, constraints = []) {
     return withErrorHandling(async () => {
-      let query = getDb().collection(collectionName);
+      let q = getSupabase().from(collectionName).select("*", { count: "exact", head: true });
 
       for (const [field, operator, value] of constraints) {
-        query = query.where(field, operator, value);
+        if (operator === "==") {
+          q = q.eq(field, value);
+        } else if (operator === ">") {
+          q = q.gt(field, value);
+        } else if (operator === "<") {
+          q = q.lt(field, value);
+        } else if (operator === ">=") {
+          q = q.gte(field, value);
+        } else if (operator === "<=") {
+          q = q.lte(field, value);
+        }
       }
 
-      const snapshot = await query.count().get();
-      return snapshot.data().count;
+      const { count, error } = await q;
+      if (error) throw error;
+      return count || 0;
     }, `count_${collectionName}`);
   }
 }

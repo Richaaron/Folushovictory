@@ -1,5 +1,3 @@
-import admin from "firebase-admin";
-import { getDb } from "../firebase.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
 
 const defaultSchoolSettings = {
@@ -85,12 +83,6 @@ export async function getSchoolSettings() {
 }
 
 export async function setSchoolSettings(settings) {
-  await getDb().collection("config").doc("schoolSettings").set(
-    {
-      ...normalizeSchoolSettings(settings),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    },
-    { merge: true }
-  );
+  await SafeDatabase.upsert("config", "schoolSettings", normalizeSchoolSettings(settings));
   return getSchoolSettings();
 }

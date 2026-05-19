@@ -1,7 +1,4 @@
-import admin from "firebase-admin";
-import { getDb } from "../firebase.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
-import { executeBatch } from "../firestore-utils/transaction-helpers.js";
 
 export async function createClass(data) {
   return SafeDatabase.createWithValidation("classes", data, "class", { checkDuplicates: true });
@@ -49,16 +46,15 @@ export async function listClassesByFormTeacher(username) {
 }
 
 export async function revokeFormTeacherStatus(username) {
-  const normalized = username ? String(username).toLowerCase().trim() : "";
   const classes = await listClassesByFormTeacher(username);
-  
-  return executeBatch(async (batch) => {
-    for (const classDoc of classes) {
-      const ref = getDb().collection("classes").doc(classDoc.id);
-      batch.update(ref, {
-        formTeacherUsername: null,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-      });
-    }
-  });
+  if (classes.length === 0) return { success: true };
+
+  const operations = classes.map(c => ({
+    type: "update",
+    collectionName: "classes",
+    docId: c.id,
+    data: { formTeacherUsername: null }
+  }));
+
+  return SafeDatabase.batchWrite(operations);
 }

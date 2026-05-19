@@ -1,7 +1,4 @@
-import admin from "firebase-admin";
-import { getDb } from "../firebase.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
-import { executeBatch } from "../firestore-utils/transaction-helpers.js";
 
 export async function createAssignment(data) {
   return SafeDatabase.createWithValidation("assignments", data, "assignment", { checkDuplicates: false });
@@ -64,18 +61,13 @@ export async function deleteAssignmentsByTeacher(teacherUsername) {
   
   if (assignments.length === 0) return { success: true, operationCount: 0 };
 
-  // Firestore batches are limited to 500 operations. 
-  // If a teacher has many assignments, we need to delete them in chunks.
-  const CHUNK_SIZE = 450;
-  for (let i = 0; i < assignments.length; i += CHUNK_SIZE) {
-    const chunk = assignments.slice(i, i + CHUNK_SIZE);
-    await executeBatch(async (batch) => {
-      for (const assignment of chunk) {
-        const ref = getDb().collection("assignments").doc(assignment.id);
-        batch.delete(ref);
-      }
-    });
-  }
+  const operations = assignments.map(a => ({
+    type: "delete",
+    collectionName: "assignments",
+    docId: a.id
+  }));
+
+  await SafeDatabase.batchWrite(operations);
   
   return { success: true, operationCount: assignments.length };
 }

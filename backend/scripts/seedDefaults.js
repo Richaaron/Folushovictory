@@ -1,9 +1,8 @@
 import { assertConfig } from "../src/config.js";
-import { getFirebaseApp, getDb } from "../src/firebase.js";
+import { SafeDatabase } from "../src/firestore-utils/index.js";
 import { getGradingScale, setGradingScale } from "../src/repos/config.js";
 
 assertConfig();
-getFirebaseApp();
 
 const defaultScale = {
   grades: [
@@ -71,8 +70,6 @@ const subjects = [
   { name: "Commerce", level: "SSS", track: "Commercial" }
 ];
 
-const db = getDb();
-
 const scale = await getGradingScale();
 if (!scale || !Array.isArray(scale.grades) || scale.grades.length === 0) {
   await setGradingScale(defaultScale);
@@ -80,10 +77,10 @@ if (!scale || !Array.isArray(scale.grades) || scale.grades.length === 0) {
 }
 
 // Clear and re-seed subjects if they don't have levels, to avoid mixup
-const existingSubjects = await db.collection("subjects").get();
+const { data: existingSubjects } = await SafeDatabase.query("subjects", [], { pageSize: 1000 });
 let needsReseed = false;
-if (existingSubjects.size > 0) {
-  const first = existingSubjects.docs[0].data();
+if (existingSubjects.length > 0) {
+  const first = existingSubjects[0];
   if (!first.level) needsReseed = true;
 } else {
   needsReseed = true;
@@ -91,8 +88,8 @@ if (existingSubjects.size > 0) {
 
 if (needsReseed) {
   process.stdout.write("Updating subjects to include academic levels and tracks...\n");
-  for (const doc of existingSubjects.docs) {
-    await doc.ref.delete();
+  for (const doc of existingSubjects) {
+    await SafeDatabase.deleteWithValidation("subjects", doc.id);
   }
   for (const sub of subjects) {
     const subjectData = { 
@@ -103,7 +100,7 @@ if (needsReseed) {
     if (sub.track) {
       subjectData.track = sub.track;
     }
-    await db.collection("subjects").add(subjectData);
+    await SafeDatabase.createWithValidation("subjects", subjectData, "subject", { checkDuplicates: false });
   }
   process.stdout.write(`Seeded ${subjects.length} leveled subjects with track information\n`);
 } else {
@@ -128,26 +125,25 @@ const defaultClasses = [
   { name: "SSS 3", level: "SSS" }
 ];
 
-const existingClasses = await db.collection("classes").get();
+const { data: existingClasses } = await SafeDatabase.query("classes", [], { pageSize: 1000 });
 process.stdout.write("Synchronizing academic levels for all classes...\n");
-const classMap = new Map(existingClasses.docs.map(d => [d.data().name.toUpperCase(), d]));
+const classMap = new Map(existingClasses.map(d => [d.name.toUpperCase(), d]));
 
 for (const cls of defaultClasses) {
   const existingDoc = classMap.get(cls.name);
   if (existingDoc) {
     // Update level if it's non-standard
-    if (existingDoc.data().level !== cls.level) {
-      await existingDoc.ref.update({ level: cls.level });
+    if (existingDoc.level !== cls.level) {
+      await SafeDatabase.updateWithValidation("classes", existingDoc.id, { level: cls.level }, "class");
       process.stdout.write(`Updated level for ${cls.name} -> ${cls.level}\n`);
     }
   } else {
     // Add missing class
-    await db.collection("classes").add({
+    await SafeDatabase.createWithValidation("classes", {
       ...cls,
       createdAt: new Date().toISOString()
-    });
+    }, "class", { checkDuplicates: false });
     process.stdout.write(`Added missing class: ${cls.name}\n`);
   }
 }
 process.stdout.write("Institutional class structure synchronized.\n");
-

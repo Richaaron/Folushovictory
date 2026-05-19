@@ -1,7 +1,4 @@
-import admin from "firebase-admin";
-import { getDb } from "../firebase.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
-import { executeTransaction } from "../firestore-utils/transaction-helpers.js";
 
 export async function createStudent(student) {
   return SafeDatabase.createWithValidation("students", student, "student", { checkDuplicates: true });
@@ -11,33 +8,30 @@ export async function createStudentWithParent({ student, parentUser }) {
   const normalizedStudentId = String(student.studentId).toLowerCase().trim();
   const normalizedParentUsername = String(parentUser.username).toLowerCase().trim();
 
-  return executeTransaction(async (tx) => {
-    const studentRef = getDb().collection("students").doc(normalizedStudentId);
-    const parentRef = getDb().collection("users").doc(normalizedParentUsername);
+  const existsStudent = await SafeDatabase.exists("students", normalizedStudentId);
+  if (existsStudent) {
+    const error = new Error(`Student with ID ${student.studentId} already exists`);
+    error.statusCode = 409;
+    throw error;
+  }
+  const existsParent = await SafeDatabase.exists("users", normalizedParentUsername);
+  if (existsParent) {
+    const error = new Error(`Parent username ${parentUser.username} already exists`);
+    error.statusCode = 409;
+    throw error;
+  }
 
-    const [studentSnap, parentSnap] = await Promise.all([tx.get(studentRef), tx.get(parentRef)]);
-    if (studentSnap.exists) {
-      const error = new Error(`Student with ID ${student.studentId} already exists`);
-      error.statusCode = 409;
-      throw error;
-    }
-    if (parentSnap.exists) {
-      const error = new Error(`Parent username ${parentUser.username} already exists`);
-      error.statusCode = 409;
-      throw error;
-    }
+  await SafeDatabase.createWithValidation("students", {
+    ...student,
+    studentId: normalizedStudentId
+  }, "student", { checkDuplicates: false, docId: normalizedStudentId });
 
-    tx.create(studentRef, {
-      ...student,
-      studentId: normalizedStudentId,
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
-    });
-    tx.create(parentRef, {
-      ...parentUser,
-      username: normalizedParentUsername,
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
-    });
-  });
+  await SafeDatabase.createWithValidation("users", {
+    ...parentUser,
+    username: normalizedParentUsername
+  }, "user", { checkDuplicates: false, docId: normalizedParentUsername });
+
+  return { success: true };
 }
 
 export async function listStudentsByClass(classId) {

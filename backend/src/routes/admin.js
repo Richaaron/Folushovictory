@@ -68,10 +68,9 @@ adminRouter.get(
   "/dashboard",
   asyncHandler(async (req, res) => {
     const { session, term } = req.query;
-    const db = getDb();
-    const [studentsSnap, teachersSnap, classes, schoolSettings] = await Promise.all([
-      db.collection("students").get(),
-      db.collection("users").where("role", "==", Roles.TEACHER).get(),
+    const [studentsCount, teachersCount, classes, schoolSettings] = await Promise.all([
+      SafeDatabase.count("students", []),
+      SafeDatabase.count("users", [["role", "==", Roles.TEACHER]]),
       listClasses(),
       getSchoolSettings()
     ]);
@@ -86,34 +85,44 @@ adminRouter.get(
     // Calculate "New This Term" (last 30 days for now)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const students = studentsSnap.docs.map(d => d.data());
-    const newThisTerm = students.filter(s => s.createdAt && new Date(s.createdAt) > thirtyDaysAgo).length;
+    const newThisTerm = await SafeDatabase.count("students", [["createdAt", ">=", thirtyDaysAgo.toISOString()]]);
 
     // Calculate "Awaiting Results"
     // Fetch all publishes for current term
-    const pubSnap = await db.collection("publishes")
-      .where("session", "==", String(currentSession))
-      .where("term", "==", String(currentTerm))
-      .get();
-    const publishedClassIds = new Set(pubSnap.docs.map(d => d.data().classId));
+    const { data: pubDocs } = await SafeDatabase.query(
+      "publishes",
+      [
+        ["session", "==", String(currentSession)],
+        ["term", "==", String(currentTerm)]
+      ],
+      { pageSize: 1000 }
+    );
+    const publishedClassIds = new Set(pubDocs.map(d => d.classId));
     
-    const awaitingResults = students.filter(s => !publishedClassIds.has(s.classId)).length;
+    // Sum students of classes that are not published
+    let awaitingResults = 0;
+    await Promise.all(
+      classes.map(async (c) => {
+        if (!publishedClassIds.has(c.id)) {
+          const count = await SafeDatabase.count("students", [["classId", "==", c.id]]);
+          awaitingResults += count;
+        }
+      })
+    );
 
     let resultStatus = [];
     if (session && term) {
-      const statuses = await Promise.all(
-        classes.map(async (c) => {
-          const published = publishedClassIds.has(c.id);
-          return { classId: c.id, className: c.name, published };
-        })
-      );
-      resultStatus = statuses;
+      resultStatus = classes.map((c) => ({
+        classId: c.id,
+        className: c.name,
+        published: publishedClassIds.has(c.id)
+      }));
     }
 
     return res.json({
       counts: {
-        students: studentsSnap.size,
-        teachers: teachersSnap.size,
+        students: studentsCount,
+        teachers: teachersCount,
         classes: classes.length,
         newThisTerm,
         awaitingResults
@@ -401,21 +410,19 @@ adminRouter.delete(
 adminRouter.get(
   "/teachers",
   asyncHandler(async (req, res) => {
-    const db = getDb();
-    const snap = await db.collection("users").where("role", "==", Roles.TEACHER).get();
+    const { data: teachersSnap } = await SafeDatabase.query("users", [["role", "==", Roles.TEACHER]], { pageSize: 1000 });
     
-    const teachers = await Promise.all(snap.docs.map(async (d) => {
-      const u = d.data();
+    const teachers = await Promise.all(teachersSnap.map(async (u) => {
       const username = u.username;
       
       // Fetch assignments
-      const assignSnap = await db.collection("assignments").where("teacherUsername", "==", username).get();
-      const assignedSubjectIds = [...new Set(assignSnap.docs.map(doc => doc.data().subjectId))];
-      const selectedClassIds = [...new Set(assignSnap.docs.map(doc => doc.data().classId))];
+      const { data: assignDocs } = await SafeDatabase.query("assignments", [["teacherUsername", "==", username]], { pageSize: 1000 });
+      const assignedSubjectIds = [...new Set(assignDocs.map(doc => doc.subjectId))];
+      const selectedClassIds = [...new Set(assignDocs.map(doc => doc.classId))];
       
       // Fetch form class
-      const classSnap = await db.collection("classes").where("formTeacherUsername", "==", username).get();
-      const formClassId = classSnap.docs[0]?.id || "";
+      const { data: classDocs } = await SafeDatabase.query("classes", [["formTeacherUsername", "==", username]], { pageSize: 1000 });
+      const formClassId = classDocs[0]?.id || "";
       
       return { 
         username, 
@@ -489,14 +496,17 @@ adminRouter.delete(
   asyncHandler(async (req, res) => {
     const { studentId } = req.params;
     // Find parent user to delete as well
-    const db = getDb();
-    const parentSnap = await db.collection("users")
-      .where("role", "==", Roles.PARENT)
-      .where("studentId", "==", studentId)
-      .get();
+    const { data: parents } = await SafeDatabase.query(
+      "users",
+      [
+        ["role", "==", Roles.PARENT],
+        ["studentId", "==", studentId]
+      ],
+      { pageSize: 10 }
+    );
     
-    for (const doc of parentSnap.docs) {
-      await deleteUser(doc.id);
+    for (const parent of parents) {
+      await deleteUser(parent.username);
     }
 
     await deleteStudent(studentId);
@@ -567,22 +577,9 @@ adminRouter.get(
   "/students",
   asyncHandler(async (req, res) => {
     const { classId } = req.query;
-    const db = getDb();
-    let students = [];
-    try {
-      let q = db.collection("students");
-      if (classId) {
-        q = q.where("classId", "==", String(classId));
-      }
-      const snap = await q.get();
-      students = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    } catch (error) {
-      console.error("Admin student query failed, falling back to full collection filtering:", error?.message || error);
-      const snap = await db.collection("students").get();
-      students = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() }))
-        .filter((student) => !classId || String(student.classId) === String(classId));
-    }
+    const constraints = classId ? [["classId", "==", String(classId)]] : [];
+    const { data: students } = await SafeDatabase.query("students", constraints, { pageSize: 1000 });
+    
     // Sort by studentId (admission number)
     students.sort((a, b) => String(a.studentId || "").localeCompare(String(b.studentId || ""), undefined, { numeric: true }));
     return res.json({ students });
@@ -617,15 +614,12 @@ adminRouter.get(
     // ADMIN: Returns ALL classes regardless of teacher assignment
     // Also include student counts so the admin UI can show accurate numbers
     const classes = await listClasses();
-    const db = getDb();
-    const studentsSnap = await db.collection("students").get();
-    const students = studentsSnap.docs.map(d => d.data());
-    const countMap = {};
-    for (const s of students) {
-      const cid = s.classId || "";
-      countMap[cid] = (countMap[cid] || 0) + 1;
-    }
-    const enriched = classes.map(c => ({ ...c, studentCount: countMap[c.id] || 0 }));
+    const enriched = await Promise.all(
+      classes.map(async (c) => {
+        const studentCount = await SafeDatabase.count("students", [["classId", "==", c.id]]);
+        return { ...c, studentCount };
+      })
+    );
     return res.json({ classes: enriched });
   })
 );
@@ -902,25 +896,16 @@ adminRouter.get(
   "/activity-logs",
   asyncHandler(async (req, res) => {
     const { teacher, limit = 25 } = req.query;
-    const db = getDb();
-    let query = db.collection("activityLogs").orderBy("createdAt", "desc");
-    if (teacher) {
-      query = db.collection("activityLogs").where("actor", "==", String(teacher)).orderBy("createdAt", "desc");
-    }
-    const snap = await query.limit(Math.min(Number(limit), 100)).get();
-    const logs = snap.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        actor: data.actor,
-        role: data.role,
-        action: data.action,
-        details: data.details || {},
-        resourceType: data.resourceType,
-        resourceId: data.resourceId,
-        createdAt: data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toISOString() : null
-      };
-    });
+    const constraints = teacher ? [["actor", "==", String(teacher)]] : [];
+    const { data: logs } = await SafeDatabase.query(
+      "activityLogs",
+      constraints,
+      { 
+        pageSize: Math.min(Number(limit), 100), 
+        orderBy: "createdAt", 
+        orderDirection: "desc" 
+      }
+    );
     return res.json({ logs });
   })
 );

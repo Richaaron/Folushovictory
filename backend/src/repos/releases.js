@@ -1,5 +1,3 @@
-import admin from "firebase-admin";
-import { getDb } from "../firebase.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
 
 function releaseId({ session, term, studentId }) {
@@ -32,7 +30,6 @@ export async function getReleaseStatus({ session, term, studentId }) {
 export async function listReleasesForClass({ session, term, studentIds }) {
   if (!studentIds || studentIds.length === 0) return [];
   
-  const db = getDb();
   const { data: releases } = await SafeDatabase.query(
     "releases",
     [
