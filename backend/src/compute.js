@@ -50,7 +50,13 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
       if (!isSSS) return true;
       
       const subTrack = String(sub.track || "").toUpperCase();
-      if (!subTrack || subTrack === "GENERAL") return true;
+      if (!subTrack || subTrack === "GENERAL") {
+        const coreNames = ['MATHEMATICS', 'ENGLISH LANGUAGE', 'MARKETING', 'CITIZENSHIP AND HERITAGE STUDIES', 'ECONOMICS', 'BIOLOGY'];
+        if (coreNames.includes(String(sub.name).toUpperCase())) return true;
+        
+        const selectedIds = Array.isArray(st.subjectIds) ? st.subjectIds : [];
+        return selectedIds.includes(sub.id);
+      }
       
       if (studentStream === "SCIENCE") {
         return subTrack === "SCIENCE" || ["CHEMISTRY", "PHYSICS"].includes(String(sub.name).toUpperCase());

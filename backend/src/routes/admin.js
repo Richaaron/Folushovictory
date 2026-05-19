@@ -456,6 +456,7 @@ adminRouter.post(
         parentName: payload.parentName,
         parentEmail: payload.parentEmail,
         stream: payload.stream,
+        subjectIds: payload.subjectIds || [],
         createdBy: req.user.username
       },
       parentUser: {

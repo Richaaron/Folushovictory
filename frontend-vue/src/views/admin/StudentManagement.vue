@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { 
   Search, 
   UserPlus, 
@@ -72,6 +72,24 @@ const fetchStudents = async () => {
   }
 }
 
+const allSubjects = ref<any[]>([])
+
+const fetchSubjects = async () => {
+  try {
+    const { data } = await api.get('/api/admin/subjects')
+    allSubjects.value = data.subjects || []
+  } catch (err) {
+    console.error('Error fetching subjects:', err)
+  }
+}
+
+const optionalSubjects = computed(() => {
+  return allSubjects.value.filter((s: any) => 
+    s.level === 'SSS' && 
+    !['Mathematics', 'English Language', 'Marketing', 'Citizenship and Heritage studies', 'Economics', 'Biology', 'Chemistry', 'Physics', 'Government', 'Literature in English', 'Financial Accounting', 'Commerce'].includes(s.name)
+  )
+})
+
 const newStudent = ref({
   firstName: '',
   lastName: '',
@@ -79,7 +97,8 @@ const newStudent = ref({
   parentName: '',
   parentEmail: '',
   classId: '',
-  stream: ''
+  stream: '',
+  subjectIds: [] as string[]
 })
 
 const handleAddStudent = async () => {
@@ -93,7 +112,8 @@ const handleAddStudent = async () => {
       parentName: '',
       parentEmail: '',
       classId: '',
-      stream: ''
+      stream: '',
+      subjectIds: []
     }
     await fetchStudents()
     await fetchStats()
@@ -114,7 +134,10 @@ const handleDelete = async (id: string) => {
 }
 
 const openEditModal = (student: any) => {
-  editingStudent.value = { ...student }
+  editingStudent.value = { 
+    ...student,
+    subjectIds: Array.isArray(student.subjectIds) ? [...student.subjectIds] : []
+  }
   showEditModal.value = true
 }
 
@@ -145,6 +168,7 @@ onMounted(async () => {
   await fetchClasses()
   await fetchStudents()
   await fetchStats()
+  await fetchSubjects()
 })
 </script>
 
@@ -337,6 +361,17 @@ onMounted(async () => {
               </select>
             </div>
 
+            <!-- Optional Subjects Checkboxes for New Student -->
+            <div v-if="newStudent.classId && classes.find(c => c.id === newStudent.classId)?.name?.includes('SSS') && optionalSubjects.length" class="space-y-2">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Optional Subjects (Extra)</label>
+              <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800 p-4 rounded-xl sm:rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                <label v-for="sub in optionalSubjects" :key="sub.id" class="flex items-center gap-2 cursor-pointer p-1">
+                  <input type="checkbox" :value="sub.id" v-model="newStudent.subjectIds" class="rounded text-royal-purple focus:ring-royal-purple h-4 w-4 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700" />
+                  <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ sub.name }}</span>
+                </label>
+              </div>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-2">
                 <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
@@ -402,6 +437,17 @@ onMounted(async () => {
                 <option value="Art">Art</option>
                 <option value="Commercial">Commercial</option>
               </select>
+            </div>
+
+            <!-- Optional Subjects Checkboxes for Editing Student -->
+            <div v-if="editingStudent.classId && classes.find(c => c.id === editingStudent.classId)?.name?.includes('SSS') && optionalSubjects.length" class="space-y-2">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Optional Subjects (Extra)</label>
+              <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800 p-4 rounded-xl sm:rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                <label v-for="sub in optionalSubjects" :key="sub.id" class="flex items-center gap-2 cursor-pointer p-1">
+                  <input type="checkbox" :value="sub.id" v-model="editingStudent.subjectIds" class="rounded text-royal-purple focus:ring-royal-purple h-4 w-4 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700" />
+                  <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ sub.name }}</span>
+                </label>
+              </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">

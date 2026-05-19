@@ -61,6 +61,7 @@ export function validateStudentPayload(body) {
   const gender = optionalString(body.gender) || "";
   const stream = optionalString(body.stream) || "";
   const parentEmail = validateEmail(body.parentEmail, false);
+  const subjectIds = Array.isArray(body.subjectIds) ? body.subjectIds.map(id => String(id).trim()).filter(Boolean) : [];
 
   return {
     firstName,
@@ -69,7 +70,8 @@ export function validateStudentPayload(body) {
     parentName,
     gender,
     stream,
-    parentEmail
+    parentEmail,
+    subjectIds
   };
 }
 
@@ -82,6 +84,7 @@ export function validateStudentUpdatePayload(body) {
   if (body.gender !== undefined) patch.gender = optionalString(body.gender) || "";
   if (body.stream !== undefined) patch.stream = optionalString(body.stream) || "";
   if (body.parentEmail !== undefined) patch.parentEmail = validateEmail(body.parentEmail, false);
+  if (body.subjectIds !== undefined) patch.subjectIds = Array.isArray(body.subjectIds) ? body.subjectIds.map(id => String(id).trim()).filter(Boolean) : [];
   if (Object.keys(patch).length === 0) {
     throw new ValidationError("No updatable student fields provided");
   }

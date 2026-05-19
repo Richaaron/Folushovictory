@@ -90,15 +90,22 @@ const fetchData = async () => {
         automatedSubjectNames.includes(s.name)
       )
       
+      // Get student's selected optional subjects
+      const studentSubjectIds = props.student?.subjectIds || []
+      const studentSubjects = allSubjects.filter((s: any) => 
+        studentSubjectIds.includes(s.id)
+      )
+      
       // Get manually assigned subjects
       const manualSubjectIds = cls.subjectIds || []
       const manualSubjects = allSubjects.filter((s: any) => 
         manualSubjectIds.includes(s.id)
       )
       
-      // Combine both, avoiding duplicates
+      // Combine all, avoiding duplicates
       const subjectMap = new Map()
       automatedSubjects.forEach((s: any) => subjectMap.set(s.id, s))
+      studentSubjects.forEach((s: any) => subjectMap.set(s.id, s))
       manualSubjects.forEach((s: any) => subjectMap.set(s.id, s))
       
       filteredSubjects = Array.from(subjectMap.values())
