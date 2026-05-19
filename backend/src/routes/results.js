@@ -149,31 +149,47 @@ async function optionalResult(label, loader, fallback = null) {
 
 async function buildStudentReport({ student, cls, session, term }) {
   const [subjects, scale, remarks, meta, publish, school, release] = await Promise.all([
-    subjectsForClass(cls),
-    getGradingScale(),
-    getRemarks({ session, term, studentId: student.studentId }),
-    getTermMeta({ session, term }),
-    getPublish({ classId: student.classId, session, term }),
-    getSchoolSettings(),
-    getReleaseStatus({ session, term, studentId: student.studentId })
+    optionalResult(`Report subjects load for ${student.studentId}`, () => subjectsForClass(cls), []),
+    optionalResult(`Report grading scale load for ${student.studentId}`, () => getGradingScale(), null),
+    optionalResult(`Report remarks load for ${student.studentId}`, () => getRemarks({ session, term, studentId: student.studentId }), null),
+    optionalResult(`Report term metadata load for ${student.studentId}`, () => getTermMeta({ session, term }), null),
+    optionalResult(`Report publish status load for ${student.studentId}`, () => getPublish({ classId: student.classId, session, term }), null),
+    optionalResult(`Report school settings load for ${student.studentId}`, () => getSchoolSettings(), {}),
+    optionalResult(`Report release status load for ${student.studentId}`, () => getReleaseStatus({ session, term, studentId: student.studentId }), { released: false })
   ]);
 
   let formTeacher = null;
   if (cls.formTeacherUsername) {
-    formTeacher = await getUserByUsername(cls.formTeacherUsername);
+    formTeacher = await optionalResult(
+      `Form teacher lookup for ${cls.formTeacherUsername}`,
+      () => getUserByUsername(cls.formTeacherUsername),
+      null
+    );
   }
 
   let row;
   let cumulative = null;
 
   if (String(cls.assessmentType).toUpperCase() === "TRAIT") {
-    const scores = await listScoresForStudent({ session, term, studentId: student.studentId });
+    const scores = await optionalResult(
+      `Trait scores load for ${student.studentId}`,
+      () => listScoresForStudent({ session, term, studentId: student.studentId }),
+      []
+    );
     const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
     row = traitSheet({ students: [student], subjects, scoresByKey }).students[0];
   } else {
-    const scores = await listScoresForClass({ session, term, classId: student.classId });
+    const scores = await optionalResult(
+      `Numeric scores load for ${student.studentId}`,
+      () => listScoresForClass({ session, term, classId: student.classId }),
+      []
+    );
     const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-    const studentsInClass = await listStudentsByClass(student.classId);
+    const studentsInClass = await optionalResult(
+      `Class students load for report ${student.studentId}`,
+      () => listStudentsByClass(student.classId),
+      [student]
+    );
     const sheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey, scale, level: cls.level });
     row = sheet.students.find((s) => s.studentId === student.studentId);
 
@@ -186,7 +202,11 @@ async function buildStudentReport({ student, cls, session, term }) {
     if (term === "2nd" || term === "3rd") {
       const termsToFetch = term === "2nd" ? ["1st"] : ["1st", "2nd"];
       const prevResults = await Promise.all(termsToFetch.map(async (previousTerm) => {
-        const pScores = await listScoresForClass({ session, term: previousTerm, classId: student.classId });
+        const pScores = await optionalResult(
+          `Previous term ${previousTerm} scores load for ${student.studentId}`,
+          () => listScoresForClass({ session, term: previousTerm, classId: student.classId }),
+          []
+        );
         const pScoresByKey = new Map(pScores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
         const pSheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey: pScoresByKey, scale, level: cls.level });
         return { term: previousTerm, result: pSheet.students.find((s) => s.studentId === student.studentId) };
@@ -308,23 +328,48 @@ resultsRouter.post(
     if (!(await canAccessClassReports(req, cls))) return res.status(403).json({ error: "Forbidden" });
 
     const selectedIds = [...new Set(studentIds.map((id) => String(id).trim()).filter(Boolean))];
-    const studentsInClass = await listStudentsByClass(classId);
+    const studentsInClass = await optionalResult(
+      "Bulk reports class students load",
+      () => listStudentsByClass(classId),
+      []
+    );
     const selectedStudents = studentsInClass.filter((student) => selectedIds.includes(student.studentId));
 
-    const reports = await Promise.all(
-      selectedStudents.map((student) => buildStudentReport({
-        student,
-        cls,
-        session: String(session),
-        term: String(term)
-      }))
+    const reportResults = await Promise.all(
+      selectedStudents.map(async (student) => {
+        try {
+          return {
+            ok: true,
+            report: await buildStudentReport({
+              student,
+              cls,
+              session: String(session),
+              term: String(term)
+            })
+          };
+        } catch (error) {
+          console.error(`Bulk report failed for ${student.studentId}:`, error?.message || error);
+          return {
+            ok: false,
+            error: {
+              studentId: student.studentId,
+              studentName: `${student.lastName || ""} ${student.firstName || ""}`.trim(),
+              error: error?.message || "Failed to build report"
+            }
+          };
+        }
+      })
     );
+
+    const reports = reportResults.filter((item) => item.ok).map((item) => item.report);
+    const failed = reportResults.filter((item) => !item.ok).map((item) => item.error);
 
     return res.json({
       class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
       session: String(session),
       term: String(term),
       reports,
+      failed,
       feesCleared: reports.filter((report) => !report.feeStatus?.owesFees),
       feesOwing: reports.filter((report) => report.feeStatus?.owesFees)
     });
