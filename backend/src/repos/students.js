@@ -39,9 +39,15 @@ export async function listStudentsByClass(classId) {
   const { data } = await SafeDatabase.query(
     "students",
     [["classId", "==", classId]],
-    { pageSize: 1000, orderBy: "lastName", orderDirection: "asc" }
+    { pageSize: 1000 }
   );
-  return data;
+  return data.sort((a, b) => {
+    const last = String(a.lastName || "").localeCompare(String(b.lastName || ""), undefined, { sensitivity: "base" });
+    if (last !== 0) return last;
+    const first = String(a.firstName || "").localeCompare(String(b.firstName || ""), undefined, { sensitivity: "base" });
+    if (first !== 0) return first;
+    return String(a.studentId || "").localeCompare(String(b.studentId || ""), undefined, { numeric: true });
+  });
 }
 
 export async function getStudentById(studentId) {

@@ -18,21 +18,36 @@ const newClass = ref({ name: '', level: 'JSS', track: '' })
 const showStudentsModal = ref(false)
 const studentsInClass = ref<any[]>([])
 const currentClass = ref<any>(null)
+const studentsLoading = ref(false)
+const studentsError = ref('')
 
 const fetchStudentsForClass = async (classId: string) => {
+  studentsLoading.value = true
+  studentsError.value = ''
   try {
     const { data } = await api.get(`/api/admin/classes/${classId}/students`)
     studentsInClass.value = data.students || []
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error fetching class students:', err)
-    studentsInClass.value = []
+    try {
+      const { data } = await api.get('/api/admin/students', {
+        params: { classId }
+      })
+      studentsInClass.value = data.students || []
+    } catch (fallbackErr: any) {
+      console.error('Error fetching class students with fallback:', fallbackErr)
+      studentsError.value = fallbackErr.response?.data?.error || err.response?.data?.error || 'Failed to load students for this class.'
+      studentsInClass.value = []
+    }
+  } finally {
+    studentsLoading.value = false
   }
 }
 
 const openStudents = async (cls: any) => {
   currentClass.value = cls
-  await fetchStudentsForClass(cls.id)
   showStudentsModal.value = true
+  await fetchStudentsForClass(cls.id)
 }
 
 const fetchClasses = async () => {
@@ -194,7 +209,11 @@ onMounted(fetchClasses)
             <h3 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Students — <span class="text-royal-purple">{{ currentClass?.name }}</span></h3>
             <button @click="showStudentsModal = false" class="text-slate-500 hover:text-slate-900">Close</button>
           </div>
-          <div v-if="studentsInClass.length === 0" class="py-10 text-center text-slate-500">No students found for this class.</div>
+          <div v-if="studentsLoading" class="py-10 flex justify-center">
+            <Loader2 class="w-8 h-8 text-royal-purple animate-spin" />
+          </div>
+          <div v-else-if="studentsError" class="py-10 text-center text-red-500 font-bold">{{ studentsError }}</div>
+          <div v-else-if="studentsInClass.length === 0" class="py-10 text-center text-slate-500">No students found for this class.</div>
           <ul v-else class="space-y-3">
             <li v-for="s in studentsInClass" :key="s.studentId" class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
               <div>
