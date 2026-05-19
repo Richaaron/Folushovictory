@@ -38,9 +38,15 @@ const fetchData = async () => {
       api.get('/api/config/school')
     ])
     
+    // Enrich assignments with level-specific flags
+    const enrichedAssignments = (assignResp.data.assignments || []).map((a: any) => ({
+      ...a,
+      isPrimary: (a.level || '').toLowerCase().includes('primary') || (a.className || '').toLowerCase().includes('primary')
+    }))
+
     // Deduplicate assignments by classId and subjectId
     const uniqueAssignments = new Map()
-    for (const a of (assignResp.data.assignments || [])) {
+    for (const a of enrichedAssignments) {
       const key = `${a.classId}-${a.subjectId}`
       if (!uniqueAssignments.has(key)) {
         uniqueAssignments.set(key, a)
@@ -126,8 +132,11 @@ onMounted(fetchData)
                 </div>
               </div>
               
-              <h4 class="text-2xl font-black text-slate-900 dark:text-white">{{ item.subjectName }}</h4>
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{{ item.className }}</p>
+              <h4 class="text-xl font-black text-slate-900 dark:text-white line-clamp-1">{{ item.subjectName }}</h4>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                {{ item.className }} 
+                <span v-if="item.isPrimary" class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-md text-[8px]">Primary</span>
+              </p>
               
               <button 
                 @click="router.push({ 
@@ -137,7 +146,8 @@ onMounted(fetchData)
                     classId: item.classId, 
                     subjectId: item.subjectId,
                     className: item.className,
-                    subjectName: item.subjectName
+                    subjectName: item.subjectName,
+                    isPrimary: item.isPrimary ? 'true' : 'false'
                   }
                 })"
                 class="mt-8 w-full py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white group-hover:bg-royal-purple group-hover:text-white transition-all flex items-center justify-center gap-2"

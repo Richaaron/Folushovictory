@@ -17,6 +17,7 @@ const classId = route.query.classId as string
 const subjectId = route.query.subjectId as string
 const subjectName = route.query.subjectName as string
 const className = route.query.className as string
+const isPrimary = route.query.isPrimary === 'true'
 
 const students = ref<any[]>([])
 const loading = ref(true)
@@ -189,9 +190,9 @@ onMounted(fetchStudents)
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800/50">
               <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student Name</th>
-              <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">1st CA (20)</th>
-              <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">2nd CA (20)</th>
-              <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">Exam (60)</th>
+              <th v-if="!isPrimary" class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">1st CA (20)</th>
+              <th v-if="!isPrimary" class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">2nd CA (20)</th>
+              <th :class="isPrimary ? 'w-64' : 'w-32'" class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center">{{ isPrimary ? 'Assessment (100)' : 'Exam (60)' }}</th>
               <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24 bg-slate-100/50 dark:bg-slate-700/50">Total</th>
               <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24">Pos.</th>
             </tr>
@@ -202,7 +203,7 @@ onMounted(fetchStudents)
                 <p class="text-sm font-black text-slate-900 dark:text-white">{{ st.lastName }} {{ st.firstName }}</p>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
               </td>
-              <td class="px-4 py-6">
+              <td v-if="!isPrimary" class="px-4 py-6">
                 <input 
                   v-model="st.ca1" 
                   type="number" 
@@ -211,7 +212,7 @@ onMounted(fetchStudents)
                   placeholder="0"
                 />
               </td>
-              <td class="px-4 py-6">
+              <td v-if="!isPrimary" class="px-4 py-6">
                 <input 
                   v-model="st.ca2" 
                   type="number" 
@@ -224,9 +225,9 @@ onMounted(fetchStudents)
                 <input 
                   v-model="st.exam" 
                   type="number" 
-                  max="60"
+                  :max="isPrimary ? 100 : 60"
                   class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
-                  placeholder="0"
+                  :placeholder="isPrimary ? 'Score / 100' : '0'"
                 />
               </td>
               <td class="px-4 py-6 text-center bg-slate-50/30 dark:bg-slate-800/30">
