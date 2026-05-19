@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { assertConfig } from "../src/config.js";
 import { getFirebaseApp, getDb } from "../src/firebase.js";
 
@@ -36,12 +39,16 @@ const correctSubjects = [
   { name: "Fine Arts", level: "JSS" },
   { name: "Home Economics", level: "JSS" },
   { name: "Digital Technology", level: "JSS" },
-  { name: "Religious Studies", level: "JSS" },
+  { name: "IRS JSS", level: "JSS" },
+  { name: "CRS JSS", level: "JSS" },
 
   // SENIOR SECONDARY - General Subjects (all tracks)
   { name: "Mathematics", level: "SSS", track: "General" },
   { name: "English Language", level: "SSS", track: "General" },
   { name: "Biology", level: "SSS", track: "General" },
+  { name: "Economics", level: "SSS", track: "General" },
+  { name: "IRS SSS", level: "SSS", track: "General" },
+  { name: "CRS SSS", level: "SSS", track: "General" },
   { name: "Marketing", level: "SSS", track: "General" },
   { name: "Citizenship and Heritage studies", level: "SSS", track: "General" },
   { name: "Geography", level: "SSS", track: "General" },

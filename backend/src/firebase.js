@@ -9,13 +9,25 @@ export function getFirebaseApp() {
   let cert;
   if (config.firebaseServiceAccountJson) {
     try {
-      const parsed = JSON.parse(config.firebaseServiceAccountJson);
+      // Remove surrounding quotes if present
+      let jsonStr = config.firebaseServiceAccountJson.trim();
+      
+      // Handle potential double quoting from .env files
+      if (jsonStr.startsWith("'") && jsonStr.endsWith("'")) {
+        jsonStr = jsonStr.slice(1, -1);
+      }
+      if (jsonStr.startsWith('"') && jsonStr.endsWith('"')) {
+        jsonStr = jsonStr.slice(1, -1);
+      }
+      
+      const parsed = JSON.parse(jsonStr);
       cert = {
         ...parsed,
-        private_key: parsed.private_key.replace(/\\n/g, "\n")
+        private_key: parsed.private_key ? parsed.private_key.replace(/\\n/g, "\n") : undefined
       };
     } catch (e) {
-      console.error("FIREBASE_SERVICE_ACCOUNT_JSON parse error, falling back to file...");
+      console.error("FIREBASE_SERVICE_ACCOUNT_JSON parse error:", e.message);
+      console.error("Value was:", config.firebaseServiceAccountJson.substring(0, 50) + "...");
     }
   }
 
