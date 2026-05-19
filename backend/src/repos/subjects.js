@@ -24,3 +24,12 @@ export async function getSubjectById(subjectId) {
   }
 }
 
+export async function getSubjectByName(name) {
+  const { data } = await SafeDatabase.query(
+    "subjects",
+    [["name", "==", name]],
+    { pageSize: 1 }
+  );
+  return data.length > 0 ? data[0] : null;
+}
+

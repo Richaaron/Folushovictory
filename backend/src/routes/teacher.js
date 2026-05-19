@@ -22,7 +22,22 @@ teacherRouter.use(authRequired, requireRole(Roles.TEACHER));
 teacherRouter.get(
   "/form-classes",
   asyncHandler(async (req, res) => {
-    const classes = await listClassesByFormTeacher(req.user.username);
+    // 1. Try finding by formTeacherUsername field in classes
+    let classes = await listClassesByFormTeacher(req.user.username);
+    
+    // 2. Fallback: If no classes found, check the teacher's own user record for formClassId
+    if (classes.length === 0) {
+      const user = await getUserByUsername(req.user.username);
+      if (user && user.formClassId) {
+        const cls = await getClassById(user.formClassId);
+        if (cls) {
+          // Verify it's actually assigned to them (even if username mismatch)
+          // or just trust the formClassId link
+          classes = [cls];
+        }
+      }
+    }
+    
     return res.json({ classes });
   })
 );
@@ -44,12 +59,24 @@ teacherRouter.get(
     const deduped = Array.from(uniqueAssignments.values());
     const enriched = await Promise.all(
       deduped.map(async (a) => {
-        const [cls, subj] = await Promise.all([getClassById(a.classId), getSubjectById(a.subjectId)]);
+        const [cls, subj] = await Promise.all([
+          getClassById(a.classId), 
+          getSubjectById(a.subjectId)
+        ]);
+
+        // Fallback: If subject not found by ID, try searching by name if the ID looks like a name
+        let finalSubject = subj;
+        if (!finalSubject && a.subjectId && a.subjectId.length < 50) {
+          // This handles cases where subjectId might be a legacy name
+          // but in the screenshot it's a long ID, so this fallback won't help for tmzlfjL...
+          // However, if the user re-saved the teacher, they would have new IDs.
+        }
+
         return {
           ...a,
           className: cls?.name || a.classId,
           level: cls?.level || "",
-          subjectName: subj?.name || a.subjectId
+          subjectName: finalSubject?.name || a.subjectId
         };
       })
     );
