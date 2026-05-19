@@ -85,6 +85,12 @@ export async function getSchoolSettings() {
 }
 
 export async function setSchoolSettings(settings) {
-  await SafeDatabase.upsert("config", "schoolSettings", normalizeSchoolSettings(settings));
+  await getDb().collection("config").doc("schoolSettings").set(
+    {
+      ...normalizeSchoolSettings(settings),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    },
+    { merge: true }
+  );
   return getSchoolSettings();
 }
