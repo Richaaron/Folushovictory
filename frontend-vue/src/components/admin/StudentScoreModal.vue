@@ -72,13 +72,15 @@ const fetchData = async () => {
       const trackSubjectNames = {
         'Science': ['Chemistry', 'Physics'],
         'Art': ['Government', 'Literature in English'],
-        'Commercial': ['Accounting', 'Commercial']
+        'Commercial': ['Accounting', 'Financial Accounting', 'Commerce', 'Commercial']
       }
+      
+      const studentStream = props.student?.stream || cls.track
       
       // Get automatically added track subjects
       const trackSubjects = allSubjects.filter((s: any) => 
         s.level === 'SSS' && 
-        trackSubjectNames[cls.track as keyof typeof trackSubjectNames]?.includes(s.name)
+        trackSubjectNames[studentStream as keyof typeof trackSubjectNames]?.includes(s.name)
       )
       
       // Get manually assigned subjects

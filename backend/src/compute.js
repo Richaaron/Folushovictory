@@ -44,7 +44,29 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
 
   // Step 1: Compute basic rows with totals and averages
   const rows = students.map((st) => {
-    const perSubject = subjectIds.map((subjectId) => {
+    // For SSS, filter subjects based on the student's stream
+    const studentStream = String(st.stream || "").toUpperCase();
+    const studentSubjects = subjects.filter((sub) => {
+      if (!isSSS) return true;
+      
+      const subTrack = String(sub.track || "").toUpperCase();
+      if (!subTrack || subTrack === "GENERAL") return true;
+      
+      if (studentStream === "SCIENCE") {
+        return subTrack === "SCIENCE" || ["CHEMISTRY", "PHYSICS"].includes(String(sub.name).toUpperCase());
+      }
+      if (studentStream === "ART") {
+        return subTrack === "ART" || ["GOVERNMENT", "LITERATURE IN ENGLISH"].includes(String(sub.name).toUpperCase());
+      }
+      if (studentStream === "COMMERCIAL") {
+        return subTrack === "COMMERCIAL" || ["ACCOUNTING", "FINANCIAL ACCOUNTING", "COMMERCE", "COMMERCIAL"].includes(String(sub.name).toUpperCase());
+      }
+      
+      return false;
+    });
+
+    const perSubject = studentSubjects.map((sub) => {
+      const subjectId = sub.id;
       const key = `${st.id}_${subjectId}`;
       const sc = scoresByKey.get(key);
       const ca1 = Number(sc?.ca1 || 0);
@@ -66,7 +88,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
 
       return {
         subjectId,
-        subjectName: subjects.find((s) => s.id === subjectId)?.name || subjectId,
+        subjectName: sub.name,
         ca1,
         ca2,
         ca,
@@ -77,7 +99,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
       };
     });
     const sum = perSubject.reduce((acc, p) => acc + p.total, 0);
-    const average = subjectIds.length ? Number((sum / subjectIds.length).toFixed(2)) : 0;
+    const average = studentSubjects.length ? Number((sum / studentSubjects.length).toFixed(2)) : 0;
     
     const scores = {};
     perSubject.forEach(ps => {

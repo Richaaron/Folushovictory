@@ -30,7 +30,7 @@ async function subjectsForClass(cls) {
         return null;
       }
     }));
-    return subs.filter(Boolean).map((s) => ({ id: s.id, name: s.name }));
+    return subs.filter(Boolean).map((s) => ({ id: s.id, name: s.name, track: s.track || null, level: s.level || null }));
   }
 
   let all = [];
@@ -48,7 +48,7 @@ async function subjectsForClass(cls) {
     filtered = filtered.filter((s) => s.track === "General" || s.track === cls.track);
   }
 
-  return filtered.map((s) => ({ id: s.id, name: s.name }));
+  return filtered.map((s) => ({ id: s.id, name: s.name, track: s.track || null, level: s.level || null }));
 }
 
 function generatedPerformanceRemarks(result) {
