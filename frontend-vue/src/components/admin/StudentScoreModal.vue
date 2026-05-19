@@ -68,7 +68,11 @@ const fetchData = async () => {
     let filteredSubjects: any[] = []
     
     if (cls.level === 'SSS') {
-      // For SSS: combine track-specific subjects with manually assigned subjects
+      // For SSS: combine track-specific subjects and core general subjects, with manually assigned subjects
+      const coreGeneralSubjects = [
+        'Mathematics', 'English Language', 'Marketing', 
+        'Citizenship and Heritage studies', 'Economics', 'Biology'
+      ]
       const trackSubjectNames = {
         'Science': ['Chemistry', 'Physics'],
         'Art': ['Government', 'Literature in English'],
@@ -76,11 +80,14 @@ const fetchData = async () => {
       }
       
       const studentStream = props.student?.stream || cls.track
+      const streamSpecific = trackSubjectNames[studentStream as keyof typeof trackSubjectNames] || []
       
-      // Get automatically added track subjects
-      const trackSubjects = allSubjects.filter((s: any) => 
+      const automatedSubjectNames = [...coreGeneralSubjects, ...streamSpecific]
+      
+      // Get automatically added track + core SSS subjects
+      const automatedSubjects = allSubjects.filter((s: any) => 
         s.level === 'SSS' && 
-        trackSubjectNames[studentStream as keyof typeof trackSubjectNames]?.includes(s.name)
+        automatedSubjectNames.includes(s.name)
       )
       
       // Get manually assigned subjects
@@ -91,7 +98,7 @@ const fetchData = async () => {
       
       // Combine both, avoiding duplicates
       const subjectMap = new Map()
-      trackSubjects.forEach((s: any) => subjectMap.set(s.id, s))
+      automatedSubjects.forEach((s: any) => subjectMap.set(s.id, s))
       manualSubjects.forEach((s: any) => subjectMap.set(s.id, s))
       
       filteredSubjects = Array.from(subjectMap.values())
