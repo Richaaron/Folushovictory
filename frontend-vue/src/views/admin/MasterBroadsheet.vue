@@ -83,6 +83,137 @@ const handlePrint = () => {
   window.print()
 }
 
+const escapeExcelCell = (value: any) => {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+const formatTermLabel = (term: string) => {
+  if (term === '1st') return 'First Term'
+  if (term === '2nd') return 'Second Term'
+  if (term === '3rd') return 'Third Term'
+  return term
+}
+
+const safeFilePart = (value: any) => {
+  return String(value || 'broadsheet')
+    .trim()
+    .replace(/[\\/:*?"<>|]+/g, '-')
+    .replace(/\s+/g, '-')
+}
+
+const handleExportExcel = () => {
+  if (!broadsheet.value) return
+
+  const sheet = broadsheet.value
+  const subjects = Array.isArray(sheet.subjects) ? sheet.subjects : []
+  const students = Array.isArray(sheet.students) ? sheet.students : []
+  const isTrait = String(sheet.class?.assessmentType || '').toUpperCase() === 'TRAIT'
+  const className = sheet.class?.name || classes.value.find(c => c.id === selectedClassId.value)?.name || 'Class'
+  const termLabel = formatTermLabel(selectedTerm.value)
+  const subjectColumnSpan = isTrait ? 1 : 5
+
+  const headerRow = `
+    <tr>
+      <th rowspan="2">Position</th>
+      <th rowspan="2">Student ID</th>
+      <th rowspan="2">Student Name</th>
+      ${subjects.map((subject: any) => `<th colspan="${subjectColumnSpan}">${escapeExcelCell(subject.name)}</th>`).join('')}
+      ${isTrait ? '' : '<th colspan="4">Summary</th>'}
+    </tr>
+  `
+
+  const subHeaderRow = `
+    <tr>
+      ${subjects.map(() => (
+        isTrait
+          ? '<th>Rating</th>'
+          : '<th>1st CA</th><th>2nd CA</th><th>Exam</th><th>Total</th><th>Grade/Pos</th>'
+      )).join('')}
+      ${isTrait ? '' : '<th>Total</th><th>Average</th><th>Position</th><th>Result</th>'}
+    </tr>
+  `
+
+  const bodyRows = students.map((student: any) => {
+    const studentName = `${student.lastName || ''} ${student.firstName || ''}`.trim()
+    const subjectCells = subjects.map((subject: any) => {
+      if (isTrait) {
+        const subjectScore = student.perSubject?.find((item: any) => item.subjectId === subject.id)
+        return `<td>${escapeExcelCell(subjectScore?.rating || '')}</td>`
+      }
+
+      const subjectScore = student.scores?.[subject.id]
+      if (!subjectScore) {
+        return '<td></td><td></td><td></td><td></td><td></td>'
+      }
+
+      return `
+        <td>${escapeExcelCell(subjectScore.ca1)}</td>
+        <td>${escapeExcelCell(subjectScore.ca2)}</td>
+        <td>${escapeExcelCell(subjectScore.exam)}</td>
+        <td>${escapeExcelCell(subjectScore.total)}</td>
+        <td>${escapeExcelCell(isSSS.value ? subjectScore.grade : (subjectScore.subjectPosition || ''))}</td>
+      `
+    }).join('')
+
+    const summaryCells = isTrait
+      ? ''
+      : `
+        <td>${escapeExcelCell(student.total)}</td>
+        <td>${escapeExcelCell(student.average)}%</td>
+        <td>${escapeExcelCell(student.position)}</td>
+        <td>${Number(student.average) >= 40 ? 'PASS' : 'FAIL'}</td>
+      `
+
+    return `
+      <tr>
+        <td>${escapeExcelCell(student.position || '')}</td>
+        <td>${escapeExcelCell(student.studentId)}</td>
+        <td>${escapeExcelCell(studentName)}</td>
+        ${subjectCells}
+        ${summaryCells}
+      </tr>
+    `
+  }).join('')
+
+  const workbook = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="UTF-8" />
+        <style>
+          table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
+          th, td { border: 1px solid #9ca3af; padding: 6px; text-align: center; }
+          th { background: #e5e7eb; font-weight: bold; }
+          .title { font-size: 18px; font-weight: bold; text-align: left; }
+          .meta { text-align: left; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <table>
+          <tr><td class="title" colspan="${3 + (subjects.length * subjectColumnSpan) + (isTrait ? 0 : 4)}">Master Broadsheet</td></tr>
+          <tr><td class="meta" colspan="${3 + (subjects.length * subjectColumnSpan) + (isTrait ? 0 : 4)}">Class: ${escapeExcelCell(className)} | Session: ${escapeExcelCell(selectedSession.value)} | Term: ${escapeExcelCell(termLabel)}</td></tr>
+          ${headerRow}
+          ${subHeaderRow}
+          ${bodyRows}
+        </table>
+      </body>
+    </html>
+  `
+
+  const blob = new Blob([workbook], { type: 'application/vnd.ms-excel;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${safeFilePart(className)}-${safeFilePart(selectedSession.value)}-${safeFilePart(termLabel)}-broadsheet.xls`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
 onMounted(async () => {
   await fetchSchoolSettings()
   await fetchClasses()
@@ -118,7 +249,11 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         >
           <Printer class="w-4 h-4" /> Print View
         </button>
-        <button class="flex items-center gap-3 rounded-2xl purple-gradient px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95">
+        <button
+          @click="handleExportExcel"
+          :disabled="!broadsheet || loading"
+          class="flex items-center gap-3 rounded-2xl purple-gradient px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+        >
           <Download class="w-4 h-4" /> Export Excel
         </button>
       </div>
