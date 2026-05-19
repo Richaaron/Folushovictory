@@ -23,25 +23,17 @@ async function subjectsForClass(cls) {
     const subs = await Promise.all(cls.subjectIds.map((id) => getSubjectById(id)));
     return subs.filter(Boolean).map((s) => ({ id: s.id, name: s.name }));
   }
-  
+
   const all = await listSubjects();
-  // Map class level codes to subject level names
   let levelFilter = cls.level;
-  if (levelFilter === 'PRY') levelFilter = 'Primary';
-  
-  // Filter by level
-  let filtered = all.filter(s => s.level === levelFilter);
-  
-  // For SSS (Senior Secondary), apply track filtering
-  if (levelFilter === 'SSS' && cls.track) {
-    // Include general subjects and track-specific subjects
-    filtered = filtered.filter(s => 
-      s.track === 'General' || s.track === cls.track
-    );
+  if (levelFilter === "PRY") levelFilter = "Primary";
+
+  let filtered = all.filter((s) => s.level === levelFilter);
+
+  if (levelFilter === "SSS" && cls.track) {
+    filtered = filtered.filter((s) => s.track === "General" || s.track === cls.track);
   }
-  
-  // If no subjects assigned, return subjects matching the class level (and track if applicable)
-  // to avoid showing JSS subjects in SSS sheets and vice versa
+
   return filtered.map((s) => ({ id: s.id, name: s.name }));
 }
 
@@ -103,6 +95,125 @@ function generatedPerformanceRemarks(result) {
   };
 }
 
+function feeStatusForStudent(student) {
+  const rawStatus = String(student.feeStatus || student.paymentStatus || "").trim().toLowerCase();
+  const balance = Number(
+    student.feeBalance ??
+    student.balanceDue ??
+    student.outstandingBalance ??
+    student.amountOwed ??
+    0
+  );
+  const explicitlyOwing =
+    student.owesFees === true ||
+    student.feesOwed === true ||
+    student.feesCleared === false ||
+    ["owing", "owed", "unpaid", "pending", "outstanding", "balance"].includes(rawStatus);
+  const owesFees = explicitlyOwing || (Number.isFinite(balance) && balance > 0);
+
+  return {
+    owesFees,
+    label: owesFees ? "Owing Fees" : "Fees Cleared",
+    amount: Number.isFinite(balance) ? balance : 0
+  };
+}
+
+async function canAccessClassReports(req, cls) {
+  if (req.user.role === Roles.ADMIN) return true;
+  if (req.user.role !== Roles.TEACHER) return false;
+  return cls.formTeacherUsername === req.user.username;
+}
+
+async function buildStudentReport({ student, cls, session, term }) {
+  const [subjects, scale, remarks, meta, publish, school, release] = await Promise.all([
+    subjectsForClass(cls),
+    getGradingScale(),
+    getRemarks({ session, term, studentId: student.studentId }),
+    getTermMeta({ session, term }),
+    getPublish({ classId: student.classId, session, term }),
+    getSchoolSettings(),
+    getReleaseStatus({ session, term, studentId: student.studentId })
+  ]);
+
+  let formTeacher = null;
+  if (cls.formTeacherUsername) {
+    formTeacher = await getUserByUsername(cls.formTeacherUsername);
+  }
+
+  let row;
+  let cumulative = null;
+
+  if (String(cls.assessmentType).toUpperCase() === "TRAIT") {
+    const scores = await listScoresForStudent({ session, term, studentId: student.studentId });
+    const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
+    row = traitSheet({ students: [student], subjects, scoresByKey }).students[0];
+  } else {
+    const scores = await listScoresForClass({ session, term, classId: student.classId });
+    const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
+    const studentsInClass = await listStudentsByClass(student.classId);
+    const sheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey, scale, level: cls.level });
+    row = sheet.students.find((s) => s.studentId === student.studentId);
+
+    if (row) {
+      const overall = gradeForTotal(Number(row.average || 0), scale);
+      row.overallGrade = overall.letter || "";
+      row.overallGradeRemark = overall.remark || "";
+    }
+
+    if (term === "2nd" || term === "3rd") {
+      const termsToFetch = term === "2nd" ? ["1st"] : ["1st", "2nd"];
+      const prevResults = await Promise.all(termsToFetch.map(async (previousTerm) => {
+        const pScores = await listScoresForClass({ session, term: previousTerm, classId: student.classId });
+        const pScoresByKey = new Map(pScores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
+        const pSheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey: pScoresByKey, scale, level: cls.level });
+        return { term: previousTerm, result: pSheet.students.find((s) => s.studentId === student.studentId) };
+      }));
+
+      cumulative = {
+        previousTerms: prevResults.filter((r) => !!r.result).map((r) => ({
+          term: r.term,
+          total: r.result.total,
+          average: r.result.average
+        }))
+      };
+
+      if (cumulative.previousTerms.length > 0 && row) {
+        const allTotals = [...cumulative.previousTerms.filter((r) => r.total !== undefined).map((r) => r.total), row.total];
+        if (allTotals.length > 0) {
+          cumulative.sessionTotal = allTotals.reduce((a, b) => a + b, 0);
+          cumulative.sessionAverage = (cumulative.sessionTotal / allTotals.length).toFixed(2);
+        }
+      }
+    }
+  }
+
+  const autoRemarks = generatedPerformanceRemarks(row);
+  const feeStatus = feeStatusForStudent(student);
+
+  return {
+    school,
+    formTeacher: formTeacher ? { displayName: formTeacher.displayName || formTeacher.username } : null,
+    released: release.released,
+    cumulative,
+    feeStatus,
+    class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
+    student: {
+      studentId: student.studentId,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      gender: student.gender || "",
+      feeStatus
+    },
+    session,
+    term,
+    published: Boolean(publish),
+    resumptionDate: meta?.resumptionDate || "",
+    teacherRemark: remarks?.teacherRemark || autoRemarks.teacherRemark,
+    principalRemark: remarks?.principalRemark || autoRemarks.principalRemark,
+    result: row
+  };
+}
+
 resultsRouter.get(
   "/class/:classId/broadsheet",
   asyncHandler(async (req, res) => {
@@ -123,19 +234,10 @@ resultsRouter.get(
     ]);
 
     const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-
     const sheet =
       String(cls.assessmentType).toUpperCase() === "TRAIT"
         ? traitSheet({ students, subjects, scoresByKey })
         : numericBroadsheet({ students, subjects, scoresByKey, scale, level: cls.level });
-
-    if (row && String(cls.assessmentType).toUpperCase() !== "TRAIT") {
-      const overall = gradeForTotal(Number(row.average || 0), scale);
-      row.overallGrade = overall.letter || "";
-      row.overallGradeRemark = overall.remark || "";
-    }
-
-    const autoRemarks = generatedPerformanceRemarks(row);
 
     return res.json({
       class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
@@ -143,6 +245,65 @@ resultsRouter.get(
       term: String(term),
       published: Boolean(publish),
       ...sheet
+    });
+  })
+);
+
+resultsRouter.get(
+  "/class/:classId/report-students",
+  asyncHandler(async (req, res) => {
+    const { classId } = req.params;
+    const cls = await getClassById(classId);
+    if (!cls) return res.status(404).json({ error: "Class not found" });
+    if (!(await canAccessClassReports(req, cls))) return res.status(403).json({ error: "Forbidden" });
+
+    const students = await listStudentsByClass(classId);
+    return res.json({
+      class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
+      students: students.map((student) => ({
+        studentId: student.studentId,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        gender: student.gender || "",
+        feeStatus: feeStatusForStudent(student)
+      }))
+    });
+  })
+);
+
+resultsRouter.post(
+  "/class/:classId/bulk-reports",
+  asyncHandler(async (req, res) => {
+    const { classId } = req.params;
+    const { session, term, studentIds } = req.body || {};
+    if (!session || !term || !Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({ error: "Missing session, term, or selected students" });
+    }
+
+    const cls = await getClassById(classId);
+    if (!cls) return res.status(404).json({ error: "Class not found" });
+    if (!(await canAccessClassReports(req, cls))) return res.status(403).json({ error: "Forbidden" });
+
+    const selectedIds = [...new Set(studentIds.map((id) => String(id).trim()).filter(Boolean))];
+    const studentsInClass = await listStudentsByClass(classId);
+    const selectedStudents = studentsInClass.filter((student) => selectedIds.includes(student.studentId));
+
+    const reports = await Promise.all(
+      selectedStudents.map((student) => buildStudentReport({
+        student,
+        cls,
+        session: String(session),
+        term: String(term)
+      }))
+    );
+
+    return res.json({
+      class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
+      session: String(session),
+      term: String(term),
+      reports,
+      feesCleared: reports.filter((report) => !report.feeStatus?.owesFees),
+      feesOwing: reports.filter((report) => report.feeStatus?.owesFees)
     });
   })
 );
@@ -171,80 +332,11 @@ resultsRouter.get(
       if (!assignedToClass && !isFormTeacher) return res.status(403).json({ error: "Forbidden" });
     }
 
-    const [subjects, scale, remarks, meta, publish, school, release] = await Promise.all([
-      subjectsForClass(cls),
-      getGradingScale(),
-      getRemarks({ session: String(session), term: String(term), studentId }),
-      getTermMeta({ session: String(session), term: String(term) }),
-      getPublish({ classId: student.classId, session: String(session), term: String(term) }),
-      getSchoolSettings(),
-      getReleaseStatus({ session: String(session), term: String(term), studentId })
-    ]);
-
-    const isReleased = release.released;
-
-    let formTeacher = null;
-    if (cls.formTeacherUsername) {
-      formTeacher = await getUserByUsername(cls.formTeacherUsername);
-    }
-
-    let row;
-    let cumulative = null;
-    
-    if (String(cls.assessmentType).toUpperCase() === "TRAIT") {
-      const scores = await listScoresForStudent({ session: String(session), term: String(term), studentId });
-      const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-      row = traitSheet({ students: [student], subjects, scoresByKey }).students[0];
-    } else {
-      const scores = await listScoresForClass({ session: String(session), term: String(term), classId: student.classId });
-      const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-      const studentsInClass = await listStudentsByClass(student.classId);
-      const sheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey, scale, level: cls.level });
-      row = sheet.students.find((s) => s.studentId === studentId);
-
-      // Cumulative Logic
-      if (term === "2nd" || term === "3rd") {
-        const termsToFetch = term === "2nd" ? ["1st"] : ["1st", "2nd"];
-        const prevResults = await Promise.all(termsToFetch.map(async (t) => {
-            const pScores = await listScoresForClass({ session: String(session), term: t, classId: student.classId });
-            const pScoresByKey = new Map(pScores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-            const pSheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey: pScoresByKey, scale, level: cls.level });
-            return { term: t, result: pSheet.students.find((s) => s.studentId === studentId) };
-        }));
-        
-        cumulative = {
-            previousTerms: prevResults.filter(r => !!r.result).map(r => ({
-                term: r.term,
-                total: r.result.total,
-                average: r.result.average
-            }))
-        };
-        
-        if (cumulative.previousTerms.length > 0 && row) {
-            const allTotals = [...cumulative.previousTerms.filter(r => r.total !== undefined).map(r => r.total), row.total];
-            if (allTotals.length > 0) {
-              cumulative.sessionTotal = allTotals.reduce((a, b) => a + b, 0);
-              cumulative.sessionAverage = (cumulative.sessionTotal / allTotals.length).toFixed(2);
-            }
-        }
-      }
-    }
-
-    return res.json({
-      school,
-      formTeacher: formTeacher ? { displayName: formTeacher.displayName || formTeacher.username } : null,
-      released: isReleased,
-      cumulative,
-      class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
-      student: { studentId: student.studentId, firstName: student.firstName, lastName: student.lastName, gender: student.gender || "" },
+    return res.json(await buildStudentReport({
+      student,
+      cls,
       session: String(session),
-      term: String(term),
-      published: Boolean(publish),
-      resumptionDate: meta?.resumptionDate || "",
-      teacherRemark: remarks?.teacherRemark || autoRemarks.teacherRemark,
-      principalRemark: remarks?.principalRemark || autoRemarks.principalRemark,
-      result: row
-    });
+      term: String(term)
+    }));
   })
 );
-

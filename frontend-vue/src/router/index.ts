@@ -29,6 +29,12 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/bulk-reports/:classId',
+      name: 'bulk-reports',
+      component: () => import('../views/common/BulkReportsView.vue'),
+      props: true
+    },
+    {
       path: '/admin',
       component: () => import('../layouts/AdminLayout.vue'),
       children: [

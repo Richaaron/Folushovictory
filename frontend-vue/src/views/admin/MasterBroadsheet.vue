@@ -80,6 +80,13 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
       </div>
       <div class="flex items-center gap-3">
         <button 
+          @click="$router.push({ name: 'bulk-reports', params: { classId: selectedClassId }, query: { session: selectedSession, term: selectedTerm } })"
+          :disabled="!selectedClassId"
+          class="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 transition hover:text-royal-purple disabled:opacity-50"
+        >
+          <Printer class="w-4 h-4" /> Bulk Results
+        </button>
+        <button 
           @click="handlePrint"
           class="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 transition hover:text-royal-purple"
         >
