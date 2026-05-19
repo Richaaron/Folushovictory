@@ -283,73 +283,85 @@ adminRouter.put(
     
     console.log(`[Admin] Updating teacher ${username}. formClassId: ${formClassId}`);
     
-    // 1. Update User Record
-    const updated = await updateUser(username, { 
-      ...(displayName ? { displayName: String(displayName) } : {}),
-      ...(email ? { email: String(email) } : {}),
-      ...(formClassId !== undefined ? { formClassId: formClassId || null } : {})
-    });
+    try {
+      // 1. Update User Record
+      console.log(`[Admin] Step 1: Updating user record for ${username}`);
+      const updated = await updateUser(username, { 
+        ...(displayName ? { displayName: String(displayName) } : {}),
+        ...(email ? { email: String(email) } : {}),
+        ...(formClassId !== undefined ? { formClassId: formClassId || null } : {})
+      });
 
-    // 2. Handle Form Teacher Revocation/Assignment
-    if (formClassId !== undefined) {
-      console.log(`[Admin] Handling form class assignment for ${username} to class ${formClassId}`);
-      await revokeFormTeacherStatus(username);
-      if (formClassId) {
-        await updateClass(formClassId, { formTeacherUsername: normalizedUsername });
-      }
-    }
-
-    // 3. Handle Atomic Assignment Replacement
-    const { classIds, subjectIds } = req.body || {};
-    if (Array.isArray(classIds) && Array.isArray(subjectIds)) {
-      console.log(`[Admin] Replacing assignments for ${username}. Classes: ${classIds}, Subjects: ${subjectIds.length}`);
-      await deleteAssignmentsByTeacher(username);
-      const assignmentPromises = [];
-      
-      // Fetch all subjects to determine their levels
-      const subjectDocs = await Promise.all(subjectIds.filter(id => !!id).map(id => getSubjectById(id)));
-      const subjectMap = Object.fromEntries(subjectDocs.filter(s => !!s).map(s => [s.id, s]));
-      
-      // Fetch ALL classes to match levels
-      const allClasses = await listClasses();
-
-      // Logic:
-      // - For each subject selected:
-      //   - If it's a Primary subject: ONLY assign it to classes in 'classIds' that are 'Primary'
-      //   - If it's a Secondary subject: assign it to ALL matching classes at that level (JSS/SSS)
-      for (const sId of subjectIds) {
-        const subject = subjectMap[sId];
-        if (!subject) continue;
-
-        const isPrimarySubject = subject.level === 'Primary';
-        
-        const targetClasses = allClasses.filter(cls => {
-          const levelMatch = cls.level === subject.level;
-          if (!levelMatch) return false;
-
-          // If it's Primary, it MUST be in the specifically selected classIds
-          if (isPrimarySubject) {
-            return classIds.includes(cls.id);
-          }
-          
-          // If it's Secondary, assign to all classes at that level (or filter by classIds if provided)
-          return classIds.length > 0 ? classIds.includes(cls.id) : true;
-        });
-
-        for (const cls of targetClasses) {
-          assignmentPromises.push(createAssignment({
-            teacherUsername: normalizedUsername,
-            classId: cls.id,
-            subjectId: sId,
-            createdAt: new Date().toISOString()
-          }));
+      // 2. Handle Form Teacher Revocation/Assignment
+      if (formClassId !== undefined) {
+        console.log(`[Admin] Step 2: Handling form class assignment for ${username} to class ${formClassId}`);
+        await revokeFormTeacherStatus(username);
+        if (formClassId) {
+          await updateClass(formClassId, { formTeacherUsername: normalizedUsername });
         }
       }
-      
-      if (assignmentPromises.length > 0) await Promise.all(assignmentPromises);
-    }
 
-    return res.json(updated);
+      // 3. Handle Atomic Assignment Replacement
+      const { classIds, subjectIds } = req.body || {};
+      if (Array.isArray(classIds) && Array.isArray(subjectIds)) {
+        console.log(`[Admin] Step 3: Replacing assignments for ${username}. Classes: ${classIds}, Subjects: ${subjectIds.length}`);
+        await deleteAssignmentsByTeacher(username);
+        const assignmentPromises = [];
+        
+        // Fetch all subjects to determine their levels
+        const subjectDocs = await Promise.all(subjectIds.filter(id => !!id).map(id => getSubjectById(id)));
+        const subjectMap = Object.fromEntries(subjectDocs.filter(s => !!s).map(s => [s.id, s]));
+        
+        // Fetch ALL classes to match levels
+        const allClasses = await listClasses();
+
+        // Logic:
+        // - For each subject selected:
+        //   - If it's a Primary subject: ONLY assign it to classes in 'classIds' that are 'Primary'
+        //   - If it's a Secondary subject: assign it to ALL matching classes at that level (JSS/SSS)
+        for (const sId of subjectIds) {
+          const subject = subjectMap[sId];
+          if (!subject) continue;
+
+          const isPrimarySubject = subject.level === 'Primary';
+          
+          const targetClasses = allClasses.filter(cls => {
+            const levelMatch = cls.level === subject.level;
+            if (!levelMatch) return false;
+
+            // If it's Primary, it MUST be in the specifically selected classIds
+            if (isPrimarySubject) {
+              return classIds.includes(cls.id);
+            }
+            
+            // If it's Secondary, assign to all classes at that level (or filter by classIds if provided)
+            return classIds.length > 0 ? classIds.includes(cls.id) : true;
+          });
+
+          for (const cls of targetClasses) {
+            assignmentPromises.push(createAssignment({
+              teacherUsername: normalizedUsername,
+              classId: cls.id,
+              subjectId: sId,
+              createdAt: new Date().toISOString()
+            }));
+          }
+        }
+        
+        if (assignmentPromises.length > 0) {
+          console.log(`[Admin] Creating ${assignmentPromises.length} new assignments for ${username}`);
+          await Promise.all(assignmentPromises);
+        }
+      }
+
+      console.log(`[Admin] Successfully updated teacher profile for ${username}`);
+      return res.json(updated);
+    } catch (error) {
+      console.error(`[Admin] Update failed for teacher ${username}:`, error.message);
+      return res.status(error.statusCode || 500).json({ 
+        error: error.message || "Failed to update teacher profile" 
+      });
+    }
   })
 );
 
