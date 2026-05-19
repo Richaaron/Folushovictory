@@ -574,12 +574,21 @@ adminRouter.get(
   asyncHandler(async (req, res) => {
     const { classId } = req.query;
     const db = getDb();
-    let q = db.collection("students");
-    if (classId) {
-      q = q.where("classId", "==", String(classId));
+    let students = [];
+    try {
+      let q = db.collection("students");
+      if (classId) {
+        q = q.where("classId", "==", String(classId));
+      }
+      const snap = await q.get();
+      students = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    } catch (error) {
+      console.error("Admin student query failed, falling back to full collection filtering:", error?.message || error);
+      const snap = await db.collection("students").get();
+      students = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .filter((student) => !classId || String(student.classId) === String(classId));
     }
-    const snap = await q.get();
-    const students = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     // Sort by studentId (admission number)
     students.sort((a, b) => String(a.studentId || "").localeCompare(String(b.studentId || ""), undefined, { numeric: true }));
     return res.json({ students });

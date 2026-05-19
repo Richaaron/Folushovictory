@@ -36,11 +36,20 @@ export async function createStudentWithParent({ student, parentUser }) {
 }
 
 export async function listStudentsByClass(classId) {
-  const { data } = await SafeDatabase.query(
-    "students",
-    [["classId", "==", classId]],
-    { pageSize: 1000 }
-  );
+  let data;
+  try {
+    const result = await SafeDatabase.query(
+      "students",
+      [["classId", "==", classId]],
+      { pageSize: 1000 }
+    );
+    data = result.data;
+  } catch (error) {
+    console.error("Class student query failed, falling back to in-memory filtering:", error?.message || error);
+    const result = await SafeDatabase.query("students", [], { pageSize: 1000 });
+    data = result.data.filter((student) => String(student.classId) === String(classId));
+  }
+
   return data.sort((a, b) => {
     const last = String(a.lastName || "").localeCompare(String(b.lastName || ""), undefined, { sensitivity: "base" });
     if (last !== 0) return last;
