@@ -497,6 +497,15 @@ onMounted(fetchTeachers)
               </div>
             </div>
 
+            <!-- Class Assignment - Always shown for Primary/Nursery, conditional for Secondary -->
+            <div v-if="newTeacher.department === 'Primary/Nursery' || (newTeacher.department === 'Secondary' && (newTeacher.roleType === 'Form Teacher' || newTeacher.roleType === 'Dual Role'))" class="space-y-3 animate-slide-up">
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Primary Class Governance</label>
+              <select v-model="newTeacher.formClassId" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all cursor-pointer">
+                <option value="">Select Governing Class...</option>
+                <option v-for="cls in filteredClasses" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+              </select>
+            </div>
+
             <!-- Role Selection (for Secondary) -->
             <div v-if="newTeacher.department === 'Secondary'" class="space-y-3 animate-slide-up">
               <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Academic Specialization</label>
@@ -509,15 +518,6 @@ onMounted(fetchTeachers)
                   class="py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.1em] transition-all"
                 >{{ role }}</button>
               </div>
-            </div>
-
-            <!-- Class Assignment -->
-            <div v-if="newTeacher.roleType === 'Form Teacher' || newTeacher.roleType === 'Dual Role'" class="space-y-3 animate-slide-up">
-              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Primary Class Governance</label>
-              <select v-model="newTeacher.formClassId" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all cursor-pointer">
-                <option value="">Select Governing Class...</option>
-                <option v-for="cls in filteredClasses" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
-              </select>
             </div>
 
             <!-- Multi-Class Selection removed - teachers automatically assigned to all classes at subject level -->
@@ -642,8 +642,8 @@ onMounted(fetchTeachers)
               </div>
             </div>
 
-            <!-- Class Assignment -->
-            <div v-if="editingTeacher.roleType === 'Form Teacher' || editingTeacher.roleType === 'Dual Role'" class="space-y-3 animate-slide-up">
+            <!-- Class Assignment - Always shown for Primary/Nursery, conditional for Secondary -->
+            <div v-if="editingTeacher.department === 'Primary/Nursery' || (editingTeacher.department === 'Secondary' && (editingTeacher.roleType === 'Form Teacher' || editingTeacher.roleType === 'Dual Role'))" class="space-y-3 animate-slide-up">
               <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Primary Class Governance</label>
               <select v-model="editingTeacher.formClassId" class="w-full px-8 py-5 bg-slate-100/50 dark:bg-slate-800/50 border border-transparent rounded-[1.5rem] text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-nebula-500/30 outline-none transition-all cursor-pointer">
                 <option value="">Select Governing Class...</option>
