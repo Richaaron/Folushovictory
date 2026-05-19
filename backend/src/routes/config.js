@@ -30,7 +30,21 @@ configRouter.post(
   authRequired,
   requireRole(Roles.ADMIN),
   asyncHandler(async (req, res) => {
-    const { name, motto, address, phone, email, website, principalName, logo, logoUrl, principalSignature, principalSignatureUrl } = req.body;
+    const {
+      name,
+      motto,
+      address,
+      phone,
+      email,
+      website,
+      principalName,
+      logo,
+      logoUrl,
+      principalSignature,
+      principalSignatureUrl,
+      currentSession,
+      currentTerm
+    } = req.body;
     
     const updateData = {
       name: name || "",
@@ -39,7 +53,9 @@ configRouter.post(
       phone: phone || "",
       email: email || "",
       website: website || "",
-      principalName: principalName || ""
+      principalName: principalName || "",
+      ...(currentSession !== undefined ? { currentSession: String(currentSession) } : {}),
+      ...(currentTerm !== undefined ? { currentTerm: String(currentTerm) } : {})
     };
 
     // Handle logo upload (base64 or data URL)

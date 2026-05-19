@@ -13,11 +13,36 @@ import PerformanceCharts from '../../components/analytics/PerformanceCharts.vue'
 
 const classes = ref<any[]>([])
 const selectedClassId = ref('')
-const selectedSession = ref('2026/2027')
-const selectedTerm = ref('2nd')
+const selectedSession = ref('')
+const selectedTerm = ref('')
 const broadsheet = ref<any>(null)
 const loading = ref(false)
 const error = ref('')
+const sessionOptions = ref(['2026/2027', '2025/2026'])
+
+const normalizeTerm = (value: any) => {
+  const term = String(value || '').trim().toLowerCase()
+  if (term === 'first' || term === 'first term' || term === '1') return '1st'
+  if (term === 'second' || term === 'second term' || term === '2') return '2nd'
+  if (term === 'third' || term === 'third term' || term === '3') return '3rd'
+  if (['1st', '2nd', '3rd'].includes(term)) return term
+  return ''
+}
+
+const fetchSchoolSettings = async () => {
+  try {
+    const { data } = await api.get('/api/config/school')
+    selectedSession.value = data.currentSession || '2025/2026'
+    selectedTerm.value = normalizeTerm(data.currentTerm) || '3rd'
+    if (selectedSession.value && !sessionOptions.value.includes(selectedSession.value)) {
+      sessionOptions.value = [selectedSession.value, ...sessionOptions.value]
+    }
+  } catch (err) {
+    console.error('Error fetching school settings:', err)
+    selectedSession.value = '2025/2026'
+    selectedTerm.value = '3rd'
+  }
+}
 
 const fetchClasses = async () => {
   try {
@@ -32,7 +57,7 @@ const fetchClasses = async () => {
 }
 
 const fetchBroadsheet = async () => {
-  if (!selectedClassId.value) return
+  if (!selectedClassId.value || !selectedSession.value || !selectedTerm.value) return
   loading.value = true
   error.value = ''
   try {
@@ -59,6 +84,7 @@ const handlePrint = () => {
 }
 
 onMounted(async () => {
+  await fetchSchoolSettings()
   await fetchClasses()
   if (selectedClassId.value) {
     await fetchBroadsheet()
@@ -103,8 +129,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
       <div class="space-y-2">
         <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Academic Session</label>
         <select v-model="selectedSession" class="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-royal-purple">
-          <option>2026/2027</option>
-          <option>2025/2026</option>
+          <option v-for="session in sessionOptions" :key="session" :value="session">{{ session }}</option>
         </select>
       </div>
       <div class="space-y-2">
