@@ -59,13 +59,23 @@ export async function getAssignmentById(assignmentId) {
 }
 
 export async function deleteAssignmentsByTeacher(teacherUsername) {
-  const normalized = teacherUsername ? String(teacherUsername).toLowerCase().trim() : "";
   const assignments = await listAssignmentsByTeacher(teacherUsername);
+  console.log(`[AssignmentsRepo] Found ${assignments.length} assignments to delete for ${teacherUsername}`);
   
-  return executeBatch(async (batch) => {
-    for (const assignment of assignments) {
-      const ref = getDb().collection("assignments").doc(assignment.id);
-      batch.delete(ref);
-    }
-  });
+  if (assignments.length === 0) return { success: true, operationCount: 0 };
+
+  // Firestore batches are limited to 500 operations. 
+  // If a teacher has many assignments, we need to delete them in chunks.
+  const CHUNK_SIZE = 450;
+  for (let i = 0; i < assignments.length; i += CHUNK_SIZE) {
+    const chunk = assignments.slice(i, i + CHUNK_SIZE);
+    await executeBatch(async (batch) => {
+      for (const assignment of chunk) {
+        const ref = getDb().collection("assignments").doc(assignment.id);
+        batch.delete(ref);
+      }
+    });
+  }
+  
+  return { success: true, operationCount: assignments.length };
 }
