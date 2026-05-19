@@ -260,13 +260,19 @@ async function buildStudentReport({ student, cls, session, term }) {
 resultsRouter.get(
   "/class/:classId/broadsheet",
   asyncHandler(async (req, res) => {
-    if (req.user.role !== Roles.ADMIN) return res.status(403).json({ error: "Forbidden" });
     const { classId } = req.params;
     const { session, term } = req.query;
     if (!session || !term) return res.status(400).json({ error: "Missing session/term" });
 
     const cls = await getClassById(classId);
     if (!cls) return res.status(404).json({ error: "Class not found" });
+    if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.TEACHER) return res.status(403).json({ error: "Forbidden" });
+      const assignments = await listAssignmentsByTeacher(req.user.username);
+      const isSubjectTeacher = assignments.some((a) => a.classId === classId);
+      const isFormTeacher = cls.formTeacherUsername === req.user.username;
+      if (!isSubjectTeacher && !isFormTeacher) return res.status(403).json({ error: "Forbidden" });
+    }
 
     const [students, subjects, scores, scale, publish, school] = await Promise.all([
       optionalResult("Broadsheet students load", () => listStudentsByClass(classId), []),

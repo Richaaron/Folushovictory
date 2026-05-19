@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { 
   Download, 
   FileSpreadsheet, 
@@ -11,6 +12,7 @@ import {
 import api from '../../services/api'
 import PerformanceCharts from '../../components/analytics/PerformanceCharts.vue'
 
+const route = useRoute()
 const classes = ref<any[]>([])
 const selectedClassId = ref('')
 const selectedSession = ref('')
@@ -19,6 +21,9 @@ const broadsheet = ref<any>(null)
 const loading = ref(false)
 const error = ref('')
 const sessionOptions = ref(['2026/2027', '2025/2026'])
+
+const fixedClassId = computed(() => String(route.params.classId || route.query.classId || ''))
+const fixedClassName = computed(() => String(route.query.className || 'Selected Class'))
 
 const normalizeTerm = (value: any) => {
   const term = String(value || '').trim().toLowerCase()
@@ -32,8 +37,8 @@ const normalizeTerm = (value: any) => {
 const fetchSchoolSettings = async () => {
   try {
     const { data } = await api.get('/api/config/school')
-    selectedSession.value = data.currentSession || '2025/2026'
-    selectedTerm.value = normalizeTerm(data.currentTerm) || '3rd'
+    selectedSession.value = String(route.query.session || data.currentSession || '2025/2026')
+    selectedTerm.value = normalizeTerm(route.query.term || data.currentTerm) || '3rd'
     if (selectedSession.value && !sessionOptions.value.includes(selectedSession.value)) {
       sessionOptions.value = [selectedSession.value, ...sessionOptions.value]
     }
@@ -45,6 +50,12 @@ const fetchSchoolSettings = async () => {
 }
 
 const fetchClasses = async () => {
+  if (fixedClassId.value) {
+    selectedClassId.value = fixedClassId.value
+    classes.value = [{ id: fixedClassId.value, name: fixedClassName.value }]
+    return
+  }
+
   try {
     const { data } = await api.get('/api/admin/classes')
     classes.value = data.classes || []
@@ -76,7 +87,8 @@ const fetchBroadsheet = async () => {
 const isSSS = computed(() => {
   if (!selectedClassId.value) return false
   const cls = classes.value.find(c => c.id === selectedClassId.value)
-  return String(cls?.level || '').toUpperCase().includes('SSS')
+  const classText = `${cls?.level || ''} ${cls?.name || ''} ${broadsheet.value?.class?.level || ''} ${broadsheet.value?.class?.name || ''}`
+  return classText.toUpperCase().includes('SSS')
 })
 
 const handlePrint = () => {

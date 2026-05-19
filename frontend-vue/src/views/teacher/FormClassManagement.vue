@@ -10,7 +10,8 @@ import {
   MessageSquare,
   FileText,
   Send,
-  Printer
+  Printer,
+  BarChart3
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -128,6 +129,13 @@ onMounted(fetchStudents)
         >
           <Printer class="w-4 h-4" />
           Bulk Results
+        </button>
+        <button
+          @click="router.push({ name: 'teacher-broadsheet', params: { classId }, query: { className, session, term } })"
+          class="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 transition hover:text-royal-purple"
+        >
+          <BarChart3 class="w-4 h-4" />
+          Broadsheet
         </button>
         <button 
           @click="saveAllRemarks"

@@ -90,6 +90,11 @@ const router = createRouter({
           component: () => import('../views/teacher/FormClassManagement.vue')
         },
         {
+          path: 'broadsheet/:classId',
+          name: 'teacher-broadsheet',
+          component: () => import('../views/admin/MasterBroadsheet.vue')
+        },
+        {
           path: 'settings',
           name: 'teacher-settings',
           component: () => import('../views/SettingsView.vue')
