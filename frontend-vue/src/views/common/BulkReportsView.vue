@@ -352,6 +352,9 @@ onMounted(fetchStudents)
             <div>
               <span>Principal's Remark</span>
               <p>{{ report.principalRemark }}</p>
+              <div v-if="report.school?.principalSignatureUrl" class="signature-image">
+                <img :src="report.school.principalSignatureUrl" alt="Principal signature" />
+              </div>
               <strong>{{ report.school?.principalName || 'Principal' }}</strong>
             </div>
           </div>
@@ -503,6 +506,18 @@ onMounted(fetchStudents)
   font-size: 12px;
   font-weight: 700;
   line-height: 1.5;
+}
+
+.signature-image {
+  height: 42px;
+  margin: -4px 0 6px;
+  text-align: center;
+}
+
+.signature-image img {
+  max-width: 180px;
+  max-height: 42px;
+  object-fit: contain;
 }
 
 .remarks-grid strong {

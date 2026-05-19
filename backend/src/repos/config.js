@@ -2,6 +2,20 @@ import admin from "firebase-admin";
 import { getDb } from "../firebase.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
 
+const defaultSchoolSettings = {
+  name: "Folusho Victory Schools",
+  motto: "Knowledge - Integrity - Excellence",
+  address: "",
+  phone: "",
+  email: "",
+  website: "",
+  principalName: "",
+  principalSignatureUrl: "/principal-signature.png",
+  logoUrl: "",
+  currentSession: "2023/2024",
+  currentTerm: "First"
+};
+
 export async function getGradingScale() {
   try {
     return await SafeDatabase.getById("config", "gradingScale");
@@ -34,23 +48,14 @@ export async function setTermMeta({ session, term, resumptionDate }) {
 
 export async function getSchoolSettings() {
   try {
-    return await SafeDatabase.getById("config", "schoolSettings");
+    const settings = await SafeDatabase.getById("config", "schoolSettings");
+    return {
+      ...defaultSchoolSettings,
+      ...settings,
+      principalSignatureUrl: settings.principalSignatureUrl || defaultSchoolSettings.principalSignatureUrl
+    };
   } catch (error) {
-    if (error.statusCode === 404) {
-      return {
-        name: "Folusho Victory Schools",
-        motto: "Knowledge · Integrity · Excellence",
-        address: "",
-        phone: "",
-        email: "",
-        website: "",
-        principalName: "",
-        principalSignatureUrl: "",
-        logoUrl: "",
-        currentSession: "2023/2024",
-        currentTerm: "First"
-      };
-    }
+    if (error.statusCode === 404) return defaultSchoolSettings;
     throw error;
   }
 }
