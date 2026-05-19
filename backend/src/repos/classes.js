@@ -31,12 +31,21 @@ export async function updateClass(classId, patch) {
 
 export async function listClassesByFormTeacher(username) {
   const normalized = username ? String(username).toLowerCase().trim() : "";
-  const { data } = await SafeDatabase.query(
-    "classes",
-    [["formTeacherUsername", "==", normalized]],
-    { pageSize: 1000 }
-  );
-  return data;
+  const original = username ? String(username).trim() : "";
+  
+  const [lowerSnap, upperSnap] = await Promise.all([
+    SafeDatabase.query("classes", [["formTeacherUsername", "==", normalized]], { pageSize: 1000 }),
+    original !== normalized ? SafeDatabase.query("classes", [["formTeacherUsername", "==", original]], { pageSize: 1000 }) : { data: [] }
+  ]);
+  
+  // Merge and deduplicate
+  const allData = [...lowerSnap.data, ...(upperSnap?.data || [])];
+  const unique = new Map();
+  for (const c of allData) {
+    if (!unique.has(c.id)) unique.set(c.id, c);
+  }
+  
+  return Array.from(unique.values());
 }
 
 export async function revokeFormTeacherStatus(username) {

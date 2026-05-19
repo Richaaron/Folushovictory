@@ -9,12 +9,21 @@ export async function createAssignment(data) {
 
 export async function listAssignmentsByTeacher(teacherUsername) {
   const normalized = teacherUsername ? String(teacherUsername).toLowerCase().trim() : "";
-  const { data } = await SafeDatabase.query(
-    "assignments",
-    [["teacherUsername", "==", normalized]],
-    { pageSize: 1000 }
-  );
-  return data;
+  const original = teacherUsername ? String(teacherUsername).trim() : "";
+  
+  const [lowerSnap, upperSnap] = await Promise.all([
+    SafeDatabase.query("assignments", [["teacherUsername", "==", normalized]], { pageSize: 1000 }),
+    original !== normalized ? SafeDatabase.query("assignments", [["teacherUsername", "==", original]], { pageSize: 1000 }) : { data: [] }
+  ]);
+  
+  // Merge and deduplicate
+  const allData = [...lowerSnap.data, ...(upperSnap?.data || [])];
+  const unique = new Map();
+  for (const a of allData) {
+    if (!unique.has(a.id)) unique.set(a.id, a);
+  }
+  
+  return Array.from(unique.values());
 }
 
 export async function listAssignmentsByClass(classId) {
