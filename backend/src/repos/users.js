@@ -12,8 +12,8 @@ export async function getUserByUsername(username) {
   }
 }
 
-export async function createUser(user) {
-  return SafeDatabase.createWithValidation("users", user, "user", { checkDuplicates: true });
+export async function createUser(user, options = {}) {
+  return SafeDatabase.createWithValidation("users", user, "user", { checkDuplicates: true, ...options });
 }
 
 export async function updateUser(username, patch) {

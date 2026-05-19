@@ -23,7 +23,7 @@ async function resetAdmin() {
       role: Roles.ADMIN,
       displayName: "School Admin",
       passwordHash
-    });
+    }, { docId: username });
     console.log("✅ Admin user created with password: " + password);
   }
   process.exit(0);

@@ -25,7 +25,7 @@ await createUser({
   role: Roles.ADMIN,
   displayName,
   passwordHash
-});
+}, { docId: username });
 
 process.stdout.write(`Created admin:\n`);
 process.stdout.write(`  username: ${username}\n`);

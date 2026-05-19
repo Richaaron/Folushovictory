@@ -136,6 +136,7 @@ adminRouter.post(
     }
     const passwordHash = await hashPassword(password);
 
+    // Create user with username as document ID for proper lookup
     await createUser({
       username,
       email: payload.email,
@@ -143,7 +144,7 @@ adminRouter.post(
       role: Roles.TEACHER,
       displayName: payload.displayName,
       passwordHash
-    });
+    }, { docId: username });
 
     let emailSent = false;
     let emailError = null;
