@@ -281,14 +281,18 @@ adminRouter.put(
     const { displayName, email, formClassId } = req.body || {};
     const normalizedUsername = String(username).toLowerCase().trim();
     
+    console.log(`[Admin] Updating teacher ${username}. formClassId: ${formClassId}`);
+    
     // 1. Update User Record
     const updated = await updateUser(username, { 
       ...(displayName ? { displayName: String(displayName) } : {}),
-      ...(email ? { email: String(email) } : {})
+      ...(email ? { email: String(email) } : {}),
+      ...(formClassId !== undefined ? { formClassId: formClassId || null } : {})
     });
 
     // 2. Handle Form Teacher Revocation/Assignment
     if (formClassId !== undefined) {
+      console.log(`[Admin] Handling form class assignment for ${username} to class ${formClassId}`);
       await revokeFormTeacherStatus(username);
       if (formClassId) {
         await updateClass(formClassId, { formTeacherUsername: normalizedUsername });
@@ -298,6 +302,7 @@ adminRouter.put(
     // 3. Handle Atomic Assignment Replacement
     const { classIds, subjectIds } = req.body || {};
     if (Array.isArray(classIds) && Array.isArray(subjectIds)) {
+      console.log(`[Admin] Replacing assignments for ${username}. Classes: ${classIds}, Subjects: ${subjectIds.length}`);
       await deleteAssignmentsByTeacher(username);
       const assignmentPromises = [];
       
