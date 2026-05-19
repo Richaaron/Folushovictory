@@ -109,12 +109,15 @@ const handleExportExcel = () => {
   if (!broadsheet.value) return
 
   const sheet = broadsheet.value
+  const school = sheet.school || {}
   const subjects = Array.isArray(sheet.subjects) ? sheet.subjects : []
   const students = Array.isArray(sheet.students) ? sheet.students : []
   const isTrait = String(sheet.class?.assessmentType || '').toUpperCase() === 'TRAIT'
   const className = sheet.class?.name || classes.value.find(c => c.id === selectedClassId.value)?.name || 'Class'
   const termLabel = formatTermLabel(selectedTerm.value)
   const subjectColumnSpan = isTrait ? 1 : 5
+  const totalColumns = 3 + (subjects.length * subjectColumnSpan) + (isTrait ? 0 : 4)
+  const contactLine = [school.address, school.phone, school.email, school.website].filter(Boolean).join(' | ')
 
   const headerRow = `
     <tr>
@@ -187,14 +190,17 @@ const handleExportExcel = () => {
           table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
           th, td { border: 1px solid #9ca3af; padding: 6px; text-align: center; }
           th { background: #e5e7eb; font-weight: bold; }
-          .title { font-size: 18px; font-weight: bold; text-align: left; }
-          .meta { text-align: left; font-weight: bold; }
+          .school { font-size: 20px; font-weight: bold; text-align: center; }
+          .motto, .contact { text-align: center; }
+          .meta { text-align: center; font-weight: bold; }
         </style>
       </head>
       <body>
         <table>
-          <tr><td class="title" colspan="${3 + (subjects.length * subjectColumnSpan) + (isTrait ? 0 : 4)}">Master Broadsheet</td></tr>
-          <tr><td class="meta" colspan="${3 + (subjects.length * subjectColumnSpan) + (isTrait ? 0 : 4)}">Class: ${escapeExcelCell(className)} | Session: ${escapeExcelCell(selectedSession.value)} | Term: ${escapeExcelCell(termLabel)}</td></tr>
+          <tr><td class="school" colspan="${totalColumns}">${escapeExcelCell(school.name || 'Folusho Victory Schools')}</td></tr>
+          ${school.motto ? `<tr><td class="motto" colspan="${totalColumns}">${escapeExcelCell(school.motto)}</td></tr>` : ''}
+          ${contactLine ? `<tr><td class="contact" colspan="${totalColumns}">${escapeExcelCell(contactLine)}</td></tr>` : ''}
+          <tr><td class="meta" colspan="${totalColumns}">Master Broadsheet | Class: ${escapeExcelCell(className)} | Session: ${escapeExcelCell(selectedSession.value)} | Term: ${escapeExcelCell(termLabel)}</td></tr>
           ${headerRow}
           ${subHeaderRow}
           ${bodyRows}
@@ -302,6 +308,23 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
       </div>
 
       <div v-else-if="broadsheet" class="overflow-x-auto print:overflow-visible">
+        <div class="px-6 py-6 text-center border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <h2 class="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white">{{ broadsheet.school?.name || 'Folusho Victory Schools' }}</h2>
+          <p v-if="broadsheet.school?.motto" class="mt-1 text-[10px] font-black uppercase tracking-widest text-royal-purple">{{ broadsheet.school.motto }}</p>
+          <p v-if="broadsheet.school?.address" class="mt-2 text-xs font-bold text-slate-500 dark:text-slate-400">{{ broadsheet.school.address }}</p>
+          <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            <span v-if="broadsheet.school?.phone">{{ broadsheet.school.phone }}</span>
+            <span v-if="broadsheet.school?.phone && broadsheet.school?.email"> | </span>
+            <span v-if="broadsheet.school?.email">{{ broadsheet.school.email }}</span>
+            <span v-if="(broadsheet.school?.phone || broadsheet.school?.email) && broadsheet.school?.website"> | </span>
+            <span v-if="broadsheet.school?.website">{{ broadsheet.school.website }}</span>
+          </p>
+          <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
+            <span class="rounded-lg bg-slate-100 px-3 py-1.5 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{{ broadsheet.class?.name }}</span>
+            <span class="rounded-lg bg-purple-50 px-3 py-1.5 text-royal-purple dark:bg-purple-900/20">{{ selectedSession }}</span>
+            <span class="rounded-lg bg-amber-50 px-3 py-1.5 text-amber-600 dark:bg-amber-900/20">{{ formatTermLabel(selectedTerm) }}</span>
+          </div>
+        </div>
         <table class="w-full border-collapse">
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800/50">

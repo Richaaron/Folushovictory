@@ -268,12 +268,13 @@ resultsRouter.get(
     const cls = await getClassById(classId);
     if (!cls) return res.status(404).json({ error: "Class not found" });
 
-    const [students, subjects, scores, scale, publish] = await Promise.all([
+    const [students, subjects, scores, scale, publish, school] = await Promise.all([
       optionalResult("Broadsheet students load", () => listStudentsByClass(classId), []),
       optionalResult("Broadsheet subjects load", () => subjectsForClass(cls), []),
       optionalResult("Broadsheet scores load", () => listScoresForClass({ session: String(session), term: String(term), classId }), []),
       optionalResult("Broadsheet grading scale load", () => getGradingScale(), null),
-      optionalResult("Broadsheet publish status load", () => getPublish({ classId, session: String(session), term: String(term) }), null)
+      optionalResult("Broadsheet publish status load", () => getPublish({ classId, session: String(session), term: String(term) }), null),
+      optionalResult("Broadsheet school settings load", () => getSchoolSettings(), {})
     ]);
 
     const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
@@ -283,6 +284,7 @@ resultsRouter.get(
         : numericBroadsheet({ students, subjects, scoresByKey, scale, level: cls.level });
 
     return res.json({
+      school,
       class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
       session: String(session),
       term: String(term),
