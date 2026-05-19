@@ -13,6 +13,7 @@ import { getPublish } from "../repos/publishes.js";
 import { listAssignmentsByTeacher } from "../repos/assignments.js";
 import { getUserByUsername } from "../repos/users.js";
 import { getReleaseStatus } from "../repos/releases.js";
+import { sendResultReleasedEmail } from "../services/email.js";
 
 export const resultsRouter = express.Router();
 
@@ -326,6 +327,83 @@ resultsRouter.post(
       reports,
       feesCleared: reports.filter((report) => !report.feeStatus?.owesFees),
       feesOwing: reports.filter((report) => report.feeStatus?.owesFees)
+    });
+  })
+);
+
+resultsRouter.post(
+  "/class/:classId/notify-parents",
+  asyncHandler(async (req, res) => {
+    const { classId } = req.params;
+    const { session, term, studentIds } = req.body || {};
+    if (!session || !term || !Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({ error: "Missing session, term, or selected students" });
+    }
+
+    const cls = await getClassById(classId);
+    if (!cls) return res.status(404).json({ error: "Class not found" });
+    if (!(await canAccessClassReports(req, cls))) return res.status(403).json({ error: "Forbidden" });
+
+    const selectedIds = [...new Set(studentIds.map((id) => String(id).trim()).filter(Boolean))];
+    const studentsInClass = await listStudentsByClass(classId);
+    const selectedStudents = studentsInClass.filter((student) => selectedIds.includes(student.studentId));
+
+    const sent = [];
+    const skipped = [];
+    const failed = [];
+
+    for (const student of selectedStudents) {
+      let parentEmail = student.parentEmail || "";
+      let parentName = student.parentName || "Parent";
+
+      if (!parentEmail && student.parentUsername) {
+        const parent = await optionalResult(
+          `Parent lookup for ${student.studentId}`,
+          () => getUserByUsername(student.parentUsername),
+          null
+        );
+        parentEmail = parent?.email || "";
+        parentName = parent?.displayName || parentName;
+      }
+
+      if (!parentEmail) {
+        skipped.push({
+          studentId: student.studentId,
+          studentName: `${student.lastName || ""} ${student.firstName || ""}`.trim(),
+          reason: "No parent email found"
+        });
+        continue;
+      }
+
+      try {
+        await sendResultReleasedEmail({
+          parentEmail,
+          parentName,
+          studentName: `${student.firstName || ""} ${student.lastName || ""}`.trim(),
+          session: String(session),
+          term: String(term)
+        });
+        sent.push({
+          studentId: student.studentId,
+          studentName: `${student.lastName || ""} ${student.firstName || ""}`.trim(),
+          parentEmail
+        });
+      } catch (error) {
+        failed.push({
+          studentId: student.studentId,
+          studentName: `${student.lastName || ""} ${student.firstName || ""}`.trim(),
+          parentEmail,
+          error: error?.message || "Failed to send email"
+        });
+      }
+    }
+
+    return res.json({
+      ok: failed.length === 0,
+      selected: selectedStudents.length,
+      sent,
+      skipped,
+      failed
     });
   })
 );

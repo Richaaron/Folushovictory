@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   CheckSquare,
   Loader2,
+  Mail,
   Printer,
   Square,
   UserX
@@ -26,7 +27,10 @@ const owingOverrides = ref<Record<string, boolean>>({})
 const reports = ref<any[]>([])
 const loading = ref(true)
 const generating = ref(false)
+const notifying = ref(false)
 const error = ref('')
+const notice = ref('')
+const emailSummary = ref<any>(null)
 
 const selectedStudents = computed(() => students.value.filter((student) => selectedIds.value.has(student.studentId)))
 const selectedCount = computed(() => selectedIds.value.size)
@@ -130,6 +134,33 @@ const generateReports = async (shouldPrint = false) => {
   }
 }
 
+const notifyParents = async () => {
+  if (!selectedCount.value) {
+    error.value = 'Select at least one student before sending parent notifications.'
+    return
+  }
+
+  if (!confirm(`Send result notification emails to parents of ${selectedCount.value} selected student(s)?`)) return
+
+  notifying.value = true
+  error.value = ''
+  notice.value = ''
+  emailSummary.value = null
+  try {
+    const { data } = await api.post(`/api/results/class/${classId}/notify-parents`, {
+      session: session.value,
+      term: term.value,
+      studentIds: Array.from(selectedIds.value)
+    })
+    emailSummary.value = data
+    notice.value = `Emails sent: ${data.sent?.length || 0}. Skipped: ${data.skipped?.length || 0}. Failed: ${data.failed?.length || 0}.`
+  } catch (err: any) {
+    error.value = err.response?.data?.error || 'Failed to send parent notifications.'
+  } finally {
+    notifying.value = false
+  }
+}
+
 onMounted(fetchStudents)
 </script>
 
@@ -164,6 +195,11 @@ onMounted(fetchStudents)
         <button @click="generateReports(false)" :disabled="generating || selectedCount === 0" class="rounded-xl bg-slate-100 px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-600 transition hover:text-royal-purple disabled:opacity-50 dark:bg-slate-800">
           Preview
         </button>
+        <button @click="notifyParents" :disabled="notifying || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-50">
+          <Loader2 v-if="notifying" class="h-4 w-4 animate-spin" />
+          <Mail v-else class="h-4 w-4" />
+          Email Parents
+        </button>
         <button @click="generateReports(true)" :disabled="generating || selectedCount === 0 || clearedSelected.length === 0" class="flex items-center gap-2 rounded-xl bg-royal-purple px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg disabled:opacity-50">
           <Loader2 v-if="generating" class="h-4 w-4 animate-spin" />
           <Printer v-else class="h-4 w-4" />
@@ -184,6 +220,17 @@ onMounted(fetchStudents)
     </div>
 
     <template v-else>
+      <div v-if="notice" class="no-print rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-emerald-700">
+        <div class="flex items-center gap-3">
+          <Mail class="h-5 w-5" />
+          <p class="text-sm font-bold">{{ notice }}</p>
+        </div>
+        <div v-if="emailSummary?.skipped?.length || emailSummary?.failed?.length" class="mt-3 space-y-1 text-xs font-bold">
+          <p v-for="item in emailSummary.skipped || []" :key="`skipped-${item.studentId}`">Skipped {{ item.studentName }}: {{ item.reason }}</p>
+          <p v-for="item in emailSummary.failed || []" :key="`failed-${item.studentId}`">Failed {{ item.studentName }}: {{ item.error }}</p>
+        </div>
+      </div>
+
       <div class="no-print grid grid-cols-1 gap-4 md:grid-cols-3">
         <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected Students</p>
