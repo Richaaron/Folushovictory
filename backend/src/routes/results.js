@@ -20,11 +20,24 @@ resultsRouter.use(authRequired);
 
 async function subjectsForClass(cls) {
   if (Array.isArray(cls.subjectIds) && cls.subjectIds.length) {
-    const subs = await Promise.all(cls.subjectIds.map((id) => getSubjectById(id)));
+    const subjectIds = cls.subjectIds.map((id) => String(id || "").trim()).filter(Boolean);
+    const subs = await Promise.all(subjectIds.map(async (id) => {
+      try {
+        return await getSubjectById(id);
+      } catch (error) {
+        console.error(`Failed to load subject ${id}:`, error?.message || error);
+        return null;
+      }
+    }));
     return subs.filter(Boolean).map((s) => ({ id: s.id, name: s.name }));
   }
 
-  const all = await listSubjects();
+  let all = [];
+  try {
+    all = await listSubjects();
+  } catch (error) {
+    console.error("Failed to list subjects for class:", error?.message || error);
+  }
   let levelFilter = cls.level;
   if (levelFilter === "PRY") levelFilter = "Primary";
 
@@ -122,6 +135,15 @@ async function canAccessClassReports(req, cls) {
   if (req.user.role === Roles.ADMIN) return true;
   if (req.user.role !== Roles.TEACHER) return false;
   return cls.formTeacherUsername === req.user.username;
+}
+
+async function optionalResult(label, loader, fallback = null) {
+  try {
+    return await loader();
+  } catch (error) {
+    console.error(`${label} failed:`, error?.message || error);
+    return fallback;
+  }
 }
 
 async function buildStudentReport({ student, cls, session, term }) {
@@ -226,11 +248,11 @@ resultsRouter.get(
     if (!cls) return res.status(404).json({ error: "Class not found" });
 
     const [students, subjects, scores, scale, publish] = await Promise.all([
-      listStudentsByClass(classId),
-      subjectsForClass(cls),
-      listScoresForClass({ session: String(session), term: String(term), classId }),
-      getGradingScale(),
-      getPublish({ classId, session: String(session), term: String(term) })
+      optionalResult("Broadsheet students load", () => listStudentsByClass(classId), []),
+      optionalResult("Broadsheet subjects load", () => subjectsForClass(cls), []),
+      optionalResult("Broadsheet scores load", () => listScoresForClass({ session: String(session), term: String(term), classId }), []),
+      optionalResult("Broadsheet grading scale load", () => getGradingScale(), null),
+      optionalResult("Broadsheet publish status load", () => getPublish({ classId, session: String(session), term: String(term) }), null)
     ]);
 
     const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
