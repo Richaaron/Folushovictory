@@ -258,7 +258,7 @@ onMounted(fetchData)
                       v-model.number="scores.get(subject.id).ca1"
                       type="number" 
                       min="0" 
-                      max="15"
+                      max="20"
                       class="w-12 sm:w-14 px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-semibold text-center focus:ring-2 focus:ring-royal-purple outline-none"
                     />
                   </td>
@@ -267,7 +267,7 @@ onMounted(fetchData)
                       v-model.number="scores.get(subject.id).ca2"
                       type="number" 
                       min="0" 
-                      max="15"
+                      max="20"
                       class="w-12 sm:w-14 px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-semibold text-center focus:ring-2 focus:ring-royal-purple outline-none"
                     />
                   </td>
@@ -276,7 +276,7 @@ onMounted(fetchData)
                       v-model.number="scores.get(subject.id).exam"
                       type="number" 
                       min="0" 
-                      max="70"
+                      max="60"
                       class="w-12 sm:w-14 px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-semibold text-center focus:ring-2 focus:ring-royal-purple outline-none"
                     />
                   </td>

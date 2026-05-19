@@ -95,8 +95,9 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
     };
   });
 
-  // Step 2: Compute Position in Subject for Secondary (JSS & SSS)
-  if (isSecondary) {
+  // Step 2: Compute Position in Subject for JSS, SSS, and Primary levels
+  const hasSubjectPositions = isSecondary || l.includes("PRIMARY") || l.includes("PRY");
+  if (hasSubjectPositions) {
     subjectIds.forEach(subId => {
       const subjectScores = rows.map(r => {
         const ps = r.perSubject.find(ps => ps.subjectId === subId);
