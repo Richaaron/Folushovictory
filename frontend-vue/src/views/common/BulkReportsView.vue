@@ -95,6 +95,26 @@ const getPositionSuffix = (pos: number) => {
   return `${pos}th`
 }
 
+const isPositionBasedClass = (report: any) => {
+  const classLabel = `${report.class?.level || ''} ${report.class?.name || ''}`.toUpperCase()
+  if (classLabel.includes('SSS') || classLabel.includes('PRE-NURSERY') || classLabel.includes('PRE NURSERY') || classLabel.includes('PRE_NURSERY')) {
+    return false
+  }
+  return classLabel.includes('NURSERY') || classLabel.includes('PRIMARY') || classLabel.includes('PRY') || classLabel.includes('JSS')
+}
+
+const getOverallGrade = (report: any) => {
+  if (report.result?.overallGrade) return report.result.overallGrade
+  const average = Number(report.result?.average || 0)
+  if (average >= 80) return 'A'
+  if (average >= 70) return 'B'
+  if (average >= 60) return 'C'
+  if (average >= 50) return 'D'
+  if (average >= 40) return 'E'
+  if (average > 0) return 'F'
+  return 'N/A'
+}
+
 const generateReports = async (shouldPrint = false) => {
   if (!selectedCount.value) {
     error.value = 'Select at least one student before generating reports.'
@@ -314,7 +334,10 @@ onMounted(fetchStudents)
           <div class="summary-strip">
             <div><span>Total</span><strong>{{ report.result?.total ?? 'N/A' }}</strong></div>
             <div><span>Average</span><strong>{{ report.result?.average ?? 'N/A' }}%</strong></div>
-            <div><span>Position</span><strong>{{ getPositionSuffix(report.result?.position) }}</strong></div>
+            <div>
+              <span>{{ isPositionBasedClass(report) ? 'Position' : 'Overall Grade' }}</span>
+              <strong>{{ isPositionBasedClass(report) ? getPositionSuffix(report.result?.position) : getOverallGrade(report) }}</strong>
+            </div>
             <div><span>Release</span><strong>{{ report.released ? 'Released' : 'Draft' }}</strong></div>
           </div>
 
