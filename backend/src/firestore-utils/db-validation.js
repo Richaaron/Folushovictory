@@ -89,6 +89,20 @@ export const ValidationSchemas = {
       level: 50,
       category: 50
     }
+  },
+
+  assignment: {
+    required: ["teacherUsername", "classId", "subjectId"],
+    types: {
+      teacherUsername: "string",
+      classId: "string",
+      subjectId: "string"
+    },
+    maxLengths: {
+      teacherUsername: 100,
+      classId: 50,
+      subjectId: 50
+    }
   }
 };
 
@@ -176,6 +190,11 @@ export function sanitizeData(data, type) {
     sanitized.formTeacherUsername = sanitized.formTeacherUsername.toLowerCase().trim();
   }
 
+  // Normalize assignment teacher username
+  if (type === "assignment" && sanitized.teacherUsername) {
+    sanitized.teacherUsername = sanitized.teacherUsername.toLowerCase().trim();
+  }
+
   // Convert numeric scores
   if (type === "score") {
     if (sanitized.ca1 !== undefined) sanitized.ca1 = Number(sanitized.ca1) || 0;
@@ -211,7 +230,8 @@ export function buildDuplicateCheckRules(type) {
     student: ["studentId"],
     class: ["name"],
     user: ["username"],
-    subject: ["name"]
+    subject: ["name"],
+    assignment: []
   };
   return rules[type] || [];
 }

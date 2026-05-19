@@ -278,6 +278,7 @@ adminRouter.put(
   asyncHandler(async (req, res) => {
     const { username } = req.params;
     const { displayName, email, formClassId } = req.body || {};
+    const normalizedUsername = String(username).toLowerCase().trim();
     
     // 1. Update User Record
     const updated = await updateUser(username, { 
@@ -289,7 +290,7 @@ adminRouter.put(
     if (formClassId !== undefined) {
       await revokeFormTeacherStatus(username);
       if (formClassId) {
-        await updateClass(formClassId, { formTeacherUsername: username });
+        await updateClass(formClassId, { formTeacherUsername: normalizedUsername });
       }
     }
 
@@ -320,7 +321,7 @@ adminRouter.put(
         for (const sId of subjectIds) {
           if (subjectMap[sId]?.level === cls.level) {
             assignments.push(createAssignment({
-              teacherUsername: username,
+              teacherUsername: normalizedUsername,
               classId: cls.id,
               subjectId: sId,
               createdAt: new Date().toISOString()
@@ -671,9 +672,11 @@ adminRouter.post(
   "/assignments",
   asyncHandler(async (req, res) => {
     let { teacherUsername, classId, subjectId } = req.body || {};
+    const normalizedTeacherUsername = teacherUsername ? String(teacherUsername).toLowerCase().trim() : null;
+    
     // Validation: Require teacher and AT LEAST one of (subjectId/subjectIds)
     // classId/classIds are now optional as the system auto-expands subjects to all matching classes
-    if (!teacherUsername || (!subjectId && !req.body.subjectIds)) {
+    if (!normalizedTeacherUsername || (!subjectId && !req.body.subjectIds)) {
       return res.status(400).json({ error: "Missing teacherUsername or subject selection" });
     }
 
@@ -681,8 +684,8 @@ adminRouter.post(
     const subjectIds = Array.isArray(req.body.subjectIds) ? req.body.subjectIds : [subjectId];
 
     // Clear old assignments if updating in bulk for a teacher
-    if (teacherUsername && (req.body.classIds || req.body.subjectIds)) {
-      await deleteAssignmentsByTeacher(teacherUsername);
+    if (normalizedTeacherUsername && (req.body.classIds || req.body.subjectIds)) {
+      await deleteAssignmentsByTeacher(normalizedTeacherUsername);
     }
 
     const assignmentPromises = [];
@@ -709,7 +712,7 @@ adminRouter.post(
         if (subjectMap[sId]?.level === cls.level) {
           assignmentPromises.push(
             createAssignment({
-              teacherUsername: String(teacherUsername),
+              teacherUsername: normalizedTeacherUsername,
               classId: String(cls.id),
               subjectId: String(sId)
             })
