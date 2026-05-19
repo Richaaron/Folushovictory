@@ -59,7 +59,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
         return subTrack === "ART" || ["GOVERNMENT", "LITERATURE IN ENGLISH"].includes(String(sub.name).toUpperCase());
       }
       if (studentStream === "COMMERCIAL") {
-        return subTrack === "COMMERCIAL" || ["ACCOUNTING", "FINANCIAL ACCOUNTING", "COMMERCE", "COMMERCIAL"].includes(String(sub.name).toUpperCase());
+        return subTrack === "COMMERCIAL" || ["FINANCIAL ACCOUNTING", "COMMERCE"].includes(String(sub.name).toUpperCase());
       }
       
       return false;

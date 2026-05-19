@@ -72,7 +72,7 @@ const fetchData = async () => {
       const trackSubjectNames = {
         'Science': ['Chemistry', 'Physics'],
         'Art': ['Government', 'Literature in English'],
-        'Commercial': ['Accounting', 'Financial Accounting', 'Commerce', 'Commercial']
+        'Commercial': ['Financial Accounting', 'Commerce']
       }
       
       const studentStream = props.student?.stream || cls.track

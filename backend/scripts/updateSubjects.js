@@ -63,7 +63,7 @@ const correctSubjects = [
   { name: "Literature in English", level: "SSS", track: "Art" },
 
   // SENIOR SECONDARY - Commercial Track
-  { name: "Accounting", level: "SSS", track: "Commercial" },
+  { name: "Financial Accounting", level: "SSS", track: "Commercial" },
   { name: "Commerce", level: "SSS", track: "Commercial" }
 ];
 

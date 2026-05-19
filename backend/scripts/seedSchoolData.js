@@ -67,7 +67,7 @@ const SUBJECTS = [
   { id: "phys", name: "Physics" },
   { id: "gov", name: "Government" },
   { id: "lit-s", name: "Literature in English" },
-  { id: "acc", name: "Accounting" },
+  { id: "acc", name: "Financial Accounting" },
   { id: "comm", name: "Commerce" },
 ];
 

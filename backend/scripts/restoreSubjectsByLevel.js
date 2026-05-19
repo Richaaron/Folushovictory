@@ -36,7 +36,7 @@ async function restoreSubjectsByLevel() {
       "National Values", "Livestock Studies", "Physical & Health Education", 
       "Home Economics", "Digital Technology", "Religious Studies",
       "Biology", "Citizenship and Heritage studies", "Geography", "Chemistry", "Physics",
-      "Government", "Literature in English", "Accounting", "Commerce"
+      "Government", "Literature in English", "Financial Accounting", "Commerce"
     ]
   };
   
