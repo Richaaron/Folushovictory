@@ -43,9 +43,11 @@ export function validateEmail(value, required = false) {
 export function validateTeacherPayload(body) {
   const displayName = requiredString(body.displayName, "displayName");
   const email = validateEmail(body.email, false);
+  const formClassId = optionalString(body.formClassId);
   return {
     displayName,
     email,
+    formClassId,
     portal: "TEACHER",
     role: Roles.TEACHER
   };

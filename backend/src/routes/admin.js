@@ -143,7 +143,8 @@ adminRouter.post(
       portal: "TEACHER",
       role: Roles.TEACHER,
       displayName: payload.displayName,
-      passwordHash
+      passwordHash,
+      formClassId: payload.formClassId || null
     }, { docId: username });
 
     let emailSent = false;
@@ -298,7 +299,7 @@ adminRouter.put(
     const { classIds, subjectIds } = req.body || {};
     if (Array.isArray(classIds) && Array.isArray(subjectIds)) {
       await deleteAssignmentsByTeacher(username);
-      const assignments = [];
+      const assignmentPromises = [];
       
       // Fetch all subjects to determine their levels
       const subjectDocs = await Promise.all(subjectIds.filter(id => !!id).map(id => getSubjectById(id)));
@@ -312,15 +313,23 @@ adminRouter.put(
         }
       }
       
-      // Fetch ALL classes and filter to those matching the required levels
+      // Logic:
+      // - If specific classIds are provided, only assign subjects for those classes (filtered by level)
+      // - If classIds is empty, default to ALL classes matching the subject levels
+      let targetClasses = [];
       const allClasses = await listClasses();
-      const targetClasses = allClasses.filter(cls => requiredLevels.has(cls.level));
+
+      if (classIds.length > 0) {
+        targetClasses = allClasses.filter(cls => classIds.includes(cls.id) && requiredLevels.has(cls.level));
+      } else {
+        targetClasses = allClasses.filter(cls => requiredLevels.has(cls.level));
+      }
       
-      // Create assignments for ALL classes at the subject's level
+      // Create assignments for matching classes
       for (const cls of targetClasses) {
         for (const sId of subjectIds) {
           if (subjectMap[sId]?.level === cls.level) {
-            assignments.push(createAssignment({
+            assignmentPromises.push(createAssignment({
               teacherUsername: normalizedUsername,
               classId: cls.id,
               subjectId: sId,
@@ -330,7 +339,7 @@ adminRouter.put(
         }
       }
       
-      if (assignments.length > 0) await Promise.all(assignments);
+      if (assignmentPromises.length > 0) await Promise.all(assignmentPromises);
     }
 
     return res.json(updated);
@@ -695,7 +704,7 @@ adminRouter.post(
       return res.status(400).json({ error: "Missing teacherUsername or subject selection" });
     }
 
-    const classIds = Array.isArray(req.body.classIds) ? req.body.classIds : [classId];
+    const classIds = Array.isArray(req.body.classIds) ? req.body.classIds : (classId ? [classId] : []);
     const subjectIds = Array.isArray(req.body.subjectIds) ? req.body.subjectIds : [subjectId];
 
     // Clear old assignments if updating in bulk for a teacher
@@ -717,11 +726,19 @@ adminRouter.post(
       }
     }
 
-    // Fetch ALL classes and filter to those matching the required levels
+    // Logic:
+    // - If specific classIds are provided, only assign subjects for those classes (filtered by level)
+    // - If classIds is empty, default to ALL classes matching the subject levels
+    let targetClasses = [];
     const allClasses = await listClasses();
-    const targetClasses = allClasses.filter(cls => requiredLevels.has(cls.level));
 
-    // Create assignments for ALL classes at the subject's level
+    if (classIds.length > 0) {
+      targetClasses = allClasses.filter(cls => classIds.includes(cls.id) && requiredLevels.has(cls.level));
+    } else {
+      targetClasses = allClasses.filter(cls => requiredLevels.has(cls.level));
+    }
+
+    // Create assignments for matching classes
     for (const cls of targetClasses) {
       for (const sId of subjectIds) {
         if (subjectMap[sId]?.level === cls.level) {
