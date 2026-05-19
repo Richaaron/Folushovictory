@@ -26,16 +26,16 @@ async function restoreSubjectsByLevel() {
       "Literature", "Creative Arts", "Writing"
     ],
     JSS: [
-      "Mathematics", "English Language", "Basic Science", "Basic Technology", 
-      "National Values", "Agricultural Science", "Physical & Health Education", 
-      "Home Economics", "Computer Studies", "Religious Studies",
+      "Mathematics", "English Language", "Intermidiate Science", 
+      "National Values", "Livestock Studies", "Physical & Health Education", 
+      "Home Economics", "Digital Technology", "Religious Studies",
       "Business Studies", "Hausa", "Fine Arts"
     ],
     SSS: [
-      "Mathematics", "English Language", "Basic Science",
-      "National Values", "Agricultural Science", "Physical & Health Education", 
-      "Home Economics", "Computer Studies", "Religious Studies",
-      "Biology", "Civic Education", "Geography", "Chemistry", "Physics",
+      "Mathematics", "English Language", "Intermidiate Science",
+      "National Values", "Livestock Studies", "Physical & Health Education", 
+      "Home Economics", "Digital Technology", "Religious Studies",
+      "Biology", "Citizenship and Heritage studies", "Geography", "Chemistry", "Physics",
       "Government", "Literature in English", "Accounting", "Commerce"
     ]
   };

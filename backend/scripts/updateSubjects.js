@@ -27,16 +27,15 @@ const correctSubjects = [
   // JUNIOR SECONDARY (JSS1-JSS3)
   { name: "Mathematics", level: "JSS" },
   { name: "English Language", level: "JSS" },
-  { name: "Basic Science", level: "JSS" },
-  { name: "Basic Technology", level: "JSS" },
+  { name: "Intermidiate Science", level: "JSS" },
   { name: "National Values", level: "JSS" },
-  { name: "Agriculture Science", level: "JSS" },
+  { name: "Livestock Studies", level: "JSS" },
   { name: "Business Studies", level: "JSS" },
   { name: "Physical & Health Education", level: "JSS" },
   { name: "Hausa", level: "JSS" },
   { name: "Fine Arts", level: "JSS" },
   { name: "Home Economics", level: "JSS" },
-  { name: "Computer Studies", level: "JSS" },
+  { name: "Digital Technology", level: "JSS" },
   { name: "Religious Studies", level: "JSS" },
 
   // SENIOR SECONDARY - General Subjects (all tracks)
@@ -44,9 +43,9 @@ const correctSubjects = [
   { name: "English Language", level: "SSS", track: "General" },
   { name: "Biology", level: "SSS", track: "General" },
   { name: "Marketing", level: "SSS", track: "General" },
-  { name: "Civic Education", level: "SSS", track: "General" },
+  { name: "Citizenship and Heritage studies", level: "SSS", track: "General" },
   { name: "Geography", level: "SSS", track: "General" },
-  { name: "Agriculture Science", level: "SSS", track: "General" },
+  { name: "Livestock Studies", level: "SSS", track: "General" },
 
   // SENIOR SECONDARY - Science Track
   { name: "Chemistry", level: "SSS", track: "Science" },
@@ -86,7 +85,7 @@ try {
   console.log(`✓ Successfully seeded ${correctSubjects.length} subjects with correct structure`);
   console.log("\nSubjects by level:");
   console.log("- Primary: 17 subjects");
-  console.log("- JSS: 13 subjects");
+  console.log("- JSS: 12 subjects");
   console.log("- SSS General: 7 subjects");
   console.log("- SSS Science: 2 subjects");
   console.log("- SSS Art: 2 subjects");
