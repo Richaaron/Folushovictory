@@ -102,6 +102,14 @@ const newStudent = ref({
 })
 
 const handleAddStudent = async () => {
+  if (!newStudent.value.firstName || !newStudent.value.lastName) {
+    alert('❌ Please enter both first name and last name.')
+    return
+  }
+  if (!newStudent.value.parentName) {
+    alert("❌ Parent/Guardian Name is required to enroll a student.")
+    return
+  }
   try {
     await api.post('/api/admin/students', newStudent.value)
     showAddModal.value = false
@@ -117,8 +125,10 @@ const handleAddStudent = async () => {
     }
     await fetchStudents()
     await fetchStats()
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error adding student:', err)
+    const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
+    alert(`❌ Enrollment Failed: ${errorMsg}`)
   }
 }
 
@@ -142,13 +152,22 @@ const openEditModal = (student: any) => {
 }
 
 const handleUpdateStudent = async () => {
-  if (!editingStudent.value?.firstName || !editingStudent.value?.lastName) return
+  if (!editingStudent.value?.firstName || !editingStudent.value?.lastName) {
+    alert('❌ First Name and Last Name are required.')
+    return
+  }
+  if (!editingStudent.value?.parentName) {
+    alert('❌ Parent/Guardian Name is required.')
+    return
+  }
   try {
     await api.put(`/api/admin/students/${editingStudent.value.studentId}`, editingStudent.value)
     showEditModal.value = false
     await fetchStudents()
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error updating student:', err)
+    const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
+    alert(`❌ Update Failed: ${errorMsg}`)
   }
 }
 
