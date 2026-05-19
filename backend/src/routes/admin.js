@@ -305,37 +305,39 @@ adminRouter.put(
       const subjectDocs = await Promise.all(subjectIds.filter(id => !!id).map(id => getSubjectById(id)));
       const subjectMap = Object.fromEntries(subjectDocs.filter(s => !!s).map(s => [s.id, s]));
       
-      // Determine all required levels from the subjects
-      const requiredLevels = new Set();
-      for (const sId of subjectIds) {
-        if (subjectMap[sId]?.level) {
-          requiredLevels.add(subjectMap[sId].level);
-        }
-      }
-      
-      // Logic:
-      // - If specific classIds are provided, only assign subjects for those classes (filtered by level)
-      // - If classIds is empty, default to ALL classes matching the subject levels
-      let targetClasses = [];
+      // Fetch ALL classes to match levels
       const allClasses = await listClasses();
 
-      if (classIds.length > 0) {
-        targetClasses = allClasses.filter(cls => classIds.includes(cls.id) && requiredLevels.has(cls.level));
-      } else {
-        targetClasses = allClasses.filter(cls => requiredLevels.has(cls.level));
-      }
-      
-      // Create assignments for matching classes
-      for (const cls of targetClasses) {
-        for (const sId of subjectIds) {
-          if (subjectMap[sId]?.level === cls.level) {
-            assignmentPromises.push(createAssignment({
-              teacherUsername: normalizedUsername,
-              classId: cls.id,
-              subjectId: sId,
-              createdAt: new Date().toISOString()
-            }));
+      // Logic:
+      // - For each subject selected:
+      //   - If it's a Primary subject: ONLY assign it to classes in 'classIds' that are 'Primary'
+      //   - If it's a Secondary subject: assign it to ALL matching classes at that level (JSS/SSS)
+      for (const sId of subjectIds) {
+        const subject = subjectMap[sId];
+        if (!subject) continue;
+
+        const isPrimarySubject = subject.level === 'Primary';
+        
+        const targetClasses = allClasses.filter(cls => {
+          const levelMatch = cls.level === subject.level;
+          if (!levelMatch) return false;
+
+          // If it's Primary, it MUST be in the specifically selected classIds
+          if (isPrimarySubject) {
+            return classIds.includes(cls.id);
           }
+          
+          // If it's Secondary, assign to all classes at that level (or filter by classIds if provided)
+          return classIds.length > 0 ? classIds.includes(cls.id) : true;
+        });
+
+        for (const cls of targetClasses) {
+          assignmentPromises.push(createAssignment({
+            teacherUsername: normalizedUsername,
+            classId: cls.id,
+            subjectId: sId,
+            createdAt: new Date().toISOString()
+          }));
         }
       }
       
@@ -727,29 +729,36 @@ adminRouter.post(
     }
 
     // Logic:
-    // - If specific classIds are provided, only assign subjects for those classes (filtered by level)
-    // - If classIds is empty, default to ALL classes matching the subject levels
-    let targetClasses = [];
-    const allClasses = await listClasses();
+    // - For each subject selected:
+    //   - If it's a Primary subject: ONLY assign it to classes in 'classIds' that are 'Primary'
+    //   - If it's a Secondary subject: assign it to ALL matching classes at that level (JSS/SSS)
+    for (const sId of subjectIds) {
+      const subject = subjectMap[sId];
+      if (!subject) continue;
 
-    if (classIds.length > 0) {
-      targetClasses = allClasses.filter(cls => classIds.includes(cls.id) && requiredLevels.has(cls.level));
-    } else {
-      targetClasses = allClasses.filter(cls => requiredLevels.has(cls.level));
-    }
+      const isPrimarySubject = subject.level === 'Primary';
+      
+      const targetClasses = allClasses.filter(cls => {
+        const levelMatch = cls.level === subject.level;
+        if (!levelMatch) return false;
 
-    // Create assignments for matching classes
-    for (const cls of targetClasses) {
-      for (const sId of subjectIds) {
-        if (subjectMap[sId]?.level === cls.level) {
-          assignmentPromises.push(
-            createAssignment({
-              teacherUsername: normalizedTeacherUsername,
-              classId: String(cls.id),
-              subjectId: String(sId)
-            })
-          );
+        // If it's Primary, it MUST be in the specifically selected classIds
+        if (isPrimarySubject) {
+          return classIds.includes(cls.id);
         }
+        
+        // If it's Secondary, assign to all classes at that level (or filter by classIds if provided)
+        return classIds.length > 0 ? classIds.includes(cls.id) : true;
+      });
+
+      for (const cls of targetClasses) {
+        assignmentPromises.push(
+          createAssignment({
+            teacherUsername: normalizedTeacherUsername,
+            classId: String(cls.id),
+            subjectId: String(sId)
+          })
+        );
       }
     }
 
