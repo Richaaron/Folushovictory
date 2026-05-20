@@ -186,25 +186,25 @@ onMounted(fetchStudents)
 
 <template>
   <div class="bulk-report-page mx-auto max-w-7xl space-y-6 p-4 fade-in">
-    <div class="no-print flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-lg dark:border-slate-800 dark:bg-slate-950 lg:flex-row lg:items-center lg:justify-between">
+    <div class="no-print flex flex-col gap-4 rounded-2xl border border-slate-700/60 bg-slate-950/90 p-4 shadow-xl shadow-black/20 lg:flex-row lg:items-center lg:justify-between">
       <div class="flex items-center gap-4">
-        <button @click="router.back()" class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:text-royal-purple dark:bg-slate-800">
+        <button @click="router.back()" class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900/60 text-slate-200 transition hover:text-royal-purple border border-slate-700/60">
           <ArrowLeft class="h-5 w-5" />
         </button>
         <div>
-          <h1 class="text-2xl font-black text-slate-900 dark:text-white">Bulk Result Printing</h1>
+          <h1 class="text-2xl font-black text-white">Bulk Result Printing</h1>
           <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ classInfo?.name || 'Class' }} Result Cards</p>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
-        <select v-model="session" class="rounded-xl bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none dark:bg-slate-800">
+        <select v-model="session" class="rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
           <option>2026/2027</option>
           <option>2025/2026</option>
           <option>2024/2025</option>
           <option>2023/2024</option>
         </select>
-        <select v-model="term" class="rounded-xl bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none dark:bg-slate-800">
+        <select v-model="term" class="rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
           <option value="1st">First Term</option>
           <option value="2nd">Second Term</option>
           <option value="3rd">Third Term</option>
@@ -212,7 +212,7 @@ onMounted(fetchStudents)
           <option value="Second">Second</option>
           <option value="Third">Third</option>
         </select>
-        <button @click="generateReports(false)" :disabled="generating || selectedCount === 0" class="rounded-xl bg-slate-100 px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-600 transition hover:text-royal-purple disabled:opacity-50 dark:bg-slate-800">
+        <button @click="generateReports(false)" :disabled="generating || selectedCount === 0" class="rounded-xl bg-slate-900/60 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:opacity-50 border border-slate-700/60">
           Preview
         </button>
         <button @click="notifyParents" :disabled="notifying || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-50">
@@ -232,7 +232,7 @@ onMounted(fetchStudents)
       <Loader2 class="h-12 w-12 animate-spin text-royal-purple" />
     </div>
 
-    <div v-else-if="error" class="no-print rounded-2xl border border-red-100 bg-red-50 p-6 text-red-700">
+    <div v-else-if="error" class="no-print rounded-2xl border border-red-700/50 bg-red-900/20 p-6 text-red-300">
       <div class="flex items-center gap-3">
         <AlertCircle class="h-5 w-5" />
         <p class="text-sm font-bold">{{ error }}</p>
@@ -240,50 +240,50 @@ onMounted(fetchStudents)
     </div>
 
     <template v-else>
-      <div v-if="notice" class="no-print rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-emerald-700">
+      <div v-if="notice" class="no-print rounded-2xl border border-emerald-700/50 bg-emerald-900/20 p-5 text-emerald-200">
         <div class="flex items-center gap-3">
           <Mail class="h-5 w-5" />
           <p class="text-sm font-bold">{{ notice }}</p>
         </div>
-        <div v-if="emailSummary?.skipped?.length || emailSummary?.failed?.length" class="mt-3 space-y-1 text-xs font-bold">
+        <div v-if="emailSummary?.skipped?.length || emailSummary?.failed?.length" class="mt-3 space-y-1 text-xs font-bold text-slate-300">
           <p v-for="item in emailSummary.skipped || []" :key="`skipped-${item.studentId}`">Skipped {{ item.studentName }}: {{ item.reason }}</p>
           <p v-for="item in emailSummary.failed || []" :key="`failed-${item.studentId}`">Failed {{ item.studentName }}: {{ item.error }}</p>
         </div>
       </div>
 
       <div class="no-print grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="rounded-2xl border border-slate-700/60 bg-slate-950/90 p-5 shadow-sm">
           <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected Students</p>
-          <strong class="mt-2 block text-3xl font-black text-slate-900 dark:text-white">{{ selectedCount }}</strong>
+          <strong class="mt-2 block text-3xl font-black text-white">{{ selectedCount }}</strong>
         </div>
-        <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 shadow-sm dark:border-emerald-900/30 dark:bg-emerald-900/20">
-          <p class="text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-300">Ready To Print</p>
-          <strong class="mt-2 block text-3xl font-black text-emerald-700 dark:text-emerald-300">{{ clearedSelected.length }}</strong>
+        <div class="rounded-2xl border border-emerald-700/50 bg-emerald-900/20 p-5 shadow-sm">
+          <p class="text-[10px] font-black uppercase tracking-widest text-emerald-300">Ready To Print</p>
+          <strong class="mt-2 block text-3xl font-black text-emerald-200">{{ clearedSelected.length }}</strong>
         </div>
-        <div class="rounded-2xl border border-amber-100 bg-amber-50 p-5 shadow-sm dark:border-amber-900/30 dark:bg-amber-900/20">
-          <p class="text-[10px] font-black uppercase tracking-widest text-amber-700 dark:text-amber-300">Fees Owing</p>
-          <strong class="mt-2 block text-3xl font-black text-amber-700 dark:text-amber-300">{{ owingSelected.length }}</strong>
+        <div class="rounded-2xl border border-amber-700/50 bg-amber-900/20 p-5 shadow-sm">
+          <p class="text-[10px] font-black uppercase tracking-widest text-amber-300">Fees Owing</p>
+          <strong class="mt-2 block text-3xl font-black text-amber-200">{{ owingSelected.length }}</strong>
         </div>
       </div>
 
-      <div class="no-print rounded-2xl border border-slate-100 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-4 dark:border-slate-800">
-          <p class="text-xs font-black uppercase tracking-widest text-slate-500">Choose students and mark fee status</p>
+      <div class="no-print rounded-2xl border border-slate-700/60 bg-slate-950/90 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/60 p-4">
+          <p class="text-xs font-black uppercase tracking-widest text-slate-400">Choose students and mark fee status</p>
           <div class="flex gap-2">
-            <button @click="selectAll" class="rounded-lg bg-slate-100 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:bg-slate-800">Select All</button>
-            <button @click="clearSelection" class="rounded-lg bg-slate-100 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:bg-slate-800">Clear</button>
+            <button @click="selectAll" class="rounded-lg bg-slate-900/60 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white border border-slate-700/60">Select All</button>
+            <button @click="clearSelection" class="rounded-lg bg-slate-900/60 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white border border-slate-700/60">Clear</button>
           </div>
         </div>
         <div class="max-h-[520px] overflow-auto">
           <table class="w-full text-left">
-            <thead class="sticky top-0 bg-slate-50 dark:bg-slate-800">
+            <thead class="sticky top-0 bg-slate-900/60">
               <tr>
                 <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Print</th>
                 <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Student</th>
                 <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Fee Status</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody class="divide-y divide-slate-700/40">
               <tr v-for="student in students" :key="student.studentId">
                 <td class="px-5 py-4">
                   <button @click="toggleStudent(student.studentId)" class="text-royal-purple">
@@ -292,14 +292,14 @@ onMounted(fetchStudents)
                   </button>
                 </td>
                 <td class="px-5 py-4">
-                  <p class="text-sm font-black text-slate-900 dark:text-white">{{ student.lastName }} {{ student.firstName }}</p>
+                  <p class="text-sm font-black text-white">{{ student.lastName }} {{ student.firstName }}</p>
                   <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ student.studentId }}</p>
                 </td>
                 <td class="px-5 py-4">
                   <button
                     @click="toggleOwing(student.studentId)"
                     class="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest"
-                    :class="isOwing(student) ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'"
+                    :class="isOwing(student) ? 'bg-amber-700/20 text-amber-200 border border-amber-700/30' : 'bg-emerald-700/20 text-emerald-200 border border-emerald-700/30'"
                   >
                     {{ isOwing(student) ? 'Owing Fees' : 'Fees Cleared' }}
                   </button>

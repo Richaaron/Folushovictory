@@ -116,12 +116,12 @@ onMounted(fetchData)
 
 <template>
   <div class="mx-auto max-w-6xl space-y-8 p-4 fade-in report-screen">
-    <div class="no-print sticky top-0 z-50 flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-4 shadow-lg dark:border-slate-800 dark:bg-slate-950">
-      <button @click="$router.back()" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 transition-colors hover:text-purple-800">
+    <div class="no-print sticky top-0 z-50 flex items-center justify-between rounded-2xl border border-slate-700/60 bg-slate-950/90 p-4 shadow-xl shadow-black/20">
+      <button @click="$router.back()" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300 transition-colors hover:text-royal-purple">
         <ArrowLeft class="h-5 w-5" /> Back
       </button>
       <div class="flex gap-3">
-        <button @click="handleDownload" class="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700">
+        <button @click="handleDownload" class="flex items-center gap-2 rounded-xl bg-slate-900/60 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-slate-800 border border-slate-700/60">
           <Download class="h-4 w-4" /> Download PDF
         </button>
         <button @click="handlePrint" class="flex items-center gap-2 rounded-xl bg-purple-800 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-colors hover:bg-purple-900">
@@ -134,16 +134,16 @@ onMounted(fetchData)
       <Loader2 class="h-16 w-16 animate-spin text-purple-800" />
     </div>
 
-    <div v-else-if="error" class="rounded-3xl border border-slate-100 bg-white p-20 text-center shadow-xl dark:border-slate-800 dark:bg-slate-900">
-      <AlertCircle class="mx-auto mb-6 h-20 w-20 text-red-500 opacity-20" />
-      <h2 class="mb-4 text-3xl font-black text-slate-900 dark:text-white">Access Restricted</h2>
-      <p class="mx-auto mb-8 max-w-md text-slate-500">{{ error }}</p>
+    <div v-else-if="error" class="rounded-3xl border border-red-700/50 bg-red-900/20 p-20 text-center shadow-xl shadow-red-900/10">
+      <AlertCircle class="mx-auto mb-6 h-20 w-20 text-red-400 opacity-20" />
+      <h2 class="mb-4 text-3xl font-black text-white">Access Restricted</h2>
+      <p class="mx-auto mb-8 max-w-md text-slate-300">{{ error }}</p>
     </div>
 
-    <div v-else-if="data && !data.released" class="rounded-3xl border border-slate-100 bg-white p-20 text-center shadow-xl dark:border-slate-800 dark:bg-slate-900">
-      <Lock class="mx-auto mb-6 h-20 w-20 text-purple-800 opacity-20" />
-      <h2 class="mb-4 text-3xl font-black text-slate-900 dark:text-white">Result Not Released</h2>
-      <p class="mx-auto mb-8 max-w-md text-slate-500">This academic report has been compiled but is currently locked by the school administration.</p>
+    <div v-else-if="data && !data.released" class="rounded-3xl border border-slate-700/60 bg-slate-950/90 p-20 text-center shadow-xl shadow-slate-900/10">
+      <Lock class="mx-auto mb-6 h-20 w-20 text-royal-purple opacity-20" />
+      <h2 class="mb-4 text-3xl font-black text-white">Result Not Released</h2>
+      <p class="mx-auto mb-8 max-w-md text-slate-300">This academic report has been compiled but is currently locked by the school administration.</p>
     </div>
 
     <article v-else-if="data" class="report-card">

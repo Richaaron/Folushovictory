@@ -29,10 +29,10 @@ const activeTermLabel = computed(() => {
 })
 
 const stats = ref([
-  { name: 'Total Students', key: 'studentsCount', value: '0', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20', trend: '...', route: '/admin/students' },
-  { name: 'Active Teachers', key: 'teachersCount', value: '0', icon: Users, color: 'text-royal-purple', bg: 'bg-purple-50 dark:bg-purple-900/20', trend: '...', route: '/admin/teachers' },
-  { name: 'Active Classes', key: 'classesCount', value: '0', icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20', trend: '...', route: '/admin/classes' },
-  { name: 'Avg. Performance', key: 'avgPerformance', value: '0%', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20', trend: '...', route: '/admin/broadsheet' },
+  { name: 'Total Students', key: 'studentsCount', value: '0', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-900/20 dark:bg-blue-900/20', trend: '...', route: '/admin/students' },
+  { name: 'Active Teachers', key: 'teachersCount', value: '0', icon: Users, color: 'text-royal-purple', bg: 'bg-purple-900/20 dark:bg-purple-900/20', trend: '...', route: '/admin/teachers' },
+  { name: 'Active Classes', key: 'classesCount', value: '0', icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-900/20 dark:bg-amber-900/20', trend: '...', route: '/admin/classes' },
+  { name: 'Avg. Performance', key: 'avgPerformance', value: '0%', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-900/20 dark:bg-emerald-900/20', trend: '...', route: '/admin/broadsheet' },
 ])
 
 const fetchActivityLogs = async () => {
@@ -94,7 +94,7 @@ onMounted(fetchDashboardAndLogs)
       </div>
 
       <div class="rounded-[2rem] border border-royal-gold/15 bg-slate-950/85 p-6 sm:p-8 shadow-[0_30px_60px_rgba(212,175,55,0.16)] backdrop-blur-xl flex items-center gap-4">
-        <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-royal-gold/10 text-royal-gold border border-royal-gold/20">
+        <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-900/80 text-royal-gold border border-slate-700/60">
           <Calendar class="w-6 h-6" aria-hidden="true" />
         </div>
         <div>
@@ -146,7 +146,7 @@ onMounted(fetchDashboardAndLogs)
           <div class="relative z-10 flex flex-col gap-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div class="flex items-center gap-4">
-                <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-royal-gold/10 text-royal-gold border border-royal-gold/20">
+                <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-900/80 text-royal-gold border border-slate-700/60">
                   <Bell class="w-6 h-6" aria-hidden="true" />
                 </div>
                 <div>
@@ -182,7 +182,7 @@ onMounted(fetchDashboardAndLogs)
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-royal-gold via-royal-purple to-royal-gold"></div>
             <h4 class="text-xl font-black uppercase tracking-[0.3em] mb-4">Release Results</h4>
             <p class="text-sm text-slate-200 leading-7 mb-8">Publish term performance with secure permissions and fast parent access.</p>
-            <router-link to="/admin/broadsheet" class="inline-flex items-center gap-3 rounded-full bg-white px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-950 transition hover:scale-[1.02]">Go to Portal <ArrowUpRight class="w-4 h-4" aria-hidden="true" /></router-link>
+            <router-link to="/admin/broadsheet" class="inline-flex items-center gap-3 rounded-full bg-slate-900/70 px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-white transition hover:bg-slate-800 hover:scale-[1.02]">Go to Portal <ArrowUpRight class="w-4 h-4" aria-hidden="true" /></router-link>
           </div>
 
           <div class="rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-8 text-white shadow-[0_30px_50px_rgba(212,175,55,0.18)] relative overflow-hidden">

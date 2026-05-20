@@ -91,8 +91,8 @@ onMounted(fetchData)
             </div>
           </div>
           <div class="flex flex-wrap gap-4">
-            <span v-if="formClasses.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-royal-purple/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-purple border border-royal-purple/20">Form Teacher</span>
-            <span v-if="assignments.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-royal-gold/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-gold border border-royal-gold/20">Subject Teacher</span>
+            <span v-if="formClasses.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-slate-900/70 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-purple border border-slate-700/60">Form Teacher</span>
+            <span v-if="assignments.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-slate-900/70 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-gold border border-slate-700/60">Subject Teacher</span>
           </div>
         </div>
       </div>
@@ -120,7 +120,7 @@ onMounted(fetchData)
         <div class="glass-card p-8 bg-slate-950/90 border-royal-purple/15">
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
-              <div class="h-12 w-12 rounded-3xl bg-royal-purple/10 text-royal-purple flex items-center justify-center border border-royal-purple/20">
+              <div class="h-12 w-12 rounded-3xl bg-slate-900/70 text-royal-purple flex items-center justify-center border border-slate-700/60">
                 <BookOpen class="w-6 h-6" />
               </div>
               <div>
@@ -138,7 +138,7 @@ onMounted(fetchData)
               class="glass-card rounded-[2rem] p-8 border-royal-purple/10 group hover:border-royal-gold/30 transition-all"
             >
               <div class="flex justify-between items-start mb-6">
-                <div class="h-12 w-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 text-royal-purple flex items-center justify-center">
+                <div class="h-12 w-12 rounded-2xl bg-slate-900/70 text-royal-purple flex items-center justify-center border border-slate-700/60">
                   <ClipboardCheck class="w-6 h-6" />
                 </div>
               </div>
@@ -146,7 +146,7 @@ onMounted(fetchData)
               <h4 class="text-xl font-black text-slate-900 dark:text-white line-clamp-1">{{ item.subjectName }}</h4>
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                 {{ item.className }} 
-                <span v-if="item.isPrimary" class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-md text-[8px]">Primary</span>
+                <span v-if="item.isPrimary" class="ml-2 px-2 py-0.5 bg-slate-900/60 text-blue-300 rounded-md text-[8px]">Primary</span>
               </p>
               
               <button 
@@ -161,7 +161,7 @@ onMounted(fetchData)
                     isPrimary: item.isPrimary ? 'true' : 'false'
                   }
                 })"
-                class="mt-8 w-full py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white group-hover:bg-royal-purple group-hover:text-white transition-all flex items-center justify-center gap-2"
+                class="mt-8 w-full py-4 rounded-2xl bg-slate-900/60 border border-slate-700/60 text-[10px] font-black uppercase tracking-widest text-white hover:bg-royal-purple hover:text-white transition-all flex items-center justify-center gap-2"
               >
                 Enter Results <ArrowRight class="w-4 h-4" />
               </button>
@@ -229,7 +229,7 @@ onMounted(fetchData)
           </h3>
           <div class="space-y-4">
             <div class="glass-card p-5 rounded-[2rem] border border-royal-purple/10 bg-slate-950/90 flex items-center gap-4 hover:border-royal-gold/20 transition-all">
-              <div class="h-14 w-14 shrink-0 rounded-3xl bg-red-50 dark:bg-red-900/20 text-red-500 flex flex-col items-center justify-center font-black text-[10px] uppercase tracking-[0.18em]">
+              <div class="h-14 w-14 shrink-0 rounded-3xl bg-red-900/30 text-red-300 flex flex-col items-center justify-center font-black text-[10px] uppercase tracking-[0.18em]">
                 <span>May</span>
                 <span class="text-sm">15</span>
               </div>

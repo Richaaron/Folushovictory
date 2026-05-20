@@ -154,7 +154,7 @@ onMounted(fetchStudents)
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
       <div class="flex items-center gap-4">
-        <button @click="router.back()" class="h-12 w-12 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-400 hover:text-royal-purple transition-all">
+        <button @click="router.back()" class="h-12 w-12 rounded-2xl bg-slate-900/60 border border-slate-700/60 shadow-sm flex items-center justify-center text-slate-200 hover:text-royal-purple transition-all">
           <ArrowLeft class="w-5 h-5" />
         </button>
         <div>
@@ -165,7 +165,7 @@ onMounted(fetchStudents)
       
       <div class="flex items-center gap-4">
         <div class="flex gap-2">
-          <select v-model="term" class="px-4 py-3 bg-white dark:bg-slate-800 border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
+          <select v-model="term" class="px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
             <option>First</option>
             <option>Second</option>
             <option>Third</option>
@@ -184,11 +184,11 @@ onMounted(fetchStudents)
     </div>
 
     <!-- Feedback -->
-    <div v-if="error" class="p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center gap-3 border border-red-100 dark:border-red-900/30">
+    <div v-if="error" class="p-4 rounded-2xl bg-red-900/20 text-red-300 flex items-center gap-3 border border-red-900/30">
       <AlertCircle class="w-5 h-5" />
       <span class="text-sm font-bold">{{ error }}</span>
     </div>
-    <div v-if="success" class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center gap-3 border border-emerald-100 dark:border-emerald-900/30">
+    <div v-if="success" class="p-4 rounded-2xl bg-emerald-900/20 text-emerald-300 flex items-center gap-3 border border-emerald-900/30">
       <CheckCircle2 class="w-5 h-5" />
       <span class="text-sm font-bold">Scores saved successfully!</span>
     </div>
@@ -201,17 +201,17 @@ onMounted(fetchStudents)
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-slate-50 dark:bg-slate-800/50">
+            <tr class="bg-slate-900/60">
               <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student Name</th>
               <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">1st CA (20)</th>
               <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">2nd CA (20)</th>
               <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">Exam (60)</th>
-              <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24 bg-slate-100/50 dark:bg-slate-700/50">Total</th>
+              <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24 bg-slate-900/30">Total</th>
               <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24">Pos.</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
-            <tr v-for="st in students" :key="st.studentId" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+          <tbody class="divide-y divide-slate-700/40">
+            <tr v-for="st in students" :key="st.studentId" class="hover:bg-slate-900/20 transition-colors">
               <td class="px-8 py-6">
                 <p class="text-sm font-black text-slate-900 dark:text-white">{{ st.lastName }} {{ st.firstName }}</p>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
@@ -221,7 +221,7 @@ onMounted(fetchStudents)
                   v-model="st.ca1" 
                   type="number" 
                   max="20"
-                  class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
+                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
                   placeholder="0"
                 />
               </td>
@@ -230,7 +230,7 @@ onMounted(fetchStudents)
                   v-model="st.ca2" 
                   type="number" 
                   max="20"
-                  class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
+                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
                   placeholder="0"
                 />
               </td>
@@ -239,18 +239,18 @@ onMounted(fetchStudents)
                   v-model="st.exam" 
                   type="number" 
                   max="60"
-                  class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
+                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
                   placeholder="0"
                 />
               </td>
-              <td class="px-4 py-6 text-center bg-slate-50/30 dark:bg-slate-800/30">
+              <td class="px-4 py-6 text-center bg-slate-900/30">
                 <span
                   class="text-sm font-black"
                   :class="[ computeTotal(st) >= 40 ? 'text-emerald-500' : 'text-red-500', totalFlash.has(st.studentId) ? 'flash-total' : '' ]"
                 >{{ computeTotal(st) }}</span>
               </td>
               <td class="px-8 py-6 text-center">
-                <span class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500">
+                <span class="px-3 py-1 rounded-lg bg-slate-900/60 text-[10px] font-black text-slate-300">
                   {{ overallPositions.get(st.studentId) || studentPositions.get(st.studentId) || '-' }}
                 </span>
               </td>
