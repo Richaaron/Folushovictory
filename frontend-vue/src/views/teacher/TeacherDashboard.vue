@@ -72,36 +72,41 @@ onMounted(fetchData)
 <template>
   <div class="space-y-8 fade-in">
     <!-- Welcome Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-      <div class="flex items-center gap-6">
-        <div class="h-20 w-20 rounded-3xl purple-gradient p-1 shadow-2xl shadow-purple-200 dark:shadow-purple-900/30">
-          <div class="h-full w-full rounded-[1.25rem] bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
-            <Award class="w-10 h-10 text-royal-purple" />
-          </div>
+    <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <div class="glass-card p-8 sm:p-10 shadow-[0_30px_70px_rgba(0,0,0,0.35)] border-royal-gold/15 relative overflow-hidden">
+        <div class="absolute -right-16 top-4 h-32 w-32 rounded-full bg-royal-purple/15 blur-3xl" aria-hidden="true"></div>
+        <div class="absolute -left-16 bottom-10 h-32 w-32 rounded-full bg-royal-gold/10 blur-3xl" aria-hidden="true"></div>
+        <div class="flex items-center gap-4 mb-6">
+          <div class="h-2.5 w-16 rounded-full bg-royal-purple/60"></div>
+          <span class="text-[9px] font-black uppercase tracking-[0.35em] text-royal-gold">Teacher Hub</span>
         </div>
-        <div>
-          <div class="flex flex-wrap items-center gap-2 mb-1">
-            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Welcome, <span class="text-royal-purple">{{ authStore.user?.displayName || 'Academic Staff' }}</span></h1>
-            <div class="flex gap-2">
-              <span v-if="formClasses.length > 0" class="px-3 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-[8px] font-black uppercase tracking-widest rounded-lg border border-amber-200 dark:border-amber-800">Form Teacher</span>
-              <span v-if="assignments.length > 0" class="px-3 py-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 text-[8px] font-black uppercase tracking-widest rounded-lg border border-purple-200 dark:border-purple-800">Subject Teacher</span>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div class="flex items-center gap-5">
+            <div class="relative h-20 w-20 rounded-[2rem] bg-slate-900/90 border border-royal-gold/15 shadow-lg shadow-royal-purple/10 flex items-center justify-center">
+              <Award class="w-10 h-10 text-royal-gold" />
+            </div>
+            <div>
+              <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight">Welcome, <span class="text-royal-purple">{{ authStore.user?.displayName || 'Academic Staff' }}</span></h1>
+              <p class="mt-3 max-w-xl text-sm text-slate-400">{{ roleDescription }}</p>
             </div>
           </div>
-          <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-            {{ roleDescription }}
-          </p>
+          <div class="flex flex-wrap gap-4">
+            <span v-if="formClasses.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-royal-purple/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-purple border border-royal-purple/20">Form Teacher</span>
+            <span v-if="assignments.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-royal-gold/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-gold border border-royal-gold/20">Subject Teacher</span>
+          </div>
         </div>
       </div>
-      <div class="flex gap-4">
-        <div class="academic-card rounded-2xl px-6 py-4 flex flex-col items-center justify-center min-w-[120px]">
-          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assignments</span>
-          <span class="text-2xl font-black text-royal-purple">{{ assignments.length }}</span>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="glass-card p-6 border-royal-purple/15 bg-slate-950/90">
+          <p class="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Assignments</p>
+          <p class="mt-3 text-3xl font-black text-white">{{ assignments.length }}</p>
+          <p class="mt-2 text-sm text-slate-400">Subjects you are currently teaching</p>
         </div>
-        <div class="academic-card rounded-2xl px-6 py-4 flex flex-col items-center justify-center min-w-[120px]">
-          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Focus</span>
-          <span class="text-2xl font-black text-slate-800 dark:text-slate-200">
-            {{ formClasses.reduce((acc, c) => acc + (c.studentIds?.length || 0), 0) }}
-          </span>
+        <div class="glass-card p-6 border-royal-gold/15 bg-slate-950/90">
+          <p class="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Total Focus</p>
+          <p class="mt-3 text-3xl font-black text-white">{{ formClasses.reduce((acc, c) => acc + (c.studentIds?.length || 0), 0) }}</p>
+          <p class="mt-2 text-sm text-slate-400">Learners currently under your pastoral care</p>
         </div>
       </div>
     </div>
@@ -112,19 +117,25 @@ onMounted(fetchData)
     <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Main Teaching Section -->
       <div class="lg:col-span-2 space-y-8">
-        <div>
+        <div class="glass-card p-8 bg-slate-950/90 border-royal-purple/15">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-              <BookOpen class="w-5 h-5 text-royal-purple" /> Subject Assignments
-            </h3>
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Term</span>
+            <div class="flex items-center gap-3">
+              <div class="h-12 w-12 rounded-3xl bg-royal-purple/10 text-royal-purple flex items-center justify-center border border-royal-purple/20">
+                <BookOpen class="w-6 h-6" />
+              </div>
+              <div>
+                <h3 class="text-xl font-black text-white tracking-tight">Subject Assignments</h3>
+                <p class="text-[10px] uppercase tracking-[0.3em] text-slate-500">Active Term assignments ready for score entry</p>
+              </div>
+            </div>
+            <span class="rounded-full bg-slate-900/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-royal-gold border border-royal-gold/15">Active Term</span>
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div 
               v-for="item in assignments" 
               :key="item.id"
-              class="academic-card rounded-3xl p-8 border border-slate-100 dark:border-slate-800 group hover:border-royal-purple transition-all"
+              class="glass-card rounded-[2rem] p-8 border-royal-purple/10 group hover:border-royal-gold/30 transition-all"
             >
               <div class="flex justify-between items-start mb-6">
                 <div class="h-12 w-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 text-royal-purple flex items-center justify-center">
@@ -162,17 +173,18 @@ onMounted(fetchData)
         </div>
 
         <!-- Analytics Placeholder -->
-        <div class="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden">
+        <div class="glass-card p-10 bg-slate-950/90 border-royal-gold/15 relative overflow-hidden">
+          <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-royal-purple/10 blur-3xl" aria-hidden="true"></div>
+          <div class="absolute left-0 bottom-0 h-36 w-36 rounded-full bg-royal-gold/10 blur-3xl" aria-hidden="true"></div>
           <div class="relative z-10">
-            <h3 class="text-xl font-black tracking-tight mb-2">Performance Analytics</h3>
+            <h3 class="text-xl font-black tracking-tight mb-2 text-white">Performance Analytics</h3>
             <p class="text-sm text-slate-400 max-w-sm mb-8">Visualize class progress and identify students who may need extra attention.</p>
-            <div class="flex gap-4">
-              <div class="flex flex-col">
+            <div class="flex flex-wrap gap-4">
+              <div class="flex flex-col rounded-3xl bg-slate-900/80 p-4">
                 <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Average Score</span>
                 <span class="text-2xl font-black text-emerald-400">74.2%</span>
               </div>
-              <div class="w-px h-10 bg-slate-800 mx-4"></div>
-              <div class="flex flex-col">
+              <div class="flex flex-col rounded-3xl bg-slate-900/80 p-4">
                 <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Pass Rate</span>
                 <span class="text-2xl font-black text-blue-400">92%</span>
               </div>
@@ -184,8 +196,8 @@ onMounted(fetchData)
 
       <!-- Sidebar Actions -->
       <div class="space-y-6">
-        <div class="academic-card rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800">
-          <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight mb-6 flex items-center gap-2">
+        <div class="glass-card p-8 border-royal-gold/15 bg-slate-950/90">
+          <h3 class="text-lg font-black text-white tracking-tight mb-6 flex items-center gap-2">
             <Award class="w-5 h-5 text-royal-gold" /> Form Classes
           </h3>
           <div class="space-y-4">
@@ -211,9 +223,9 @@ onMounted(fetchData)
           </div>
         </div>
 
-        <div class="academic-card rounded-[2.5rem] p-8 bg-slate-50/50 dark:bg-slate-900/50">
-          <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight mb-6 flex items-center gap-2">
-            <Clock class="w-5 h-5 text-slate-400" /> Upcoming Deadlines
+        <div class="glass-card p-8 border-royal-purple/15 bg-slate-950/90">
+          <h3 class="text-lg font-black text-white tracking-tight mb-6 flex items-center gap-2">
+            <Clock class="w-5 h-5 text-royal-gold" /> Upcoming Deadlines
           </h3>
           <div class="space-y-4">
             <div class="flex gap-4">

@@ -40,38 +40,32 @@ onMounted(fetchData)
   </div>
   <div v-else-if="student" class="space-y-8 fade-in">
     <!-- Student Header Card -->
-    <div class="purple-gradient rounded-[3rem] p-8 sm:p-12 text-white relative overflow-hidden">
-      <div class="absolute inset-0 opacity-10 pointer-events-none">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs><pattern id="academic-p" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M0 20 L20 0 L40 20 L20 40 Z" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs>
-          <rect width="100%" height="100%" fill="url(#academic-p)" />
-        </svg>
-      </div>
-      
+    <div class="glass-card relative overflow-hidden p-8 sm:p-12 border-royal-gold/15 bg-slate-950/95 shadow-[0_40px_90px_rgba(0,0,0,0.35)]">
+      <div class="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_top_left,_rgba(124,58,237,0.18),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(212,175,55,0.14),_transparent_30%)]"></div>
       <div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
-        <div class="h-32 w-32 rounded-full bg-white/20 backdrop-blur-xl border-4 border-white/30 flex items-center justify-center p-1">
-          <div class="h-full w-full rounded-full bg-white flex items-center justify-center text-royal-purple font-black text-4xl">
+        <div class="h-32 w-32 rounded-full bg-slate-900/90 border border-royal-gold/20 shadow-xl flex items-center justify-center p-1">
+          <div class="h-full w-full rounded-full bg-slate-950 flex items-center justify-center text-royal-gold font-black text-4xl">
             {{ student.firstName.charAt(0) }}
           </div>
         </div>
         <div class="text-center md:text-left flex-grow">
-          <div class="px-4 py-1 bg-white/20 rounded-full inline-block text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+          <div class="px-4 py-1 bg-slate-900/70 rounded-full inline-block text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-slate-300 border border-slate-700">
             {{ student.studentId }}
           </div>
-          <h1 class="text-4xl sm:text-5xl font-black tracking-tight mb-2">
+          <h1 class="text-4xl sm:text-5xl font-black tracking-tight mb-2 text-white">
             {{ student.firstName }} <span class="text-royal-gold">{{ student.lastName }}</span>
           </h1>
-          <p class="text-lg font-medium text-purple-100 flex items-center justify-center md:justify-start gap-2 uppercase tracking-widest text-sm">
-            <GraduationCap class="w-5 h-5" /> Current Class: {{ student.classId }}
+          <p class="text-lg font-medium text-slate-400 flex items-center justify-center md:justify-start gap-2 uppercase tracking-widest text-sm">
+            <GraduationCap class="w-5 h-5 text-royal-gold" /> Current Class: {{ student.classId }}
           </p>
         </div>
         <div class="grid grid-cols-2 gap-4 w-full md:w-auto">
-          <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 text-center border border-white/10">
-            <p class="text-[10px] font-black uppercase tracking-widest text-purple-200 mb-1">Average</p>
-            <p class="text-2xl font-black">--</p>
+          <div class="bg-slate-900/80 rounded-3xl p-6 text-center border border-slate-800">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Average</p>
+            <p class="text-2xl font-black text-white">--</p>
           </div>
-          <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 text-center border border-white/10">
-            <p class="text-[10px] font-black uppercase tracking-widest text-purple-200 mb-1">Position</p>
+          <div class="bg-slate-900/80 rounded-3xl p-6 text-center border border-slate-800">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Position</p>
             <p class="text-2xl font-black text-royal-gold">--</p>
           </div>
         </div>
@@ -146,27 +140,27 @@ onMounted(fetchData)
 
       <!-- School Notices -->
       <div class="space-y-6">
-        <div class="academic-card rounded-[2.5rem] p-8">
-          <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight mb-6">School Notices</h3>
+        <div class="glass-card p-8 border-royal-gold/15 bg-slate-950/90">
+          <h3 class="text-lg font-black text-white tracking-tight mb-6">School Notices</h3>
           <div class="space-y-6">
             <div class="relative pl-6 border-l-2 border-royal-gold">
-              <p class="text-sm font-bold text-slate-800 dark:text-slate-200">PTA Meeting</p>
-              <p class="text-xs text-slate-500 mt-1">Saturday, May 24th @ 10:00 AM</p>
+              <p class="text-sm font-bold text-white">PTA Meeting</p>
+              <p class="text-xs text-slate-400 mt-1">Saturday, May 24th @ 10:00 AM</p>
             </div>
             <div class="relative pl-6 border-l-2 border-royal-purple">
-              <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Inter-house Sports</p>
-              <p class="text-xs text-slate-500 mt-1">Friday, June 2nd</p>
+              <p class="text-sm font-bold text-white">Inter-house Sports</p>
+              <p class="text-xs text-slate-400 mt-1">Friday, June 2nd</p>
             </div>
           </div>
         </div>
         
-        <div class="gold-gradient rounded-[2rem] p-8 text-slate-900 group">
+        <div class="glass-card p-8 border-royal-gold/15 bg-slate-950/90">
           <div class="flex items-center gap-4 mb-4">
-            <BarChart3 class="w-8 h-8 opacity-50" />
-            <h4 class="text-lg font-black uppercase tracking-widest">Growth View</h4>
+            <BarChart3 class="w-8 h-8 text-royal-purple" />
+            <h4 class="text-lg font-black uppercase tracking-widest text-white">Growth View</h4>
           </div>
-          <p class="text-sm font-bold opacity-70 mb-6">Analyze academic progress across terms and sessions.</p>
-          <button class="bg-slate-900 text-white w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+          <p class="text-sm font-bold text-slate-400 mb-6">Analyze academic progress across terms and sessions.</p>
+          <button class="bg-royal-purple text-white w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-royal-purple/90 transition">
             View Analytics <ArrowUpRight class="w-4 h-4" />
           </button>
         </div>
