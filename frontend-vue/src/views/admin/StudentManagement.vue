@@ -292,7 +292,7 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800">
-            <tr v-for="student in filteredStudents" :key="student.studentId || student.id" class="group hover:bg-slate-900/60 transition-colors">
+            <tr v-for="student in filteredStudents" :key="student.studentId || student.id" @click="openScoreModal(student)" class="group hover:bg-slate-900/60 transition-colors cursor-pointer">
               <td class="px-3 sm:px-6 py-4 sm:py-5 align-top">
                 <span class="inline-flex items-center px-3 py-1 rounded-full bg-[#2f2a4d] text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-royal-purple border border-royal-purple/20">{{ student.studentId }}</span>
               </td>
@@ -316,13 +316,13 @@ onMounted(async () => {
               </td>
               <td class="px-3 sm:px-6 py-4 sm:py-5 align-top text-right">
                 <div class="inline-flex items-center justify-end gap-2">
-                  <button @click="openScoreModal(student)" class="p-2 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-amber-900/80 hover:text-amber-200 transition-colors">
+                  <button @click.stop="openScoreModal(student)" class="p-2 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-amber-900/80 hover:text-amber-200 transition-colors">
                     <BookOpen class="w-4 h-4" />
                   </button>
-                  <button @click="openEditModal(student)" class="p-2 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-royal-purple transition-colors">
+                  <button @click.stop="openEditModal(student)" class="p-2 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-royal-purple transition-colors">
                     <Edit2 class="w-4 h-4" />
                   </button>
-                  <button @click="handleDelete(student.studentId)" class="p-2 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-red-900/80 hover:text-red-300 transition-colors">
+                  <button @click.stop="handleDelete(student.studentId)" class="p-2 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-red-900/80 hover:text-red-300 transition-colors">
                     <Trash2 class="w-4 h-4" />
                   </button>
                 </div>
