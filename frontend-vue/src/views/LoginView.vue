@@ -191,7 +191,7 @@ const handleLogin = async () => {
           </div>
         </div>
 
-        <div class="relative z-10">
+        <div class="relative z-10 mx-auto w-full max-w-[760px]">
           <div class="relative overflow-hidden rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-8 shadow-[0_30px_80px_rgba(212,175,55,0.20)] backdrop-blur-xl">
             <div class="absolute -left-10 top-4 h-24 w-24 rounded-full bg-royal-purple/10 blur-3xl" />
             <div class="absolute -right-10 bottom-10 h-28 w-28 rounded-full bg-royal-gold/10 blur-3xl" />
