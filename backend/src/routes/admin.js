@@ -290,6 +290,9 @@ adminRouter.put(
     const { displayName, email, formClassId } = req.body || {};
     const normalizedUsername = String(username).toLowerCase().trim();
     
+    // Log incoming payload to aid debugging for update failures
+    const payload = req.body || {};
+    console.log(`[Admin] PUT /teachers/${username} payload:`, JSON.stringify(payload));
     console.log(`[Admin] Updating teacher ${username}. formClassId: ${formClassId}`);
     
     try {
@@ -300,6 +303,7 @@ adminRouter.put(
         ...(email ? { email: String(email) } : {}),
         ...(formClassId !== undefined ? { formClassId: formClassId || null } : {})
       });
+      console.log(`[Admin] Step 1: updateUser returned for ${username}:`, updated ? 'ok' : 'null');
 
       // 2. Handle Form Teacher Revocation/Assignment
       if (formClassId !== undefined) {
@@ -374,9 +378,12 @@ adminRouter.put(
       console.log(`[Admin] Successfully updated teacher profile for ${username}`);
       return res.json(updated);
     } catch (error) {
-      console.error(`[Admin] Update failed for teacher ${username}:`, error.message);
+      // Log full error (including stack) for troubleshooting
+      console.error(`[Admin] Update failed for teacher ${username}:`, error);
+      // Prefer to return a clear message to the caller while avoiding sensitive stack output
+      const message = error && error.message ? error.message : "An error occurred. Please try again.";
       return res.status(error.statusCode || 500).json({ 
-        error: error.message || "Failed to update teacher profile" 
+        error: message
       });
     }
   })
