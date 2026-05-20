@@ -296,12 +296,11 @@ adminRouter.put(
     console.log(`[Admin] Updating teacher ${username}. formClassId: ${formClassId}`);
     
     try {
-      // 1. Update User Record
+      // 1. Update User Record (only metadata fields existing on users)
       console.log(`[Admin] Step 1: Updating user record for ${username}`);
       const updated = await updateUser(username, { 
         ...(displayName ? { displayName: String(displayName) } : {}),
-        ...(email ? { email: String(email) } : {}),
-        ...(formClassId !== undefined ? { formClassId: formClassId || null } : {})
+        ...(email ? { email: String(email) } : {})
       });
       console.log(`[Admin] Step 1: updateUser returned for ${username}:`, updated ? 'ok' : 'null');
 
