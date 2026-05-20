@@ -339,19 +339,19 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         </div>
         <table class="w-full border-collapse">
           <thead>
-            <tr class="bg-slate-50 dark:bg-slate-800/50">
+            <tr class="bg-slate-900/60">
               <th rowspan="2" class="px-4 py-6 border-b border-r border-slate-200 dark:border-slate-700 text-[9px] font-black uppercase tracking-widest text-slate-400 min-w-[180px] text-left">Student Profile</th>
               <th v-for="sub in broadsheet.subjects" :key="sub.id" colspan="5" class="px-2 py-3 border-b border-r border-slate-200 dark:border-slate-700 text-[8px] font-black uppercase tracking-widest text-royal-purple text-center">
                 {{ sub.name }}
               </th>
               <th colspan="4" class="px-4 py-3 border-b border-slate-200 dark:border-slate-700 text-[9px] font-black uppercase tracking-widest text-amber-500 text-center">Summary</th>
             </tr>
-            <tr class="bg-slate-50 dark:bg-slate-800/50">
+            <tr class="bg-slate-900/60">
               <template v-for="sub in broadsheet.subjects" :key="sub.id + '-sub'">
-                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-12">1st CA</th>
-                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-12">2nd CA</th>
-                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-12">Exam</th>
-                <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-600 text-center w-12 bg-slate-100/30">Total</th>
+                <th class="px-1 py-2 border-b border-r border-slate-700/60 text-[7px] font-black text-slate-400 text-center w-12">1st CA</th>
+                <th class="px-1 py-2 border-b border-r border-slate-700/60 text-[7px] font-black text-slate-400 text-center w-12">2nd CA</th>
+                <th class="px-1 py-2 border-b border-r border-slate-700/60 text-[7px] font-black text-slate-400 text-center w-12">Exam</th>
+                <th class="px-1 py-2 border-b border-r border-slate-700/60 text-[7px] font-black text-slate-300 text-center w-12 bg-slate-800/40">Total</th>
                 <th class="px-1 py-2 border-b border-r border-slate-200 dark:border-slate-700 text-[7px] font-black text-slate-400 text-center w-10">
                   {{ isSSS ? 'Grade' : 'Pos' }}
                 </th>

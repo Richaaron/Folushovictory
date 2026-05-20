@@ -201,12 +201,12 @@ onMounted(async () => {
         <p class="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Manage Registry and Student Records</p>
       </div>
       <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-        <button class="flex-shrink-0 h-10 sm:h-12 w-10 sm:w-12 items-center justify-center rounded-lg sm:rounded-2xl bg-white dark:bg-slate-900 text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-royal-purple transition-all flex">
+        <button class="flex-shrink-0 h-10 sm:h-12 w-10 sm:w-12 items-center justify-center rounded-lg sm:rounded-2xl bg-slate-900/65 border border-slate-700/60 text-slate-200 hover:text-royal-purple transition-all flex">
           <Download class="w-4 sm:w-5 h-4 sm:h-5" />
         </button>
         <button 
           @click="showAddModal = true"
-          class="flex-grow sm:flex-grow-0 flex items-center justify-center sm:justify-start gap-2 sm:gap-3 rounded-lg sm:rounded-2xl purple-gradient px-3 sm:px-6 py-3 sm:py-4 text-[9px] sm:text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 min-h-[44px] sm:min-h-[48px]"
+          class="flex-grow sm:flex-grow-0 flex items-center justify-center sm:justify-start gap-2 sm:gap-3 rounded-lg sm:rounded-2xl nebula-gradient px-3 sm:px-6 py-3 sm:py-4 text-[9px] sm:text-xs font-black uppercase tracking-widest text-white shadow-2xl shadow-nebula-500/30 transition hover:scale-105 active:scale-95 min-h-[44px] sm:min-h-[48px]"
         >
           <UserPlus class="w-4 sm:w-4 h-4 sm:h-4 flex-shrink-0" /> <span class="hidden sm:inline">Register Student</span><span class="sm:hidden">Add</span>
         </button>
@@ -254,7 +254,7 @@ onMounted(async () => {
         <select v-model="selectedClassId" class="pl-3 sm:pl-4 pr-8 sm:pr-10 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-royal-purple outline-none flex-1 sm:flex-initial">
           <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
         </select>
-        <button class="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 transition-all min-h-[44px]">
+        <button class="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 bg-slate-900/65 border border-slate-700/60 rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-200 hover:bg-slate-950 transition-all min-h-[44px]">
           <Filter class="w-4 h-4" /> <span class="hidden sm:inline">Filter</span>
         </button>
       </div>
@@ -268,7 +268,7 @@ onMounted(async () => {
       <div v-else class="overflow-x-auto bg-slate-950/90">
         <table class="w-full text-left text-xs sm:text-sm">
           <thead>
-            <tr class="bg-slate-50 dark:bg-slate-800/50 sticky top-0">
+            <tr class="bg-slate-900/50 sticky top-0">
               <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">ID</th>
               <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">Name</th>
               <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:table-cell whitespace-nowrap">Gender</th>
@@ -277,7 +277,7 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
-            <tr v-for="student in students" :key="student.id" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+              <tr v-for="student in students" :key="student.id" class="group hover:bg-slate-900/60 transition-colors">
               <td class="px-3 sm:px-6 py-3 sm:py-6">
                 <span class="text-[7px] sm:text-xs font-black text-royal-purple bg-purple-50 dark:bg-purple-900/20 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-purple-100 dark:border-purple-900/30 whitespace-nowrap">
                   {{ student.studentId }}
@@ -285,7 +285,7 @@ onMounted(async () => {
               </td>
               <td class="px-3 sm:px-6 py-3 sm:py-6">
                 <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="h-8 sm:h-10 w-8 sm:w-10 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 flex-shrink-0">
+                  <div class="h-8 sm:h-10 w-8 sm:w-10 rounded-lg sm:rounded-xl bg-slate-900/60 flex items-center justify-center text-slate-300 flex-shrink-0">
                     <GraduationCap class="w-4 sm:w-5 h-4 sm:h-5" />
                   </div>
                   <p class="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">{{ student.firstName }} {{ student.lastName }}</p>
@@ -302,7 +302,7 @@ onMounted(async () => {
                 <div class="flex items-center justify-end gap-1 sm:gap-2">
                   <button 
                     @click="openScoreModal(student)"
-                    class="p-2 rounded-lg sm:rounded-xl hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-400 hover:text-amber-600 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                    class="p-2 rounded-lg sm:rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:bg-amber-900/80 hover:text-amber-200 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                     aria-label="Enter scores"
                     title="Enter Scores"
                   >
@@ -310,14 +310,14 @@ onMounted(async () => {
                   </button>
                   <button 
                     @click="openEditModal(student)"
-                    class="p-2 rounded-lg sm:rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-royal-purple transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                    class="p-2 rounded-lg sm:rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:bg-slate-950 hover:text-royal-purple transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                     aria-label="Edit student"
                   >
                     <Edit2 class="w-4 h-4" />
                   </button>
                   <button 
                     @click="handleDelete(student.studentId)"
-                    class="p-2 rounded-lg sm:rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                    class="p-2 rounded-lg sm:rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:bg-red-900/80 hover:text-red-300 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                     aria-label="Delete student"
                   >
                     <Trash2 class="w-4 h-4" />
