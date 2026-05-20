@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, nextTick } from 'vue'
 import { 
   Search, 
   UserPlus, 
@@ -24,6 +24,7 @@ const selectedClassId = ref('')
 const searchQuery = ref('')
 const showEditModal = ref(false)
 const editingStudent = ref<any>(null)
+const editModalRoot = ref<HTMLElement | null>(null)
 const showScoreModal = ref(false)
 const selectedStudent = ref<any>(null)
 const stats = ref({
@@ -88,6 +89,13 @@ const selectedClassName = computed(() => {
 })
 
 const allSubjects = ref<any[]>([])
+
+watch(showEditModal, async (open) => {
+  if (open) {
+    await nextTick()
+    editModalRoot.value?.scrollTo({ top: 0, behavior: 'auto' })
+  }
+})
 
 const fetchSubjects = async () => {
   try {
@@ -418,9 +426,9 @@ onMounted(async () => {
 
     <!-- Edit Student Modal -->
     <transition name="fade">
-      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
+      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-start justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showEditModal = false"></div>
-        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/30 max-h-[90vh] overflow-y-auto">
+        <div ref="editModalRoot" class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/30 max-h-[90vh] overflow-y-auto mt-10 sm:mt-16">
           <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight mb-6 sm:mb-8 flex items-center gap-2 sm:gap-3">
             <Edit2 class="w-5 sm:w-6 h-5 sm:h-6 text-royal-purple" /> Edit Student Info
           </h2>
