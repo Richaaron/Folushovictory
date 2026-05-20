@@ -192,9 +192,9 @@ const handleLogin = async () => {
         </div>
 
         <div class="relative z-10">
-          <div class="relative overflow-hidden rounded-[2rem] border border-slate-800/80 bg-slate-950/95 p-6 sm:p-8 md:p-10 shadow-[0_40px_120px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+          <div class="relative overflow-hidden rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-8 shadow-[0_30px_80px_rgba(212,175,55,0.20)] backdrop-blur-xl">
             <div class="absolute -left-10 top-4 h-24 w-24 rounded-full bg-royal-purple/10 blur-3xl" />
-            <div class="absolute -right-10 bottom-10 h-32 w-32 rounded-full bg-royal-gold/10 blur-3xl" />
+            <div class="absolute -right-10 bottom-10 h-28 w-28 rounded-full bg-royal-gold/10 blur-3xl" />
 
             <div class="relative space-y-8">
               <div class="space-y-6 text-center">
@@ -222,7 +222,7 @@ const handleLogin = async () => {
                         <label for="username" class="text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">{{ usernameLabel }}</label>
                         <span class="text-[10px] uppercase tracking-[0.28em] text-slate-500">Use your secure ID</span>
                       </div>
-                      <div class="relative rounded-[1.5rem] border border-slate-800/80 bg-slate-900/90 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
+                      <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
                         <div class="absolute inset-y-0 left-4 flex items-center text-royal-gold">
                           <User class="h-5 w-5" aria-hidden="true" />
                         </div>
@@ -245,7 +245,7 @@ const handleLogin = async () => {
                         <label for="password" class="text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">{{ passwordLabel }}</label>
                         <span class="text-[10px] uppercase tracking-[0.28em] text-slate-500">Protected access</span>
                       </div>
-                      <div class="relative rounded-[1.5rem] border border-slate-800/80 bg-slate-900/90 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
+                      <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
                         <div class="absolute inset-y-0 left-4 flex items-center text-royal-gold">
                           <Lock class="h-5 w-5" aria-hidden="true" />
                         </div>
