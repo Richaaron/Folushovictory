@@ -4,7 +4,7 @@ import { authRequired, requireRole } from "../middleware/auth.js";
 import { asyncHandler } from "../http.js";
 import { listAssignmentsByTeacher, getAssignmentByTriplet } from "../repos/assignments.js";
 import { listClassesByFormTeacher, getClassById } from "../repos/classes.js";
-import { getSubjectById } from "../repos/subjects.js";
+import { listSubjects, getSubjectById } from "../repos/subjects.js";
 import { listStudentsByClass, getStudentById, createStudentWithParent } from "../repos/students.js";
 import { isPublished } from "../repos/publishes.js";
 import { upsertNumericScore, upsertTraitScore } from "../repos/scores.js";
@@ -55,6 +55,32 @@ teacherRouter.get(
       const key = `${a.classId}-${a.subjectId}`;
       if (!uniqueAssignments.has(key)) {
         uniqueAssignments.set(key, a);
+      }
+    }
+
+    const formClasses = await listClassesByFormTeacher(req.user.username);
+    const primaryClasses = formClasses.filter((c) => {
+      const level = String(c.level || '').trim().toUpperCase();
+      return level === 'PRY' || level === 'NUR';
+    });
+
+    if (primaryClasses.length > 0) {
+      const allSubjects = await listSubjects();
+      const primarySubjects = allSubjects.filter((s) => String(s.level || '').trim().toLowerCase() === 'primary');
+
+      for (const cls of primaryClasses) {
+        for (const subject of primarySubjects) {
+          const key = `${cls.id}-${subject.id}`;
+          if (!uniqueAssignments.has(key)) {
+            uniqueAssignments.set(key, {
+              id: `primary-auto-${cls.id}-${subject.id}`,
+              teacherUsername: req.user.username,
+              classId: cls.id,
+              subjectId: subject.id,
+              createdAt: new Date().toISOString()
+            });
+          }
+        }
       }
     }
     

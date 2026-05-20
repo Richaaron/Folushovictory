@@ -324,23 +324,31 @@ adminRouter.put(
         // Fetch ALL classes to match levels
         const allClasses = await listClasses();
 
+        const normalizeLevel = (value) => {
+          const normalized = String(value || '').trim().toUpperCase();
+          if (['PRY', 'NUR', 'PRIMARY'].includes(normalized)) return 'Primary';
+          if (['JSS', 'JUNIOR SECONDARY', 'JR SECONDARY'].includes(normalized)) return 'JSS';
+          if (['SSS', 'SENIOR SECONDARY', 'SR SECONDARY'].includes(normalized)) return 'SSS';
+          return normalized;
+        };
+
         // Logic:
         // - For each subject selected:
-        //   - If it's a Primary subject: ONLY assign it to classes in 'classIds' that are 'Primary'
-        //   - If it's a Secondary subject: assign it to ALL matching classes at that level (JSS/SSS)
+        //   - If it's a Primary subject: assign it to all Primary-level classes when no classIds are provided
+        //   - If it's a Secondary subject: assign it to all matching classes at that level (JSS/SSS)
         for (const sId of subjectIds) {
           const subject = subjectMap[sId];
           if (!subject) continue;
 
-          const isPrimarySubject = subject.level === 'Primary';
+          const subjectLevel = normalizeLevel(subject.level);
+          const isPrimarySubject = subjectLevel === 'Primary';
           
           const targetClasses = allClasses.filter(cls => {
-            const levelMatch = cls.level === subject.level;
+            const levelMatch = normalizeLevel(cls.level) === subjectLevel;
             if (!levelMatch) return false;
 
-            // If it's Primary, it MUST be in the specifically selected classIds
             if (isPrimarySubject) {
-              return classIds.includes(cls.id);
+              return classIds.length === 0 || classIds.includes(cls.id);
             }
             
             // If it's Secondary, assign to all classes at that level (or filter by classIds if provided)
