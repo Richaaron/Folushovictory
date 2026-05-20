@@ -205,19 +205,19 @@ onMounted(fetchData)
               v-for="cls in formClasses" 
               :key="cls.id" 
               @click="router.push({ name: 'teacher-form-class', params: { classId: cls.id }, query: { className: cls.name } })"
-              class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 group hover:bg-white dark:hover:bg-slate-700 transition-all shadow-sm border border-transparent hover:border-royal-gold/30 cursor-pointer"
+              class="glass-card p-5 rounded-[2rem] border border-royal-gold/15 bg-slate-950/90 group hover:border-royal-gold/30 hover:-translate-y-1 transition-all cursor-pointer"
             >
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-black text-slate-900 dark:text-white">{{ cls.name }}</p>
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ cls.studentIds?.length || 0 }} Students</p>
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-white truncate">{{ cls.name }}</p>
+                  <p class="mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ cls.studentIds?.length || 0 }} Students</p>
                 </div>
-                <div class="p-2 rounded-xl text-slate-300 group-hover:text-royal-gold transition-colors">
+                <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-2 text-slate-300 group-hover:text-royal-gold transition-colors">
                   <ArrowRight class="w-5 h-5" />
                 </div>
               </div>
             </div>
-            <div v-if="formClasses.length === 0" class="py-4 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">
+            <div v-if="formClasses.length === 0" class="glass-card rounded-[2rem] p-6 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest border border-dashed border-slate-700/50">
               No form classes assigned.
             </div>
           </div>
@@ -228,15 +228,16 @@ onMounted(fetchData)
             <Clock class="w-5 h-5 text-royal-gold" /> Upcoming Deadlines
           </h3>
           <div class="space-y-4">
-            <div class="flex gap-4">
-              <div class="h-10 w-10 shrink-0 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 flex flex-col items-center justify-center font-black">
-                <span class="text-[8px] uppercase">May</span>
+            <div class="glass-card p-5 rounded-[2rem] border border-royal-purple/10 bg-slate-950/90 flex items-center gap-4 hover:border-royal-gold/20 transition-all">
+              <div class="h-14 w-14 shrink-0 rounded-3xl bg-red-50 dark:bg-red-900/20 text-red-500 flex flex-col items-center justify-center font-black text-[10px] uppercase tracking-[0.18em]">
+                <span>May</span>
                 <span class="text-sm">15</span>
               </div>
-              <div>
-                <p class="text-xs font-black text-slate-800 dark:text-slate-200">Submit CA 2 Scores</p>
+              <div class="min-w-0">
+                <p class="text-sm font-black text-white truncate">Submit CA 2 Scores</p>
                 <p class="text-[10px] text-slate-400">JSS 3A Mathematics</p>
               </div>
+              <span class="ml-auto rounded-full bg-slate-900/80 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Due Soon</span>
             </div>
           </div>
         </div>
