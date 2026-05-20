@@ -106,12 +106,9 @@ const portalConfig: Record<PortalKey, {
 }
 
 const portalTitle = computed(() => portalConfig[portal.value].title)
-const portalAccentTextClass = computed(() => portalConfig[portal.value].accentText)
-const portalAccentLineClass = computed(() => portalConfig[portal.value].accentLine)
 const portalButtonClass = computed(() => portalConfig[portal.value].button)
 const portalEmoji = computed(() => portalConfig[portal.value].emoji)
 const portalShadowClass = computed(() => portalConfig[portal.value].shadow)
-const portalSecureGatewayClass = computed(() => portalConfig[portal.value].gateway)
 const usernameLabel = computed(() => portalConfig[portal.value].usernameLabel)
 const usernamePlaceholder = computed(() => portalConfig[portal.value].usernamePlaceholder)
 const passwordLabel = computed(() => portalConfig[portal.value].passwordLabel)
