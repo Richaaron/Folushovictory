@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { 
   ArrowLeft, 
@@ -11,7 +11,8 @@ import {
   FileText,
   Send,
   Printer,
-  BarChart3
+  BarChart3,
+  UserPlus
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -30,6 +31,23 @@ const success = ref(false)
 const session = ref('2023/2024')
 const term = ref('First')
 
+const canAddStudents = ref(false)
+const currentClass = ref<any>(null)
+const showAddModal = ref(false)
+
+const isSSS = computed(() => {
+  return currentClass.value?.name?.includes('SSS')
+})
+
+const newStudent = ref({
+  firstName: '',
+  lastName: '',
+  gender: 'Male',
+  parentName: '',
+  parentEmail: '',
+  stream: ''
+})
+
 const fetchStudents = async () => {
   loading.value = true
   try {
@@ -41,12 +59,45 @@ const fetchStudents = async () => {
       ...s,
       remark: ''
     }))
+    canAddStudents.value = !!studentsResp.data.canAddStudents
+    currentClass.value = studentsResp.data.class
     if (schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
     if (schoolResp.data?.currentTerm) term.value = schoolResp.data.currentTerm
   } catch (err) {
     error.value = 'Failed to load class students'
   } finally {
     loading.value = false
+  }
+}
+
+const handleAddStudent = async () => {
+  if (!newStudent.value.firstName || !newStudent.value.lastName) {
+    alert('❌ Please enter both first name and last name.')
+    return
+  }
+  if (!newStudent.value.parentName) {
+    alert("❌ Parent/Guardian Name is required to enroll a student.")
+    return
+  }
+  try {
+    await api.post('/api/teacher/students', {
+      ...newStudent.value,
+      classId: classId
+    })
+    showAddModal.value = false
+    newStudent.value = {
+      firstName: '',
+      lastName: '',
+      gender: 'Male',
+      parentName: '',
+      parentEmail: '',
+      stream: ''
+    }
+    await fetchStudents()
+  } catch (err: any) {
+    console.error('Error adding student:', err)
+    const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
+    alert(`❌ Enrollment Failed: ${errorMsg}`)
   }
 }
 
@@ -138,13 +189,21 @@ onMounted(fetchStudents)
           Broadsheet
         </button>
         <button 
+          v-if="canAddStudents"
+          @click="showAddModal = true"
+          class="flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95"
+        >
+          <UserPlus class="w-4 h-4" />
+          Add Student
+        </button>
+        <button 
           @click="saveAllRemarks"
           :disabled="saving"
-          class="flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50"
+          class="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 transition hover:text-royal-purple disabled:opacity-50"
         >
           <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
           <Save v-else class="w-4 h-4" /> 
-          {{ saving ? 'Saving...' : 'Save All Remarks' }}
+          {{ saving ? 'Saving...' : 'Save Remarks' }}
         </button>
       </div>
     </div>
@@ -266,6 +325,64 @@ onMounted(fetchStudents)
           </tbody>
         </table>
       </div>
-    </div>
+  </div>
+
+    <!-- Add Student Modal -->
+    <transition name="fade">
+      <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAddModal = false"></div>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
+          <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8">Register New <span class="text-royal-purple">Student</span></h2>
+          
+          <div class="space-y-4 sm:space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">First Name</label>
+                <input v-model="newStudent.firstName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Name</label>
+                <input v-model="newStudent.lastName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
+                <select v-model="newStudent.gender" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </div>
+              <div v-if="isSSS" class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stream</label>
+                <select v-model="newStudent.stream" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
+                  <option value="">Select Stream</option>
+                  <option value="Science">Science</option>
+                  <option value="Art">Art</option>
+                  <option value="Commercial">Commercial</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
+                <input v-model="newStudent.parentName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="e.g. Chief Adeleke" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email <span class="text-slate-500 lowercase">(Optional)</span></label>
+                <input v-model="newStudent.parentEmail" type="email" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="guardian@example.com" />
+              </div>
+            </div>
+
+            <div class="pt-4 sm:pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+              <button @click="showAddModal = false" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl bg-slate-100 dark:bg-slate-800 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors min-h-[44px]">Cancel</button>
+              <button @click="handleAddStudent" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl purple-gradient text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 min-h-[44px]">Enroll Student</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>

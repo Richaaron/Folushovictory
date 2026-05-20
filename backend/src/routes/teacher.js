@@ -5,12 +5,14 @@ import { asyncHandler } from "../http.js";
 import { listAssignmentsByTeacher, getAssignmentByTriplet } from "../repos/assignments.js";
 import { listClassesByFormTeacher, getClassById } from "../repos/classes.js";
 import { getSubjectById } from "../repos/subjects.js";
-import { listStudentsByClass } from "../repos/students.js";
+import { listStudentsByClass, getStudentById, createStudentWithParent } from "../repos/students.js";
 import { isPublished } from "../repos/publishes.js";
 import { upsertNumericScore, upsertTraitScore } from "../repos/scores.js";
 import { setTeacherRemark } from "../repos/remarks.js";
 import { setReleaseStatus } from "../repos/releases.js";
-import { getStudentById } from "../repos/students.js";
+import { generateStudentId, generateParentUsername } from "../ids.js";
+import { hashPassword } from "../security.js";
+import { validateStudentPayload } from "../validation.js";
 import { getUserByUsername } from "../repos/users.js";
 import { sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
@@ -95,11 +97,29 @@ teacherRouter.get(
     const isSubjectTeacher = assignments.some((a) => a.classId === classId);
     const isFormTeacher = cls?.formTeacherUsername === req.user.username;
     
-    if (!isSubjectTeacher && !isFormTeacher) {
+    const formClasses = await listClassesByFormTeacher(req.user.username);
+    const hasPryNurFormClass = formClasses.some(c => c.level === "PRY" || c.level === "NUR");
+    let isPryNurTeacher = hasPryNurFormClass;
+    
+    if (!isPryNurTeacher) {
+      const assignedClassIds = [...new Set(assignments.map(a => a.classId))];
+      for (const cid of assignedClassIds) {
+        const c = await getClassById(cid);
+        if (c && (c.level === "PRY" || c.level === "NUR")) {
+          isPryNurTeacher = true;
+          break;
+        }
+      }
+    }
+
+    const isPryNurClass = cls?.level === "PRY" || cls?.level === "NUR";
+    const canAddStudents = isFormTeacher || (isPryNurTeacher && isPryNurClass);
+
+    if (!isSubjectTeacher && !isFormTeacher && !(isPryNurTeacher && isPryNurClass)) {
       return res.status(403).json({ error: "Forbidden" });
     }
     const students = await listStudentsByClass(classId);
-    return res.json({ students });
+    return res.json({ students, class: cls, canAddStudents });
   })
 );
 
@@ -291,6 +311,84 @@ teacherRouter.post(
     }).catch((error) => console.error("Activity log failed:", error));
 
     return res.json(result);
+  })
+);
+
+teacherRouter.post(
+  "/students",
+  asyncHandler(async (req, res) => {
+    const payload = validateStudentPayload(req.body || {});
+    const cls = await getClassById(payload.classId);
+    if (!cls) return res.status(404).json({ error: "Class not found" });
+
+    const isFormTeacher = cls.formTeacherUsername === req.user.username;
+
+    let isPryNurTeacher = false;
+    const formClasses = await listClassesByFormTeacher(req.user.username);
+    const hasPryNurFormClass = formClasses.some(c => c.level === "PRY" || c.level === "NUR");
+    if (hasPryNurFormClass) {
+      isPryNurTeacher = true;
+    } else {
+      const assignments = await listAssignmentsByTeacher(req.user.username);
+      const assignedClassIds = [...new Set(assignments.map(a => a.classId))];
+      for (const cid of assignedClassIds) {
+        const c = await getClassById(cid);
+        if (c && (c.level === "PRY" || c.level === "NUR")) {
+          isPryNurTeacher = true;
+          break;
+        }
+      }
+    }
+    const isPryNurClass = cls.level === "PRY" || cls.level === "NUR";
+
+    const canAdd = isFormTeacher || (isPryNurTeacher && isPryNurClass);
+    if (!canAdd) {
+      return res.status(403).json({ error: "Forbidden: You are not authorized to enroll students in this class." });
+    }
+
+    const studentId = await generateStudentId();
+    const parentUsername = await generateParentUsername();
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+    let parentPassword = "";
+    for (let i = 0; i < 8; i++) {
+      parentPassword += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const parentPasswordHash = await hashPassword(parentPassword);
+
+    await createStudentWithParent({
+      student: {
+        studentId,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        gender: payload.gender,
+        classId: payload.classId,
+        parentName: payload.parentName,
+        parentEmail: payload.parentEmail,
+        stream: payload.stream,
+        subjectIds: payload.subjectIds || [],
+        createdBy: req.user.username
+      },
+      parentUser: {
+        username: parentUsername,
+        email: payload.parentEmail,
+        portal: "PARENT",
+        role: Roles.PARENT,
+        displayName: payload.parentName,
+        passwordHash: parentPasswordHash,
+        studentId
+      }
+    });
+
+    void logActivity({
+      actor: req.user.username,
+      role: req.user.role,
+      action: "Enrolled new student",
+      details: { studentId, firstName: payload.firstName, lastName: payload.lastName, classId: payload.classId },
+      resourceType: "student",
+      resourceId: studentId
+    }).catch((error) => console.error("Activity log failed:", error));
+
+    return res.status(201).json({ studentId, parentUsername, parentPassword });
   })
 );
 
