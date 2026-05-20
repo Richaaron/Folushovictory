@@ -18,41 +18,40 @@ const navigateToLogin = (portal: string) => {
     <div class="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-16 lg:px-8 lg:py-24">
       <div class="grid flex-1 gap-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <div class="relative z-10">
-          <div class="inline-flex items-center gap-3 rounded-full border border-royal-gold/25 bg-white/5 px-4 py-2 text-sm text-royal-gold shadow-2xl shadow-purple-900/10 backdrop-blur-sm">
-            <span class="inline-flex h-3 w-3 rounded-full bg-royal-purple shadow-[0_0_0_4px_rgba(212,175,55,0.12)]"></span>
-            Folusho Victory Schools
-          </div>
+          <div class="mx-auto max-w-3xl text-center">
+            <div class="mx-auto flex h-44 w-44 items-center justify-center rounded-full border border-royal-gold/25 bg-slate-900/90 shadow-[0_30px_70px_rgba(212,175,55,0.20)]">
+              <img src="/logo.png" alt="Folusho Victory Schools logo" class="h-28 w-28 object-contain" />
+            </div>
 
-          <h1 class="mt-10 max-w-3xl text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.02]">
-            Excellence <span class="text-royal-purple">Defined</span> by Legacy.
-          </h1>
+            <p class="mt-8 text-sm uppercase tracking-[0.32em] text-royal-gold">Welcome to</p>
+            <h1 class="mt-4 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+              Folusho Victory School
+            </h1>
+            <p class="mt-3 text-lg font-semibold text-slate-300">Result Portal</p>
 
-          <p class="mt-8 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-            Welcome to the Folusho Victory Schools digital citadel. A sanctuary of academic precision, teacher empowerment, and parental partnership.
-          </p>
+            <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center hero-actions">
+              <button
+                @click="navigateToLogin('admin')"
+                class="hero-action-btn bg-gradient-to-r from-royal-purple via-royal-purple to-slate-900 text-white shadow-[0_24px_60px_rgba(88,28,135,0.32)]"
+              >
+                Admin Portal
+              </button>
 
-          <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center hero-actions">
-            <button
-              @click="navigateToLogin('admin')"
-              class="hero-action-btn bg-gradient-to-r from-royal-purple via-royal-purple to-slate-900 text-white shadow-[0_24px_60px_rgba(88,28,135,0.32)]"
-            >
-              Admin Portal
-            </button>
+              <button
+                @click="navigateToLogin('teacher')"
+                class="hero-action-btn bg-gradient-to-r from-royal-gold via-amber-400 to-amber-200 text-slate-950 shadow-[0_24px_40px_rgba(212,175,55,0.28)]"
+              >
+                Teacher Portal
+              </button>
 
-            <button
-              @click="navigateToLogin('teacher')"
-              class="hero-action-btn bg-gradient-to-r from-royal-gold via-amber-400 to-amber-200 text-slate-950 shadow-[0_24px_40px_rgba(212,175,55,0.28)]"
-            >
-              Teacher Portal
-            </button>
-
-            <button
-              @click="navigateToLogin('parent')"
-              class="hero-action-btn group inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-royal-purple hover:text-royal-purple"
-            >
-              Parental Access
-              <ArrowRight class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
+              <button
+                @click="navigateToLogin('parent')"
+                class="hero-action-btn group inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-royal-purple hover:text-royal-purple"
+              >
+                Parental Access
+                <ArrowRight class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+            </div>
           </div>
 
           <div class="mt-12 grid gap-4 sm:grid-cols-2">
