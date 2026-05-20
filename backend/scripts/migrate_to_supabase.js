@@ -79,7 +79,8 @@ const TABLE_COLUMNS = {
   ],
   students: [
     "studentId", "firstName", "lastName", "classId", "email",
-    "phone", "stream", "subjectIds", "createdAt", "updatedAt"
+    "phone", "gender", "stream", "subjectIds", "parentName", "parentEmail",
+    "createdBy", "createdAt", "updatedAt"
   ],
   subjects: [
     "id", "name", "level", "category", "stream", "track", "createdAt", "updatedAt"

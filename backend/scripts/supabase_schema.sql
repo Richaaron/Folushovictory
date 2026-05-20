@@ -36,8 +36,12 @@ CREATE TABLE IF NOT EXISTS students (
     "classId" VARCHAR(100) NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
     email VARCHAR(254),
     phone VARCHAR(20),
+    gender VARCHAR(20),
     stream VARCHAR(50),
     "subjectIds" JSONB DEFAULT '[]'::jsonb,
+    "parentName" VARCHAR(150),
+    "parentEmail" VARCHAR(254),
+    "createdBy" VARCHAR(100),
     "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

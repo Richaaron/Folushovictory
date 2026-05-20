@@ -12,7 +12,11 @@ export const ValidationSchemas = {
       lastName: "string",
       classId: "string",
       email: "string",
-      phone: "string"
+      phone: "string",
+      gender: "string",
+      parentName: "string",
+      parentEmail: "string",
+      createdBy: "string"
     },
     maxLengths: {
       studentId: 50,
@@ -20,7 +24,11 @@ export const ValidationSchemas = {
       lastName: 100,
       classId: 50,
       email: 254,
-      phone: 20
+      phone: 20,
+      gender: 20,
+      parentName: 150,
+      parentEmail: 254,
+      createdBy: 100
     }
   },
 
