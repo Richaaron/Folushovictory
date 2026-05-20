@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import { assertConfig, config } from "./config.js";
-import { getFirebaseApp } from "./firebase.js";
 import { authRouter } from "./routes/auth.js";
 import { meRouter } from "./routes/me.js";
 import { adminRouter } from "./routes/admin.js";
@@ -12,7 +11,6 @@ import { configRouter } from "./routes/config.js";
 import { errorHandler, notFound } from "./http.js";
 
 assertConfig();
-getFirebaseApp();
 
 const app = express();
 

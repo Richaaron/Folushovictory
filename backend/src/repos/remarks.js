@@ -1,5 +1,3 @@
-import admin from "firebase-admin";
-import { getDb } from "../firebase.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
 
 function remarkId({ session, term, studentId }) {

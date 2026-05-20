@@ -153,20 +153,15 @@ export class DatabaseErrorLogger {
   }
 
   static async logToDatabase(operation, error, context = {}) {
-    try {
-      // Store error logs in a separate collection for audit trail
-      const db = require("../firebase.js").getDb();
-      await db.collection("_system_logs").add({
-        type: "database_error",
-        operation,
-        errorType: classifyFirestoreError(error),
-        errorMessage: error.message,
-        context,
-        timestamp: new Date()
-      });
-    } catch (logError) {
-      console.error("[DB Error Logger] Failed to log to database:", logError);
-    }
+    // Legacy method - logging to console only (Firestore dependency removed)
+    console.error("[DB Error Logger]", {
+      type: "database_error",
+      operation,
+      errorType: classifyFirestoreError(error),
+      errorMessage: error.message,
+      context,
+      timestamp: new Date().toISOString()
+    });
   }
 }
 

@@ -15,7 +15,7 @@ import { getGradingScale, setGradingScale, setTermMeta, getSchoolSettings, setSc
 import { setReleaseStatus } from "../repos/releases.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
-import { getDb } from "../firebase.js";
+// Firebase dependency removed - all database operations use SafeDatabase (Supabase)
 import { sendEmail, sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 import { performHealthCheck, validateDataIntegrity, getCollectionMetrics } from "../firestore-utils/index.js";

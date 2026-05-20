@@ -18,8 +18,7 @@ export { performHealthCheck, isFirestoreHealthy, validateDataIntegrity, getColle
 // Data validation
 export { ValidationSchemas, validateData, sanitizeData, validateBeforeCreate, buildDuplicateCheckRules } from "./db-validation.js";
 
-// Transaction helpers
-export { executeTransaction, executeBatch, atomicUpdate, atomicIncrement, atomicArrayUnion, atomicArrayRemove, TransactionError, transactionWithRollback } from "./transaction-helpers.js";
+// Transaction helpers (removed - Firebase Firestore transactions no longer used)
 
 // Error handling and recovery
 export { FirestoreErrorTypes, classifyFirestoreError, buildErrorResponse, DatabaseErrorLogger, getRetryConfig, calculateBackoffDelay, withErrorHandling } from "./error-recovery.js";
