@@ -182,8 +182,8 @@ onMounted(fetchSettings)
       <!-- Main Form -->
       <form @submit.prevent="saveSettings" class="space-y-8">
         <!-- School Basic Info Section -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 space-y-6">
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <div class="glass-card rounded-[2.5rem] p-8 border-royal-gold/15 bg-slate-950/95 space-y-6">
+          <h3 class="text-xl font-bold text-white flex items-center gap-2">
             <span class="w-1 h-6 bg-teal-600 rounded-full"></span>
             Basic Information
           </h3>
@@ -271,8 +271,8 @@ onMounted(fetchSettings)
         </div>
 
         <!-- Principal Section -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 space-y-6">
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <div class="glass-card rounded-[2.5rem] p-8 border-royal-gold/15 bg-slate-950/95 space-y-6">
+          <h3 class="text-xl font-bold text-white flex items-center gap-2">
             <span class="w-1 h-6 bg-amber-500 rounded-full"></span>
             Principal Information
           </h3>
@@ -333,8 +333,8 @@ onMounted(fetchSettings)
         </div>
 
         <!-- School Logo Section -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 space-y-6">
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <div class="glass-card rounded-[2.5rem] p-8 border-royal-gold/15 bg-slate-950/95 space-y-6">
+          <h3 class="text-xl font-bold text-white flex items-center gap-2">
             <span class="w-1 h-6 bg-blue-600 rounded-full"></span>
             School Logo
           </h3>
