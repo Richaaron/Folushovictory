@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Lock, User, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-vue-next'
@@ -160,7 +160,6 @@ const handleLogin = async () => {
     
     authStore.setAuth(data.user, data.token)
     
-    // Redirect based on portal
     router.push(`/${portal.value}`)
   } catch (err: any) {
     console.error('Login error:', err)
@@ -172,167 +171,161 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen relative overflow-hidden bg-[#020617] px-3 sm:px-4 py-10 sm:py-16">
-    <div class="absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_top_left,rgba(88,28,135,0.32),transparent_24%),radial-gradient(circle_at_top_right,rgba(212,175,55,0.18),transparent_28%)] pointer-events-none" />
-    <div class="absolute left-1/4 top-1/3 h-72 w-72 rounded-full bg-royal-purple/10 blur-3xl" />
-    <div class="absolute right-1/4 bottom-16 h-64 w-64 rounded-full bg-royal-gold/10 blur-3xl" />
+  <div class="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(88,28,135,0.24),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(212,175,55,0.16),transparent_30%)] pointer-events-none"></div>
+    <div class="absolute -left-16 top-16 h-72 w-72 rounded-full bg-royal-purple/10 blur-3xl"></div>
+    <div class="absolute right-0 bottom-20 h-64 w-64 rounded-full bg-royal-gold/10 blur-3xl"></div>
 
-    <div class="relative mx-auto w-full max-w-6xl">
-      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-        <div class="hidden lg:block">
-          <div class="sticky top-28 rounded-[2rem] border border-royal-gold/20 bg-slate-950/80 p-8 shadow-[0_40px_120px_rgba(0,0,0,0.40)] backdrop-blur-xl">
-            <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Institutional Control</p>
-            <h1 class="mt-6 text-3xl font-black text-white leading-tight">Secure access across administration, teaching, and parental support.</h1>
-            <p class="mt-5 text-sm leading-7 text-slate-300">Manage academic records, classroom workflows, and guardian communication from one polished digital gateway.</p>
-            <div class="mt-8 flex flex-wrap gap-3">
-              <span class="rounded-full border border-royal-purple/20 bg-royal-purple/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.26em] text-royal-purple">Trusted</span>
-              <span class="rounded-full border border-royal-gold/20 bg-royal-gold/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.26em] text-royal-gold">Connected</span>
-            </div>
+    <div class="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-12 lg:px-8 lg:py-16">
+      <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+        <section class="space-y-8 rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-10 shadow-[0_40px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+          <div class="inline-flex rounded-full border border-royal-gold/20 bg-slate-900/90 px-4 py-2 text-sm font-black uppercase tracking-[0.35em] text-royal-gold shadow-[0_18px_40px_rgba(212,175,55,0.18)]">
+            Institutional Control
           </div>
-        </div>
+          <div class="space-y-5">
+            <h1 class="text-4xl font-black tracking-tight text-white sm:text-5xl">Secure gateway for school leadership, staff, and parent access.</h1>
+            <p class="max-w-2xl text-base leading-8 text-slate-300">Redesigned with strong contrast, crisp spacing, and a modern academic system architecture that makes login simple and authoritative.</p>
+          </div>
 
-        <div class="relative z-10 mx-auto w-full max-w-[760px]">
-          <div class="relative overflow-hidden rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-8 shadow-[0_30px_80px_rgba(212,175,55,0.20)] backdrop-blur-xl">
-            <div class="absolute -left-10 top-4 h-24 w-24 rounded-full bg-royal-purple/10 blur-3xl" />
-            <div class="absolute -right-10 bottom-10 h-28 w-28 rounded-full bg-royal-gold/10 blur-3xl" />
+          <div class="grid gap-4 sm:grid-cols-2">
+            <article class="info-pill">
+              <p class="text-[10px] uppercase tracking-[0.26em] text-slate-400">Trusted access</p>
+              <p class="mt-3 font-black text-white">Secure credentials and guardrail workflows.</p>
+            </article>
+            <article class="info-pill">
+              <p class="text-[10px] uppercase tracking-[0.26em] text-slate-400">Streamlined sign-in</p>
+              <p class="mt-3 font-black text-white">A cleaner interface with compact form focus.</p>
+            </article>
+          </div>
+        </section>
 
-            <div class="relative space-y-8">
-              <div class="space-y-6 text-center">
-                <div class="inline-flex rounded-full border border-royal-gold/20 bg-slate-900/90 px-4 py-2 text-sm font-black uppercase tracking-[0.35em] text-royal-gold shadow-[0_18px_40px_rgba(212,175,55,0.18)]">
-                  Secure Gateway
-                </div>
-                <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-white">
-                  {{ portalTitle }} <span class="ml-2">{{ portalEmoji }}</span>
-                </h2>
-                <p class="text-sm text-slate-400 uppercase tracking-[0.2em]">Institutional Control & Academic Management</p>
+        <section class="rounded-[2rem] border border-royal-purple/15 bg-slate-900/95 p-10 shadow-[0_40px_110px_rgba(88,28,135,0.24)] backdrop-blur-xl">
+          <div class="space-y-8">
+            <div class="space-y-4 text-center">
+              <div class="inline-flex rounded-full border border-royal-gold/20 bg-slate-950/90 px-4 py-2 text-sm font-black uppercase tracking-[0.35em] text-royal-gold shadow-[0_18px_40px_rgba(212,175,55,0.18)]">
+                Secure Gateway
               </div>
+              <h2 class="text-3xl font-black tracking-tight text-white">{{ portalTitle }} <span class="ml-2">{{ portalEmoji }}</span></h2>
+              <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Institutional control & academic management</p>
+            </div>
 
-              <transition name="portal-card" mode="out-in">
-                <div :key="portal" class="space-y-6">
-                  <form @submit.prevent="handleLogin" class="space-y-6" novalidate>
-                    <div v-if="error" class="rounded-[1.5rem] border border-rose-600/20 bg-rose-500/10 p-4 text-sm text-rose-100 shadow-[0_20px_60px_rgba(245,115,115,0.15)] animate-shake" role="alert" id="login-error">
-                      <div class="flex items-center gap-3">
-                        <AlertCircle class="h-5 w-5 text-rose-300" aria-hidden="true" />
-                        <p class="font-semibold">{{ error }}</p>
-                      </div>
+            <form @submit.prevent="handleLogin" class="space-y-6" novalidate>
+              <div class="space-y-4 rounded-[1.75rem] border border-slate-800/70 bg-slate-950/85 p-6 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+                <div class="grid gap-4">
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between gap-4">
+                      <span class="text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">{{ usernameLabel }}</span>
+                      <span class="text-[10px] uppercase tracking-[0.28em] text-slate-500">Use your secure ID</span>
                     </div>
-
-                    <div class="space-y-3">
-                      <div class="flex items-center justify-between gap-4">
-                        <label for="username" class="text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">{{ usernameLabel }}</label>
-                        <span class="text-[10px] uppercase tracking-[0.28em] text-slate-500">Use your secure ID</span>
+                    <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
+                      <div class="absolute inset-y-0 left-4 flex items-center text-royal-gold">
+                        <User class="h-5 w-5" aria-hidden="true" />
                       </div>
-                      <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
-                        <div class="absolute inset-y-0 left-4 flex items-center text-royal-gold">
-                          <User class="h-5 w-5" aria-hidden="true" />
-                        </div>
-                        <input
-                          id="username"
-                          v-model="username"
-                          type="text"
-                          required
-                          autocomplete="username"
-                          class="w-full bg-transparent pl-14 pr-4 text-sm text-white placeholder-slate-500 outline-none"
-                          :placeholder="usernamePlaceholder"
-                          :aria-invalid="!!error"
-                          aria-describedby="login-error"
-                        />
-                      </div>
+                      <input
+                        id="username"
+                        v-model="username"
+                        type="text"
+                        required
+                        autocomplete="username"
+                        class="w-full bg-transparent pl-14 pr-4 text-sm text-white placeholder-slate-500 outline-none"
+                        :placeholder="usernamePlaceholder"
+                        :aria-invalid="!!error"
+                      />
                     </div>
+                  </div>
 
-                    <div class="space-y-3">
-                      <div class="flex items-center justify-between gap-4">
-                        <label for="password" class="text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">{{ passwordLabel }}</label>
-                        <span class="text-[10px] uppercase tracking-[0.28em] text-slate-500">Protected access</span>
-                      </div>
-                      <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
-                        <div class="absolute inset-y-0 left-4 flex items-center text-royal-gold">
-                          <Lock class="h-5 w-5" aria-hidden="true" />
-                        </div>
-                        <input
-                          id="password"
-                          v-model="password"
-                          :type="passwordVisible ? 'text' : 'password'"
-                          required
-                          autocomplete="current-password"
-                          class="w-full bg-transparent pl-14 pr-12 text-sm text-white placeholder-slate-500 outline-none"
-                          :placeholder="passwordPlaceholder"
-                          :aria-invalid="!!error"
-                          aria-describedby="login-error"
-                        />
-                        <button
-                          type="button"
-                          @click="passwordVisible = !passwordVisible"
-                          :aria-label="passwordVisible ? 'Hide password' : 'Show password'"
-                          class="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-white transition-colors"
-                        >
-                          <Eye v-if="!passwordVisible" class="h-5 w-5" aria-hidden="true" />
-                          <EyeOff v-else class="h-5 w-5" aria-hidden="true" />
-                        </button>
-                      </div>
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between gap-4">
+                      <span class="text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">{{ passwordLabel }}</span>
+                      <span class="text-[10px] uppercase tracking-[0.28em] text-slate-500">Protected access</span>
                     </div>
-
-                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
+                      <div class="absolute inset-y-0 left-4 flex items-center text-royal-gold">
+                        <Lock class="h-5 w-5" aria-hidden="true" />
+                      </div>
+                      <input
+                        id="password"
+                        v-model="password"
+                        :type="passwordVisible ? 'text' : 'password'"
+                        required
+                        autocomplete="current-password"
+                        class="w-full bg-transparent pl-14 pr-12 text-sm text-white placeholder-slate-500 outline-none"
+                        :placeholder="passwordPlaceholder"
+                        :aria-invalid="!!error"
+                      />
                       <button
-                        type="submit"
-                        :disabled="loading"
-                        :class="[portalButtonClass, 'hero-action-btn w-full sm:w-auto flex items-center justify-center rounded-[1.5rem] px-6 py-4 text-sm font-black uppercase tracking-[0.2em] text-white focus-visible:ring-4 focus-visible:ring-royal-gold/30', portalShadowClass]"
-                        :aria-label="loading ? 'Authenticating...' : 'Authorize Access'"
-                      >
-                        <Loader2 v-if="loading" class="mr-2 h-5 w-5 animate-spin" aria-hidden="true" />
-                        <span>{{ loading ? 'Authenticating' : 'Authorize Access' }}</span>
-                      </button>
-                      <router-link
-                        :to="forgotLinkPath"
-                        class="text-sm font-bold text-slate-400 hover:text-white transition-colors"
-                      >
-                        {{ forgotLinkText }}
-                      </router-link>
-                    </div>
-                  </form>
-
-                  <div class="rounded-[1.5rem] border border-slate-800/80 bg-slate-900/90 px-5 py-4">
-                    <p class="text-[9px] font-black uppercase tracking-[0.28em] text-slate-500 text-center mb-3">Switch Operational Portal</p>
-                    <div class="flex flex-wrap justify-center gap-3">
-                      <button
-                        v-for="p in portalOptions"
-                        :key="p"
-                        @click="selectPortal(p)"
-                        :aria-pressed="portal === p"
-                        :class="portal === p ? 'portal-switch-button active' : 'portal-switch-button'"
                         type="button"
+                        @click="passwordVisible = !passwordVisible"
+                        :aria-label="passwordVisible ? 'Hide password' : 'Show password'"
+                        class="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-white transition-colors"
                       >
-                        <span>{{ portalConfig[p].emoji }}</span>
-                        <span>{{ portalConfig[p].label }}</span>
+                        <Eye v-if="!passwordVisible" class="h-5 w-5" aria-hidden="true" />
+                        <EyeOff v-else class="h-5 w-5" aria-hidden="true" />
                       </button>
                     </div>
                   </div>
-                </div>
-              </transition>
-            </div>
 
-            <div class="pt-6 text-center text-slate-500">
-              <p class="text-[10px] uppercase tracking-[0.2em]">© 2026 Folusho Victory Schools. Unified Academic Engine.</p>
-              <div class="mt-4 flex items-center justify-center gap-2 opacity-30">
-                <span class="block h-1 w-8 rounded-full bg-royal-purple"></span>
-                <span class="block h-1 w-8 rounded-full bg-royal-gold"></span>
-                <span class="block h-1 w-8 rounded-full bg-slate-600"></span>
+                  <div v-if="error" class="rounded-[1.5rem] border border-rose-600/20 bg-rose-500/10 p-4 text-sm text-rose-100 shadow-[0_20px_60px_rgba(245,115,115,0.15)] animate-shake" role="alert">
+                    <div class="flex items-center gap-3">
+                      <AlertCircle class="h-5 w-5 text-rose-300" aria-hidden="true" />
+                      <p class="font-semibold">{{ error }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <button
+                  type="submit"
+                  :disabled="loading"
+                  :class="[portalButtonClass, 'w-full sm:w-auto flex items-center justify-center rounded-[1.5rem] px-6 py-4 text-sm font-black uppercase tracking-[0.2em] text-white focus-visible:ring-4 focus-visible:ring-royal-gold/30', portalShadowClass]"
+                >
+                  <Loader2 v-if="loading" class="mr-2 h-5 w-5 animate-spin" aria-hidden="true" />
+                  <span>{{ loading ? 'Authenticating' : 'Authorize Access' }}</span>
+                </button>
+                <router-link
+                  :to="forgotLinkPath"
+                  class="text-sm font-bold text-slate-400 hover:text-white transition-colors"
+                >
+                  {{ forgotLinkText }}
+                </router-link>
+              </div>
+            </form>
+
+            <div class="rounded-[1.75rem] border border-slate-800/80 bg-slate-900/90 px-5 py-5">
+              <p class="text-[9px] font-black uppercase tracking-[0.28em] text-slate-500 text-center mb-3">Switch Operational Portal</p>
+              <div class="flex flex-wrap justify-center gap-3">
+                <button
+                  v-for="p in portalOptions"
+                  :key="p"
+                  @click="selectPortal(p)"
+                  :aria-pressed="portal === p"
+                  :class="portal === p ? 'portal-switch-button active' : 'portal-switch-button'"
+                  type="button"
+                >
+                  <span>{{ portalConfig[p].emoji }}</span>
+                  <span>{{ portalConfig[p].label }}</span>
+                </button>
               </div>
             </div>
+
+            <div class="rounded-[1.75rem] border border-slate-800/80 bg-slate-900/90 px-6 py-5 text-center text-slate-500">
+              <p class="text-[10px] uppercase tracking-[0.2em]">© 2026 Folusho Victory Schools. Unified Academic Engine.</p>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.portal-switch-panel {
-  @apply border-slate-800/80 bg-slate-900/90;
+.info-pill {
+  @apply rounded-[1.75rem] border border-slate-700/60 bg-slate-900/85 p-6 shadow-[0_24px_65px_rgba(0,0,0,0.20)];
 }
 
 .portal-switch-button {
-  @apply inline-flex items-center gap-2 rounded-full border border-slate-700/60 bg-slate-900/80 px-5 py-3 text-[10px] font-black uppercase tracking-[0.25em] text-slate-300 transition-all duration-200 hover:bg-slate-800;
+  @apply inline-flex items-center gap-2 rounded-full border border-slate-700/60 bg-slate-900/80 px-5 py-3 text-[10px] font-black uppercase tracking-[0.25em] text-slate-300 transition duration-200 hover:bg-slate-800;
 }
 
 .portal-switch-button.active {
@@ -350,15 +343,18 @@ const handleLogin = async () => {
 .hero-action-btn:active {
   transform: scale(0.98);
 }
+
 .portal-card-enter-active,
 .portal-card-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
+
 .portal-card-enter-from,
 .portal-card-leave-to {
   opacity: 0;
   transform: translateY(12px);
 }
+
 .portal-card-enter-to,
 .portal-card-leave-from {
   opacity: 1;

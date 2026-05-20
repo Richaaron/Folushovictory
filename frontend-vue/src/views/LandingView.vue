@@ -11,146 +11,134 @@ const navigateToLogin = (portal: string) => {
 
 <template>
   <div class="relative min-h-screen overflow-hidden bg-slate-950 text-white">
-    <div class="absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(circle_at_top_left,rgba(153,76,255,0.26),transparent_28%),radial-gradient(circle_at_top_right,rgba(212,175,55,0.24),transparent_24%)] pointer-events-none" />
-    <div class="absolute -right-20 top-1/4 hidden h-72 w-72 rounded-full bg-royal-purple/10 blur-3xl lg:block" />
-    <div class="absolute -left-16 bottom-16 hidden h-64 w-64 rounded-full bg-royal-gold/10 blur-3xl lg:block" />
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(88,28,135,0.26),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(212,175,55,0.18),transparent_30%)] pointer-events-none" />
+    <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-royal-purple/15 to-transparent" />
+    <div class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-royal-gold/15 to-transparent" />
 
     <div class="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-16 lg:px-8 lg:py-24">
-      <div class="grid flex-1 gap-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <div class="relative z-10">
-          <div class="mx-auto max-w-3xl text-center">
-            <div class="mx-auto flex h-44 w-44 items-center justify-center rounded-full border border-royal-gold/25 bg-slate-900/90 shadow-[0_30px_70px_rgba(212,175,55,0.20)]">
-              <img src="/logo.png" alt="Folusho Victory Schools logo" class="h-28 w-28 object-contain" />
+      <div class="grid gap-10 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
+        <section class="space-y-8">
+          <div class="rounded-[2rem] border border-royal-gold/15 bg-slate-950/85 p-10 shadow-[0_35px_100px_rgba(0,0,0,0.30)] backdrop-blur-xl">
+            <div class="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8">
+              <div class="flex h-24 w-24 items-center justify-center rounded-full border border-royal-gold/20 bg-slate-900/90 text-royal-gold shadow-[0_18px_40px_rgba(212,175,55,0.20)]">
+                <img src="/logo.png" alt="Folusho Victory Schools logo" class="h-14 w-14 object-contain" />
+              </div>
+              <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-royal-gold">Welcome to</p>
+                <h1 class="mt-3 text-5xl font-black tracking-tight text-white sm:text-6xl">Folusho Victory School</h1>
+                <p class="mt-3 max-w-xl text-base leading-8 text-slate-300">A refined portal for academic result management, school operations, and guardian engagement — presented with royal purple and gold clarity.</p>
+              </div>
             </div>
 
-            <p class="mt-8 text-sm uppercase tracking-[0.32em] text-royal-gold">Welcome to</p>
-            <h1 class="mt-4 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
-              Folusho Victory School
-            </h1>
-            <p class="mt-3 text-lg font-semibold text-slate-300">Result Portal</p>
-
-            <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center hero-actions">
+            <div class="mt-10 grid gap-4 sm:grid-cols-3">
               <button
                 @click="navigateToLogin('admin')"
-                class="hero-action-btn bg-gradient-to-r from-royal-purple via-royal-purple to-slate-900 text-white shadow-[0_24px_60px_rgba(88,28,135,0.32)]"
+                class="action-pill bg-gradient-to-r from-royal-purple via-royal-purple to-slate-900 text-white"
               >
                 Admin Portal
               </button>
-
               <button
                 @click="navigateToLogin('teacher')"
-                class="hero-action-btn bg-gradient-to-r from-royal-gold via-amber-400 to-amber-200 text-slate-950 shadow-[0_24px_40px_rgba(212,175,55,0.28)]"
+                class="action-pill bg-gradient-to-r from-royal-gold via-amber-400 to-amber-200 text-slate-950"
               >
                 Teacher Portal
               </button>
-
               <button
                 @click="navigateToLogin('parent')"
-                class="hero-action-btn group inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-royal-purple hover:text-royal-purple"
+                class="action-pill border border-slate-700 bg-slate-900/85 text-slate-300 hover:border-royal-purple hover:text-royal-purple"
               >
                 Parental Access
-                <ArrowRight class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight class="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          <div class="mt-12 grid gap-4 sm:grid-cols-2">
-            <div class="landing-pill">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <article class="panel-card">
               <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Trusted heritage</p>
-              <p class="mt-4 text-lg font-black text-white">A strong foundation for every student.</p>
-            </div>
-            <div class="landing-pill">
+              <h2 class="mt-4 text-xl font-black text-white">School tradition meets digital speed.</h2>
+              <p class="mt-3 text-sm leading-7 text-slate-300">Keep every result, attendance update, and administrative action in one secure portal.</p>
+            </article>
+            <article class="panel-card">
               <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Modern learning</p>
-              <p class="mt-4 text-lg font-black text-white">Digital classrooms with real-time insights.</p>
-            </div>
+              <h2 class="mt-4 text-xl font-black text-white">Instant insights for teaching staff.</h2>
+              <p class="mt-3 text-sm leading-7 text-slate-300">A polished hub for assignments, student progress, and parent communication.</p>
+            </article>
           </div>
-        </div>
+        </section>
 
-        <div class="relative z-10">
-          <div class="landing-hero-panel overflow-hidden rounded-[2.5rem] border border-slate-700/50 bg-slate-900/85 p-8 shadow-[0_40px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-10">
-            <div class="mb-8 flex items-center justify-between gap-4 rounded-3xl border border-slate-700/50 bg-slate-950/80 p-5 shadow-xl shadow-slate-950/20">
-              <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-royal-purple/10 text-royal-gold ring-1 ring-royal-gold/20">
-                <ShieldCheck class="h-7 w-7" />
-              </div>
-              <div>
-                <p class="text-xs uppercase tracking-[0.32em] text-slate-400">Academic Pillar</p>
-                <h2 class="mt-3 text-2xl font-black text-white">Strategic school governance</h2>
+        <section class="relative rounded-[2.5rem] border border-slate-700/40 bg-slate-950/80 p-8 shadow-[0_45px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+          <div class="absolute -right-10 top-10 h-32 w-32 rounded-full bg-royal-purple/10 blur-3xl" />
+          <div class="absolute -left-8 bottom-10 h-24 w-24 rounded-full bg-royal-gold/10 blur-3xl" />
+          <div class="relative space-y-8">
+            <div class="rounded-[2rem] border border-slate-700/50 bg-slate-900/90 p-8 shadow-[0_25px_70px_rgba(0,0,0,0.30)]">
+              <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-royal-purple/10 text-royal-gold ring-1 ring-royal-gold/20">
+                  <ShieldCheck class="h-7 w-7" />
+                </div>
+                <div>
+                  <p class="text-xs uppercase tracking-[0.32em] text-slate-400">Why this portal</p>
+                  <h2 class="mt-2 text-2xl font-black text-white">Trusted for academic control.</h2>
+                </div>
               </div>
             </div>
 
             <div class="grid gap-5">
-              <div class="feature-card">
-                <div class="flex h-11 w-11 items-center justify-center rounded-3xl bg-royal-gold/10 text-royal-gold ring-1 ring-royal-gold/20">
-                  <span class="text-sm font-black">01</span>
-                </div>
+              <article class="feature-card">
+                <span class="feature-index">01</span>
                 <div>
-                  <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Royal Governance</p>
-                  <p class="mt-2 text-sm leading-6 text-slate-300">Centralized control of academic records and institutional intelligence.</p>
+                  <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Authority</p>
+                  <p class="mt-2 text-sm leading-6 text-slate-300">A premium gateway for administrators, teachers, and families.</p>
                 </div>
-              </div>
-
-              <div class="feature-card">
-                <div class="flex h-11 w-11 items-center justify-center rounded-3xl bg-royal-purple/10 text-royal-purple ring-1 ring-royal-purple/20">
-                  <span class="text-sm font-black">02</span>
-                </div>
+              </article>
+              <article class="feature-card">
+                <span class="feature-index">02</span>
                 <div>
-                  <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Scholarly Assessment</p>
-                  <p class="mt-2 text-sm leading-6 text-slate-300">Sophisticated evaluation frameworks for numeric and character development.</p>
+                  <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Clarity</p>
+                  <p class="mt-2 text-sm leading-6 text-slate-300">Every result and report presented with clean visual hierarchy.</p>
                 </div>
-              </div>
-
-              <div class="feature-card">
-                <div class="flex h-11 w-11 items-center justify-center rounded-3xl bg-slate-700/70 text-white ring-1 ring-slate-600/30">
-                  <span class="text-sm font-black">03</span>
-                </div>
+              </article>
+              <article class="feature-card">
+                <span class="feature-index">03</span>
                 <div>
-                  <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Parental Engagement</p>
-                  <p class="mt-2 text-sm leading-6 text-slate-300">Real-time academic updates and detailed student performance report cards.</p>
+                  <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Harmony</p>
+                  <p class="mt-2 text-sm leading-6 text-slate-300">Elegant access for school leaders, educators, and guardians.</p>
                 </div>
-              </div>
+              </article>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.landing-hero-panel {
-  @apply border border-slate-700/50 bg-slate-900/85 backdrop-blur-xl;
+.action-pill {
+  @apply inline-flex items-center justify-center gap-3 rounded-full px-8 py-4 text-sm font-black uppercase tracking-widest transition duration-300 ease-out;
 }
 
-.landing-pill {
-  @apply rounded-3xl border border-slate-700/40 bg-slate-950/80 p-6 shadow-xl shadow-slate-950/20;
+.action-pill:hover {
+  transform: translateY(-1px);
+}
+
+.panel-card,
+.feature-card {
+  @apply rounded-[2rem] border border-slate-700/40 bg-slate-950/80 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.22)] backdrop-blur-xl;
 }
 
 .feature-card {
-  @apply flex items-start gap-4 rounded-3xl border border-slate-700/50 bg-slate-950/70 p-5 shadow-xl shadow-slate-950/20;
+  @apply grid gap-4;
 }
 
-@media (max-width: 640px) {
-  .landing-hero-panel,
-  .landing-pill,
-  .feature-card {
-    @apply rounded-[2rem] p-5;
+.feature-index {
+  @apply inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-royal-purple/10 text-royal-gold font-black;
+}
+
+@media (max-width: 768px) {
+  .action-pill {
+    @apply w-full;
   }
-}
-
-.hero-actions {
-  gap: 1rem;
-}
-
-.hero-action-btn {
-  @apply inline-flex items-center justify-center min-w-[13rem] rounded-full px-10 py-4 text-sm font-black uppercase tracking-widest transition duration-300 ease-out;
-}
-
-.hero-action-btn:hover {
-  transform: translateY(-2px);
-}
-
-.hero-action-btn:active {
-  transform: scale(0.98);
 }
 </style>
 
