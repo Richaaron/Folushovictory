@@ -72,6 +72,21 @@ const fetchStudents = async () => {
   }
 }
 
+const filteredStudents = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim()
+  if (!query) return students.value
+  return students.value.filter(student => {
+    const fullName = `${student.firstName} ${student.lastName}`.toLowerCase()
+    return fullName.includes(query) ||
+           String(student.studentId || student.id || '').toLowerCase().includes(query) ||
+           String(student.parentName || '').toLowerCase().includes(query)
+  })
+})
+
+const selectedClassName = computed(() => {
+  return classes.value.find(c => c.id === selectedClassId.value)?.name || 'selected class'
+})
+
 const allSubjects = ref<any[]>([])
 
 const fetchSubjects = async () => {
@@ -254,72 +269,60 @@ onMounted(async () => {
         <select v-model="selectedClassId" class="pl-3 sm:pl-4 pr-8 sm:pr-10 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-royal-purple outline-none flex-1 sm:flex-initial">
           <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
         </select>
-        <button class="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 bg-slate-900/65 border border-slate-700/60 rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-200 hover:bg-slate-950 transition-all min-h-[44px]">
+        <button @click="fetchStudents" class="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 bg-slate-900/65 border border-slate-700/60 rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-200 hover:bg-slate-950 transition-all min-h-[44px]">
           <Filter class="w-4 h-4" /> <span class="hidden sm:inline">Filter</span>
         </button>
       </div>
     </div>
 
     <!-- Student Table -->
-    <div class="glass-card rounded-[2.5rem] border border-royal-gold/15 overflow-hidden min-h-[400px] flex flex-col">
-      <div v-if="loading" class="flex-grow flex items-center justify-center">
-        <Loader2 class="w-12 h-12 text-royal-purple animate-spin" />
+    <div class="glass-card rounded-[2.5rem] border border-royal-gold/15 overflow-hidden min-h-[420px] flex flex-col">
+      <div v-if="loading" class="flex-grow flex items-center justify-center bg-slate-950/95 p-10">
+        <Loader2 class="w-14 h-14 text-royal-purple animate-spin" />
       </div>
       <div v-else class="overflow-x-auto bg-slate-950/90">
-        <table class="w-full text-left text-xs sm:text-sm">
+        <table class="w-full text-left text-[10px] sm:text-xs md:text-sm border-separate border-spacing-0">
           <thead>
-            <tr class="bg-slate-900/50 sticky top-0">
-              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">ID</th>
-              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">Name</th>
-              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:table-cell whitespace-nowrap">Gender</th>
-              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell whitespace-nowrap">Guardian</th>
-              <th class="px-3 sm:px-6 py-4 sm:py-6 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 text-right whitespace-nowrap">Actions</th>
+            <tr class="bg-slate-900/65 text-slate-300">
+              <th class="px-3 sm:px-6 py-4 sm:py-5 uppercase tracking-[0.25em]">ID</th>
+              <th class="px-3 sm:px-6 py-4 sm:py-5 uppercase tracking-[0.25em]">Name</th>
+              <th class="px-3 sm:px-6 py-4 sm:py-5 uppercase tracking-[0.25em] hidden sm:table-cell">Gender</th>
+              <th class="px-3 sm:px-6 py-4 sm:py-5 uppercase tracking-[0.25em] hidden md:table-cell">Guardian</th>
+              <th class="px-3 sm:px-6 py-4 sm:py-5 uppercase tracking-[0.25em] text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
-              <tr v-for="student in students" :key="student.id" class="group hover:bg-slate-900/60 transition-colors">
-              <td class="px-3 sm:px-6 py-3 sm:py-6">
-                <span class="text-[7px] sm:text-xs font-black text-royal-purple bg-slate-900/60 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-slate-700/60 whitespace-nowrap">
-                  {{ student.studentId }}
-                </span>
+          <tbody class="divide-y divide-slate-800">
+            <tr v-for="student in filteredStudents" :key="student.studentId || student.id" class="group hover:bg-slate-900/60 transition-colors">
+              <td class="px-3 sm:px-6 py-4 sm:py-5 align-top">
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-[#2f2a4d] text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-royal-purple border border-royal-purple/20">{{ student.studentId }}</span>
               </td>
-              <td class="px-3 sm:px-6 py-3 sm:py-6">
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="h-8 sm:h-10 w-8 sm:w-10 rounded-lg sm:rounded-xl bg-slate-900/60 flex items-center justify-center text-slate-300 flex-shrink-0">
-                    <GraduationCap class="w-4 sm:w-5 h-4 sm:h-5" />
+              <td class="px-3 sm:px-6 py-4 sm:py-5 align-top">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 sm:h-12 w-10 sm:w-12 rounded-2xl bg-slate-900/70 border border-slate-700/70 flex items-center justify-center text-royal-gold font-black text-sm sm:text-lg">
+                    {{ student.firstName?.charAt(0) || 'S' }}
                   </div>
-                  <p class="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">{{ student.firstName }} {{ student.lastName }}</p>
+                  <div class="min-w-0">
+                    <p class="font-black text-white truncate">{{ student.firstName }} {{ student.lastName }}</p>
+                    <p class="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-[0.25em] mt-1">{{ classes.find(c => c.id === student.classId)?.name || 'Unassigned' }}</p>
+                  </div>
                 </div>
               </td>
-              <td class="px-3 sm:px-6 py-3 sm:py-6 hidden sm:table-cell">
-                <span class="text-[8px] sm:text-xs font-bold text-slate-500 uppercase">{{ student.gender }}</span>
+              <td class="px-3 sm:px-6 py-4 sm:py-5 align-top hidden sm:table-cell">
+                <span class="text-[9px] sm:text-xs font-black uppercase tracking-[0.25em] text-slate-400">{{ student.gender }}</span>
               </td>
-              <td class="px-3 sm:px-6 py-3 sm:py-6 hidden md:table-cell">
-                <p class="text-[8px] sm:text-xs font-black text-slate-700 dark:text-slate-300 truncate">{{ student.parentName }}</p>
-                <p class="text-[7px] sm:text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-1 hidden sm:block">Verified Parent</p>
+              <td class="px-3 sm:px-6 py-4 sm:py-5 align-top hidden md:table-cell">
+                <p class="font-black text-slate-200 truncate">{{ student.parentName }}</p>
+                <p class="text-[9px] text-slate-500 uppercase tracking-[0.2em] mt-1">Verified Parent</p>
               </td>
-              <td class="px-3 sm:px-6 py-3 sm:py-6 text-right">
-                <div class="flex items-center justify-end gap-1 sm:gap-2">
-                  <button 
-                    @click="openScoreModal(student)"
-                    class="p-2 rounded-lg sm:rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:bg-amber-900/80 hover:text-amber-200 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
-                    aria-label="Enter scores"
-                    title="Enter Scores"
-                  >
+              <td class="px-3 sm:px-6 py-4 sm:py-5 align-top text-right">
+                <div class="inline-flex items-center justify-end gap-2">
+                  <button @click="openScoreModal(student)" class="p-2 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-amber-900/80 hover:text-amber-200 transition-colors">
                     <BookOpen class="w-4 h-4" />
                   </button>
-                  <button 
-                    @click="openEditModal(student)"
-                    class="p-2 rounded-lg sm:rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:bg-slate-950 hover:text-royal-purple transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
-                    aria-label="Edit student"
-                  >
+                  <button @click="openEditModal(student)" class="p-2 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-royal-purple transition-colors">
                     <Edit2 class="w-4 h-4" />
                   </button>
-                  <button 
-                    @click="handleDelete(student.studentId)"
-                    class="p-2 rounded-lg sm:rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:bg-red-900/80 hover:text-red-300 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
-                    aria-label="Delete student"
-                  >
+                  <button @click="handleDelete(student.studentId)" class="p-2 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-red-900/80 hover:text-red-300 transition-colors">
                     <Trash2 class="w-4 h-4" />
                   </button>
                 </div>
@@ -327,12 +330,13 @@ onMounted(async () => {
             </tr>
           </tbody>
         </table>
-        <div v-if="students.length === 0" class="p-6 sm:p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px] sm:text-xs">
-          No students enrolled in this class.
+        <div v-if="filteredStudents.length === 0" class="p-6 sm:p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px] sm:text-xs">
+          <p>{{ searchQuery ? `No students match "${searchQuery}"` : 'No students enrolled in this class.' }}</p>
         </div>
       </div>
-      <div v-if="!loading" class="p-4 sm:p-6 bg-slate-900/30 border-t border-slate-700/60 flex items-center justify-center">
-        <p class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">End of Registry List</p>
+
+      <div v-if="!loading" class="px-4 py-3 sm:px-6 sm:py-4 bg-slate-900/70 border-t border-slate-800 text-center text-[9px] sm:text-[10px] uppercase tracking-[0.3em] text-slate-500">
+        Showing {{ filteredStudents.length }} of {{ students.length }} students in {{ selectedClassName }}
       </div>
     </div>
 
