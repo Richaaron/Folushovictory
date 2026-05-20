@@ -111,7 +111,13 @@ const fetchData = async () => {
       filteredSubjects = Array.from(subjectMap.values())
     } else {
       // For Primary and JSS: show all subjects matching the level
-      filteredSubjects = allSubjects.filter((s: any) => s.level === cls.level)
+      let classLevel = cls.level
+      if (classLevel === 'PRY') {
+        classLevel = 'Primary'
+      } else if (classLevel === 'NUR') {
+        classLevel = 'Primary'
+      }
+      filteredSubjects = allSubjects.filter((s: any) => s.level === classLevel)
     }
     
     subjects.value = filteredSubjects.sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
