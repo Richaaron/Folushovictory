@@ -240,7 +240,7 @@ onMounted(fetchStudents)
     </div>
 
     <!-- Student List -->
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+    <div class="glass-card overflow-hidden">
       <div v-if="loading" class="p-20 flex items-center justify-center">
         <Loader2 class="w-10 h-10 text-royal-purple animate-spin" />
       </div>
@@ -331,7 +331,7 @@ onMounted(fetchStudents)
     <transition name="fade">
       <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAddModal = false"></div>
-        <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
+        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 max-h-[90vh] overflow-y-auto">
           <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8">Register New <span class="text-royal-purple">Student</span></h2>
           
           <div class="space-y-4 sm:space-y-6">

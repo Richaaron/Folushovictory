@@ -81,10 +81,10 @@ onMounted(fetchData)
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Result Center -->
       <div class="lg:col-span-2 space-y-8">
-        <div class="academic-card rounded-[2.5rem] p-8">
+        <div class="glass-card p-8">
           <div class="flex items-center justify-between mb-8">
-            <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-              <FileText class="w-5 h-5 text-royal-purple" /> Report Card Center
+            <h3 class="text-xl font-black text-slate-100 tracking-tight flex items-center gap-3">
+              <FileText class="w-5 h-5 text-gold-soft" /> Report Card Center
             </h3>
             <div class="flex gap-2">
               <select class="bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-[10px] font-black uppercase tracking-widest px-4 py-2 outline-none">
@@ -112,8 +112,8 @@ onMounted(fetchData)
           </div>
         </div>
 
-        <div class="academic-card rounded-[2.5rem] p-8">
-          <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight mb-6">Continuous Assessment</h3>
+        <div class="glass-card p-8">
+          <h3 class="text-lg font-black text-slate-100 tracking-tight mb-6">Continuous Assessment</h3>
           <div class="space-y-4">
             <div v-for="score in recentScores" :key="score.subject" class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800">
               <div class="flex items-center gap-4">

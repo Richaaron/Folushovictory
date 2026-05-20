@@ -3,62 +3,152 @@
 @tailwind utilities;
 
 :root {
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
-  --accent: #10B981;
+  --primary: #6d28d9;
+  --primary-soft: #7c3aed;
+  --gold: #d4af37;
+  --gold-soft: #f3d86b;
   --bg-light: #F8FAFC;
-  --bg-dark: #0F172A;
-  --border-light: #E2E8F0;
-  --border-dark: #1E293B;
+  --bg-dark: #06121e;
+  --panel: rgba(15, 23, 42, 0.88);
+  --panel-border: rgba(212, 175, 55, 0.16);
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 min-h-screen transition-colors duration-200;
+  @apply bg-slate-950 text-slate-100 min-h-screen transition-colors duration-300;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-image: radial-gradient(circle at top left, rgba(124, 58, 237, 0.14), transparent 24%), radial-gradient(circle at bottom right, rgba(212, 175, 55, 0.12), transparent 28%);
 }
 
 .dark body {
-  @apply bg-[#0F172A] text-slate-100;
+  @apply bg-slate-950 text-slate-100;
 }
 
-/* Simplified UI Components */
-.glass-card, .academic-card {
-  @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl transition-all duration-200;
+/* Refined panels with glassy purple/gold character */
+.glass-card,
+.academic-card {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.82));
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+  backdrop-filter: blur(22px);
+  border-radius: 2rem;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
+.glass-card:hover,
 .academic-card:hover {
-  @apply border-indigo-500/50 shadow-md;
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.28);
+  box-shadow: 0 35px 90px rgba(15, 23, 42, 0.32);
 }
 
 .glass-nav {
-  @apply bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 shadow-sm;
+  background: rgba(15, 23, 42, 0.98);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+  backdrop-filter: blur(18px);
 }
 
 .glass-sidebar {
-  @apply bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800;
+  background: rgba(15, 23, 42, 0.98);
+  border-right: 1px solid rgba(212, 175, 55, 0.12);
 }
 
-/* Simplified Gradients to solid-ish colors for accessibility */
+/* Gradient accents */
 .nebula-gradient {
-  @apply bg-indigo-600;
+  background: linear-gradient(135deg, #581c87, #8b5cf6);
 }
 
 .purple-gradient {
-  @apply bg-purple-600;
+  background: linear-gradient(135deg, #6d28d9, #a855f7);
 }
 
 .gold-gradient {
-  @apply bg-amber-500;
+  background: linear-gradient(135deg, #d4af37, #fbbf24);
 }
 
-/* Basic Animations */
+/* Button & form tuning */
+button,
+input,
+select,
+textarea {
+  transition: all 0.25s ease;
+}
+
+button {
+  border-radius: 1.5rem;
+}
+
+input,
+select,
+textarea {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  color: #f8fafc;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(124, 58, 237, 0.5);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(148, 163, 184, 0.8);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Global table polish */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+thead tr {
+  background: rgba(15, 23, 42, 0.94);
+}
+
+th,
+td {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+th {
+  color: rgba(148, 163, 184, 0.95);
+}
+
+td {
+  color: #e2e8f0;
+}
+
+tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Utility accent headings */
+.section-title,
+.panel-title {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.panel-subtitle {
+  color: rgba(148, 163, 184, 0.9);
+}
+
+/* Animations */
 .fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: fadeIn 0.28s ease-out forwards;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Mobile-Optimized Table Scrolling */
@@ -102,7 +192,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+  @apply bg-slate-500 rounded-full;
 }
 
 /* Remove animated background elements */

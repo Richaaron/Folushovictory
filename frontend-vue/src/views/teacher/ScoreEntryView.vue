@@ -194,7 +194,7 @@ onMounted(fetchStudents)
     </div>
 
     <!-- Score Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+    <div class="glass-card overflow-hidden">
       <div v-if="loading" class="p-20 flex items-center justify-center">
         <Loader2 class="w-10 h-10 text-royal-purple animate-spin" />
       </div>
