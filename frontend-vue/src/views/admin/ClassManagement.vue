@@ -20,6 +20,8 @@ const studentsInClass = ref<any[]>([])
 const currentClass = ref<any>(null)
 const studentsLoading = ref(false)
 const studentsError = ref('')
+const showConfigModal = ref(false)
+const editingClass = ref<any>(null)
 
 const fetchStudentsForClass = async (classId: string) => {
   studentsLoading.value = true
@@ -48,6 +50,11 @@ const openStudents = async (cls: any) => {
   currentClass.value = cls
   showStudentsModal.value = true
   await fetchStudentsForClass(cls.id)
+}
+
+const openConfig = (cls: any) => {
+  editingClass.value = { ...cls }
+  showConfigModal.value = true
 }
 
 const fetchClasses = async () => {
@@ -138,7 +145,7 @@ onMounted(fetchClasses)
           </div>
 
           <div class="mt-4 sm:mt-8 flex gap-2 sm:gap-3">
-            <button class="flex-grow py-2 sm:py-3 rounded-lg sm:rounded-xl bg-slate-900/65 border border-slate-700/60 text-[7px] sm:text-[10px] font-black uppercase tracking-widest text-slate-200 hover:bg-slate-950 hover:text-white transition-all flex items-center justify-center gap-1 sm:gap-2 min-h-[36px] sm:min-h-[44px]">
+            <button @click="openConfig(cls)" class="flex-grow py-2 sm:py-3 rounded-lg sm:rounded-xl bg-slate-900/65 border border-slate-700/60 text-[7px] sm:text-[10px] font-black uppercase tracking-widest text-slate-200 hover:bg-slate-950 hover:text-white transition-all flex items-center justify-center gap-1 sm:gap-2 min-h-[36px] sm:min-h-[44px]">
               <Settings2 class="w-3 sm:w-4 h-3 sm:h-4" /> <span class="hidden sm:inline">Config</span>
             </button>
             <button @click.prevent="openStudents(cls)" class="px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-slate-900/65 border border-slate-700/60 text-slate-200 hover:bg-slate-950 hover:text-royal-purple transition-all min-h-[36px] min-w-[36px] sm:min-h-[44px] flex items-center justify-center">
@@ -223,6 +230,61 @@ onMounted(fetchClasses)
               <div class="text-xs text-slate-400">{{ s.parentName || '' }}</div>
             </li>
           </ul>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Config Modal -->
+    <transition name="fade">
+      <div v-if="showConfigModal" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showConfigModal = false"></div>
+        <div class="glass-card rounded-[2.5rem] w-full sm:max-w-lg p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-royal-gold/15 max-h-[90vh] overflow-y-auto bg-slate-950/95">
+          <div class="flex items-center justify-between mb-6 sm:mb-8">
+            <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight">Configure <span class="text-royal-purple">{{ editingClass?.name }}</span></h2>
+            <button @click="showConfigModal = false" class="px-3 py-2 rounded-lg bg-slate-900/70 border border-slate-700/60 text-slate-200 hover:bg-slate-950 transition text-sm">Close</button>
+          </div>
+          
+          <div class="space-y-6 sm:space-y-8">
+            <div class="space-y-3">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Class Information</label>
+              <div class="p-4 sm:p-5 bg-slate-900/60 border border-slate-700/60 rounded-lg sm:rounded-xl space-y-3">
+                <div>
+                  <p class="text-xs text-slate-400 mb-1">Name</p>
+                  <p class="text-sm font-bold text-white">{{ editingClass?.name }}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <p class="text-xs text-slate-400 mb-1">Level</p>
+                    <p class="text-sm font-bold text-white">{{ editingClass?.level }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-slate-400 mb-1">Track</p>
+                    <p class="text-sm font-bold text-white">{{ editingClass?.track || '—' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Form Teacher</label>
+              <div class="p-4 sm:p-5 bg-slate-900/60 border border-slate-700/60 rounded-lg sm:rounded-xl">
+                <p class="text-sm font-bold text-white">{{ editingClass?.formTeacherUsername ? `@${editingClass.formTeacherUsername}` : 'Not Assigned' }}</p>
+              </div>
+              <p class="text-[9px] text-slate-400">Manage form teacher assignment from the Teacher Management view</p>
+            </div>
+
+            <div class="space-y-3">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Subjects</label>
+              <div class="p-4 sm:p-5 bg-slate-900/60 border border-slate-700/60 rounded-lg sm:rounded-xl">
+                <p class="text-sm font-bold text-white">{{ editingClass?.subjectIds?.length || 0 }} Subjects Assigned</p>
+              </div>
+              <p class="text-[9px] text-slate-400">Manage class subjects from the Teacher Management view</p>
+            </div>
+
+            <div class="pt-4 sm:pt-6 flex gap-3 sm:gap-4">
+              <button @click="showConfigModal = false" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl bg-slate-900/70 border border-slate-700/60 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-200 hover:bg-slate-950 transition-colors min-h-[44px]">Close</button>
+            </div>
+          </div>
         </div>
       </div>
     </transition>
