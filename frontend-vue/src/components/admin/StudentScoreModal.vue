@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 import { X, Loader2, Save, AlertCircle, CheckCircle2 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -24,6 +24,7 @@ const error = ref('')
 const success = ref(false)
 const session = ref('2023/2024')
 const term = ref('First')
+const modalRoot = ref<HTMLElement | null>(null)
 
 const scores = ref<Map<string, any>>(new Map())
 
@@ -193,12 +194,20 @@ const handleClose = () => {
   }
 }
 
+watch(() => props.isOpen, async (isOpen) => {
+  if (isOpen) {
+    await nextTick()
+    modalRoot.value?.scrollTo({ top: 0, behavior: 'auto' })
+  }
+})
+
 onMounted(fetchData)
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 sm:p-6">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+  <teleport to="body">
+    <div v-if="isOpen" class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 sm:p-6 overflow-y-auto">
+      <div ref="modalRoot" class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto mt-10 sm:mt-20">
       <!-- Header -->
       <div class="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between">
         <div>
@@ -344,4 +353,5 @@ onMounted(fetchData)
       </div>
     </div>
   </div>
+  </teleport>
 </template>
