@@ -61,17 +61,17 @@ const handleChangePassword = async () => {
       <SchoolSettingsPanel />
     </div>
 
-    <section class="glass-card rounded-[2.5rem] border-royal-gold/15 bg-slate-950/95 p-8">
+    <section class="glass-card rounded-[2.5rem] border border-slate-700/60 bg-slate-950/95 p-8 shadow-[0_30px_60px_rgba(0,0,0,0.28)]">
       <div class="mb-8 flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/60 text-amber-300 border border-slate-700/60">
           <Lock class="h-5 w-5" />
         </div>
         <div>
-          <h3 class="text-lg font-black tracking-tight text-slate-900 dark:text-white">Account Security</h3>
+          <h3 class="text-lg font-black tracking-tight text-white">Account Security</h3>
           <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Update your access credentials</p>
         </div>
-      </div>
 
+      </div>
       <div v-if="passwordSuccess" class="mb-8 flex items-center gap-4 rounded-2xl border border-emerald-700/60 bg-emerald-900/20 p-4 text-emerald-200 fade-in">
         <CheckCircle2 class="h-6 w-6" />
         <span class="text-sm font-black uppercase tracking-widest">Password updated successfully!</span>

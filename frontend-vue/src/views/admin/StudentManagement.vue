@@ -195,10 +195,10 @@ onMounted(async () => {
 <template>
   <div class="space-y-8 fade-in">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 px-1 sm:px-2">
+    <div class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
       <div>
-        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Student <span class="text-royal-purple">Enrollment</span></h1>
-        <p class="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Manage Registry and Student Records</p>
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Student <span class="text-royal-purple">Enrollment</span></h1>
+        <p class="text-[10px] sm:text-xs font-medium text-slate-400 uppercase tracking-widest mt-1">Manage Registry and Student Records</p>
       </div>
       <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
         <button class="flex-shrink-0 h-10 sm:h-12 w-10 sm:w-12 items-center justify-center rounded-lg sm:rounded-2xl bg-slate-900/65 border border-slate-700/60 text-slate-200 hover:text-royal-purple transition-all flex">
@@ -215,7 +215,7 @@ onMounted(async () => {
 
     <!-- Registry Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-      <div class="academic-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-3 sm:gap-6">
+      <div class="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-3 sm:gap-6 border border-slate-700/60 bg-slate-950/90">
         <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-slate-900/60 border border-slate-700/60 text-emerald-300 flex items-center justify-center flex-shrink-0">
           <GraduationCap class="w-5 sm:w-7 h-5 sm:h-7" />
         </div>
@@ -224,7 +224,7 @@ onMounted(async () => {
           <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">{{ stats.total.toLocaleString() }}</h3>
         </div>
       </div>
-      <div class="academic-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-3 sm:gap-6">
+      <div class="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-3 sm:gap-6 border border-slate-700/60 bg-slate-950/90">
         <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-slate-900/60 border border-slate-700/60 text-amber-300 flex items-center justify-center flex-shrink-0">
           <Calendar class="w-5 sm:w-7 h-5 sm:h-7" />
         </div>
@@ -233,7 +233,7 @@ onMounted(async () => {
           <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">{{ stats.newlyEnrolled.toLocaleString() }}</h3>
         </div>
       </div>
-      <div class="academic-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-3 sm:gap-6 sm:col-span-2 lg:col-span-1">
+      <div class="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex items-center gap-3 sm:gap-6 sm:col-span-2 lg:col-span-1 border border-slate-700/60 bg-slate-950/90">
         <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-slate-900/60 border border-slate-700/60 text-blue-300 flex items-center justify-center flex-shrink-0">
           <FileText class="w-5 sm:w-7 h-5 sm:h-7" />
         </div>
@@ -245,7 +245,7 @@ onMounted(async () => {
     </div>
 
     <!-- Filter Bar -->
-    <div class="academic-card rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col lg:flex-row gap-2 sm:gap-4">
+    <div class="glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col lg:flex-row gap-2 sm:gap-4 bg-slate-950/90 border border-slate-700/60">
       <div class="relative flex-grow">
         <Search class="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input v-model="searchQuery" type="text" placeholder="Search by name or ID..." class="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-xs sm:text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />

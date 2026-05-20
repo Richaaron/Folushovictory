@@ -73,7 +73,7 @@ onMounted(fetchData)
   <div class="space-y-8 fade-in">
     <!-- Welcome Header -->
     <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-      <div class="glass-card p-8 sm:p-10 shadow-[0_30px_70px_rgba(0,0,0,0.35)] border-royal-gold/15 relative overflow-hidden">
+      <div class="glass-card p-8 sm:p-10 shadow-[0_30px_70px_rgba(0,0,0,0.35)] border border-slate-700/60 bg-slate-950/95 relative overflow-hidden">
         <div class="absolute -right-16 top-4 h-32 w-32 rounded-full bg-royal-purple/15 blur-3xl" aria-hidden="true"></div>
         <div class="absolute -left-16 bottom-10 h-32 w-32 rounded-full bg-royal-gold/10 blur-3xl" aria-hidden="true"></div>
         <div class="flex items-center gap-4 mb-6">
@@ -98,7 +98,7 @@ onMounted(fetchData)
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="glass-card p-6 border-royal-purple/15 bg-slate-950/90">
+        <div class="glass-card p-6 border border-slate-700/60 bg-slate-950/95">
           <p class="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Assignments</p>
           <p class="mt-3 text-3xl font-black text-white">{{ assignments.length }}</p>
           <p class="mt-2 text-sm text-slate-400">Subjects you are currently teaching</p>
@@ -117,7 +117,7 @@ onMounted(fetchData)
     <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Main Teaching Section -->
       <div class="lg:col-span-2 space-y-8">
-        <div class="glass-card p-8 bg-slate-950/90 border-royal-purple/15">
+        <div class="glass-card p-8 bg-slate-950/95 border border-slate-700/60">
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
               <div class="h-12 w-12 rounded-3xl bg-slate-900/70 text-royal-purple flex items-center justify-center border border-slate-700/60">
@@ -173,7 +173,7 @@ onMounted(fetchData)
         </div>
 
         <!-- Analytics Placeholder -->
-        <div class="glass-card p-10 bg-slate-950/90 border-royal-gold/15 relative overflow-hidden">
+        <div class="glass-card p-10 bg-slate-950/95 border border-slate-700/60 relative overflow-hidden">
           <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-royal-purple/10 blur-3xl" aria-hidden="true"></div>
           <div class="absolute left-0 bottom-0 h-36 w-36 rounded-full bg-royal-gold/10 blur-3xl" aria-hidden="true"></div>
           <div class="relative z-10">
@@ -196,7 +196,7 @@ onMounted(fetchData)
 
       <!-- Sidebar Actions -->
       <div class="space-y-6">
-        <div class="glass-card p-8 border-royal-gold/15 bg-slate-950/90">
+        <div class="glass-card p-8 border border-slate-700/60 bg-slate-950/95">
           <h3 class="text-lg font-black text-white tracking-tight mb-6 flex items-center gap-2">
             <Award class="w-5 h-5 text-royal-gold" /> Form Classes
           </h3>
@@ -205,7 +205,7 @@ onMounted(fetchData)
               v-for="cls in formClasses" 
               :key="cls.id" 
               @click="router.push({ name: 'teacher-form-class', params: { classId: cls.id }, query: { className: cls.name } })"
-              class="glass-card p-5 rounded-[2rem] border border-royal-gold/15 bg-slate-950/90 group hover:border-royal-gold/30 hover:-translate-y-1 transition-all cursor-pointer"
+              class="glass-card p-5 rounded-[2rem] border border-slate-700/60 bg-slate-950/95 group hover:border-royal-gold/30 hover:-translate-y-1 transition-all cursor-pointer"
             >
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0">
@@ -223,7 +223,7 @@ onMounted(fetchData)
           </div>
         </div>
 
-        <div class="glass-card p-8 border-royal-purple/15 bg-slate-950/90">
+        <div class="glass-card p-8 border border-slate-700/60 bg-slate-950/95">
           <h3 class="text-lg font-black text-white tracking-tight mb-6 flex items-center gap-2">
             <Clock class="w-5 h-5 text-royal-gold" /> Upcoming Deadlines
           </h3>

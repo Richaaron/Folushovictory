@@ -250,8 +250,8 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
       <div>
-        <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Master <span class="text-royal-purple">Broadsheet</span></h1>
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Consolidated Academic Performance Records</p>
+        <h1 class="text-3xl font-black text-white tracking-tight">Master <span class="text-royal-purple">Broadsheet</span></h1>
+        <p class="text-sm font-medium text-slate-400 uppercase tracking-widest mt-1">Consolidated Academic Performance Records</p>
       </div>
       <div class="flex items-center gap-3">
         <button 
@@ -278,7 +278,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
     </div>
 
     <!-- Filters -->
-    <div class="glass-card rounded-3xl border border-royal-gold/15 bg-slate-950/95 p-6 grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
+    <div class="glass-card rounded-3xl border border-slate-700/60 bg-slate-950/95 p-6 grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
       <div class="space-y-2">
         <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Academic Session</label>
         <select v-model="selectedSession" class="w-full px-6 py-4 bg-slate-900/60 text-white border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-royal-purple">
@@ -302,7 +302,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
     </div>
 
     <!-- Broadsheet Content -->
-    <div class="glass-card rounded-[2.5rem] border border-royal-gold/15 overflow-hidden min-h-[500px]">
+    <div class="glass-card rounded-[2.5rem] border border-slate-700/60 bg-slate-950/95 overflow-hidden min-h-[500px]">
       <div v-if="loading" class="h-[500px] flex items-center justify-center">
         <div class="text-center">
           <Loader2 class="w-12 h-12 text-royal-purple animate-spin mx-auto mb-4" />
@@ -313,7 +313,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
       <div v-else-if="error" class="h-[500px] flex items-center justify-center p-8 text-center">
         <div class="max-w-md">
           <AlertCircle class="w-16 h-16 text-red-500 mx-auto mb-6 opacity-20" />
-          <h3 class="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">Compilation Error</h3>
+          <h3 class="text-lg font-black text-white mb-2 uppercase tracking-tight">Compilation Error</h3>
           <p class="text-sm text-slate-500 mb-8">{{ error }}</p>
           <button @click="fetchBroadsheet" class="text-xs font-black uppercase tracking-widest text-royal-purple hover:underline">Retry Compilation</button>
         </div>

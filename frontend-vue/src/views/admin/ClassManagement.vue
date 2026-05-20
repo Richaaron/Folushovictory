@@ -80,10 +80,10 @@ onMounted(fetchClasses)
 <template>
   <div class="space-y-4 sm:space-y-8 lg:space-y-10 fade-in">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 px-1 sm:px-2">
+    <div class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
       <div>
-        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Academic <span class="text-royal-purple">Classes</span></h1>
-        <p class="text-[9px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Configure Classrooms and Form Teachers</p>
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Academic <span class="text-royal-purple">Classes</span></h1>
+        <p class="text-[9px] sm:text-xs font-medium text-slate-400 uppercase tracking-widest mt-1">Configure Classrooms and Form Teachers</p>
       </div>
       <button 
         @click="showAddModal = true"

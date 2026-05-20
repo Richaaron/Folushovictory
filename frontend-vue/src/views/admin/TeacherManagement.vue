@@ -357,14 +357,14 @@ onMounted(fetchTeachers)
 <template>
   <div class="space-y-4 sm:space-y-8 lg:space-y-10 fade-in py-3 sm:py-6">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 px-1 sm:px-2">
+    <div class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
       <div>
         <div class="flex items-center gap-2 sm:gap-3 mb-2">
           <div class="h-1 w-8 sm:w-12 bg-nebula-500 rounded-full"></div>
           <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-nebula-500">Personnel Core</span>
         </div>
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Staff <span class="text-transparent bg-clip-text nebula-gradient">Faculty</span></h1>
-        <p class="text-[9px] sm:text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] mt-1">Institutional Onboarding & Resource Allocation</p>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tighter">Staff <span class="text-transparent bg-clip-text nebula-gradient">Faculty</span></h1>
+        <p class="text-[9px] sm:text-sm font-medium text-slate-400 uppercase tracking-[0.1em] mt-1">Institutional Onboarding & Resource Allocation</p>
       </div>
       <button 
         @click="showAddModal = true"
@@ -376,7 +376,7 @@ onMounted(fetchTeachers)
     </div>
 
     <!-- Filters & Search -->
-    <div class="glass-card rounded-lg sm:rounded-[2.5rem] p-3 sm:p-4 flex flex-col gap-3 sm:gap-4 border-white/40 dark:border-slate-800/50">
+    <div class="glass-card rounded-[2.5rem] bg-slate-950/90 border border-slate-700/60 p-4 sm:p-6 flex flex-col gap-4">
       <div class="relative flex-grow">
         <Search class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-nebula-500 flex-shrink-0" />
         <input 
@@ -389,7 +389,7 @@ onMounted(fetchTeachers)
     </div>
 
     <!-- Teachers Table -->
-    <div class="academic-card overflow-hidden min-h-[400px] flex flex-col border-white/40 dark:border-slate-800/50">
+    <div class="glass-card overflow-hidden min-h-[400px] flex flex-col border border-slate-700/60 bg-slate-950/90 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
       <div v-if="loading" class="flex-grow flex items-center justify-center">
         <div class="relative">
           <div class="absolute inset-0 bg-nebula-500 blur-2xl opacity-20 animate-pulse" aria-hidden="true"></div>

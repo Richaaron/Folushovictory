@@ -93,7 +93,7 @@ onMounted(fetchDashboardAndLogs)
         </p>
       </div>
 
-      <div class="rounded-[2rem] border border-royal-gold/15 bg-slate-950/85 p-6 sm:p-8 shadow-[0_30px_60px_rgba(212,175,55,0.16)] backdrop-blur-xl flex items-center gap-4">
+      <div class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 p-6 sm:p-8 shadow-[0_30px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl flex items-center gap-4">
         <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-900/80 text-royal-gold border border-slate-700/60">
           <Calendar class="w-6 h-6" aria-hidden="true" />
         </div>
@@ -119,10 +119,10 @@ onMounted(fetchDashboardAndLogs)
       >
         <div :class="[stat.bg]" class="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl opacity-20 transition-opacity group-hover:opacity-40" aria-hidden="true"></div>
         <div class="relative z-10 flex items-start justify-between gap-4">
-          <div :class="[stat.color]" class="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-900/80 border border-slate-700/70 shadow-inner">
+          <div :class="[stat.color]" class="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-900/80 border border-slate-700/70 shadow-inner shadow-slate-950/40">
             <component :is="stat.icon" class="w-6 h-6" aria-hidden="true" />
           </div>
-          <div class="rounded-full bg-slate-900/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-slate-300 border border-slate-700/70">
+          <div class="rounded-full bg-slate-900/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-slate-300 border border-slate-700/70 shadow-sm">
             Live
           </div>
         </div>
@@ -154,7 +154,7 @@ onMounted(fetchDashboardAndLogs)
                   <h3 class="mt-2 text-2xl font-black text-white tracking-tight">Operational feed</h3>
                 </div>
               </div>
-              <button @click="fetchActivityLogs" class="inline-flex items-center justify-center rounded-2xl border border-royal-gold/20 bg-slate-900/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-royal-gold transition hover:bg-royal-gold/10">Refresh</button>
+              <button @click="fetchActivityLogs" class="inline-flex items-center justify-center rounded-2xl border border-slate-700/60 bg-slate-900/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-royal-gold transition hover:bg-royal-gold/10">Refresh</button>
             </div>
 
             <div class="space-y-4">
