@@ -388,80 +388,84 @@ onMounted(fetchTeachers)
       </div>
     </div>
 
-    <!-- Teachers Table -->
-    <div class="glass-card overflow-hidden min-h-[400px] flex flex-col border border-slate-700/60 bg-slate-950/90 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-      <div v-if="loading" class="flex-grow flex items-center justify-center">
-        <div class="relative">
-          <div class="absolute inset-0 bg-nebula-500 blur-2xl opacity-20 animate-pulse" aria-hidden="true"></div>
-          <Loader2 class="w-12 h-12 text-nebula-500 animate-spin relative z-10" />
+    <!-- Teachers Directory -->
+    <section class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+      <div class="px-4 py-5 sm:px-6 sm:py-7 border-b border-slate-800/70 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.3em] text-slate-400">Faculty Directory</p>
+          <h2 class="mt-2 text-xl sm:text-2xl font-black text-white">Active teachers overview</h2>
+          <p class="mt-2 text-sm text-slate-500 max-w-2xl">Manage teacher profiles, resend credentials, and keep staffing aligned.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div class="rounded-[1.75rem] bg-slate-900/70 border border-slate-700/70 p-4 text-center">
+            <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Total</p>
+            <p class="mt-2 text-2xl font-black text-white">{{ teachers.length }}</p>
+          </div>
+          <div class="rounded-[1.75rem] bg-slate-900/70 border border-slate-700/70 p-4 text-center">
+            <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Visible</p>
+            <p class="mt-2 text-2xl font-black text-white">{{ filteredTeachers.length }}</p>
+          </div>
         </div>
       </div>
-      <div v-else class="w-full overflow-x-auto">
-        <table class="w-full text-left text-xs sm:text-sm">
-          <thead>
-            <tr class="bg-slate-900/70 sticky top-0">
-              <th class="px-3 sm:px-10 py-4 sm:py-8 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 whitespace-nowrap">Faculty Member</th>
-              <th class="px-3 sm:px-10 py-4 sm:py-8 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 text-right whitespace-nowrap">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            <tr v-for="teacher in filteredTeachers" :key="teacher.username" class="group hover:bg-nebula-500/[0.03] transition-colors">
-              <td class="px-3 sm:px-10 py-4 sm:py-8">
-                <div class="flex items-center gap-3 sm:gap-6">
-                  <div class="relative group/avatar flex-shrink-0">
-                    <div class="absolute inset-0 bg-nebula-500 blur-lg opacity-0 group-hover/avatar:opacity-30 transition-opacity" aria-hidden="true"></div>
-                    <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl bg-slate-900/60 border border-slate-700/60 flex items-center justify-center text-nebula-500 font-black text-xs sm:text-xl shadow transition-transform group-hover/avatar:scale-110 flex-shrink-0">
-                      {{ teacher.displayName.charAt(0) }}
-                    </div>
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="text-xs sm:text-base font-black text-slate-900 dark:text-white tracking-tight truncate">{{ teacher.displayName }}</p>
-                    <div class="flex items-center gap-1 sm:gap-2 mt-1 min-w-0 flex-wrap">
-                      <span class="text-[7px] sm:text-[10px] font-black text-nebula-500 bg-nebula-500/5 px-2 py-0.5 rounded-md flex-shrink-0">@{{ teacher.username }}</span>
-                      <div class="h-1 w-1 bg-slate-300 rounded-full flex-shrink-0 hidden sm:block" aria-hidden="true"></div>
-                      <span class="text-[7px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest truncate hidden sm:inline">{{ teacher.email || 'No Email' }}</span>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-3 sm:px-10 py-4 sm:py-8 text-right">
-                <div class="flex items-center justify-end gap-1 sm:gap-3">
-                  <button 
-                    v-if="teacher.email"
-                    @click="handleResendCredentials(teacher)"
-                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-emerald-300 hover:border-emerald-500/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0"
-                    :aria-label="`Resend credentials for ${teacher.displayName}`"
-                  >
-                    <Mail class="w-4 h-4" aria-hidden="true" />
-                  </button>
-                  <button 
-                    @click="openEditModal(teacher)"
-                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-nebula-300 hover:border-nebula-500/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0"
-                    :aria-label="`Edit details for ${teacher.displayName}`"
-                  >
-                    <Edit2 class="w-4 h-4" aria-hidden="true" />
-                  </button>
-                  <button 
-                    @click="handleDelete(teacher.username)"
-                    class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-rose-400 hover:border-rose-500/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0"
-                    :aria-label="`Delete account for ${teacher.displayName}`"
-                  >
-                    <Trash2 class="w-4 h-4" aria-hidden="true" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-if="filteredTeachers.length === 0" class="p-8 sm:p-24 text-center">
-          <div class="mx-auto h-16 sm:h-20 w-16 sm:w-20 bg-slate-900/60 border border-slate-700/60 rounded-2xl sm:rounded-3xl flex items-center justify-center text-slate-400 mb-4 sm:mb-6">
+
+      <div v-if="loading" class="min-h-[320px] flex items-center justify-center p-12">
+        <Loader2 class="w-14 h-14 text-nebula-500 animate-spin" />
+      </div>
+
+      <div v-else class="p-4 sm:p-6">
+        <div v-if="filteredTeachers.length === 0" class="p-8 sm:p-12 text-center rounded-[2rem] bg-slate-900/70 border border-slate-700/70">
+          <div class="mx-auto mb-6 h-16 sm:h-20 w-16 sm:w-20 rounded-3xl border border-slate-700/70 bg-slate-950/80 flex items-center justify-center text-slate-400">
             <Search class="w-6 sm:w-8 h-6 sm:h-8" aria-hidden="true" />
           </div>
-          <p class="text-[8px] sm:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Zero faculty matches found</p>
-          <p class="text-[10px] text-slate-500 mt-2">Adjust your filter or enroll a new faculty member</p>
+          <p class="text-xs font-black uppercase tracking-[0.3em] text-slate-400">No faculty matches found</p>
+          <p class="mt-3 text-sm text-slate-500">Adjust your filter or enroll a new staff member to populate the directory.</p>
+        </div>
+
+        <div v-else class="grid gap-4">
+          <article v-for="teacher in filteredTeachers" :key="teacher.username" class="rounded-[2rem] border border-slate-800/70 bg-slate-900/80 p-5 sm:p-6 shadow-[0_18px_40px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="h-14 w-14 rounded-3xl bg-nebula-500/15 flex items-center justify-center text-2xl font-black text-nebula-500">
+                  {{ teacher.displayName.charAt(0) }}
+                </div>
+                <div class="min-w-0">
+                  <p class="truncate text-base sm:text-lg font-black text-white">{{ teacher.displayName }}</p>
+                  <div class="mt-2 flex flex-wrap gap-2 text-[9px] uppercase tracking-[0.25em] text-slate-400">
+                    <span class="truncate">@{{ teacher.username }}</span>
+                    <span class="truncate">{{ teacher.email || 'No Email' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center justify-end gap-2">
+                <button v-if="teacher.email" @click="handleResendCredentials(teacher)" class="p-2 sm:p-3 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-emerald-300 hover:border-emerald-500/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center">
+                  <Mail class="w-4 h-4" />
+                </button>
+                <button @click="openEditModal(teacher)" class="p-2 sm:p-3 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-nebula-300 hover:border-nebula-500/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center">
+                  <Edit2 class="w-4 h-4" />
+                </button>
+                <button @click="handleDelete(teacher.username)" class="p-2 sm:p-3 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-rose-400 hover:border-rose-500/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center">
+                  <Trash2 class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div class="mt-5 grid gap-3 sm:grid-cols-3">
+              <div class="rounded-[1.5rem] border border-slate-800/70 bg-slate-950/80 p-4">
+                <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Department</p>
+                <p class="mt-2 text-sm font-black text-white">{{ teacher.department || 'Secondary' }}</p>
+              </div>
+              <div class="rounded-[1.5rem] border border-slate-800/70 bg-slate-950/80 p-4">
+                <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Role</p>
+                <p class="mt-2 text-sm font-black text-white">{{ teacher.formClassId ? 'Form Teacher' : 'Subject Teacher' }}</p>
+              </div>
+              <div class="rounded-[1.5rem] border border-slate-800/70 bg-slate-950/80 p-4">
+                <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Primary Class</p>
+                <p class="mt-2 text-sm font-black text-white">{{ teacher.formClassId ? classes.find(c => c.id === teacher.formClassId)?.name || 'Assigned' : 'Not Assigned' }}</p>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Add Teacher Modal -->
     <transition 

@@ -87,16 +87,16 @@ onMounted(fetchClasses)
 <template>
   <div class="space-y-4 sm:space-y-8 lg:space-y-10 fade-in">
     <!-- Header -->
-    <div class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
+    <div class="border-b border-slate-700/40 pb-6 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Academic <span class="text-royal-purple">Classes</span></h1>
-        <p class="text-[9px] sm:text-xs font-medium text-slate-400 uppercase tracking-widest mt-1">Configure Classrooms and Form Teachers</p>
+        <h1 class="text-2xl font-black text-white">Academic <span class="text-royal-purple">Classes</span></h1>
+        <p class="text-xs text-slate-400 mt-1">Manage classrooms and form teachers</p>
       </div>
       <button 
         @click="showAddModal = true"
-        class="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 rounded-lg sm:rounded-2xl purple-gradient px-4 sm:px-6 py-3 sm:py-4 text-[8px] sm:text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 min-h-[44px]"
+        class="flex items-center gap-2 rounded-lg purple-gradient px-6 py-3 text-xs font-black text-white transition hover:opacity-90 w-fit"
       >
-        <Plus class="w-4 h-4" /> <span class="hidden sm:inline">Create New Class</span><span class="sm:hidden">Add</span>
+        <Plus class="w-4 h-4" /> <span class="hidden sm:inline">New Class</span><span class="sm:hidden">Add</span>
       </button>
     </div>
 
@@ -104,103 +104,86 @@ onMounted(fetchClasses)
     <div v-if="loading" class="flex items-center justify-center min-h-[400px]">
       <Loader2 class="w-12 h-12 text-royal-purple animate-spin" />
     </div>
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <div 
         v-for="cls in classes" 
         :key="cls.id"
-        class="glass-card rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] p-4 sm:p-6 lg:p-8 border border-royal-gold/15 bg-slate-950/95 relative overflow-hidden group min-h-[280px] sm:min-h-[320px]"
+        class="border border-slate-700/40 rounded-lg bg-slate-900/50 p-5 space-y-4"
       >
-        <div class="absolute -right-4 -top-4 w-32 h-32 bg-royal-purple/5 rounded-full group-hover:scale-110 transition-transform"></div>
-        
-        <div class="relative z-10">
-          <div class="flex items-start justify-between mb-4 sm:mb-6">
-            <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl purple-gradient flex items-center justify-center text-white shadow-lg shadow-purple-200 dark:shadow-purple-900/30 flex-shrink-0">
-              <School class="w-5 sm:w-7 h-5 sm:h-7" />
-            </div>
-            <div class="px-2 sm:px-3 py-1 bg-slate-900/60 rounded-lg text-[7px] sm:text-[10px] font-black uppercase tracking-widest text-slate-200 border border-slate-700/40">
-              {{ cls.level }} {{ cls.track ? `• ${cls.track}` : '' }}
+        <div class="flex items-start justify-between">
+          <div>
+            <h3 class="text-lg font-black text-white">{{ cls.name }}</h3>
+            <p class="text-sm text-slate-400 mt-1">{{ cls.level }} {{ cls.track ? `• ${cls.track}` : '' }}</p>
+          </div>
+          <div class="purple-gradient rounded-lg p-2 flex-shrink-0">
+            <School class="w-5 h-5 text-white" />
+          </div>
+        </div>
+
+        <div class="text-sm text-slate-300">
+          <span class="text-slate-400">Form Teacher: </span>
+          <span class="text-royal-purple font-semibold">{{ cls.formTeacherUsername ? `@${cls.formTeacherUsername}` : 'Not Assigned' }}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 border-t border-slate-700/40 pt-4">
+          <div>
+            <p class="text-xs text-slate-400 mb-1">Students</p>
+            <div class="flex items-center gap-2">
+              <Users class="w-4 h-4 text-royal-purple" />
+              <span class="text-lg font-black text-white">{{ (cls.studentCount !== undefined) ? cls.studentCount : (cls.studentIds?.length || 0) }}</span>
             </div>
           </div>
-
-          <h3 class="text-lg sm:text-xl lg:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ cls.name }}</h3>
-          <p class="text-[7px] sm:text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">
-            Form Teacher: <span class="text-royal-purple">{{ cls.formTeacherUsername ? `@${cls.formTeacherUsername}` : 'Not Assigned' }}</span>
-          </p>
-
-          <div class="grid grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-50 dark:border-slate-800">
-            <div class="flex flex-col">
-              <span class="text-[7px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Students</span>
-              <div class="flex items-center gap-2 mt-1">
-                <Users class="w-3 sm:w-4 h-3 sm:h-4 text-royal-purple" />
-                <span class="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200">{{ (cls.studentCount !== undefined) ? cls.studentCount : (cls.studentIds?.length || 0) }}</span>
-              </div>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-[7px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subjects</span>
-              <div class="flex items-center gap-2 mt-1">
-                <BookOpen class="w-3 sm:w-4 h-3 sm:h-4 text-amber-500" />
-                <span class="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200">{{ cls.subjectIds?.length || 0 }}</span>
-              </div>
+          <div>
+            <p class="text-xs text-slate-400 mb-1">Subjects</p>
+            <div class="flex items-center gap-2">
+              <BookOpen class="w-4 h-4 text-amber-500" />
+              <span class="text-lg font-black text-white">{{ cls.subjectIds?.length || 0 }}</span>
             </div>
           </div>
+        </div>
 
-          <div class="mt-4 sm:mt-8 flex gap-2 sm:gap-3">
-            <button @click="openConfig(cls)" class="flex-grow py-2 sm:py-3 rounded-lg sm:rounded-xl bg-slate-900/65 border border-slate-700/60 text-[7px] sm:text-[10px] font-black uppercase tracking-widest text-slate-200 hover:bg-slate-950 hover:text-white transition-all flex items-center justify-center gap-1 sm:gap-2 min-h-[36px] sm:min-h-[44px]">
-              <Settings2 class="w-3 sm:w-4 h-3 sm:h-4" /> <span class="hidden sm:inline">Config</span>
-            </button>
-            <button @click.prevent="openStudents(cls)" class="px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-slate-900/65 border border-slate-700/60 text-slate-200 hover:bg-slate-950 hover:text-royal-purple transition-all min-h-[36px] min-w-[36px] sm:min-h-[44px] flex items-center justify-center">
-              <ChevronRight class="w-4 sm:w-5 h-4 sm:h-5" />
-            </button>
-          </div>
+        <div class="flex gap-2 pt-2">
+          <button @click="openConfig(cls)" class="flex-grow py-2 rounded-lg bg-slate-800 border border-slate-700/40 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition flex items-center justify-center gap-1">
+            <Settings2 class="w-4 h-4" /> <span class="hidden sm:inline">Config</span>
+          </button>
+          <button @click.prevent="openStudents(cls)" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700/40 text-slate-200 hover:bg-slate-700 transition flex items-center justify-center">
+            <ChevronRight class="w-4 h-4" />
+          </button>
         </div>
       </div>
-
-      <!-- Quick Add Card -->
-      <button 
-        @click="showAddModal = true"
-        class="rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] border-2 border-slate-700/60 bg-slate-900/60 p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center gap-3 sm:gap-4 group hover:border-royal-purple transition-all min-h-[280px] sm:min-h-[320px]"
-      >
-        <div class="h-12 sm:h-16 w-12 sm:w-16 rounded-full bg-slate-800/80 flex items-center justify-center text-slate-200 group-hover:bg-royal-purple group-hover:text-white transition-all">
-          <Plus class="w-6 sm:w-8 h-6 sm:h-8" />
-        </div>
-        <div class="text-center">
-          <p class="text-xs sm:text-sm font-black text-slate-300 group-hover:text-white uppercase tracking-widest">New Classroom</p>
-          <p class="text-[9px] sm:text-xs font-medium text-slate-400 mt-1">Define levels and tracks</p>
-        </div>
-      </button>
     </div>
 
     <!-- Add Class Modal -->
     <transition name="fade">
-      <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
-        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAddModal = false"></div>
-        <div class="glass-card rounded-[2.5rem] w-full sm:max-w-lg p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-royal-gold/15 max-h-[90vh] overflow-y-auto bg-slate-950/95">
-          <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight mb-6 sm:mb-8">Create New <span class="text-royal-purple">Classroom</span></h2>
+      <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/60" @click="showAddModal = false"></div>
+        <div class="rounded-lg w-full sm:max-w-md p-8 relative z-10 border border-slate-700/40 bg-slate-950 max-h-[90vh] overflow-y-auto">
+          <h2 class="text-xl font-black text-white mb-6">Create New <span class="text-royal-purple">Class</span></h2>
           
-          <div class="space-y-4 sm:space-y-6">
-            <div class="space-y-2">
-              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Class Name</label>
-              <input v-model="newClass.name" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/70 border border-slate-700/60 rounded-lg sm:rounded-2xl text-sm font-medium text-white focus:bg-slate-950 focus:border-royal-purple outline-none min-h-[44px]" placeholder="e.g. JSS 1A" />
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-slate-400 mb-2 block">Class Name</label>
+              <input v-model="newClass.name" type="text" class="w-full px-4 py-2 bg-slate-900 border border-slate-700/40 rounded-lg text-white focus:border-royal-purple outline-none" placeholder="e.g. JSS 1A" />
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div class="space-y-2">
-                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Level</label>
-                <select v-model="newClass.level" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/70 text-white border border-slate-700/60 rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest focus:bg-slate-950 outline-none min-h-[44px]">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-semibold text-slate-400 mb-2 block">Level</label>
+                <select v-model="newClass.level" class="w-full px-4 py-2 bg-slate-900 text-white border border-slate-700/40 rounded-lg text-xs focus:border-royal-purple outline-none">
                   <option>JSS</option>
                   <option>SSS</option>
                   <option>PRIMARY</option>
                 </select>
               </div>
-              <div class="space-y-2">
-                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Track (Optional)</label>
-                <input v-model="newClass.track" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/70 border border-slate-700/60 rounded-lg sm:rounded-2xl text-sm font-medium text-white focus:bg-slate-950 focus:border-royal-purple outline-none min-h-[44px]" placeholder="e.g. Science" />
+              <div>
+                <label class="text-xs font-semibold text-slate-400 mb-2 block">Track</label>
+                <input v-model="newClass.track" type="text" class="w-full px-4 py-2 bg-slate-900 border border-slate-700/40 rounded-lg text-white focus:border-royal-purple outline-none" placeholder="e.g. Science" />
               </div>
             </div>
 
-            <div class="pt-4 sm:pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
-              <button @click="showAddModal = false" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl bg-slate-900/70 border border-slate-700/60 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-200 hover:bg-slate-950 transition-colors min-h-[44px]">Cancel</button>
-              <button @click="handleAddClass" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl nebula-gradient text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white shadow-2xl shadow-nebula-500/20 min-h-[44px]">Create Class</button>
+            <div class="flex gap-3 pt-4">
+              <button @click="showAddModal = false" class="flex-grow py-2 rounded-lg bg-slate-800 border border-slate-700/40 text-sm font-semibold text-slate-200 hover:bg-slate-700 transition">Cancel</button>
+              <button @click="handleAddClass" class="flex-grow py-2 rounded-lg purple-gradient text-sm font-semibold text-white hover:opacity-90 transition">Create</button>
             </div>
           </div>
         </div>
@@ -209,22 +192,22 @@ onMounted(fetchClasses)
 
     <!-- Students Modal -->
     <transition name="fade">
-      <div v-if="showStudentsModal" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-3 sm:p-4">
-        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showStudentsModal = false"></div>
-        <div class="glass-card rounded-[2.5rem] w-full sm:max-w-2xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-royal-gold/15 max-h-[80vh] overflow-y-auto bg-slate-950/95">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg sm:text-xl font-black text-white">Students — <span class="text-royal-purple">{{ currentClass?.name }}</span></h3>
-            <button @click="showStudentsModal = false" class="px-3 py-2 rounded-xl bg-slate-900/70 border border-slate-700/60 text-slate-200 hover:bg-slate-950 transition">Close</button>
+      <div v-if="showStudentsModal" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/60" @click="showStudentsModal = false"></div>
+        <div class="rounded-lg w-full sm:max-w-2xl p-8 relative z-10 border border-slate-700/40 bg-slate-950 max-h-[80vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-black text-white">Students — <span class="text-royal-purple">{{ currentClass?.name }}</span></h3>
+            <button @click="showStudentsModal = false" class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700/40 text-slate-200 hover:bg-slate-700 transition text-sm">Close</button>
           </div>
-          <div v-if="studentsLoading" class="py-10 flex justify-center">
+          <div v-if="studentsLoading" class="py-8 flex justify-center">
             <Loader2 class="w-8 h-8 text-royal-purple animate-spin" />
           </div>
-          <div v-else-if="studentsError" class="py-10 text-center text-red-400 font-bold">{{ studentsError }}</div>
-          <div v-else-if="studentsInClass.length === 0" class="py-10 text-center text-slate-400">No students found for this class.</div>
-          <ul v-else class="space-y-3">
-            <li v-for="s in studentsInClass" :key="s.studentId" class="p-3 rounded-lg bg-slate-900/70 border border-slate-700/60 flex items-center justify-between">
+          <div v-else-if="studentsError" class="py-8 text-center text-red-400 text-sm">{{ studentsError }}</div>
+          <div v-else-if="studentsInClass.length === 0" class="py-8 text-center text-slate-400 text-sm">No students in this class</div>
+          <ul v-else class="space-y-2">
+            <li v-for="s in studentsInClass" :key="s.studentId" class="p-3 rounded-lg bg-slate-900/50 border border-slate-700/40 flex items-center justify-between">
               <div>
-                <div class="text-sm font-black text-white">{{ s.lastName }} {{ s.firstName }}</div>
+                <div class="font-semibold text-white">{{ s.lastName }} {{ s.firstName }}</div>
                 <div class="text-xs text-slate-400">{{ s.studentId }}</div>
               </div>
               <div class="text-xs text-slate-400">{{ s.parentName || '' }}</div>
@@ -236,54 +219,50 @@ onMounted(fetchClasses)
 
     <!-- Config Modal -->
     <transition name="fade">
-      <div v-if="showConfigModal" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-3 sm:p-4">
-        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showConfigModal = false"></div>
-        <div class="glass-card rounded-[2.5rem] w-full sm:max-w-lg p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-royal-gold/15 max-h-[90vh] overflow-y-auto bg-slate-950/95">
-          <div class="flex items-center justify-between mb-6 sm:mb-8">
-            <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight">Configure <span class="text-royal-purple">{{ editingClass?.name }}</span></h2>
-            <button @click="showConfigModal = false" class="px-3 py-2 rounded-lg bg-slate-900/70 border border-slate-700/60 text-slate-200 hover:bg-slate-950 transition text-sm">Close</button>
+      <div v-if="showConfigModal" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/60" @click="showConfigModal = false"></div>
+        <div class="rounded-lg w-full sm:max-w-md p-8 relative z-10 border border-slate-700/40 bg-slate-950 max-h-[90vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-black text-white">Configure <span class="text-royal-purple">{{ editingClass?.name }}</span></h2>
+            <button @click="showConfigModal = false" class="px-3 py-1 rounded-lg bg-slate-800 border border-slate-700/40 text-slate-200 hover:bg-slate-700 transition text-xs">Close</button>
           </div>
           
-          <div class="space-y-6 sm:space-y-8">
-            <div class="space-y-3">
-              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Class Information</label>
-              <div class="p-4 sm:p-5 bg-slate-900/60 border border-slate-700/60 rounded-lg sm:rounded-xl space-y-3">
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-slate-400 block mb-2">Class Information</label>
+              <div class="p-4 bg-slate-900/50 border border-slate-700/40 rounded-lg space-y-3">
                 <div>
-                  <p class="text-xs text-slate-400 mb-1">Name</p>
-                  <p class="text-sm font-bold text-white">{{ editingClass?.name }}</p>
+                  <p class="text-xs text-slate-400">Name</p>
+                  <p class="text-sm font-semibold text-white">{{ editingClass?.name }}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <p class="text-xs text-slate-400 mb-1">Level</p>
-                    <p class="text-sm font-bold text-white">{{ editingClass?.level }}</p>
+                    <p class="text-xs text-slate-400">Level</p>
+                    <p class="text-sm font-semibold text-white">{{ editingClass?.level }}</p>
                   </div>
                   <div>
-                    <p class="text-xs text-slate-400 mb-1">Track</p>
-                    <p class="text-sm font-bold text-white">{{ editingClass?.track || '—' }}</p>
+                    <p class="text-xs text-slate-400">Track</p>
+                    <p class="text-sm font-semibold text-white">{{ editingClass?.track || '—' }}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="space-y-3">
-              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Form Teacher</label>
-              <div class="p-4 sm:p-5 bg-slate-900/60 border border-slate-700/60 rounded-lg sm:rounded-xl">
-                <p class="text-sm font-bold text-white">{{ editingClass?.formTeacherUsername ? `@${editingClass.formTeacherUsername}` : 'Not Assigned' }}</p>
+            <div>
+              <label class="text-xs font-semibold text-slate-400 block mb-2">Form Teacher</label>
+              <div class="p-3 bg-slate-900/50 border border-slate-700/40 rounded-lg">
+                <p class="text-sm font-semibold text-white">{{ editingClass?.formTeacherUsername ? `@${editingClass.formTeacherUsername}` : 'Not Assigned' }}</p>
               </div>
-              <p class="text-[9px] text-slate-400">Manage form teacher assignment from the Teacher Management view</p>
             </div>
 
-            <div class="space-y-3">
-              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Subjects</label>
-              <div class="p-4 sm:p-5 bg-slate-900/60 border border-slate-700/60 rounded-lg sm:rounded-xl">
-                <p class="text-sm font-bold text-white">{{ editingClass?.subjectIds?.length || 0 }} Subjects Assigned</p>
+            <div>
+              <label class="text-xs font-semibold text-slate-400 block mb-2">Subjects</label>
+              <div class="p-3 bg-slate-900/50 border border-slate-700/40 rounded-lg">
+                <p class="text-sm font-semibold text-white">{{ editingClass?.subjectIds?.length || 0 }} Subjects</p>
               </div>
-              <p class="text-[9px] text-slate-400">Manage class subjects from the Teacher Management view</p>
             </div>
 
-            <div class="pt-4 sm:pt-6 flex gap-3 sm:gap-4">
-              <button @click="showConfigModal = false" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl bg-slate-900/70 border border-slate-700/60 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-200 hover:bg-slate-950 transition-colors min-h-[44px]">Close</button>
-            </div>
+            <button @click="showConfigModal = false" class="w-full py-2 rounded-lg purple-gradient text-sm font-semibold text-white hover:opacity-90 transition mt-4">Close</button>
           </div>
         </div>
       </div>
