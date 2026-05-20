@@ -147,6 +147,15 @@ async function optionalResult(label, loader, fallback = null) {
   }
 }
 
+async function resolveReportTermParams(session, term) {
+  if (session && term) return { session, term };
+  const schoolSettings = await getSchoolSettings();
+  return {
+    session: session || String(schoolSettings.currentSession || '').trim(),
+    term: term || String(schoolSettings.currentTerm || '').trim()
+  };
+}
+
 async function buildStudentReport({ student, cls, session, term }) {
   const [subjects, scale, remarks, meta, publish, school, release] = await Promise.all([
     optionalResult(`Report subjects load for ${student.studentId}`, () => subjectsForClass(cls), []),
@@ -261,7 +270,8 @@ resultsRouter.get(
   "/class/:classId/broadsheet",
   asyncHandler(async (req, res) => {
     const { classId } = req.params;
-    const { session, term } = req.query;
+    const { session: rawSession, term: rawTerm } = req.query;
+    const { session, term } = await resolveReportTermParams(rawSession, rawTerm);
     if (!session || !term) return res.status(400).json({ error: "Missing session/term" });
 
     const cls = await getClassById(classId);
@@ -465,7 +475,8 @@ resultsRouter.get(
   "/student/:studentId/report",
   asyncHandler(async (req, res) => {
     const { studentId } = req.params;
-    const { session, term } = req.query;
+    const { session: rawSession, term: rawTerm } = req.query;
+    const { session, term } = await resolveReportTermParams(rawSession, rawTerm);
     if (!session || !term) return res.status(400).json({ error: "Missing session/term" });
 
     const student = await getStudentById(studentId);

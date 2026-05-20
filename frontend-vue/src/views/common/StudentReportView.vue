@@ -13,8 +13,8 @@ import api from '../../services/api'
 
 const route = useRoute()
 const studentId = route.params.studentId as string
-const session = route.query.session as string
-const term = route.query.term as string
+const session = ref(String(route.query.session || '').trim())
+const term = ref(String(route.query.term || '').trim())
 
 const data = ref<any>(null)
 const loading = ref(true)
@@ -25,12 +25,24 @@ const fetchData = async () => {
   error.value = ''
 
   try {
+    if (!session.value || !term.value) {
+      const schoolResp = await api.get('/api/config/school')
+      if (!session.value && schoolResp.data?.currentSession) {
+        session.value = String(schoolResp.data.currentSession || '').trim()
+      }
+      if (!term.value && schoolResp.data?.currentTerm) {
+        term.value = String(schoolResp.data.currentTerm || '').trim()
+      }
+    }
+    if (!session.value || !term.value) {
+      throw new Error('Missing session or term for report card')
+    }
     const resp = await api.get(`/api/results/student/${studentId}/report`, {
-      params: { session, term }
+      params: { session: session.value, term: term.value }
     })
     data.value = resp.data
   } catch (err: any) {
-    error.value = err.response?.data?.error || 'Failed to load report card.'
+    error.value = err.response?.data?.error || err.message || 'Failed to load report card.'
   } finally {
     loading.value = false
   }

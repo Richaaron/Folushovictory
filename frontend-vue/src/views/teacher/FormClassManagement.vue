@@ -287,7 +287,7 @@ onMounted(fetchStudents)
               <td class="px-8 py-6 text-center">
                 <div class="flex items-center justify-center gap-3">
                   <button 
-                    @click="router.push({ name: 'student-report', params: { studentId: st.studentId } })"
+                    @click="router.push({ name: 'student-report', params: { studentId: st.studentId }, query: { session: session.value, term: term.value } })"
                     class="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-royal-purple transition-all flex items-center justify-center"
                     title="Preview Report Card"
                   >
