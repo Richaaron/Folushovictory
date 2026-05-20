@@ -276,7 +276,7 @@ const handleLogin = async () => {
                       <button
                         type="submit"
                         :disabled="loading"
-                        :class="[portalButtonClass, 'w-full sm:w-auto flex items-center justify-center rounded-[1.5rem] px-6 py-4 text-sm font-black uppercase tracking-[0.2em] text-white transition-transform duration-200 focus-visible:ring-4 focus-visible:ring-royal-purple/30', portalShadowClass]"
+                        :class="[portalButtonClass, 'hero-action-btn w-full sm:w-auto flex items-center justify-center rounded-[1.5rem] px-6 py-4 text-sm font-black uppercase tracking-[0.2em] text-white focus-visible:ring-4 focus-visible:ring-royal-gold/30', portalShadowClass]"
                         :aria-label="loading ? 'Authenticating...' : 'Authorize Access'"
                       >
                         <Loader2 v-if="loading" class="mr-2 h-5 w-5 animate-spin" aria-hidden="true" />
@@ -299,8 +299,7 @@ const handleLogin = async () => {
                         :key="p"
                         @click="selectPortal(p)"
                         :aria-pressed="portal === p"
-                        :class="portal === p ? 'bg-royal-purple text-white shadow-[0_18px_45px_rgba(88,28,135,0.24)]' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'"
-                        class="inline-flex items-center gap-2 rounded-full px-5 py-3 text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-200"
+                        :class="portal === p ? 'portal-switch-button active' : 'portal-switch-button'"
                         type="button"
                       >
                         <span>{{ portalConfig[p].emoji }}</span>
@@ -328,6 +327,29 @@ const handleLogin = async () => {
 </template>
 
 <style scoped>
+.portal-switch-panel {
+  @apply border-slate-800/80 bg-slate-900/90;
+}
+
+.portal-switch-button {
+  @apply inline-flex items-center gap-2 rounded-full border border-slate-700/60 bg-slate-900/80 px-5 py-3 text-[10px] font-black uppercase tracking-[0.25em] text-slate-300 transition-all duration-200 hover:bg-slate-800;
+}
+
+.portal-switch-button.active {
+  @apply bg-royal-purple text-white shadow-[0_18px_45px_rgba(88,28,135,0.24)] border-royal-purple/25;
+}
+
+.hero-action-btn {
+  @apply inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-black uppercase tracking-[0.2em] transition duration-200 ease-out;
+}
+
+.hero-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.hero-action-btn:active {
+  transform: scale(0.98);
+}
 .portal-card-enter-active,
 .portal-card-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;

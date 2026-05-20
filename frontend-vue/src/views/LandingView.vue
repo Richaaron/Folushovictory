@@ -31,24 +31,24 @@ const navigateToLogin = (portal: string) => {
             Welcome to the Folusho Victory Schools digital citadel. A sanctuary of academic precision, teacher empowerment, and parental partnership.
           </p>
 
-          <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center hero-actions">
             <button
               @click="navigateToLogin('admin')"
-              class="w-full sm:w-auto rounded-full bg-gradient-to-r from-royal-purple via-royal-purple to-slate-900 px-10 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[0_24px_60px_rgba(88,28,135,0.32)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_80px_rgba(88,28,135,0.34)] active:scale-[0.98]"
+              class="hero-action-btn bg-gradient-to-r from-royal-purple via-royal-purple to-slate-900 text-white shadow-[0_24px_60px_rgba(88,28,135,0.32)]"
             >
               Admin Portal
             </button>
 
             <button
               @click="navigateToLogin('teacher')"
-              class="w-full sm:w-auto rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-200 px-10 py-4 text-sm font-black uppercase tracking-widest text-slate-950 shadow-[0_24px_40px_rgba(212,175,55,0.28)] transition hover:-translate-y-0.5 active:scale-[0.98]"
+              class="hero-action-btn bg-gradient-to-r from-royal-gold via-amber-400 to-amber-200 text-slate-950 shadow-[0_24px_40px_rgba(212,175,55,0.28)]"
             >
               Teacher Portal
             </button>
 
             <button
               @click="navigateToLogin('parent')"
-              class="group inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900/80 px-6 py-4 text-xs font-black uppercase tracking-[0.24em] text-slate-300 transition hover:border-royal-purple hover:text-royal-purple"
+              class="hero-action-btn group inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-royal-purple hover:text-royal-purple"
             >
               Parental Access
               <ArrowRight class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -136,6 +136,22 @@ const navigateToLogin = (portal: string) => {
   .feature-card {
     @apply rounded-[2rem] p-5;
   }
+}
+
+.hero-actions {
+  gap: 1rem;
+}
+
+.hero-action-btn {
+  @apply inline-flex items-center justify-center min-w-[13rem] rounded-full px-10 py-4 text-sm font-black uppercase tracking-widest transition duration-300 ease-out;
+}
+
+.hero-action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.hero-action-btn:active {
+  transform: scale(0.98);
 }
 </style>
 
