@@ -484,7 +484,7 @@ adminRouter.post(
 adminRouter.put(
   "/students/:studentId",
   asyncHandler(async (req, res) => {
-    const { studentId } = req.params;
+    const studentId = String(req.params.studentId || "").toLowerCase().trim();
     const patch = validateStudentUpdatePayload(req.body || {});
     const updated = await updateStudent(studentId, patch);
     return res.json(updated);
@@ -494,7 +494,7 @@ adminRouter.put(
 adminRouter.delete(
   "/students/:studentId",
   asyncHandler(async (req, res) => {
-    const { studentId } = req.params;
+    const studentId = String(req.params.studentId || "").toLowerCase().trim();
     // Find parent user to delete as well
     const { data: parents } = await SafeDatabase.query(
       "users",

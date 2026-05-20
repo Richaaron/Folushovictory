@@ -69,14 +69,16 @@ export async function getStudentById(studentId) {
 
 
 export async function updateStudent(studentId, patch) {
-  return SafeDatabase.updateWithValidation("students", studentId, patch, "student");
+  const normalizedStudentId = String(studentId || "").toLowerCase().trim();
+  return SafeDatabase.updateWithValidation("students", normalizedStudentId, patch, "student");
 }
 
 export async function deleteStudent(studentId) {
-  return SafeDatabase.deleteWithValidation("students", studentId, {
+  const normalizedStudentId = String(studentId || "").toLowerCase().trim();
+  return SafeDatabase.deleteWithValidation("students", normalizedStudentId, {
     validateBeforeDelete: async () => {
-      const scoreCount = await SafeDatabase.count("scores", [["studentId", "==", studentId]]);
-      const assignmentCount = await SafeDatabase.count("assignments", [["studentId", "==", studentId]]);
+      const scoreCount = await SafeDatabase.count("scores", [["studentId", "==", normalizedStudentId]]);
+      const assignmentCount = await SafeDatabase.count("assignments", [["studentId", "==", normalizedStudentId]]);
       
       if (scoreCount > 0) {
         return { allowed: false, reason: `Cannot delete student with ${scoreCount} score records` };

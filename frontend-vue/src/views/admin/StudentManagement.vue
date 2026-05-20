@@ -161,7 +161,8 @@ const handleUpdateStudent = async () => {
     return
   }
   try {
-    await api.put(`/api/admin/students/${editingStudent.value.studentId}`, editingStudent.value)
+    const studentId = editingStudent.value.studentId || editingStudent.value.id
+    await api.put(`/api/admin/students/${studentId}`, editingStudent.value)
     showEditModal.value = false
     await fetchStudents()
   } catch (err: any) {
