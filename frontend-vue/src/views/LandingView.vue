@@ -34,7 +34,7 @@ const navigateToLogin = (portal: string) => {
           <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
             <button
               @click="navigateToLogin('admin')"
-              class="w-full sm:w-auto rounded-full bg-gradient-to-r from-royal-purple via-indigo-700 to-slate-900 px-10 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[0_24px_60px_rgba(88,28,135,0.32)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_80px_rgba(88,28,135,0.34)] active:scale-[0.98]"
+              class="w-full sm:w-auto rounded-full bg-gradient-to-r from-royal-purple via-royal-purple to-slate-900 px-10 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[0_24px_60px_rgba(88,28,135,0.32)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_80px_rgba(88,28,135,0.34)] active:scale-[0.98]"
             >
               Admin Portal
             </button>

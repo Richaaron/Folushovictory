@@ -77,7 +77,7 @@ const portalConfig: Record<PortalKey, {
     emoji: '📚',
     accentText: 'from-royal-purple to-royal-gold bg-gradient-to-r',
     accentLine: 'bg-royal-purple/30',
-    button: 'bg-gradient-to-r from-royal-purple via-indigo-700 to-royal-gold',
+    button: 'bg-gradient-to-r from-royal-purple via-royal-purple to-royal-gold',
     shadow: 'shadow-[0_28px_80px_rgba(88,28,135,0.30)]',
     gateway: 'text-royal-purple',
     usernameLabel: 'Staff Code',

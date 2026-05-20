@@ -29,6 +29,7 @@ body {
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.82));
   border: 1px solid rgba(212, 175, 55, 0.14);
   box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+  -webkit-backdrop-filter: blur(22px);
   backdrop-filter: blur(22px);
   border-radius: 2rem;
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
@@ -44,12 +45,15 @@ body {
 .glass-nav {
   background: rgba(15, 23, 42, 0.98);
   border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+  -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
 }
 
 .glass-sidebar {
   background: rgba(15, 23, 42, 0.98);
   border-right: 1px solid rgba(212, 175, 55, 0.12);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
 }
 
 /* Gradient accents */
@@ -200,7 +204,7 @@ tr:hover td {
 
 /* Accessibility & Focus States */
 :focus-visible {
-  @apply outline-none ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-slate-900;
+  @apply outline-none ring-2 ring-royal-purple ring-offset-2 dark:ring-offset-slate-900;
 }
 
 /* Ensure touch targets are at least 44px on mobile */

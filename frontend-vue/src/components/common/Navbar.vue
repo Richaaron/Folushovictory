@@ -51,9 +51,9 @@ watch(() => router.currentRoute.value.path, () => {
           <img src="/logo.png" alt="Logo" class="h-full w-full object-contain" />
         </div>
         <div class="hidden sm:block">
-          <div class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider leading-none mb-1">Academy Portal</div>
+          <div class="text-[10px] font-bold text-royal-purple dark:text-royal-gold uppercase tracking-wider leading-none mb-1">Academy Portal</div>
           <div class="text-lg font-black text-slate-900 dark:text-white uppercase leading-none">
-            FOLUSHO <span class="text-indigo-600 dark:text-indigo-400">VICTORY</span>
+            FOLUSHO <span class="text-royal-purple dark:text-royal-gold">VICTORY</span>
           </div>
         </div>
       </router-link>
@@ -77,7 +77,7 @@ watch(() => router.currentRoute.value.path, () => {
             <p class="text-xs font-bold text-slate-900 dark:text-white leading-none">{{ username }}</p>
             <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">{{ portal }} Access</p>
           </div>
-          <button @click="handleLogout" class="p-2 text-slate-400 hover:text-rose-500 transition-colors" title="Logout">
+          <button @click="handleLogout" class="p-2 text-slate-400 hover:text-royal-gold transition-colors" title="Logout">
             <LogOut class="w-5 h-5" />
           </button>
         </div>
@@ -85,7 +85,7 @@ watch(() => router.currentRoute.value.path, () => {
         <!-- Mobile Menu Toggle -->
         <button 
           @click="toggleMobileMenu" 
-          class="lg:hidden p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
+          class="lg:hidden p-2 rounded-lg bg-royal-purple/10 dark:bg-royal-purple/20 text-royal-purple dark:text-royal-gold"
           :aria-expanded="mobileMenuOpen"
           aria-controls="mobile-menu"
           aria-label="Toggle Menu"
@@ -111,7 +111,7 @@ watch(() => router.currentRoute.value.path, () => {
         >
           <!-- Mobile User Profile Section -->
           <div v-if="username" class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 mb-4 border border-slate-100 dark:border-slate-800">
-            <div class="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold">
+            <div class="h-10 w-10 rounded-full bg-royal-purple/10 dark:bg-royal-gold/10 flex items-center justify-center text-royal-purple dark:text-royal-gold font-bold">
               {{ username.charAt(0) }}
             </div>
             <div class="flex-grow">
@@ -128,7 +128,7 @@ watch(() => router.currentRoute.value.path, () => {
                 :key="item.name" 
                 :to="item.route"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition-colors"
-                :class="[$route.path === item.route ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800']"
+                :class="[$route.path === item.route ? 'bg-royal-purple/10 dark:bg-royal-gold/20 text-royal-purple dark:text-royal-gold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800']"
               >
                 <component :is="item.icon" class="w-5 h-5" />
                 {{ item.name }}
@@ -139,7 +139,7 @@ watch(() => router.currentRoute.value.path, () => {
           <!-- Logout Button -->
           <button 
             @click="handleLogout" 
-            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 mt-4 border border-rose-100 dark:border-rose-900/30"
+            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-bold text-royal-gold dark:text-royal-gold bg-royal-gold/10 dark:bg-royal-gold/20 mt-4 border border-royal-gold/20"
           >
             <LogOut class="w-5 h-5" />
             Logout Securely

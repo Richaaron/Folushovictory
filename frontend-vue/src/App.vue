@@ -13,7 +13,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="relative z-10">
+  <div class="relative z-10 min-h-screen bg-slate-950 text-slate-100">
     <router-view v-slot="{ Component }">
       <transition name="page" mode="out-in">
         <component :is="Component" />
