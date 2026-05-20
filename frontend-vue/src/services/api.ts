@@ -5,8 +5,23 @@ import { useAuthStore } from '../stores/authStore'
 // - If `VITE_API_URL` is set (preferred), use it.
 // - If running in a browser on localhost, default to local backend at port 4000 for dev.
 // - Otherwise use the current origin so the frontend will call the same host when deployed
+function normalizeApiUrl(value: string | undefined): string | undefined {
+  const normalized = typeof value === 'string' ? value.trim() : undefined;
+  if (!normalized) return undefined;
+  // Preserve relative paths for same-origin deployments.
+  if (normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) {
+    return normalized;
+  }
+  // If the URL is already absolute, keep it.
+  if (/^[a-zA-Z][a-zA-Z\d+-.]*:/.test(normalized)) {
+    return normalized;
+  }
+  // If the environment variable contains just a hostname, assume HTTPS.
+  return `https://${normalized}`;
+}
+
 const API_BASE_URL = (() => {
-  const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
+  const envUrl = normalizeApiUrl(import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL);
   if (envUrl) return envUrl;
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
@@ -31,14 +46,27 @@ const api = axios.create({
   }
 })
 
+console.debug('[API] baseURL:', API_BASE_URL)
+
 // Request interceptor for adding auth token
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore()
   if (authStore.token) {
     config.headers.Authorization = `Bearer ${authStore.token}`
   }
+  const requestUrl = config.url?.startsWith('http') ? config.url : `${config.baseURL || ''}${config.url}`
+  console.debug('[API] request', config.method?.toUpperCase(), requestUrl, config.headers)
   return config
 }, (error) => {
+  console.debug('[API] request error', error)
+  return Promise.reject(error)
+})
+
+api.interceptors.response.use((response) => {
+  return response
+}, (error) => {
+  const requestUrl = error.config?.url?.startsWith('http') ? error.config.url : `${error.config?.baseURL || ''}${error.config?.url}`
+  console.debug('[API] response error', error.config?.method?.toUpperCase(), requestUrl, error.message, error.response?.status, error.response?.data)
   return Promise.reject(error)
 })
 

@@ -24,7 +24,8 @@ const allowedOrigins = [
   'http://localhost',
   'http://127.0.0.1',
   'capacitor://localhost',
-  'https://folushovictory.netlify.app'
+  'https://folushovictory.netlify.app',
+  'https://www.folushovictory.netlify.app'
 ];
 
 app.use(
