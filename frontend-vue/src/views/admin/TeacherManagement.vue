@@ -383,7 +383,7 @@ onMounted(fetchTeachers)
           v-model="searchQuery"
           type="text" 
           placeholder="Search faculty..."
-          class="w-full pl-10 sm:pl-16 pr-4 sm:pr-8 py-3 sm:py-5 bg-slate-100/50 dark:bg-slate-800/30 border-none rounded-lg sm:rounded-[1.5rem] text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-nebula-500/10 outline-none transition-all placeholder-slate-400 min-h-[44px]"
+          class="w-full pl-10 sm:pl-16 pr-4 sm:pr-8 py-3 sm:py-5 bg-slate-900/60 border-none rounded-lg sm:rounded-[1.5rem] text-xs sm:text-sm font-bold text-white focus:bg-slate-950 focus:ring-4 focus:ring-nebula-500/10 outline-none transition-all placeholder-slate-400 min-h-[44px]"
         />
       </div>
     </div>
@@ -399,7 +399,7 @@ onMounted(fetchTeachers)
       <div v-else class="w-full overflow-x-auto">
         <table class="w-full text-left text-xs sm:text-sm">
           <thead>
-            <tr class="bg-slate-100/50 dark:bg-slate-800/30 sticky top-0">
+            <tr class="bg-slate-900/70 sticky top-0">
               <th class="px-3 sm:px-10 py-4 sm:py-8 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 whitespace-nowrap">Faculty Member</th>
               <th class="px-3 sm:px-10 py-4 sm:py-8 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 text-right whitespace-nowrap">Actions</th>
             </tr>

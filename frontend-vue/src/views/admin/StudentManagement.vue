@@ -248,10 +248,10 @@ onMounted(async () => {
     <div class="academic-card rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col lg:flex-row gap-2 sm:gap-4">
       <div class="relative flex-grow">
         <Search class="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input v-model="searchQuery" type="text" placeholder="Search by name or ID..." class="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-xs sm:text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
+        <input v-model="searchQuery" type="text" placeholder="Search by name or ID..." class="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-xs sm:text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none" />
       </div>
       <div class="flex gap-2 sm:gap-3 flex-wrap">
-        <select v-model="selectedClassId" class="pl-3 sm:pl-4 pr-8 sm:pr-10 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-500 focus:ring-2 focus:ring-royal-purple outline-none flex-1 sm:flex-initial">
+        <select v-model="selectedClassId" class="pl-3 sm:pl-4 pr-8 sm:pr-10 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-royal-purple outline-none flex-1 sm:flex-initial">
           <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
         </select>
         <button class="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-2xl text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 transition-all min-h-[44px]">
@@ -261,11 +261,11 @@ onMounted(async () => {
     </div>
 
     <!-- Student Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden min-h-[400px] flex flex-col">
+    <div class="glass-card rounded-[2.5rem] border border-royal-gold/15 overflow-hidden min-h-[400px] flex flex-col">
       <div v-if="loading" class="flex-grow flex items-center justify-center">
         <Loader2 class="w-12 h-12 text-royal-purple animate-spin" />
       </div>
-      <div v-else class="overflow-x-auto">
+      <div v-else class="overflow-x-auto bg-slate-950/90">
         <table class="w-full text-left text-xs sm:text-sm">
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800/50 sticky top-0">

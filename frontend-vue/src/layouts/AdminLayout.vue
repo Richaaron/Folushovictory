@@ -30,13 +30,13 @@ const menuItems = [
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
+  <div class="min-h-screen flex flex-col bg-slate-950 text-slate-100">
     <Navbar portal="Admin" username="Admin User" :menuItems="menuItems" :onToggleSidebar="toggleSidebar" />
 
     <div class="flex-grow flex p-1 sm:p-4 lg:p-6 gap-4">
       <!-- Desktop Sidebar -->
       <aside 
-        class="hidden lg:flex flex-col flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden transition-all duration-300"
+        class="hidden lg:flex flex-col flex-shrink-0 glass-sidebar border border-slate-800/70 rounded-[2rem] overflow-hidden transition-all duration-300"
         :class="[sidebarOpen ? 'w-64' : 'w-20']"
       >
         <div class="p-4 flex flex-col h-full">
@@ -53,8 +53,8 @@ const menuItems = [
               class="flex items-center gap-3 p-3 rounded-lg transition-colors font-bold text-sm"
               :class="[
                 $route.path === item.route 
-                  ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' 
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                  ? 'bg-royal-purple/10 text-white' 
+                  : 'text-slate-300 hover:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800'
               ]"
             >
               <component :is="item.icon" class="w-5 h-5 flex-shrink-0" />
@@ -65,7 +65,7 @@ const menuItems = [
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-grow overflow-x-hidden">
+      <main class="admin-page flex-grow overflow-x-hidden">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
             <component :is="Component" />

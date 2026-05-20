@@ -101,7 +101,7 @@ onMounted(fetchClasses)
       <div 
         v-for="cls in classes" 
         :key="cls.id"
-        class="academic-card rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] p-4 sm:p-6 lg:p-8 border border-slate-100 dark:border-slate-800 relative overflow-hidden group min-h-[280px] sm:min-h-[320px]"
+        class="glass-card rounded-xl sm:rounded-2xl lg:rounded-[2.5rem] p-4 sm:p-6 lg:p-8 border border-royal-gold/15 bg-slate-950/95 relative overflow-hidden group min-h-[280px] sm:min-h-[320px]"
       >
         <div class="absolute -right-4 -top-4 w-32 h-32 bg-royal-purple/5 rounded-full group-hover:scale-110 transition-transform"></div>
         
@@ -110,7 +110,7 @@ onMounted(fetchClasses)
             <div class="h-10 sm:h-14 w-10 sm:w-14 rounded-lg sm:rounded-2xl purple-gradient flex items-center justify-center text-white shadow-lg shadow-purple-200 dark:shadow-purple-900/30 flex-shrink-0">
               <School class="w-5 sm:w-7 h-5 sm:h-7" />
             </div>
-            <div class="px-2 sm:px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-[7px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500">
+            <div class="px-2 sm:px-3 py-1 bg-slate-900/60 rounded-lg text-[7px] sm:text-[10px] font-black uppercase tracking-widest text-slate-200 border border-slate-700/40">
               {{ cls.level }} {{ cls.track ? `• ${cls.track}` : '' }}
             </div>
           </div>
@@ -167,8 +167,8 @@ onMounted(fetchClasses)
     <transition name="fade">
       <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAddModal = false"></div>
-        <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-lg p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
-          <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8">Create New <span class="text-royal-purple">Classroom</span></h2>
+        <div class="glass-card rounded-[2.5rem] w-full sm:max-w-lg p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-royal-gold/15 max-h-[90vh] overflow-y-auto bg-slate-950/95">
+          <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight mb-6 sm:mb-8">Create New <span class="text-royal-purple">Classroom</span></h2>
           
           <div class="space-y-4 sm:space-y-6">
             <div class="space-y-2">
@@ -204,9 +204,9 @@ onMounted(fetchClasses)
     <transition name="fade">
       <div v-if="showStudentsModal" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-3 sm:p-4">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showStudentsModal = false"></div>
-        <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-2xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-slate-100 dark:border-slate-800 max-h-[80vh] overflow-y-auto">
+        <div class="glass-card rounded-[2.5rem] w-full sm:max-w-2xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-royal-gold/15 max-h-[80vh] overflow-y-auto bg-slate-950/95">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Students — <span class="text-royal-purple">{{ currentClass?.name }}</span></h3>
+            <h3 class="text-lg sm:text-xl font-black text-white">Students — <span class="text-royal-purple">{{ currentClass?.name }}</span></h3>
             <button @click="showStudentsModal = false" class="text-slate-500 hover:text-slate-900">Close</button>
           </div>
           <div v-if="studentsLoading" class="py-10 flex justify-center">

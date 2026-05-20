@@ -61,7 +61,7 @@ const handleChangePassword = async () => {
       <SchoolSettingsPanel />
     </div>
 
-    <section class="rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-800 dark:bg-slate-900">
+    <section class="glass-card rounded-[2.5rem] border-royal-gold/15 bg-slate-950/95 p-8">
       <div class="mb-8 flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
           <Lock class="h-5 w-5" />
@@ -72,12 +72,12 @@ const handleChangePassword = async () => {
         </div>
       </div>
 
-      <div v-if="passwordSuccess" class="mb-8 flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-emerald-600 fade-in dark:border-emerald-900/30 dark:bg-emerald-900/20">
+      <div v-if="passwordSuccess" class="mb-8 flex items-center gap-4 rounded-2xl border border-emerald-700/60 bg-emerald-900/20 p-4 text-emerald-200 fade-in">
         <CheckCircle2 class="h-6 w-6" />
         <span class="text-sm font-black uppercase tracking-widest">Password updated successfully!</span>
       </div>
 
-      <div v-if="passwordError" class="mb-8 flex items-center gap-4 rounded-2xl border border-red-100 bg-red-50 p-4 text-red-600 fade-in dark:border-red-900/30 dark:bg-red-900/20">
+      <div v-if="passwordError" class="mb-8 flex items-center gap-4 rounded-2xl border border-red-700/60 bg-red-900/20 p-4 text-red-300 fade-in">
         <AlertCircle class="h-6 w-6 flex-shrink-0" />
         <span class="text-sm font-black uppercase tracking-widest">{{ passwordError }}</span>
       </div>
@@ -86,18 +86,18 @@ const handleChangePassword = async () => {
         <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div class="space-y-2">
             <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Current Password</label>
-            <input v-model="passwordForm.oldPassword" type="password" required class="w-full rounded-2xl border-none bg-slate-50 px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-amber-500 dark:bg-slate-800" />
+            <input v-model="passwordForm.oldPassword" type="password" required class="w-full rounded-2xl border-none bg-slate-900/60 text-white px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-amber-500" />
           </div>
           <div class="space-y-2">
             <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-slate-400">New Password</label>
-            <input v-model="passwordForm.newPassword" type="password" required class="w-full rounded-2xl border-none bg-slate-50 px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-amber-500 dark:bg-slate-800" />
+            <input v-model="passwordForm.newPassword" type="password" required class="w-full rounded-2xl border-none bg-slate-900/60 text-white px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-amber-500" />
           </div>
         </div>
 
         <div class="grid grid-cols-1 items-end gap-8 md:grid-cols-2">
           <div class="space-y-2">
             <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Confirm New Password</label>
-            <input v-model="passwordForm.confirmPassword" type="password" required class="w-full rounded-2xl border-none bg-slate-50 px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-amber-500 dark:bg-slate-800" />
+            <input v-model="passwordForm.confirmPassword" type="password" required class="w-full rounded-2xl border-none bg-slate-900/60 text-white px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-amber-500" />
           </div>
           <button
             type="submit"

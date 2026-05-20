@@ -103,6 +103,44 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Dark admin page overrides */
+.admin-page .bg-slate-50,
+.admin-page .bg-white,
+.admin-page .bg-slate-100,
+.admin-page .bg-slate-100\/50,
+.admin-page .bg-slate-100\/30 {
+  background-color: rgba(15, 23, 42, 0.96) !important;
+}
+
+.admin-page .border-slate-200,
+.admin-page .border-slate-100 {
+  border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+.admin-page .text-slate-900,
+.admin-page .text-slate-700,
+.admin-page .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+.admin-page input,
+.admin-page select,
+.admin-page textarea {
+  background: rgba(15, 23, 42, 0.72) !important;
+  color: #f8fafc !important;
+}
+
+.admin-page input::placeholder,
+.admin-page textarea::placeholder,
+.admin-page select option {
+  color: rgba(148, 163, 184, 0.8) !important;
+}
+
+.admin-page .shadow-xl,
+.admin-page .shadow-2xl {
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.28) !important;
+}
+
 /* Global table polish */
 table {
   border-collapse: separate;
