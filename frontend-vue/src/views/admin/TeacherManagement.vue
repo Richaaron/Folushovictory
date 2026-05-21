@@ -31,10 +31,19 @@ const newTeacher = ref({
   assignedSubjectIds: [] as string[]
 })
 
+const isPrimaryClass = (classId: string) => {
+  const cls = classes.value.find((c: any) => c.id === classId)
+  if (!cls) return false
+  const level = String(cls.level || '').toUpperCase()
+  return level.includes('PRY') || level.includes('PRIMARY') || level.includes('NUR') || level.includes('PRE')
+}
+
 const getTeacherDepartment = (teacher: any) => {
   const primarySubjectIds = new Set(subjects.value.filter((s: any) => s.level === 'Primary').map((s: any) => s.id))
   const hasPrimarySubject = teacher.assignedSubjectIds?.some((id: string) => primarySubjectIds.has(id))
-  return hasPrimarySubject ? 'Primary/Nursery' : 'Secondary'
+  const hasPrimaryFormClass = Boolean(teacher.formClassId && isPrimaryClass(teacher.formClassId))
+  const hasPrimarySelectedClass = teacher.selectedClassIds?.some((id: string) => isPrimaryClass(id))
+  return (hasPrimarySubject || hasPrimaryFormClass || hasPrimarySelectedClass) ? 'Primary/Nursery' : 'Secondary'
 }
 
 const getTeacherSecondaryLevel = (teacher: any) => {
