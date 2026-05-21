@@ -31,6 +31,34 @@ const newTeacher = ref({
   assignedSubjectIds: [] as string[]
 })
 
+const getTeacherDepartment = (teacher: any) => {
+  const primarySubjectIds = new Set(subjects.value.filter((s: any) => s.level === 'Primary').map((s: any) => s.id))
+  const hasPrimarySubject = teacher.assignedSubjectIds?.some((id: string) => primarySubjectIds.has(id))
+  return hasPrimarySubject ? 'Primary/Nursery' : 'Secondary'
+}
+
+const getTeacherSecondaryLevel = (teacher: any) => {
+  if (!teacher.assignedSubjectIds?.length) return 'Both'
+  const hasJss = subjects.value.some((s: any) => teacher.assignedSubjectIds.includes(s.id) && s.level === 'JSS')
+  const hasSss = subjects.value.some((s: any) => teacher.assignedSubjectIds.includes(s.id) && s.level === 'SSS')
+  if (hasJss && !hasSss) return 'JSS'
+  if (!hasJss && hasSss) return 'SSS'
+  return 'Both'
+}
+
+const getTeacherRoleType = (teacher: any) => {
+  if (teacher.formClassId && teacher.selectedClassIds?.length > 0) return 'Dual Role'
+  if (teacher.formClassId) return 'Form Teacher'
+  return 'Subject Teacher'
+}
+
+const enrichTeacher = (teacher: any) => ({
+  ...teacher,
+  department: getTeacherDepartment(teacher),
+  secondaryLevel: getTeacherSecondaryLevel(teacher),
+  roleType: getTeacherRoleType(teacher)
+})
+
 const fetchTeachers = async () => {
   loading.value = true
   try {
@@ -39,9 +67,9 @@ const fetchTeachers = async () => {
       api.get('/api/admin/classes'),
       api.get('/api/admin/subjects')
     ])
-    teachers.value = tResp.data.teachers || []
     classes.value = cResp.data.classes || []
     subjects.value = sResp.data.subjects || []
+    teachers.value = (tResp.data.teachers || []).map(enrichTeacher)
   } catch (err) {
     console.error('Error fetching teachers data:', err)
   } finally {
@@ -221,30 +249,11 @@ const handleDelete = async (username: string) => {
 }
 
 const openEditModal = (teacher: any) => {
-  // Infer department and role from assignments
-  let department = 'Secondary'
-  if (teacher.assignedSubjectIds?.length > 0) {
-    const isPry = subjects.value.some(s => teacher.assignedSubjectIds.includes(s.id) && s.level === 'Primary')
-    if (isPry) department = 'Primary/Nursery'
-  }
-
-  let roleType = 'Subject Teacher'
-  if (teacher.formClassId && teacher.selectedClassIds?.length > 0) roleType = 'Dual Role'
-  else if (teacher.formClassId) roleType = 'Form Teacher'
-
-  let secondaryLevel = 'Both'
-  if (teacher.assignedSubjectIds?.length > 0) {
-    const hasJss = subjects.value.some(s => teacher.assignedSubjectIds.includes(s.id) && s.level === 'JSS')
-    const hasSss = subjects.value.some(s => teacher.assignedSubjectIds.includes(s.id) && s.level === 'SSS')
-    if (hasJss && !hasSss) secondaryLevel = 'JSS'
-    else if (!hasJss && hasSss) secondaryLevel = 'SSS'
-  }
-
   editingTeacher.value = { 
     ...teacher, 
-    department, 
-    roleType, 
-    secondaryLevel,
+    department: getTeacherDepartment(teacher), 
+    roleType: getTeacherRoleType(teacher),
+    secondaryLevel: getTeacherSecondaryLevel(teacher),
     formClassId: teacher.formClassId || '',
     selectedClassIds: [...(teacher.selectedClassIds || [])],
     assignedSubjectIds: [...(teacher.assignedSubjectIds || [])]
