@@ -313,6 +313,13 @@ const filteredEditSubjects = computed(() => {
   return subjects.value.filter(s => s.level === level)
 })
 
+const getSecondarySubjectNames = (teacher: any) => {
+  if (!teacher?.assignedSubjectIds?.length) return []
+  return subjects.value
+    .filter(s => teacher.assignedSubjectIds.includes(s.id) && (s.level === 'JSS' || s.level === 'SSS'))
+    .map(s => s.name)
+}
+
 const handleUpdateTeacher = async () => {
   if (!editingTeacher.value?.displayName) return
   creating.value = true // Reuse creating spinner
@@ -460,6 +467,15 @@ onMounted(fetchTeachers)
               <div class="rounded-[1.5rem] border border-slate-800/70 bg-slate-950/80 p-4">
                 <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Primary Class</p>
                 <p class="mt-2 text-sm font-black text-white">{{ teacher.formClassId ? classes.find(c => c.id === teacher.formClassId)?.name || 'Assigned' : 'Not Assigned' }}</p>
+              </div>
+              <div v-if="teacher.department !== 'Primary/Nursery'" class="rounded-[1.5rem] border border-slate-800/70 bg-slate-950/80 p-4 col-span-full">
+                <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Secondary Subjects</p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span v-for="subject in getSecondarySubjectNames(teacher)" :key="subject" class="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-[11px] font-black text-emerald-300">
+                    {{ subject }}
+                  </span>
+                  <span v-if="getSecondarySubjectNames(teacher).length === 0" class="text-sm font-black text-slate-400">No secondary subjects assigned</span>
+                </div>
               </div>
             </div>
           </article>
