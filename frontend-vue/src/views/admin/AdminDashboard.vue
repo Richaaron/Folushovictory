@@ -108,7 +108,7 @@ onMounted(fetchDashboardAndLogs)
     <!-- Header Panoramic Console -->
     <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-stretch animate-fade-in-up-stagger-1 relative z-10">
       <!-- Left: Admin Insights Welcome Console -->
-      <div class="rounded-[2rem] border border-amber-500/20 bg-black/75 p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl relative overflow-hidden group">
+      <section class="admin-hero-card group overflow-hidden">
         <!-- Cyber Dot Outline -->
         <div class="absolute top-4 right-4 flex items-center gap-1.5">
           <span class="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse"></span>
@@ -118,35 +118,35 @@ onMounted(fetchDashboardAndLogs)
           <div class="h-[1px] w-12 bg-gradient-to-r from-amber-500 to-transparent" aria-hidden="true"></div>
           <span class="text-[9px] font-black uppercase tracking-[0.35em] text-amber-400/90">Executive Control</span>
         </div>
-        <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+        <h1 class="hero-title">
           Admin <span class="bg-gradient-to-r from-amber-400 via-amber-200 to-yellow-500 bg-clip-text text-transparent">Insights</span>
         </h1>
-        <p class="mt-4 max-w-2xl text-xs sm:text-sm leading-7 text-slate-400">
+        <p class="hero-subtitle max-w-2xl mt-4">
           A refined operational console showcasing real-time school performance, academic rosters, and system activity logs—crafted for elegant control and high-end management.
         </p>
-      </div>
+      </section>
 
       <!-- Right: Academic Term Card -->
-      <div class="rounded-[2rem] border border-violet-500/20 bg-black/85 p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl flex items-center gap-5 relative overflow-hidden group glow-purple-hover transition-all duration-500">
+      <section class="admin-hero-card flex items-center gap-5 relative overflow-hidden group glow-purple-hover transition-all duration-500">
         <div class="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-violet-500/10 blur-2xl group-hover:bg-violet-500/20 transition-all duration-700" aria-hidden="true"></div>
         <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-950 text-slate-100 border border-violet-500/30 shadow-lg shadow-violet-950/40">
           <Calendar class="w-6 h-6 text-amber-300" aria-hidden="true" />
         </div>
         <div>
           <p class="text-[9px] uppercase tracking-[0.3em] text-slate-500 font-bold">Academic Session</p>
-          <p class="mt-2 text-lg font-black bg-gradient-to-r from-slate-100 via-slate-300 to-slate-100 bg-clip-text text-transparent">{{ activeTermLabel }}</p>
+          <p class="hero-title mt-2 text-lg font-black bg-gradient-to-r from-slate-100 via-slate-300 to-slate-100 bg-clip-text text-transparent">{{ activeTermLabel }}</p>
         </div>
-      </div>
+      </section>
     </div>
 
     <!-- Stats Console Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in-up-stagger-2 relative z-10">
-      <div 
-        v-for="(stat, idx) in stats" 
+      <article
+        v-for="(stat, idx) in stats"
         :key="stat.name"
         @click="router.push(stat.route)"
-        class="relative overflow-hidden rounded-[2rem] border bg-black/60 p-6 sm:p-7 cursor-pointer transition-all duration-500 hover:-translate-y-1.5 active:scale-95 group shadow-[0_15px_35px_rgba(0,0,0,0.4)]"
-        :class="idx % 2 === 0 ? 'border-amber-500/10 glow-gold-hover' : 'border-violet-500/10 glow-purple-hover'"
+        class="admin-hero-stat-card group cursor-pointer transition-all duration-500 hover:-translate-y-1.5 active:scale-95 shadow-[0_15px_35px_rgba(0,0,0,0.4)]"
+        :class="idx % 2 === 0 ? 'border-amber-500/20 glow-gold-hover' : 'border-violet-500/20 glow-purple-hover'"
         role="button"
         :aria-label="`View details for ${stat.name}: ${stat.value}`"
         tabindex="0"
@@ -154,28 +154,28 @@ onMounted(fetchDashboardAndLogs)
         @keydown.space.prevent="router.push(stat.route)"
       >
         <!-- Custom glowing accent orbs -->
-        <div 
-          class="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-3xl opacity-10 group-hover:opacity-35 transition-all duration-700" 
+        <div
+          class="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-3xl opacity-10 group-hover:opacity-35 transition-all duration-700"
           :class="idx % 2 === 0 ? 'bg-amber-400' : 'bg-violet-500'"
           aria-hidden="true"
         ></div>
-        
+
         <div class="relative z-10 flex items-start justify-between gap-4">
-          <div 
+          <div
             class="flex h-12 w-12 items-center justify-center rounded-2xl border transition-colors duration-500"
             :class="idx % 2 === 0 ? 'bg-amber-950/30 border-amber-500/30 text-amber-400 group-hover:bg-amber-500/20 group-hover:text-amber-300' : 'bg-violet-950/30 border-violet-500/30 text-violet-400 group-hover:bg-violet-500/20 group-hover:text-violet-300'"
           >
             <component :is="stat.icon" class="w-5 h-5" aria-hidden="true" />
           </div>
-          <div class="rounded-full bg-black px-2.5 py-0.5 text-[8px] font-black uppercase tracking-[0.25em] text-slate-400 border border-slate-800 shadow-sm flex items-center gap-1">
+          <div class="rounded-full bg-slate-950/90 px-3 py-1 text-[8px] font-black uppercase tracking-[0.25em] text-slate-400 border border-slate-800 shadow-sm flex items-center gap-1">
             <span class="h-1 w-1 rounded-full animate-ping" :class="idx % 2 === 0 ? 'bg-amber-400' : 'bg-violet-400'"></span>
             <span>Live Telemetry</span>
           </div>
         </div>
 
         <div class="relative z-10 mt-6">
-          <p class="text-[9px] font-black uppercase tracking-[0.25em] text-slate-500">{{ stat.name }}</p>
-          <h3 
+          <p class="hero-subtitle">{{ stat.name }}</p>
+          <h3
             class="mt-2 text-2xl font-black tracking-tight"
             :class="idx % 2 === 0 ? 'text-amber-300 group-hover:text-amber-100 transition-colors' : 'text-violet-300 group-hover:text-violet-100 transition-colors'"
           >
@@ -183,14 +183,14 @@ onMounted(fetchDashboardAndLogs)
           </h3>
           <p class="mt-3 text-xs text-slate-400 leading-normal group-hover:text-slate-300 transition-colors">Access details for {{ stat.name.toLowerCase() }} console.</p>
         </div>
-      </div>
+      </article>
     </div>
 
     <!-- Operational Terminal & Health Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 animate-fade-in-up-stagger-3 relative z-10">
       <!-- Left: Recent Activity Terminal -->
       <div class="md:col-span-2 lg:col-span-2 space-y-6">
-        <div class="relative overflow-hidden rounded-[2rem] border border-amber-500/10 bg-black/60 p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <section class="admin-hero-card relative overflow-visible p-6 md:p-8">
           <div class="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-violet-600/5 blur-[100px] pointer-events-none" aria-hidden="true"></div>
           <div class="absolute left-0 bottom-0 h-36 w-36 rounded-full bg-amber-500/5 blur-[100px] pointer-events-none" aria-hidden="true"></div>
 
@@ -247,25 +247,25 @@ onMounted(fetchDashboardAndLogs)
 
         <!-- Secondary Admin Actions Portal Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="rounded-[2.25rem] border border-violet-500/20 bg-gradient-to-br from-violet-950/40 via-black to-[#050308] p-7 text-white shadow-[0_20px_40px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+          <section class="admin-hero-card p-7 relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-amber-400 via-violet-500 to-amber-400"></div>
             <h4 class="text-sm font-black uppercase tracking-[0.3em] mb-2 bg-gradient-to-r from-amber-300 to-amber-100 bg-clip-text text-transparent">Release Results</h4>
             <p class="text-[11px] text-slate-400 leading-normal mb-6">Publish term scores securely and streamline instant parent access.</p>
             <router-link to="/admin/broadsheet" class="shimmer-btn inline-flex items-center gap-2 rounded-xl bg-slate-900 border border-slate-700/60 px-4 py-2 text-[9px] font-black uppercase tracking-[0.25em] text-slate-200 transition-all duration-300 hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0">Portal Dashboard <ArrowUpRight class="w-3.5 h-3.5 text-amber-300" aria-hidden="true" /></router-link>
-          </div>
+          </section>
 
-          <div class="rounded-[2.25rem] border border-amber-500/20 bg-gradient-to-br from-amber-950/20 via-black to-[#050308] p-7 text-white shadow-[0_20px_40px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+          <section class="admin-hero-card p-7 relative overflow-hidden group">
             <div class="absolute inset-y-0 right-0 w-24 bg-amber-500/5 blur-2xl" aria-hidden="true"></div>
             <h4 class="text-sm font-black uppercase tracking-[0.3em] mb-2 bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">Staffing Engine</h4>
             <p class="text-[11px] text-slate-400 leading-normal mb-6">Manage faculty member rosters and optimize class allocations easily.</p>
             <router-link to="/admin/teachers" class="shimmer-btn inline-flex items-center gap-2 rounded-xl bg-amber-500 text-slate-950 px-4 py-2 text-[9px] font-black uppercase tracking-[0.25em] transition-all duration-300 hover:bg-amber-400 hover:-translate-y-0.5 active:translate-y-0">Directory <Users class="w-3.5 h-3.5" aria-hidden="true" /></router-link>
-          </div>
+          </section>
         </div>
       </div>
 
       <!-- Right: Systems Health Panel & Admin Controls -->
       <div class="space-y-6">
-        <div class="rounded-[2rem] border border-violet-500/10 bg-black/60 p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <section class="admin-hero-card overflow-visible">
           <div class="flex items-center gap-3 mb-8">
             <span class="h-2 w-2 rounded-full bg-amber-400 animate-ping" aria-hidden="true"></span>
             <h3 class="text-sm font-black text-white uppercase tracking-[0.3em]">System Health</h3>
@@ -308,13 +308,15 @@ onMounted(fetchDashboardAndLogs)
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         <!-- Tactile Premium Config Action Button -->
-        <button class="shimmer-btn w-full rounded-[2rem] border border-amber-500/30 bg-gradient-to-r from-violet-900 via-violet-950 to-violet-900 px-6 py-4.5 text-[9px] font-black uppercase tracking-[0.3em] text-amber-300 shadow-[0_15px_30px_rgba(124,58,237,0.2)] hover:text-white hover:border-amber-400 hover:shadow-[0_20px_45px_rgba(124,58,237,0.35)] transition-all duration-500 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2">
-          <span class="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping"></span>
-          <span>System Configuration</span>
-        </button>
+        <section class="admin-hero-card p-0 overflow-hidden">
+          <button class="shimmer-btn w-full rounded-[2rem] border border-amber-500/30 bg-gradient-to-r from-violet-900 via-violet-950 to-violet-900 px-6 py-4.5 text-[9px] font-black uppercase tracking-[0.3em] text-amber-300 shadow-[0_15px_30px_rgba(124,58,237,0.2)] hover:text-white hover:border-amber-400 hover:shadow-[0_20px_45px_rgba(124,58,237,0.35)] transition-all duration-500 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2">
+            <span class="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping"></span>
+            <span>System Configuration</span>
+          </button>
+        </section>
       </div>
     </div>
   </div>
