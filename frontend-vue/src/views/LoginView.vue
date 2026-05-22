@@ -178,46 +178,43 @@ const handleLogin = async () => {
 
     <div class="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-12 lg:px-8 lg:py-16">
       <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <section class="space-y-8 rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-10 shadow-[0_40px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-          <div class="inline-flex rounded-full border border-royal-gold/20 bg-slate-900/90 px-4 py-2 text-sm font-black uppercase tracking-[0.35em] text-royal-gold shadow-[0_18px_40px_rgba(212,175,55,0.18)]">
-            Institutional Control
-          </div>
-          <div class="space-y-5">
+        <section class="animate-card-in rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-10 shadow-[0_40px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl ring-1 ring-royal-gold/10">
+          <div class="hero-badge">Institutional Control</div>
+          <div class="space-y-5 pt-4">
             <h1 class="text-4xl font-black tracking-tight text-white sm:text-5xl">Secure gateway for school leadership, staff, and parent access.</h1>
             <p class="max-w-2xl text-base leading-8 text-slate-300">Redesigned with strong contrast, crisp spacing, and a modern academic system architecture that makes login simple and authoritative.</p>
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <article class="info-pill">
+            <article class="info-pill animate-card-in delay-150">
               <p class="text-[10px] uppercase tracking-[0.26em] text-slate-400">Trusted access</p>
               <p class="mt-3 font-black text-white">Secure credentials and guardrail workflows.</p>
             </article>
-            <article class="info-pill">
+            <article class="info-pill animate-card-in delay-250">
               <p class="text-[10px] uppercase tracking-[0.26em] text-slate-400">Streamlined sign-in</p>
               <p class="mt-3 font-black text-white">A cleaner interface with compact form focus.</p>
             </article>
           </div>
         </section>
 
-        <section class="rounded-[2rem] border border-royal-purple/15 bg-slate-900/95 p-10 shadow-[0_40px_110px_rgba(88,28,135,0.24)] backdrop-blur-xl">
-          <div class="space-y-8">
+        <section class="relative animate-card-in delay-150 rounded-[2rem] border border-royal-purple/15 bg-slate-900/95 p-10 shadow-[0_40px_110px_rgba(88,28,135,0.24)] backdrop-blur-xl ring-1 ring-slate-800/80 overflow-hidden">
+          <div class="pointer-events-none absolute right-0 top-0 h-36 w-36 rounded-full bg-gradient-to-br from-royal-purple/30 to-royal-gold/10 blur-3xl animate-blob"></div>
+          <div class="space-y-8 relative z-10">
             <div class="space-y-4 text-center">
-              <div class="inline-flex rounded-full border border-royal-gold/20 bg-slate-950/90 px-4 py-2 text-sm font-black uppercase tracking-[0.35em] text-royal-gold shadow-[0_18px_40px_rgba(212,175,55,0.18)]">
-                Secure Gateway
-              </div>
+              <div class="hero-badge glow">Secure Gateway</div>
               <h2 class="text-3xl font-black tracking-tight text-white">{{ portalTitle }} <span class="ml-2">{{ portalEmoji }}</span></h2>
               <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Institutional control & academic management</p>
             </div>
 
             <form @submit.prevent="handleLogin" class="space-y-6" novalidate>
-              <div class="space-y-4 rounded-[1.75rem] border border-slate-800/70 bg-slate-950/85 p-6 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+              <div class="form-card">
                 <div class="grid gap-4">
                   <div class="space-y-2">
                     <div class="flex items-center justify-between gap-4">
                       <span class="text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">{{ usernameLabel }}</span>
                       <span class="text-[10px] uppercase tracking-[0.28em] text-slate-500">Use your secure ID</span>
                     </div>
-                    <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
+                    <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)] transition duration-300 focus-within:border-royal-gold/30 focus-within:ring-1 focus-within:ring-royal-gold/20">
                       <div class="absolute inset-y-0 left-4 flex items-center text-royal-gold">
                         <User class="h-5 w-5" aria-hidden="true" />
                       </div>
@@ -227,7 +224,7 @@ const handleLogin = async () => {
                         type="text"
                         required
                         autocomplete="username"
-                        class="w-full bg-transparent pl-14 pr-4 text-sm text-white placeholder-slate-500 outline-none"
+                        class="field-input"
                         :placeholder="usernamePlaceholder"
                         :aria-invalid="!!error"
                       />
@@ -239,7 +236,7 @@ const handleLogin = async () => {
                       <span class="text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">{{ passwordLabel }}</span>
                       <span class="text-[10px] uppercase tracking-[0.28em] text-slate-500">Protected access</span>
                     </div>
-                    <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)]">
+                    <div class="relative rounded-[1.5rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.08)] transition duration-300 focus-within:border-royal-gold/30 focus-within:ring-1 focus-within:ring-royal-gold/20">
                       <div class="absolute inset-y-0 left-4 flex items-center text-royal-gold">
                         <Lock class="h-5 w-5" aria-hidden="true" />
                       </div>
@@ -249,7 +246,7 @@ const handleLogin = async () => {
                         :type="passwordVisible ? 'text' : 'password'"
                         required
                         autocomplete="current-password"
-                        class="w-full bg-transparent pl-14 pr-12 text-sm text-white placeholder-slate-500 outline-none"
+                        class="field-input pr-12"
                         :placeholder="passwordPlaceholder"
                         :aria-invalid="!!error"
                       />
@@ -278,7 +275,7 @@ const handleLogin = async () => {
                 <button
                   type="submit"
                   :disabled="loading"
-                  :class="[portalButtonClass, 'w-full sm:w-auto flex items-center justify-center rounded-[1.5rem] px-6 py-4 text-sm font-black uppercase tracking-[0.2em] text-white focus-visible:ring-4 focus-visible:ring-royal-gold/30', portalShadowClass]"
+                  :class="[portalButtonClass, 'action-button', portalShadowClass]"
                 >
                   <Loader2 v-if="loading" class="mr-2 h-5 w-5 animate-spin" aria-hidden="true" />
                   <span>{{ loading ? 'Authenticating' : 'Authorize Access' }}</span>
@@ -324,41 +321,101 @@ const handleLogin = async () => {
   @apply rounded-[1.75rem] border border-slate-700/60 bg-slate-900/85 p-6 shadow-[0_24px_65px_rgba(0,0,0,0.20)];
 }
 
+.hero-badge {
+  @apply inline-flex rounded-full border border-royal-gold/20 bg-slate-950/90 px-4 py-2 text-sm font-black uppercase tracking-[0.35em] text-royal-gold shadow-[0_18px_40px_rgba(212,175,55,0.18)];
+}
+
+.hero-badge.glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
 .portal-switch-button {
-  @apply inline-flex items-center gap-2 rounded-full border border-slate-700/60 bg-slate-900/80 px-5 py-3 text-[10px] font-black uppercase tracking-[0.25em] text-slate-300 transition duration-200 hover:bg-slate-800;
+  @apply inline-flex items-center gap-2 rounded-full border border-slate-700/60 bg-slate-900/80 px-5 py-3 text-[10px] font-black uppercase tracking-[0.25em] text-slate-300 transition duration-300 hover:bg-slate-800 hover:text-white hover:scale-105;
 }
 
 .portal-switch-button.active {
-  @apply bg-royal-purple text-white shadow-[0_18px_45px_rgba(88,28,135,0.24)] border-royal-purple/25;
+  @apply bg-gradient-to-r from-royal-purple to-royal-gold text-white shadow-[0_20px_50px_rgba(88,28,135,0.24)] border-transparent;
 }
 
-.hero-action-btn {
-  @apply inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-black uppercase tracking-[0.2em] transition duration-200 ease-out;
+.action-button {
+  @apply w-full sm:w-auto flex items-center justify-center rounded-[1.5rem] px-6 py-4 text-sm font-black uppercase tracking-[0.2em] text-white transition duration-300 ease-out transform focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-royal-gold/30;
 }
 
-.hero-action-btn:hover {
-  transform: translateY(-1px);
+.action-button:hover {
+  transform: translateY(-2px);
 }
 
-.hero-action-btn:active {
-  transform: scale(0.98);
+.action-button:active {
+  transform: translateY(0) scale(0.98);
 }
 
-.portal-card-enter-active,
-.portal-card-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+.form-card {
+  @apply rounded-[1.75rem] border border-slate-800/70 bg-slate-950/85 p-6 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition duration-300;
 }
 
-.portal-card-enter-from,
-.portal-card-leave-to {
+.form-card:hover {
+  @apply border-royal-gold/30;
+}
+
+.field-input {
+  @apply w-full bg-transparent pl-14 pr-4 text-sm text-white placeholder-slate-500 outline-none transition duration-300;
+}
+
+.field-input:focus {
+  @apply placeholder-slate-400;
+}
+
+.animate-card-in {
   opacity: 0;
-  transform: translateY(12px);
+  animation: fadeInUp 0.65s ease forwards;
 }
 
-.portal-card-enter-to,
-.portal-card-leave-from {
-  opacity: 1;
-  transform: translateY(0);
+.animate-card-in.delay-150 {
+  animation-delay: 0.15s;
+}
+
+.animate-card-in.delay-250 {
+  animation-delay: 0.25s;
+}
+
+.animate-card-in.delay-350 {
+  animation-delay: 0.35s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(212,175,55,0.18);
+  }
+  50% {
+    box-shadow: 0 0 0 18px rgba(212,175,55,0.04);
+  }
+}
+
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0,0) scale(1);
+  }
+  33% {
+    transform: translate(12px,-8px) scale(1.05);
+  }
+  66% {
+    transform: translate(-8px,12px) scale(0.96);
+  }
+}
+
+.animate-blob {
+  animation: blob 9s ease-in-out infinite;
 }
 
 @keyframes shake {

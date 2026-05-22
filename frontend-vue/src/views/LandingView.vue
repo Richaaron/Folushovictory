@@ -20,6 +20,74 @@ const navigateToLogin = (portal: string) => {
     <!-- ═══════ ANIMATED GRID OVERLAY ═══════ -->
     <div class="grid-overlay" aria-hidden="true"></div>
 
+    <!-- ═══════ ACADEMIC BACKGROUND LAYER ═══════ -->
+    <div class="academic-bg" aria-hidden="true">
+
+      <!-- Ruled notebook lines -->
+      <div class="ruled-lines"></div>
+
+      <!-- Floating Math & Academic Symbols -->
+      <span class="acad-symbol" style="top:8%;left:4%;font-size:2.2rem;animation-delay:0s;animation-duration:18s;">∑</span>
+      <span class="acad-symbol" style="top:14%;left:88%;font-size:1.6rem;animation-delay:2s;animation-duration:22s;">π</span>
+      <span class="acad-symbol" style="top:30%;left:92%;font-size:2rem;animation-delay:4s;animation-duration:20s;">√</span>
+      <span class="acad-symbol" style="top:55%;left:6%;font-size:1.8rem;animation-delay:1s;animation-duration:24s;">∞</span>
+      <span class="acad-symbol" style="top:72%;left:90%;font-size:1.5rem;animation-delay:3s;animation-duration:19s;">Δ</span>
+      <span class="acad-symbol" style="top:85%;left:12%;font-size:2rem;animation-delay:5s;animation-duration:21s;">∫</span>
+      <span class="acad-symbol" style="top:20%;left:48%;font-size:1.4rem;animation-delay:6s;animation-duration:26s;">θ</span>
+      <span class="acad-symbol" style="top:65%;left:50%;font-size:1.6rem;animation-delay:0.5s;animation-duration:23s;">λ</span>
+      <span class="acad-symbol" style="top:42%;left:2%;font-size:1.3rem;animation-delay:7s;animation-duration:17s;">α</span>
+      <span class="acad-symbol" style="top:90%;left:75%;font-size:1.7rem;animation-delay:2.5s;animation-duration:25s;">β</span>
+
+      <!-- Floating formula strings -->
+      <span class="acad-formula" style="top:6%;left:20%;animation-delay:1s;animation-duration:20s;">E = mc²</span>
+      <span class="acad-formula" style="top:35%;left:78%;animation-delay:3s;animation-duration:24s;">F = ma</span>
+      <span class="acad-formula" style="top:78%;left:22%;animation-delay:0s;animation-duration:22s;">a² + b² = c²</span>
+      <span class="acad-formula" style="top:50%;left:85%;animation-delay:5s;animation-duration:18s;">V = IR</span>
+      <span class="acad-formula" style="top:92%;left:45%;animation-delay:2s;animation-duration:26s;">PV = nRT</span>
+      <span class="acad-formula" style="top:18%;left:62%;animation-delay:4s;animation-duration:21s;">y = mx + c</span>
+
+      <!-- Floating academic icons (SVG paths as decorative shapes) -->
+      <!-- Graduation Cap icon -->
+      <svg class="acad-icon" style="top:10%;left:72%;animation-delay:0s;animation-duration:20s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+        <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+      </svg>
+      <!-- Book icon -->
+      <svg class="acad-icon" style="top:48%;left:94%;animation-delay:2s;animation-duration:22s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      <!-- Pencil icon -->
+      <svg class="acad-icon" style="top:80%;left:5%;animation-delay:3s;animation-duration:19s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+      </svg>
+      <!-- Atom icon -->
+      <svg class="acad-icon" style="top:25%;left:8%;animation-delay:1.5s;animation-duration:24s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <circle cx="12" cy="12" r="1"/>
+        <path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/>
+        <path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/>
+      </svg>
+      <!-- Chart/bar icon -->
+      <svg class="acad-icon" style="top:60%;left:1%;animation-delay:4s;animation-duration:21s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+        <line x1="2" y1="20" x2="22" y2="20"/>
+      </svg>
+
+      <!-- Sparkle dots scattered around -->
+      <span class="sparkle" style="top:5%;left:35%;"></span>
+      <span class="sparkle" style="top:22%;left:55%;animation-delay:0.8s;"></span>
+      <span class="sparkle" style="top:40%;left:15%;animation-delay:1.6s;"></span>
+      <span class="sparkle" style="top:58%;left:70%;animation-delay:0.4s;"></span>
+      <span class="sparkle" style="top:75%;left:40%;animation-delay:1.2s;"></span>
+      <span class="sparkle" style="top:88%;left:60%;animation-delay:2s;"></span>
+      <span class="sparkle" style="top:15%;left:80%;animation-delay:0.6s;"></span>
+      <span class="sparkle gold" style="top:33%;left:30%;animation-delay:1s;"></span>
+      <span class="sparkle gold" style="top:66%;left:82%;animation-delay:1.4s;"></span>
+      <span class="sparkle gold" style="top:50%;left:45%;animation-delay:0.2s;"></span>
+    </div>
+
     <!-- ═══════ TOP GOLD HAIRLINE ═══════ -->
     <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent z-10" aria-hidden="true"></div>
 
@@ -201,6 +269,98 @@ const navigateToLogin = (portal: string) => {
 ═══════════════════════════════ */
 .landing-root {
   background: #030206;
+}
+
+/* ═══════════════════════════════
+   ACADEMIC BACKGROUND LAYER
+═══════════════════════════════ */
+.academic-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Notebook ruled lines */
+.ruled-lines {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent,
+    transparent 38px,
+    rgba(139, 92, 246, 0.04) 38px,
+    rgba(139, 92, 246, 0.04) 39px
+  );
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+}
+
+/* Floating math symbols */
+.acad-symbol {
+  position: absolute;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 700;
+  color: rgba(212, 175, 55, 0.07);
+  user-select: none;
+  animation: acad-float linear infinite;
+  letter-spacing: 0;
+}
+
+/* Floating formula text */
+.acad-formula {
+  position: absolute;
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(139, 92, 246, 0.09);
+  user-select: none;
+  animation: acad-float linear infinite;
+  white-space: nowrap;
+}
+
+/* Floating SVG icons */
+.acad-icon {
+  position: absolute;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: rgba(212, 175, 55, 0.07);
+  user-select: none;
+  animation: acad-float linear infinite;
+}
+
+/* Float drift keyframes */
+@keyframes acad-float {
+  0%   { transform: translateY(0px) rotate(0deg);   opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { transform: translateY(-18px) rotate(4deg); opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(0px) rotate(0deg);   opacity: 0; }
+}
+
+/* Sparkle dots */
+.sparkle {
+  position: absolute;
+  display: block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.25);
+  animation: sparkle-blink 3s ease-in-out infinite;
+}
+
+.sparkle.gold {
+  background: rgba(212, 175, 55, 0.35);
+  width: 4px;
+  height: 4px;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.4);
+}
+
+@keyframes sparkle-blink {
+  0%, 100% { opacity: 0;    transform: scale(0.6); }
+  50%       { opacity: 1;    transform: scale(1.4); }
 }
 
 /* ═══════════════════════════════
