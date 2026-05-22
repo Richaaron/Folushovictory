@@ -177,11 +177,12 @@ const handleLogin = async () => {
     <div class="absolute right-0 bottom-20 h-64 w-64 rounded-full bg-royal-gold/10 blur-3xl"></div>
 
     <div class="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-12 lg:px-8 lg:py-16">
-      <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <section class="animate-card-in rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-10 shadow-[0_40px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl ring-1 ring-royal-gold/10">
-          <div class="hero-badge">Institutional Control</div>
-          <div class="space-y-5 pt-4">
-            <h1 class="text-4xl font-black tracking-tight text-white sm:text-5xl">Secure gateway for school leadership, staff, and parent access.</h1>
+      <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+        <section class="animate-card-in rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-10 shadow-[0_40px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl ring-1 ring-royal-gold/10 h-full flex flex-col justify-between">
+          <div>
+            <div class="hero-badge">Institutional Control</div>
+            <div class="space-y-5 pt-4">
+              <h1 class="text-4xl font-black tracking-tight text-white sm:text-5xl">Secure gateway for school leadership, staff, and parent access.</h1>
             <p class="max-w-2xl text-base leading-8 text-slate-300">Redesigned with strong contrast, crisp spacing, and a modern academic system architecture that makes login simple and authoritative.</p>
           </div>
 
@@ -194,6 +195,7 @@ const handleLogin = async () => {
               <p class="text-[10px] uppercase tracking-[0.26em] text-slate-400">Streamlined sign-in</p>
               <p class="mt-3 font-black text-white">A cleaner interface with compact form focus.</p>
             </article>
+          </div>
           </div>
         </section>
 
