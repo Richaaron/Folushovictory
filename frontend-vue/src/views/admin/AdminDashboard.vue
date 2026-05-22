@@ -100,176 +100,318 @@ onMounted(fetchDashboardAndLogs)
 </script>
 
 <template>
-  <div class="space-y-6 sm:space-y-8 lg:space-y-10 fade-in py-3 sm:py-6">
-    <!-- Header -->
-    <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-      <div class="rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-6 sm:p-8 shadow-[0_30px_60px_rgba(0,0,0,0.30)] backdrop-blur-xl">
+  <div class="space-y-6 sm:space-y-8 lg:space-y-10 py-3 sm:py-6 relative min-h-screen bg-[#030206] text-slate-100 overflow-hidden px-4 sm:px-6 animate-fade-in-up">
+    <!-- Ambient Pulsing Glow Backdrops -->
+    <div class="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-violet-600/10 blur-[120px] pointer-events-none animate-pulse-glow-purple" aria-hidden="true"></div>
+    <div class="absolute -left-20 bottom-10 h-[500px] w-[500px] rounded-full bg-amber-500/5 blur-[150px] pointer-events-none animate-pulse-glow-gold" aria-hidden="true"></div>
+
+    <!-- Header Panoramic Console -->
+    <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-stretch animate-fade-in-up-stagger-1 relative z-10">
+      <!-- Left: Admin Insights Welcome Console -->
+      <div class="rounded-[2rem] border border-amber-500/20 bg-black/75 p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl relative overflow-hidden group">
+        <!-- Cyber Dot Outline -->
+        <div class="absolute top-4 right-4 flex items-center gap-1.5">
+          <span class="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse"></span>
+          <span class="text-[8px] font-black uppercase tracking-[0.2em] text-violet-400">Core Telemetry</span>
+        </div>
         <div class="flex items-center gap-4 mb-4">
-          <div class="h-1 w-16 rounded-full bg-royal-purple/60" aria-hidden="true"></div>
-          <span class="text-[9px] font-black uppercase tracking-[0.35em] text-royal-gold">Executive Control</span>
+          <div class="h-[1px] w-12 bg-gradient-to-r from-amber-500 to-transparent" aria-hidden="true"></div>
+          <span class="text-[9px] font-black uppercase tracking-[0.35em] text-amber-400/90">Executive Control</span>
         </div>
         <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-          Admin <span class="text-royal-purple">Insights</span>
+          Admin <span class="bg-gradient-to-r from-amber-400 via-amber-200 to-yellow-500 bg-clip-text text-transparent">Insights</span>
         </h1>
-        <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-400">
-          A refined overview of school performance, staffing, and operational pulse—crafted for fast decisions and elegant control.
+        <p class="mt-4 max-w-2xl text-xs sm:text-sm leading-7 text-slate-400">
+          A refined operational console showcasing real-time school performance, academic rosters, and system activity logs—crafted for elegant control and high-end management.
         </p>
       </div>
 
-      <div class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 p-6 sm:p-8 shadow-[0_30px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl flex items-center gap-4">
-        <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-900/80 text-royal-gold border border-slate-700/60">
-          <Calendar class="w-6 h-6" aria-hidden="true" />
+      <!-- Right: Academic Term Card -->
+      <div class="rounded-[2rem] border border-violet-500/20 bg-black/85 p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl flex items-center gap-5 relative overflow-hidden group glow-purple-hover transition-all duration-500">
+        <div class="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-violet-500/10 blur-2xl group-hover:bg-violet-500/20 transition-all duration-700" aria-hidden="true"></div>
+        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-950 text-slate-100 border border-violet-500/30 shadow-lg shadow-violet-950/40">
+          <Calendar class="w-6 h-6 text-amber-300" aria-hidden="true" />
         </div>
         <div>
-          <p class="text-[9px] uppercase tracking-[0.3em] text-slate-500">Academic Term</p>
-          <p class="mt-2 text-lg font-black text-white">{{ activeTermLabel }}</p>
+          <p class="text-[9px] uppercase tracking-[0.3em] text-slate-500 font-bold">Academic Session</p>
+          <p class="mt-2 text-lg font-black bg-gradient-to-r from-slate-100 via-slate-300 to-slate-100 bg-clip-text text-transparent">{{ activeTermLabel }}</p>
         </div>
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Stats Console Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in-up-stagger-2 relative z-10">
       <div 
-        v-for="stat in stats" 
+        v-for="(stat, idx) in stats" 
         :key="stat.name"
         @click="router.push(stat.route)"
-        class="relative overflow-hidden rounded-[2rem] border border-slate-800/80 bg-slate-950/90 p-6 sm:p-7 cursor-pointer transition-all duration-500 hover:-translate-y-1 hover:border-royal-purple/40 shadow-[0_25px_45px_rgba(0,0,0,0.30)]"
+        class="relative overflow-hidden rounded-[2rem] border bg-black/60 p-6 sm:p-7 cursor-pointer transition-all duration-500 hover:-translate-y-1.5 active:scale-95 group shadow-[0_15px_35px_rgba(0,0,0,0.4)]"
+        :class="idx % 2 === 0 ? 'border-amber-500/10 glow-gold-hover' : 'border-violet-500/10 glow-purple-hover'"
         role="button"
         :aria-label="`View details for ${stat.name}: ${stat.value}`"
         tabindex="0"
         @keydown.enter="router.push(stat.route)"
         @keydown.space.prevent="router.push(stat.route)"
       >
-        <div :class="[stat.bg]" class="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl opacity-20 transition-opacity group-hover:opacity-40" aria-hidden="true"></div>
+        <!-- Custom glowing accent orbs -->
+        <div 
+          class="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-3xl opacity-10 group-hover:opacity-35 transition-all duration-700" 
+          :class="idx % 2 === 0 ? 'bg-amber-400' : 'bg-violet-500'"
+          aria-hidden="true"
+        ></div>
+        
         <div class="relative z-10 flex items-start justify-between gap-4">
-          <div :class="[stat.color]" class="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-900/80 border border-slate-700/70 shadow-inner shadow-slate-950/40">
-            <component :is="stat.icon" class="w-6 h-6" aria-hidden="true" />
+          <div 
+            class="flex h-12 w-12 items-center justify-center rounded-2xl border transition-colors duration-500"
+            :class="idx % 2 === 0 ? 'bg-amber-950/30 border-amber-500/30 text-amber-400 group-hover:bg-amber-500/20 group-hover:text-amber-300' : 'bg-violet-950/30 border-violet-500/30 text-violet-400 group-hover:bg-violet-500/20 group-hover:text-violet-300'"
+          >
+            <component :is="stat.icon" class="w-5 h-5" aria-hidden="true" />
           </div>
-          <div class="rounded-full bg-slate-900/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-slate-300 border border-slate-700/70 shadow-sm">
-            Live
+          <div class="rounded-full bg-black px-2.5 py-0.5 text-[8px] font-black uppercase tracking-[0.25em] text-slate-400 border border-slate-800 shadow-sm flex items-center gap-1">
+            <span class="h-1 w-1 rounded-full animate-ping" :class="idx % 2 === 0 ? 'bg-amber-400' : 'bg-violet-400'"></span>
+            <span>Live Telemetry</span>
           </div>
         </div>
 
         <div class="relative z-10 mt-6">
-          <p class="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">{{ stat.name }}</p>
-          <h3 class="mt-3 text-3xl font-black text-white tracking-tight">{{ stat.value }}</h3>
-          <p class="mt-4 text-sm text-slate-400">Quick access to {{ stat.name.toLowerCase() }} insights.</p>
+          <p class="text-[9px] font-black uppercase tracking-[0.25em] text-slate-500">{{ stat.name }}</p>
+          <h3 
+            class="mt-2 text-2xl font-black tracking-tight"
+            :class="idx % 2 === 0 ? 'text-amber-300 group-hover:text-amber-100 transition-colors' : 'text-violet-300 group-hover:text-violet-100 transition-colors'"
+          >
+            {{ stat.value }}
+          </h3>
+          <p class="mt-3 text-xs text-slate-400 leading-normal group-hover:text-slate-300 transition-colors">Access details for {{ stat.name.toLowerCase() }} console.</p>
         </div>
       </div>
     </div>
 
-    <!-- Recent Activity and Charts Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-10">
-      <!-- Recent Activity -->
-      <div class="md:col-span-2 lg:col-span-2 space-y-8">
-        <div class="relative overflow-hidden rounded-[2rem] border border-slate-800/80 bg-slate-950/90 p-6 md:p-8 shadow-[0_30px_60px_rgba(0,0,0,0.28)]">
-          <div class="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-royal-purple/20 blur-3xl" aria-hidden="true"></div>
-          <div class="absolute left-0 bottom-0 h-36 w-36 rounded-full bg-royal-gold/10 blur-3xl" aria-hidden="true"></div>
+    <!-- Operational Terminal & Health Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 animate-fade-in-up-stagger-3 relative z-10">
+      <!-- Left: Recent Activity Terminal -->
+      <div class="md:col-span-2 lg:col-span-2 space-y-6">
+        <div class="relative overflow-hidden rounded-[2rem] border border-amber-500/10 bg-black/60 p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+          <div class="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-violet-600/5 blur-[100px] pointer-events-none" aria-hidden="true"></div>
+          <div class="absolute left-0 bottom-0 h-36 w-36 rounded-full bg-amber-500/5 blur-[100px] pointer-events-none" aria-hidden="true"></div>
 
           <div class="relative z-10 flex flex-col gap-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800/80 pb-4">
               <div class="flex items-center gap-4">
-                <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-900/80 text-royal-gold border border-slate-700/60">
-                  <Bell class="w-6 h-6" aria-hidden="true" />
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-950/60 to-black text-amber-400 border border-violet-500/20 shadow-inner">
+                  <Bell class="w-5 h-5 text-amber-400" aria-hidden="true" />
                 </div>
                 <div>
-                  <p class="text-[10px] uppercase tracking-[0.35em] text-slate-500">System Pulse</p>
-                  <h3 class="mt-2 text-2xl font-black text-white tracking-tight">Operational feed</h3>
+                  <p class="text-[9px] uppercase tracking-[0.35em] text-slate-500 font-bold">System Pulse</p>
+                  <h3 class="mt-1 text-xl font-black text-white tracking-tight">Operational Feed</h3>
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <button @click="fetchActivityLogs" class="inline-flex items-center justify-center rounded-2xl border border-slate-700/60 bg-slate-900/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-royal-gold transition hover:bg-royal-gold/10">Refresh</button>
-                <button v-if="recentActivity.length" @click="clearAllLogs" class="inline-flex items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-rose-400 transition hover:bg-rose-500/20 hover:border-rose-500/40 active:scale-95">Clear All</button>
+                <button @click="fetchActivityLogs" class="shimmer-btn inline-flex items-center justify-center rounded-xl border border-slate-750 bg-slate-900/60 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-slate-300 hover:text-white hover:bg-slate-800 transition duration-300 active:scale-95">Refresh</button>
+                <button v-if="recentActivity.length" @click="clearAllLogs" class="shimmer-btn inline-flex items-center justify-center rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/40 transition duration-300 active:scale-95">Clear All</button>
               </div>
             </div>
 
-            <div class="space-y-4">
+            <!-- Terminal Logs list -->
+            <div class="space-y-3 max-h-[350px] overflow-y-auto pr-1">
               <template v-if="recentActivity.length">
-                <div v-for="item in recentActivity" :key="item.id" class="rounded-[1.75rem] border border-slate-800/80 bg-slate-900/85 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition hover:border-royal-purple/40">
+                <div 
+                  v-for="item in recentActivity" 
+                  :key="item.id" 
+                  class="rounded-2xl border border-slate-850 bg-[#0d0c12]/90 p-4 shadow-sm transition-all duration-300 hover:border-violet-500/30 hover:bg-[#12101b] hover:translate-x-1"
+                >
                   <div class="flex items-center justify-between gap-3">
-                    <span class="text-[10px] font-black uppercase tracking-[0.35em] text-slate-500 bg-slate-800/70 px-2 py-1 rounded-full">{{ item.type }}</span>
+                    <span class="text-[9px] font-black uppercase tracking-[0.3em] text-violet-300 bg-violet-950/40 px-2 py-0.5 rounded-md border border-violet-800/30">{{ item.type }}</span>
                     <div class="flex items-center gap-3">
-                      <span class="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">{{ item.time }}</span>
+                      <span class="text-[9px] font-bold tracking-[0.15em] text-slate-500">{{ item.time }}</span>
                       <button 
                         @click="deleteLog(item.id)" 
-                        class="inline-flex items-center justify-center p-1.5 rounded-xl border border-rose-500/10 bg-rose-500/5 text-rose-400/70 hover:text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/30 transition-all duration-300 active:scale-90"
+                        class="inline-flex items-center justify-center p-1.5 rounded-lg border border-rose-500/10 bg-rose-500/5 text-rose-400/60 hover:text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/30 transition-all duration-300 active:scale-90"
                         title="Delete this activity log"
                       >
-                        <Trash2 class="w-3.5 h-3.5" />
+                        <Trash2 class="w-3 h-3" />
                       </button>
                     </div>
                   </div>
-                  <p class="mt-3 text-sm font-black leading-snug text-slate-100">{{ item.text }}</p>
+                  <p class="mt-2.5 text-xs font-medium leading-relaxed text-slate-300">{{ item.text }}</p>
                 </div>
               </template>
               <template v-else>
-                <div class="rounded-[2rem] border border-slate-800/80 bg-slate-900/90 p-8 text-center">
-                  <p class="text-sm font-black text-slate-300">No recent admin activity found.</p>
-                  <p class="mt-3 text-xs text-slate-500">New activity will appear here once teachers add scores, remarks, or publish results.</p>
+                <div class="rounded-2xl border border-slate-800/60 bg-[#07060a] p-8 text-center">
+                  <p class="text-xs font-black text-slate-400">No recent activity logs recorded.</p>
+                  <p class="mt-2 text-[10px] text-slate-600">New diagnostic and audit logs will automatically stream into this feed.</p>
                 </div>
               </template>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-          <div class="rounded-[2rem] border border-royal-purple/20 bg-gradient-to-br from-royal-purple via-slate-950 to-slate-900 p-8 text-white shadow-[0_30px_50px_rgba(88,48,163,0.25)] relative overflow-hidden">
-            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-royal-gold via-royal-purple to-royal-gold"></div>
-            <h4 class="text-xl font-black uppercase tracking-[0.3em] mb-4">Release Results</h4>
-            <p class="text-sm text-slate-200 leading-7 mb-8">Publish term performance with secure permissions and fast parent access.</p>
-            <router-link to="/admin/broadsheet" class="inline-flex items-center gap-3 rounded-full bg-slate-900/70 px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-white transition hover:bg-slate-800 hover:scale-[1.02]">Go to Portal <ArrowUpRight class="w-4 h-4" aria-hidden="true" /></router-link>
+        <!-- Secondary Admin Actions Portal Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="rounded-[2.25rem] border border-violet-500/20 bg-gradient-to-br from-violet-950/40 via-black to-[#050308] p-7 text-white shadow-[0_20px_40px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+            <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-amber-400 via-violet-500 to-amber-400"></div>
+            <h4 class="text-sm font-black uppercase tracking-[0.3em] mb-2 bg-gradient-to-r from-amber-300 to-amber-100 bg-clip-text text-transparent">Release Results</h4>
+            <p class="text-[11px] text-slate-400 leading-normal mb-6">Publish term scores securely and streamline instant parent access.</p>
+            <router-link to="/admin/broadsheet" class="shimmer-btn inline-flex items-center gap-2 rounded-xl bg-slate-900 border border-slate-700/60 px-4 py-2 text-[9px] font-black uppercase tracking-[0.25em] text-slate-200 transition-all duration-300 hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0">Portal Dashboard <ArrowUpRight class="w-3.5 h-3.5 text-amber-300" aria-hidden="true" /></router-link>
           </div>
 
-          <div class="rounded-[2rem] border border-royal-gold/20 bg-slate-950/85 p-8 text-white shadow-[0_30px_50px_rgba(212,175,55,0.18)] relative overflow-hidden">
-            <div class="absolute inset-y-0 right-0 w-24 bg-royal-gold/5 blur-3xl" aria-hidden="true"></div>
-            <h4 class="text-xl font-black uppercase tracking-[0.3em] mb-4">Staffing Engine</h4>
-            <p class="text-sm text-slate-300 leading-7 mb-8">Streamline teacher assignments and keep the roster aligned with school needs.</p>
-            <router-link to="/admin/teachers" class="inline-flex items-center gap-3 rounded-full bg-royal-gold px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-950 transition hover:scale-[1.02]">Directory <Users class="w-4 h-4" aria-hidden="true" /></router-link>
+          <div class="rounded-[2.25rem] border border-amber-500/20 bg-gradient-to-br from-amber-950/20 via-black to-[#050308] p-7 text-white shadow-[0_20px_40px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+            <div class="absolute inset-y-0 right-0 w-24 bg-amber-500/5 blur-2xl" aria-hidden="true"></div>
+            <h4 class="text-sm font-black uppercase tracking-[0.3em] mb-2 bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">Staffing Engine</h4>
+            <p class="text-[11px] text-slate-400 leading-normal mb-6">Manage faculty member rosters and optimize class allocations easily.</p>
+            <router-link to="/admin/teachers" class="shimmer-btn inline-flex items-center gap-2 rounded-xl bg-amber-500 text-slate-950 px-4 py-2 text-[9px] font-black uppercase tracking-[0.25em] transition-all duration-300 hover:bg-amber-400 hover:-translate-y-0.5 active:translate-y-0">Directory <Users class="w-3.5 h-3.5" aria-hidden="true" /></router-link>
           </div>
         </div>
       </div>
 
-      <!-- Quick Actions / Status -->
+      <!-- Right: Systems Health Panel & Admin Controls -->
       <div class="space-y-6">
-        <div class="rounded-[2rem] border border-slate-800/80 bg-slate-950/90 p-8 shadow-[0_30px_50px_rgba(0,0,0,0.22)]">
+        <div class="rounded-[2rem] border border-violet-500/10 bg-black/60 p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           <div class="flex items-center gap-3 mb-8">
-            <span class="h-3 w-3 rounded-full bg-royal-gold animate-pulse" aria-hidden="true"></span>
-            <h3 class="text-xl font-black text-white uppercase tracking-[0.3em]">System Health</h3>
+            <span class="h-2 w-2 rounded-full bg-amber-400 animate-ping" aria-hidden="true"></span>
+            <h3 class="text-sm font-black text-white uppercase tracking-[0.3em]">System Health</h3>
           </div>
+          
           <div class="space-y-6">
-            <div class="space-y-3">
-              <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">
+            <!-- Compute Load -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.25em] text-slate-500">
                 <span>Compute Load</span>
-                <span class="text-emerald-400">Nominal</span>
+                <span class="text-amber-400">Nominal</span>
               </div>
-              <div class="h-3 overflow-hidden rounded-full bg-slate-900 border border-slate-800">
-                <div class="h-full bg-royal-gold transition-all duration-1000" style="width: 12%"></div>
+              <div class="h-2.5 overflow-hidden rounded-full bg-slate-950 border border-slate-900 shadow-inner">
+                <!-- Purple Neon Bar -->
+                <div class="h-full bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(139,92,246,0.5)]" style="width: 12%"></div>
               </div>
             </div>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">
+
+            <!-- SMTP Uplink -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.25em] text-slate-500">
                 <span>SMTP Uplink</span>
-                <span class="text-emerald-400">Synchronized</span>
+                <span class="text-violet-400">Active</span>
               </div>
-              <div class="h-3 overflow-hidden rounded-full bg-slate-900 border border-slate-800">
-                <div class="h-full bg-emerald-500 transition-all duration-1000" style="width: 100%"></div>
+              <div class="h-2.5 overflow-hidden rounded-full bg-slate-950 border border-slate-900 shadow-inner">
+                <!-- Silver/White Neon Bar -->
+                <div class="h-full bg-gradient-to-r from-slate-400 via-slate-100 to-slate-400 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(255,255,255,0.4)]" style="width: 100%"></div>
               </div>
             </div>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">
+
+            <!-- Storage Pool -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.25em] text-slate-500">
                 <span>Storage Pool</span>
                 <span class="text-amber-300">84% Capacity</span>
               </div>
-              <div class="h-3 overflow-hidden rounded-full bg-slate-900 border border-slate-800">
-                <div class="h-full bg-amber-500 transition-all duration-1000" style="width: 84%"></div>
+              <div class="h-2.5 overflow-hidden rounded-full bg-slate-950 border border-slate-900 shadow-inner">
+                <!-- Gold Neon Bar -->
+                <div class="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(245,158,11,0.5)]" style="width: 84%"></div>
               </div>
             </div>
           </div>
         </div>
 
-
-        <button class="w-full rounded-[2rem] border border-royal-purple/20 bg-royal-purple/95 px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-white transition hover:bg-royal-purple/80">System Configuration</button>
+        <!-- Tactile Premium Config Action Button -->
+        <button class="shimmer-btn w-full rounded-[2rem] border border-amber-500/30 bg-gradient-to-r from-violet-900 via-violet-950 to-violet-900 px-6 py-4.5 text-[9px] font-black uppercase tracking-[0.3em] text-amber-300 shadow-[0_15px_30px_rgba(124,58,237,0.2)] hover:text-white hover:border-amber-400 hover:shadow-[0_20px_45px_rgba(124,58,237,0.35)] transition-all duration-500 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2">
+          <span class="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping"></span>
+          <span>System Configuration</span>
+        </button>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes metallic-shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.animate-pulse-glow-purple {
+  animation: pulse-glow 8s ease-in-out infinite;
+}
+
+.animate-pulse-glow-gold {
+  animation: pulse-glow 12s ease-in-out infinite alternate;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-up-stagger-1 {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-up-stagger-2 {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-up-stagger-3 {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  opacity: 0;
+}
+
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: 0.75s;
+}
+
+.shimmer-btn:hover::after {
+  animation: metallic-shine 1s ease-in-out forwards;
+}
+
+.glow-purple-hover:hover {
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.4) !important;
+}
+
+.glow-gold-hover:hover {
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.4) !important;
+}
+</style>
