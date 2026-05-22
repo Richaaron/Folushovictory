@@ -267,10 +267,6 @@ onMounted(fetchDashboardAndLogs)
           </div>
         </div>
 
-        <div class="rounded-[2rem] border border-royal-gold/20 bg-slate-950/90 p-8 text-center shadow-[0_30px_50px_rgba(212,175,55,0.16)]">
-          <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-3">Term Countdown</p>
-          <p class="text-base font-black text-white">Vacation begins in <span class="text-royal-gold text-2xl">24 days</span></p>
-        </div>
 
         <button class="w-full rounded-[2rem] border border-royal-purple/20 bg-royal-purple/95 px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-white transition hover:bg-royal-purple/80">System Configuration</button>
       </div>
