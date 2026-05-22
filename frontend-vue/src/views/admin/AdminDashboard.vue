@@ -243,7 +243,7 @@ onMounted(fetchDashboardAndLogs)
               </template>
             </div>
           </div>
-        </div>
+        </section>
 
         <!-- Secondary Admin Actions Portal Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
