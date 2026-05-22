@@ -924,6 +924,29 @@ adminRouter.get(
   })
 );
 
+adminRouter.delete(
+  "/activity-logs/:id",
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    await SafeDatabase.deleteWithValidation("activityLogs", id);
+    return res.json({ success: true, message: "Activity log deleted successfully." });
+  })
+);
+
+adminRouter.delete(
+  "/activity-logs",
+  asyncHandler(async (req, res) => {
+    const { getSupabase } = await import("../supabase.js");
+    const { error } = await getSupabase()
+      .from("activityLogs")
+      .delete()
+      .neq("id", "");
+    if (error) throw error;
+    return res.json({ success: true, message: "All activity logs cleared." });
+  })
+);
+
+
 adminRouter.post(
   "/school-settings",
   asyncHandler(async (req, res) => {
