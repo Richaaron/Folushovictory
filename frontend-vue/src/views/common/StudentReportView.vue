@@ -734,12 +734,23 @@ tbody tr:nth-child(even) {
 
 @media print {
   :global(body) {
-    margin: 0;
+    margin: 0 !important;
+    padding: 0 !important;
     background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  :global(html),
+  :global(body) {
+    width: 210mm;
+    height: 297mm;
   }
 
   @page {
-    margin: 10mm;
+    size: A4;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .no-print {
