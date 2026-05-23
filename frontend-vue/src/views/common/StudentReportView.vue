@@ -287,13 +287,7 @@ onMounted(fetchData)
         </div>
       </section>
 
-      <footer class="report-footer">
-        <div>
-          <span>Generated</span>
-          <strong>{{ generatedDate }}</strong>
-        </div>
-        <p>This is an officially certified academic report. Keep it safely for record purposes.</p>
-      </footer>
+
     </article>
   </div>
 </template>
