@@ -74,7 +74,9 @@ export async function getSchoolSettings() {
     return {
       ...defaultSchoolSettings,
       ...settings,
-      principalSignatureUrl: settings.principalSignatureUrl || defaultSchoolSettings.principalSignatureUrl
+      principalSignatureUrl: settings.principalSignatureUrl !== undefined && settings.principalSignatureUrl !== null 
+        ? settings.principalSignatureUrl 
+        : defaultSchoolSettings.principalSignatureUrl
     };
   } catch (error) {
     if (error.statusCode === 404) return defaultSchoolSettings;

@@ -113,14 +113,18 @@ const saveSettings = async () => {
       principalName: principalName.value
     }
 
-    // Add logo if provided (keep existing if not changed)
+    // Add logo if provided OR keep existing
     if (logoFile.value) {
-      payload.logoUrl = logoPreview.value  // This is the base64 data URL
+      payload.logoUrl = logoPreview.value
+    } else if (settings.value?.logoUrl) {
+      payload.logoUrl = settings.value.logoUrl
     }
 
-    // Add principal signature if provided (keep existing if not changed)
+    // Add principal signature if provided OR keep existing
     if (signatureFile.value) {
-      payload.principalSignatureUrl = signaturePreview.value  // This is the base64 data URL
+      payload.principalSignatureUrl = signaturePreview.value
+    } else if (settings.value?.principalSignatureUrl) {
+      payload.principalSignatureUrl = settings.value.principalSignatureUrl
     }
 
     const resp = await api.post(SETTINGS_ENDPOINT, payload)
