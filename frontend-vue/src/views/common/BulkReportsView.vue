@@ -370,6 +370,7 @@ onMounted(fetchStudents)
             <div>
               <span>Class Teacher's Remark</span>
               <p>{{ report.teacherRemark }}</p>
+              <div class="signature-line"></div>
               <strong>{{ report.formTeacher?.displayName || 'Class Teacher' }}</strong>
             </div>
             <div>
@@ -378,6 +379,7 @@ onMounted(fetchStudents)
               <div v-if="report.school?.principalSignatureUrl" class="signature-image">
                 <img :src="report.school.principalSignatureUrl" alt="Principal signature" />
               </div>
+              <div v-else class="signature-line"></div>
               <strong>{{ report.school?.principalName || 'Principal' }}</strong>
             </div>
           </div>
@@ -535,6 +537,17 @@ onMounted(fetchStudents)
   height: 42px;
   margin: -4px 0 6px;
   text-align: center;
+}
+
+.signature-line,
+.signature-image {
+  height: 42px;
+  margin: -4px 0 6px;
+  text-align: center;
+}
+
+.signature-line {
+  border-bottom: 2px solid #475569;
 }
 
 .signature-image img {
