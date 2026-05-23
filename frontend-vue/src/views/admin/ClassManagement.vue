@@ -251,9 +251,11 @@ onMounted(fetchClasses)
                   v-model="newClass.level"
                   class="w-full rounded-[1.75rem] border border-slate-700/60 bg-slate-900/80 px-4 py-4 text-sm font-semibold text-white outline-none transition focus:border-royal-purple focus:ring-4 focus:ring-royal-purple/10"
                 >
+                  <option>NUR</option>
+                  <option>PRY</option>
+                  <option>PRIMARY</option>
                   <option>JSS</option>
                   <option>SSS</option>
-                  <option>PRIMARY</option>
                 </select>
               </div>
               <div>
