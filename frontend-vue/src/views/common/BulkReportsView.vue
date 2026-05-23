@@ -585,6 +585,10 @@ onMounted(fetchStudents)
     background: white !important;
   }
 
+  @page {
+    margin: 10mm;
+  }
+
   .no-print {
     display: none !important;
   }
