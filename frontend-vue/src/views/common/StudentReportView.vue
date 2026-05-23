@@ -277,9 +277,10 @@ onMounted(fetchData)
         <div class="remark-box principal-box">
           <span>Principal's Remark</span>
           <p>{{ data.principalRemark || 'Highly commendable academic performance.' }}</p>
-          <div class="signature-image" :class="{ empty: !data.school?.principalSignatureUrl }">
-            <img v-if="data.school?.principalSignatureUrl" :src="data.school.principalSignatureUrl" alt="Principal signature" />
+          <div v-if="data.school?.principalSignatureUrl" class="signature-image">
+            <img :src="data.school.principalSignatureUrl" alt="Principal signature" />
           </div>
+          <div v-else class="signature-line"></div>
           <strong>{{ data.school?.principalName || 'Principal' }}</strong>
           <small>Principal's Signature & Stamp</small>
         </div>
