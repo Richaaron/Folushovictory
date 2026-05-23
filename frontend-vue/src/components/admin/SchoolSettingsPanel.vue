@@ -51,8 +51,8 @@ const fetchSettings = async () => {
     website.value = resp.data.website || ''
     principalName.value = resp.data.principalName || ''
     
-    if (resp.data.logoUrl) logoPreview.value = resp.data.logoUrl
-    if (resp.data.principalSignatureUrl) signaturePreview.value = resp.data.principalSignatureUrl
+    logoPreview.value = resp.data.logoUrl || ''
+    signaturePreview.value = resp.data.principalSignatureUrl || ''
   } catch (err: any) {
     error.value = 'Failed to load school settings'
     console.error(err)
@@ -113,15 +113,15 @@ const saveSettings = async () => {
       principalName: principalName.value
     }
 
-    // Add logo if provided OR keep existing
+    // Add logo: if new file, use new, else keep existing, else don't include
     if (logoFile.value) {
       payload.logoUrl = logoPreview.value
     } else if (settings.value?.logoUrl) {
       payload.logoUrl = settings.value.logoUrl
     }
 
-    // Add principal signature if provided OR keep existing
-    if (signatureFile.value) {
+    // Add principal signature: if preview exists (either new or existing), use it!
+    if (signaturePreview.value) {
       payload.principalSignatureUrl = signaturePreview.value
     } else if (settings.value?.principalSignatureUrl) {
       payload.principalSignatureUrl = settings.value.principalSignatureUrl
