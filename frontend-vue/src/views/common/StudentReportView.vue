@@ -269,6 +269,7 @@ onMounted(fetchData)
         <div class="remark-box teacher-box">
           <span>Class Teacher's Remark</span>
           <p>{{ data.teacherRemark || 'Remark will be added by the class teacher.' }}</p>
+          <div class="teacher-signature">{{ formTeacherName }}</div>
           <div class="signature-line"></div>
           <strong>{{ formTeacherName }}</strong>
           <small>Class Teacher's Signature & Date</small>
@@ -657,6 +658,16 @@ tbody tr:nth-child(even) {
   max-width: 190px;
   max-height: 56px;
   object-fit: contain;
+}
+
+.teacher-signature {
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: 34px;
+  color: #241036;
+  text-align: center;
+  padding-top: 10px;
+  line-height: 1;
+  margin-bottom: -8px;
 }
 
 .remark-box strong {

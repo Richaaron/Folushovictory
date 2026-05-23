@@ -370,6 +370,7 @@ onMounted(fetchStudents)
             <div>
               <span>Class Teacher's Remark</span>
               <p>{{ report.teacherRemark }}</p>
+              <div class="teacher-signature">{{ report.formTeacher?.displayName || 'Class Teacher' }}</div>
               <div class="signature-line"></div>
               <strong>{{ report.formTeacher?.displayName || 'Class Teacher' }}</strong>
             </div>
@@ -554,6 +555,16 @@ onMounted(fetchStudents)
   max-width: 180px;
   max-height: 42px;
   object-fit: contain;
+}
+
+.teacher-signature {
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: 28px;
+  color: #241036;
+  text-align: center;
+  padding-top: 8px;
+  line-height: 1;
+  margin-bottom: -6px;
 }
 
 .remarks-grid strong {
