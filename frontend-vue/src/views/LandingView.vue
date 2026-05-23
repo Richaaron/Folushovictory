@@ -95,7 +95,7 @@ const navigateToLogin = (portal: string) => {
     <div class="relative mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-5 py-16 lg:px-8 lg:py-20 z-10">
 
       <!-- Hero Grid -->
-      <div class="grid gap-8 xl:grid-cols-[1.15fr_0.85fr] xl:items-center">
+      <div class="grid gap-8 xl:grid-cols-[1.15fr_0.85fr] xl:items-start">
 
         <!-- ── LEFT COLUMN ── -->
         <section class="space-y-6 animate-fade-in-up">
@@ -186,7 +186,7 @@ const navigateToLogin = (portal: string) => {
         </section>
 
         <!-- ── RIGHT COLUMN ── -->
-        <section class="relative animate-fade-in-up-stagger-1">
+        <section class="relative self-start animate-fade-in-up-stagger-1">
 
           <!-- Main Trust Card -->
           <div class="trust-card group">

@@ -218,10 +218,10 @@ onMounted(async () => {
 <template>
   <div class="space-y-8 fade-in">
     <!-- Header -->
-    <div class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+    <section class="admin-hero-card flex flex-col sm:flex-row sm:items-center justify-between gap-6">
       <div>
-        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Student <span class="text-royal-purple">Enrollment</span></h1>
-        <p class="text-[10px] sm:text-xs font-medium text-slate-400 uppercase tracking-widest mt-1">Manage Registry and Student Records</p>
+        <h1 class="hero-title">Student <span>Enrollment</span></h1>
+        <p class="hero-subtitle">Manage Registry and Student Records</p>
       </div>
       <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
         <button class="flex-shrink-0 h-10 sm:h-12 w-10 sm:w-12 items-center justify-center rounded-lg sm:rounded-2xl bg-slate-900/65 border border-slate-700/60 text-slate-200 hover:text-royal-purple transition-all flex">

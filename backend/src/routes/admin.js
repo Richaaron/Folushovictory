@@ -329,9 +329,9 @@ adminRouter.put(
 
         const normalizeLevel = (value) => {
           const normalized = String(value || '').trim().toUpperCase();
-          if (['PRY', 'NUR', 'PRIMARY'].includes(normalized)) return 'Primary';
-          if (['JSS', 'JUNIOR SECONDARY', 'JR SECONDARY'].includes(normalized)) return 'JSS';
-          if (['SSS', 'SENIOR SECONDARY', 'SR SECONDARY'].includes(normalized)) return 'SSS';
+          if (['PRY', 'NUR', 'PRIMARY'].includes(normalized) || normalized.startsWith('PRE')) return 'Primary';
+          if (normalized.startsWith('JSS') || normalized.includes('JUNIOR SECONDARY') || normalized.startsWith('JR')) return 'JSS';
+          if (normalized.startsWith('SSS') || normalized.includes('SENIOR SECONDARY') || normalized.startsWith('SR')) return 'SSS';
           return normalized;
         };
 
@@ -742,6 +742,14 @@ adminRouter.post(
 
     const assignmentPromises = [];
     
+    const normalizeLevel = (value) => {
+      const normalized = String(value || '').trim().toUpperCase();
+      if (['PRY', 'NUR', 'PRIMARY'].includes(normalized) || normalized.startsWith('PRE')) return 'Primary';
+      if (normalized.startsWith('JSS') || normalized.includes('JUNIOR SECONDARY') || normalized.startsWith('JR')) return 'JSS';
+      if (normalized.startsWith('SSS') || normalized.includes('SENIOR SECONDARY') || normalized.startsWith('SR')) return 'SSS';
+      return normalized;
+    };
+
     // Pre-fetch subject info to determine levels
     const subjectDocs = await Promise.all(subjectIds.filter(id => !!id).map(id => getSubjectById(id)));
     const subjectMap = Object.fromEntries(subjectDocs.filter(s => !!s).map(s => [s.id, s]));
@@ -750,7 +758,7 @@ adminRouter.post(
     const requiredLevels = new Set();
     for (const sId of subjectIds) {
       if (subjectMap[sId]?.level) {
-        requiredLevels.add(subjectMap[sId].level);
+        requiredLevels.add(normalizeLevel(subjectMap[sId].level));
       }
     }
 
@@ -762,10 +770,11 @@ adminRouter.post(
       const subject = subjectMap[sId];
       if (!subject) continue;
 
-      const isPrimarySubject = subject.level === 'Primary';
+      const subjectLevel = normalizeLevel(subject.level);
+      const isPrimarySubject = subjectLevel === 'Primary';
       
       const targetClasses = allClasses.filter(cls => {
-        const levelMatch = cls.level === subject.level;
+        const levelMatch = normalizeLevel(cls.level) === subjectLevel;
         if (!levelMatch) return false;
 
         // If it's Primary, it MUST be in the specifically selected classIds

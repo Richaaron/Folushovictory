@@ -150,12 +150,12 @@ onMounted(fetchSettings)
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between">
+    <section class="admin-hero-card mb-6">
       <div>
-        <h2 class="text-3xl font-black text-slate-900 dark:text-white">School Settings</h2>
-        <p class="text-slate-500 mt-1">Manage school information and official documents</p>
+        <h2 class="hero-title">School Settings</h2>
+        <p class="hero-subtitle">Manage school information and official documents</p>
       </div>
-    </div>
+    </section>
 
     <!-- Loading State -->
     <div v-if="loading" class="flex items-center justify-center py-16">

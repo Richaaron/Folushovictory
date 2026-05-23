@@ -33,16 +33,23 @@ async function subjectsForClass(cls) {
     return subs.filter(Boolean).map((s) => ({ id: s.id, name: s.name, track: s.track || null, level: s.level || null }));
   }
 
+  const normalizeLevel = (level) => {
+    const normalized = String(level || "").trim().toUpperCase();
+    if (normalized === "PRY" || normalized === "PRIMARY" || normalized === "NUR" || normalized.startsWith("PRE")) return "Primary";
+    if (normalized.startsWith("JSS") || normalized.includes("JUNIOR SECONDARY") || normalized.startsWith("JR")) return "JSS";
+    if (normalized.startsWith("SSS") || normalized.includes("SENIOR SECONDARY") || normalized.startsWith("SR")) return "SSS";
+    return normalized;
+  };
+
   let all = [];
   try {
     all = await listSubjects();
   } catch (error) {
     console.error("Failed to list subjects for class:", error?.message || error);
   }
-  let levelFilter = cls.level;
-  if (levelFilter === "PRY") levelFilter = "Primary";
+  let levelFilter = normalizeLevel(cls.level);
 
-  let filtered = all.filter((s) => s.level === levelFilter);
+  let filtered = all.filter((s) => normalizeLevel(s.level) === levelFilter);
 
   if (levelFilter === "SSS" && cls.track) {
     filtered = filtered.filter((s) => s.track === "General" || s.track === cls.track);

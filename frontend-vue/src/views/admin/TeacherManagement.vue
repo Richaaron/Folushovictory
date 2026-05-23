@@ -382,14 +382,14 @@ onMounted(fetchTeachers)
 <template>
   <div class="space-y-4 sm:space-y-8 lg:space-y-10 fade-in py-3 sm:py-6">
     <!-- Header -->
-    <div class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+    <section class="admin-hero-card flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div>
-        <div class="flex items-center gap-2 sm:gap-3 mb-2">
-          <div class="h-1 w-8 sm:w-12 bg-nebula-500 rounded-full"></div>
+        <div class="flex items-center gap-2 sm:gap-3 mb-4">
+          <div class="h-1 w-16 bg-nebula-500 rounded-full"></div>
           <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-nebula-500">Personnel Core</span>
         </div>
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tighter">Staff <span class="text-transparent bg-clip-text nebula-gradient">Faculty</span></h1>
-        <p class="text-[9px] sm:text-sm font-medium text-slate-400 uppercase tracking-[0.1em] mt-1">Institutional Onboarding & Resource Allocation</p>
+        <h1 class="hero-title">Staff <span>Faculty</span></h1>
+        <p class="hero-subtitle">Institutional Onboarding & Resource Allocation</p>
       </div>
       <button 
         @click="showAddModal = true"

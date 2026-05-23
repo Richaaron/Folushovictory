@@ -110,12 +110,12 @@ onMounted(fetchClasses)
 
 <template>
   <div class="space-y-8 fade-in">
-    <section class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 p-6 sm:p-8 shadow-[0_28px_80px_rgba(0,0,0,0.35)]">
+    <section class="admin-hero-card shadow-[0_28px_80px_rgba(0,0,0,0.35)]">
       <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div class="space-y-3 max-w-2xl">
-          <p class="text-xs uppercase tracking-[0.35em] text-slate-400">Academic overview</p>
-          <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight">Academic <span class="text-royal-purple">Classes</span></h1>
-          <p class="text-sm text-slate-400 leading-6">A modern dashboard for managing classrooms, tracking enrollment, and checking teacher coverage across your school.</p>
+          <div class="h-1 w-16 bg-royal-purple rounded-full"></div>
+          <h1 class="hero-title">Academic <span>Classes</span></h1>
+          <p class="hero-subtitle">A modern dashboard for managing classrooms, tracking enrollment, and checking teacher coverage across your school.</p>
         </div>
 
         <button

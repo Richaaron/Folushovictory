@@ -45,6 +45,14 @@ const computeGrade = (total: number) => {
   return 'F'
 }
 
+const normalizeLevel = (value: string) => {
+  const normalized = String(value || '').trim().toUpperCase()
+  if (['PRY', 'NUR', 'PRIMARY'].includes(normalized) || normalized.startsWith('PRE')) return 'Primary'
+  if (normalized.startsWith('JSS') || normalized.includes('JUNIOR SECONDARY') || normalized.startsWith('JR')) return 'JSS'
+  if (normalized.startsWith('SSS') || normalized.includes('SENIOR SECONDARY') || normalized.startsWith('SR')) return 'SSS'
+  return normalized
+}
+
 const fetchData = async () => {
   if (!props.isOpen || !props.student) return
   
@@ -67,8 +75,9 @@ const fetchData = async () => {
     
     // Filter subjects based on class level
     let filteredSubjects: any[] = []
+    const classLevel = normalizeLevel(cls.level)
     
-    if (cls.level === 'SSS') {
+    if (classLevel === 'SSS') {
       // For SSS: combine track-specific subjects and core general subjects, with manually assigned subjects
       const coreGeneralSubjects = [
         'Mathematics', 'English Language', 'Marketing', 
@@ -87,7 +96,7 @@ const fetchData = async () => {
       
       // Get automatically added track + core SSS subjects
       const automatedSubjects = allSubjects.filter((s: any) => 
-        s.level === 'SSS' && 
+        normalizeLevel(s.level) === 'SSS' && 
         automatedSubjectNames.includes(s.name)
       )
       
@@ -112,13 +121,13 @@ const fetchData = async () => {
       filteredSubjects = Array.from(subjectMap.values())
     } else {
       // For Primary and JSS: show all subjects matching the level
-      let classLevel = cls.level
-      if (classLevel === 'PRY') {
-        classLevel = 'Primary'
-      } else if (classLevel === 'NUR') {
-        classLevel = 'Primary'
+      let subjectLevel = classLevel
+      if (subjectLevel === 'PRY') {
+        subjectLevel = 'Primary'
+      } else if (subjectLevel === 'NUR') {
+        subjectLevel = 'Primary'
       }
-      filteredSubjects = allSubjects.filter((s: any) => s.level === classLevel)
+      filteredSubjects = allSubjects.filter((s: any) => normalizeLevel(s.level) === subjectLevel)
     }
     
     subjects.value = filteredSubjects.sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))

@@ -248,12 +248,13 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
 <template>
   <div class="space-y-8 fade-in">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
-      <div>
-        <h1 class="text-3xl font-black text-white tracking-tight">Master <span class="text-royal-purple">Broadsheet</span></h1>
-        <p class="text-sm font-medium text-slate-400 uppercase tracking-widest mt-1">Consolidated Academic Performance Records</p>
-      </div>
-      <div class="flex items-center gap-3">
+    <section class="admin-hero-card no-print">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div>
+          <h1 class="hero-title">Master <span>Broadsheet</span></h1>
+          <p class="hero-subtitle">Consolidated Academic Performance Records</p>
+        </div>
+        <div class="hero-panel-actions">
         <button 
           @click="$router.push({ name: 'bulk-reports', params: { classId: selectedClassId }, query: { session: selectedSession, term: selectedTerm } })"
           :disabled="!selectedClassId"
@@ -275,7 +276,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
           <Download class="w-4 h-4" /> Export Excel
         </button>
       </div>
-    </div>
+    </section>
 
     <!-- Filters -->
     <div class="glass-card rounded-3xl border border-slate-700/60 bg-slate-950/95 p-6 grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
