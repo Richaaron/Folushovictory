@@ -275,6 +275,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         >
           <Download class="w-4 h-4" /> Export Excel
         </button>
+        </div>
       </div>
     </section>
 
