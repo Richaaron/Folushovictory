@@ -643,7 +643,7 @@ tbody tr:nth-child(even) {
 
 .signature-line,
 .signature-image {
-  height: 58px;
+  height: 94px;
   margin-top: auto;
   border-bottom: 2px solid #475569;
 }
@@ -655,8 +655,8 @@ tbody tr:nth-child(even) {
 }
 
 .signature-image img {
-  max-width: 190px;
-  max-height: 56px;
+  max-width: 280px;
+  max-height: 86px;
   object-fit: contain;
 }
 

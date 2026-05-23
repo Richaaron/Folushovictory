@@ -542,7 +542,7 @@ onMounted(fetchStudents)
 
 .signature-line,
 .signature-image {
-  height: 42px;
+  height: 78px;
   margin: -4px 0 6px;
   text-align: center;
 }
@@ -552,8 +552,8 @@ onMounted(fetchStudents)
 }
 
 .signature-image img {
-  max-width: 180px;
-  max-height: 42px;
+  max-width: 260px;
+  max-height: 72px;
   object-fit: contain;
 }
 
