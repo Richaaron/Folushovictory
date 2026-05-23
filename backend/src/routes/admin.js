@@ -766,6 +766,7 @@ adminRouter.post(
     // - For each subject selected:
     //   - If it's a Primary subject: ONLY assign it to classes in 'classIds' that are 'Primary'
     //   - If it's a Secondary subject: assign it to ALL matching classes at that level (JSS/SSS)
+    const allClasses = await listClasses();
     for (const sId of subjectIds) {
       const subject = subjectMap[sId];
       if (!subject) continue;
