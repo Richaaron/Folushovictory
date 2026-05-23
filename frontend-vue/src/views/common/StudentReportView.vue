@@ -89,7 +89,6 @@ const schoolInitials = computed(() => {
 })
 
 const schoolWebsite = computed(() => data.value?.school?.website?.replace(/^https?:\/\//, '') || '')
-const generatedDate = computed(() => new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }))
 const formTeacherName = computed(() => data.value?.formTeacher?.displayName || `${data.value?.class?.name || 'Class'} Form Teacher`)
 const subjectRows = computed(() => data.value?.result?.perSubject || [])
 const positionBasedClass = computed(() => {
