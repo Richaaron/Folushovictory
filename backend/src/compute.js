@@ -38,9 +38,17 @@ export function computeSubjectPositions(items) {
 
 export function numericBroadsheet({ students, subjects, scoresByKey, scale, level }) {
   const subjectIds = subjects.map((s) => s.id);
-  const l = String(level || "").toUpperCase();
-  const isSSS = l.includes("SSS");
-  const isSecondary = l.includes("JSS") || l.includes("SSS");
+  const normalizeLevel = (value) => {
+    const normalized = String(value || '').trim().toUpperCase()
+    if (['PRY', 'NUR', 'PRIMARY'].includes(normalized) || normalized.startsWith('PRE')) return 'Primary'
+    if (normalized.startsWith('JSS') || normalized.includes('JUNIOR SECONDARY') || normalized.startsWith('JR')) return 'JSS'
+    if (normalized.startsWith('SSS') || normalized.includes('SENIOR SECONDARY') || normalized.startsWith('SR')) return 'SSS'
+    return normalized
+  }
+
+  const l = normalizeLevel(level);
+  const isSSS = l === 'SSS';
+  const isSecondary = l === 'JSS' || l === 'SSS';
 
   // Step 1: Compute basic rows with totals and averages
   const rows = students.map((st) => {
@@ -124,7 +132,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
   });
 
   // Step 2: Compute Position in Subject for JSS, SSS, and Primary levels
-  const hasSubjectPositions = isSecondary || l.includes("PRIMARY") || l.includes("PRY");
+  const hasSubjectPositions = isSecondary || l === 'Primary';
   if (hasSubjectPositions) {
     subjectIds.forEach(subId => {
       const subjectScores = rows.map(r => {

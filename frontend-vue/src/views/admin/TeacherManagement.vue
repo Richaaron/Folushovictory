@@ -34,12 +34,19 @@ const newTeacher = ref({
 const isPrimaryClass = (classId: string) => {
   const cls = classes.value.find((c: any) => c.id === classId)
   if (!cls) return false
-  const level = String(cls.level || '').toUpperCase()
-  return level.includes('PRY') || level.includes('PRIMARY') || level.includes('NUR') || level.includes('PRE')
+  return normalizeLevel(cls.level) === 'Primary'
+}
+
+const normalizeLevel = (value: string) => {
+  const normalized = String(value || '').trim().toUpperCase()
+  if (['PRY', 'NUR', 'PRIMARY'].includes(normalized) || normalized.startsWith('PRE')) return 'Primary'
+  if (normalized.startsWith('JSS') || normalized.includes('JUNIOR SECONDARY') || normalized.startsWith('JR')) return 'JSS'
+  if (normalized.startsWith('SSS') || normalized.includes('SENIOR SECONDARY') || normalized.startsWith('SR')) return 'SSS'
+  return normalized
 }
 
 const getTeacherDepartment = (teacher: any) => {
-  const primarySubjectIds = new Set(subjects.value.filter((s: any) => s.level === 'Primary').map((s: any) => s.id))
+  const primarySubjectIds = new Set(subjects.value.filter((s: any) => normalizeLevel(s.level) === 'Primary').map((s: any) => s.id))
   const hasPrimarySubject = teacher.assignedSubjectIds?.some((id: string) => primarySubjectIds.has(id))
   const hasPrimaryFormClass = Boolean(teacher.formClassId && isPrimaryClass(teacher.formClassId))
   const hasPrimarySelectedClass = teacher.selectedClassIds?.some((id: string) => isPrimaryClass(id))
@@ -48,8 +55,8 @@ const getTeacherDepartment = (teacher: any) => {
 
 const getTeacherSecondaryLevel = (teacher: any) => {
   if (!teacher.assignedSubjectIds?.length) return 'Both'
-  const hasJss = subjects.value.some((s: any) => teacher.assignedSubjectIds.includes(s.id) && s.level === 'JSS')
-  const hasSss = subjects.value.some((s: any) => teacher.assignedSubjectIds.includes(s.id) && s.level === 'SSS')
+  const hasJss = subjects.value.some((s: any) => teacher.assignedSubjectIds.includes(s.id) && normalizeLevel(s.level) === 'JSS')
+  const hasSss = subjects.value.some((s: any) => teacher.assignedSubjectIds.includes(s.id) && normalizeLevel(s.level) === 'SSS')
   if (hasJss && !hasSss) return 'JSS'
   if (!hasJss && hasSss) return 'SSS'
   return 'Both'
@@ -92,7 +99,7 @@ watch(() => newTeacher.value.formClassId, (newId) => {
   
   // ONLY assign Primary subjects to Primary teachers
   newTeacher.value.assignedSubjectIds = subjects.value
-    .filter(s => s.level === 'Primary')
+    .filter(s => normalizeLevel(s.level) === 'Primary')
     .map(s => s.id)
 })
 
@@ -132,7 +139,7 @@ watch(() => editingTeacher.value?.formClassId, (newId) => {
   if (!editingTeacher.value || !newId || editingTeacher.value.department !== 'Primary/Nursery') return
   // ONLY assign Primary subjects to Primary teachers
   editingTeacher.value.assignedSubjectIds = subjects.value
-    .filter(s => s.level === 'Primary')
+    .filter(s => normalizeLevel(s.level) === 'Primary')
     .map(s => s.id)
 })
 
@@ -296,12 +303,12 @@ const filteredClasses = computed(() => {
 
 const filteredSubjects = computed(() => {
   if (newTeacher.value.department === 'Primary/Nursery') {
-    return subjects.value.filter(s => s.level === 'Primary')
+    return subjects.value.filter(s => normalizeLevel(s.level) === 'Primary')
   }
   
   const level = newTeacher.value.secondaryLevel
-  if (level === 'Both') return subjects.value.filter(s => s.level === 'JSS' || s.level === 'SSS')
-  return subjects.value.filter(s => s.level === level)
+  if (level === 'Both') return subjects.value.filter(s => normalizeLevel(s.level) === 'JSS' || normalizeLevel(s.level) === 'SSS')
+  return subjects.value.filter(s => normalizeLevel(s.level) === level)
 })
 
 const filteredEditClasses = computed(() => {
@@ -323,18 +330,18 @@ const filteredEditClasses = computed(() => {
 const filteredEditSubjects = computed(() => {
   if (!editingTeacher.value) return []
   if (editingTeacher.value.department === 'Primary/Nursery') {
-    return subjects.value.filter(s => s.level === 'Primary')
+    return subjects.value.filter(s => normalizeLevel(s.level) === 'Primary')
   }
   
   const level = editingTeacher.value.secondaryLevel
-  if (level === 'Both') return subjects.value.filter(s => s.level === 'JSS' || s.level === 'SSS')
-  return subjects.value.filter(s => s.level === level)
+  if (level === 'Both') return subjects.value.filter(s => normalizeLevel(s.level) === 'JSS' || normalizeLevel(s.level) === 'SSS')
+  return subjects.value.filter(s => normalizeLevel(s.level) === level)
 })
 
 const getSecondarySubjectNames = (teacher: any) => {
   if (!teacher?.assignedSubjectIds?.length) return []
   return subjects.value
-    .filter(s => teacher.assignedSubjectIds.includes(s.id) && (s.level === 'JSS' || s.level === 'SSS'))
+    .filter(s => teacher.assignedSubjectIds.includes(s.id) && (normalizeLevel(s.level) === 'JSS' || normalizeLevel(s.level) === 'SSS'))
     .map(s => s.name)
 }
 

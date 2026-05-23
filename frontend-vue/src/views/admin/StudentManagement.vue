@@ -106,9 +106,17 @@ const fetchSubjects = async () => {
   }
 }
 
+const normalizeLevel = (value: string) => {
+  const normalized = String(value || '').trim().toUpperCase()
+  if (['PRY', 'NUR', 'PRIMARY'].includes(normalized) || normalized.startsWith('PRE')) return 'Primary'
+  if (normalized.startsWith('JSS') || normalized.includes('JUNIOR SECONDARY') || normalized.startsWith('JR')) return 'JSS'
+  if (normalized.startsWith('SSS') || normalized.includes('SENIOR SECONDARY') || normalized.startsWith('SR')) return 'SSS'
+  return normalized
+}
+
 const optionalSubjects = computed(() => {
   return allSubjects.value.filter((s: any) => 
-    s.level === 'SSS' && 
+    normalizeLevel(s.level) === 'SSS' && 
     !['Mathematics', 'English Language', 'Marketing', 'Citizenship and Heritage studies', 'Economics', 'Biology', 'Chemistry', 'Physics', 'Government', 'Literature in English', 'Financial Accounting', 'Commerce'].includes(s.name)
   )
 })
