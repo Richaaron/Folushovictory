@@ -121,13 +121,7 @@ const fetchData = async () => {
       filteredSubjects = Array.from(subjectMap.values())
     } else {
       // For Primary and JSS: show all subjects matching the level
-      let subjectLevel = classLevel
-      if (subjectLevel === 'PRY') {
-        subjectLevel = 'Primary'
-      } else if (subjectLevel === 'NUR') {
-        subjectLevel = 'Primary'
-      }
-      filteredSubjects = allSubjects.filter((s: any) => normalizeLevel(s.level) === subjectLevel)
+      filteredSubjects = allSubjects.filter((s: any) => normalizeLevel(s.level) === classLevel)
     }
     
     subjects.value = filteredSubjects.sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
@@ -205,6 +199,7 @@ const handleClose = () => {
 
 watch(() => props.isOpen, async (isOpen) => {
   if (isOpen) {
+    await fetchData()
     await nextTick()
     modalRoot.value?.scrollTo({ top: 0, behavior: 'auto' })
   }
