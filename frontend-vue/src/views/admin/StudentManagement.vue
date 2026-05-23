@@ -242,7 +242,7 @@ onMounted(async () => {
           <UserPlus class="w-4 sm:w-4 h-4 sm:h-4 flex-shrink-0" /> <span class="hidden sm:inline">Register Student</span><span class="sm:hidden">Add</span>
         </button>
       </div>
-    </div>
+    </section>
 
     <!-- Registry Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">

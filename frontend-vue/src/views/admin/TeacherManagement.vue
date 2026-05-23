@@ -405,7 +405,7 @@ onMounted(fetchTeachers)
         <UserPlus class="w-4 sm:w-5 h-4 sm:h-5 group-hover:rotate-12 transition-transform flex-shrink-0" /> 
         <span class="hidden sm:inline">Enroll New Faculty</span><span class="sm:hidden">Add</span>
       </button>
-    </div>
+    </section>
 
     <!-- Filters & Search -->
     <div class="glass-card rounded-[2.5rem] bg-slate-950/90 border border-slate-700/60 p-4 sm:p-6 flex flex-col gap-4">
