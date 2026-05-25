@@ -1,0 +1,13 @@
+{
+  "appId": "com.folushovictory.schools",
+  "appName": "Folusho Victory Schools",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "buildOptions": {
+      "signingType": "apksigner"
+    }
+  }
+}
