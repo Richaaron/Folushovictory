@@ -51,7 +51,7 @@ watch(() => router.currentRoute.value.path, () => {
         </div>
         <div class="hidden sm:block">
           <div class="text-[9px] font-black uppercase tracking-[0.35em] text-[#C9A84C]/70 leading-none mb-1">Academy Portal</div>
-          <div class="text-sm font-black text-[#F5F0E8] uppercase leading-none tracking-wider">
+          <div class="text-sm font-black text-[#F5F0E8] uppercase leading-none tracking-wider" style="font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;">
             FOLUSHO <span class="text-[#C9A84C]">VICTORY</span>
           </div>
         </div>
