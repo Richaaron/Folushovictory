@@ -57,6 +57,18 @@ export async function upsertTraitScore({ session, term, classId, studentId, subj
   });
 }
 
+function dedupeScores(data) {
+  const seen = new Map();
+  for (const s of data) {
+    const key = `${s.studentId}_${s.subjectId}`;
+    const existing = seen.get(key);
+    if (!existing || s.updatedAt > existing.updatedAt) {
+      seen.set(key, s);
+    }
+  }
+  return [...seen.values()];
+}
+
 export async function listScoresForClass({ session, term, classId }) {
   const terms = termVariants(term);
   const { data } = await SafeDatabase.query(
@@ -66,9 +78,9 @@ export async function listScoresForClass({ session, term, classId }) {
       ["term", "in", terms],
       ["classId", "==", String(classId)]
     ],
-    { pageSize: 1000 }
+    { pageSize: 1000, orderBy: "updatedAt", orderDirection: "desc" }
   );
-  return data;
+  return dedupeScores(data);
 }
 
 export async function listScoresForStudent({ session, term, studentId }) {
@@ -80,7 +92,7 @@ export async function listScoresForStudent({ session, term, studentId }) {
       ["term", "in", terms],
       ["studentId", "==", String(studentId)]
     ],
-    { pageSize: 1000 }
+    { pageSize: 1000, orderBy: "updatedAt", orderDirection: "desc" }
   );
-  return data;
+  return dedupeScores(data);
 }
