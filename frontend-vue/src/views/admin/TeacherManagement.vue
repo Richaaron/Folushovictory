@@ -348,6 +348,7 @@ const getSecondarySubjectNames = (teacher: any) => {
 
 const handleUpdateTeacher = async () => {
   if (!editingTeacher.value?.displayName) return
+  const updatedTeacherUsername = editingTeacher.value.username
   creating.value = true // Reuse creating spinner
   try {
     // Atomic Update (Metadata + Form Class + Assignments)
@@ -374,6 +375,14 @@ const handleUpdateTeacher = async () => {
     
     showEditModal.value = false
     await fetchTeachers()
+    
+    // Scroll to the updated teacher card
+    await new Promise(resolve => setTimeout(resolve, 100))
+    const teacherCard = document.querySelector(`article[data-teacher="${updatedTeacherUsername}"]`)
+    if (teacherCard) {
+      teacherCard.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+    
     alert('✅ Faculty profile updated successfully!')
   } catch (err: any) {
     console.error('Error updating teacher:', err)
@@ -457,7 +466,7 @@ onMounted(fetchTeachers)
         </div>
 
         <div v-else class="grid gap-3">
-          <article v-for="teacher in filteredTeachers" :key="teacher.username" class="rounded-xl border border-[#C9A84C]/12 bg-[#1B2A4A]/40 p-5 sm:p-6 transition-all hover:border-[#C9A84C]/25 hover:bg-[#1B2A4A]/60">
+          <article v-for="teacher in filteredTeachers" :key="teacher.username" :data-teacher="teacher.username" class="rounded-xl border border-[#C9A84C]/12 bg-[#1B2A4A]/40 p-5 sm:p-6 transition-all hover:border-[#C9A84C]/25 hover:bg-[#1B2A4A]/60">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div class="flex items-center gap-4 min-w-0">
                 <div class="h-14 w-14 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 flex items-center justify-center text-xl font-black text-[#C9A84C]">
