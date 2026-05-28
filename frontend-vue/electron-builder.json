@@ -1,18 +1,19 @@
 {
-  "appId": "com.builditutor.app",
-  "productName": "Build IT",
+  "appId": "com.folushovictory.app",
+  "productName": "Folusho Victory",
   "directories": {
     "buildResources": "electron/assets",
     "output": "dist-electron"
   },
   "files": [
     "dist/**/*",
-    "electron/main.js",
-    "electron/preload.js",
+    "electron/main.cjs",
+    "electron/preload.cjs",
     "node_modules/**/*",
     "package.json"
   ],
   "win": {
+    "icon": "electron/assets/icon.ico",
     "target": [
       {
         "target": "nsis",
@@ -23,20 +24,19 @@
         "arch": ["x64"]
       }
     ],
-    "certificateFile": null,
-    "certificatePassword": null,
-    "signingHashAlgorithms": ["sha256"],
-    "sign": null,
-    "certificateURI": null
+    "certificateFile": "electron/assets/cert.pfx",
+    "certificatePassword": "buildit2026",
+    "certificateSubjectName": "Build IT",
+    "sign": null
   },
   "nsis": {
     "oneClick": false,
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "Build IT"
+    "shortcutName": "Folusho Victory"
   },
   "portable": {
-    "artifactName": "Build-IT-${version}.exe"
+    "artifactName": "Folusho-Victory-${version}.exe"
   }
 }
