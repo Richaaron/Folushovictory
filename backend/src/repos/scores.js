@@ -47,12 +47,12 @@ export async function upsertTraitScore({ session, term, classId, studentId, subj
 }
 
 export async function listScoresForClass({ session, term, classId }) {
-  term = normalizeTerm(term);
+  const terms = [...new Set([normalizeTerm(term), term].filter(Boolean))];
   const { data } = await SafeDatabase.query(
     "scores",
     [
       ["session", "==", String(session)],
-      ["term", "==", String(term)],
+      ["term", "in", terms],
       ["classId", "==", String(classId)]
     ],
     { pageSize: 1000 }
@@ -61,12 +61,12 @@ export async function listScoresForClass({ session, term, classId }) {
 }
 
 export async function listScoresForStudent({ session, term, studentId }) {
-  term = normalizeTerm(term);
+  const terms = [...new Set([normalizeTerm(term), term].filter(Boolean))];
   const { data } = await SafeDatabase.query(
     "scores",
     [
       ["session", "==", String(session)],
-      ["term", "==", String(term)],
+      ["term", "in", terms],
       ["studentId", "==", String(studentId)]
     ],
     { pageSize: 1000 }
