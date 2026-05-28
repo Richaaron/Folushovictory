@@ -777,27 +777,91 @@ tbody tr:nth-child(even) {
   .report-header {
     grid-template-columns: 1fr 220px;
     padding: 20px 24px;
+    background: white !important;
+    color: #1e1b4b !important;
+    border-bottom: 5px solid #581c87;
   }
 
   .brand-copy h1 {
     font-size: 25px;
+    color: #1e1b4b !important;
+  }
+
+  .document-kicker {
+    color: #581c87 !important;
+  }
+
+  .motto {
+    color: #475569 !important;
   }
 
   .logo-mark {
     width: 68px;
     height: 68px;
+    border-color: #581c87 !important;
+  }
+
+  .term-panel {
+    background: #f8fafc !important;
+    border-color: #581c87 !important;
+    color: #1e1b4b !important;
   }
 
   .term-panel strong {
     font-size: 24px;
+    color: #1e1b4b !important;
+  }
+
+  .term-panel small,
+  .term-panel span {
+    color: #475569 !important;
+  }
+
+  .school-contact {
+    border-bottom-color: #581c87 !important;
+  }
+
+  .school-contact p {
+    background: #f8fafc !important;
+  }
+
+  .report-footer {
+    grid-template-columns: 150px 1fr;
+    padding: 14px 24px;
+    background: #f8fafc !important;
+    color: #1e1b4b !important;
+    border-top: 3px solid #581c87;
+  }
+
+  .report-footer p,
+  .report-footer strong {
+    color: #1e1b4b !important;
+  }
+
+  th {
+    padding: 8px 6px;
+    font-size: 8px;
+    background: #e2e8f0 !important;
+    color: #1e1b4b !important;
+  }
+
+  td {
+    padding: 7px 6px;
+    font-size: 10px;
+  }
+
+  tr,
+  .remark-box,
+  .performance-summary div,
+  .student-band div {
+    break-inside: avoid;
   }
 
   .school-contact,
   .student-band,
   .performance-summary,
   .cumulative-grid,
-  .remarks-section,
-  .report-footer {
+  .remarks-section {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
@@ -829,28 +893,6 @@ tbody tr:nth-child(even) {
   .remark-box {
     min-height: 190px;
     padding: 14px;
-  }
-
-  th {
-    padding: 8px 6px;
-    font-size: 8px;
-  }
-
-  td {
-    padding: 7px 6px;
-    font-size: 10px;
-  }
-
-  tr,
-  .remark-box,
-  .performance-summary div,
-  .student-band div {
-    break-inside: avoid;
-  }
-
-  .report-footer {
-    grid-template-columns: 150px 1fr;
-    padding: 14px 24px;
   }
 }
 </style>

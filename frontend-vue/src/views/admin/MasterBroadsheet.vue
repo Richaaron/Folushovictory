@@ -445,6 +445,69 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
   body { background: white !important; }
   table { font-size: 8pt; width: 100%; border: 1pt solid #ccc; }
   th, td { border: 1pt solid #ccc !important; padding: 4pt !important; }
+
+  .overflow-x-auto > div:first-child {
+    background: white !important;
+    border-bottom: 4px solid #581c87 !important;
+  }
+
+  .overflow-x-auto > div:first-child h2 {
+    color: #1e1b4b !important;
+  }
+
+  .overflow-x-auto > div:first-child p {
+    color: #475569 !important;
+  }
+
+  .overflow-x-auto > div:first-child .text-royal-purple {
+    color: #581c87 !important;
+  }
+
+  .overflow-x-auto > div:first-child .text-amber-400 {
+    color: #b45309 !important;
+  }
+
+  .overflow-x-auto > div:first-child [class*="rounded-lg"] {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #1e1b4b !important;
+  }
+
+  thead tr,
+  thead tr.bg-slate-900\/60 {
+    background: #e2e8f0 !important;
+  }
+
+  thead th {
+    background: #e2e8f0 !important;
+    color: #1e1b4b !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  thead th[rowspan="2"] {
+    color: #1e1b4b !important;
+  }
+
+  tbody td {
+    color: #1e1b4b !important;
+  }
+
+  tbody .text-slate-200,
+  tbody .text-white {
+    color: #1e1b4b !important;
+  }
+
+  tbody .text-royal-purple {
+    color: #581c87 !important;
+  }
+
+  tbody .text-royal-gold {
+    color: #854d0e !important;
+  }
+
+  .bg-slate-900\/30 {
+    background: #f1f5f9 !important;
+  }
 }
 
 /* Custom scrollbar for broadsheet table */

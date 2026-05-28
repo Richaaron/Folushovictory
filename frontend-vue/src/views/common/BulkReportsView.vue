@@ -631,10 +631,38 @@ onMounted(fetchStudents)
 
   .report-head {
     padding: 20px 24px;
+    background: white !important;
+    color: #1e1b4b !important;
+    border-bottom: 5px solid #581c87;
   }
 
   .report-head h2 {
     font-size: 24px;
+    color: #1e1b4b !important;
+  }
+
+  .report-head p {
+    color: #581c87 !important;
+  }
+
+  .report-head .term-box {
+    border-color: #581c87 !important;
+    color: #1e1b4b !important;
+  }
+
+  .report-head .term-box span,
+  .report-head .term-box strong {
+    color: #1e1b4b !important;
+  }
+
+  .result-table th,
+  .withheld-table th {
+    background: #e2e8f0 !important;
+    color: #1e1b4b !important;
+  }
+
+  .summary-strip div {
+    border-top-color: #581c87 !important;
   }
 }
 </style>
