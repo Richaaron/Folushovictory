@@ -273,7 +273,7 @@ onMounted(fetchStudents)
               </td>
               <td class="px-8 py-6 text-center">
                 <span class="px-3 py-1 rounded-lg bg-slate-900/60 text-[10px] font-black text-slate-300">
-                  {{ overallPositions.get(st.studentId) || studentPositions.get(st.studentId) || '-' }}
+                  {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
                 </span>
               </td>
             </tr>
