@@ -25,6 +25,8 @@ const phone = ref('')
 const email = ref('')
 const website = ref('')
 const principalName = ref('')
+const currentSession = ref('')
+const currentTerm = ref('Third')
 
 // File uploads
 const logoFile = ref<File | null>(null)
@@ -50,6 +52,8 @@ const fetchSettings = async () => {
     email.value = resp.data.email || ''
     website.value = resp.data.website || ''
     principalName.value = resp.data.principalName || ''
+    currentSession.value = resp.data.currentSession || ''
+    currentTerm.value = resp.data.currentTerm || 'Third'
     
     logoPreview.value = resp.data.logoUrl || ''
     signaturePreview.value = resp.data.principalSignatureUrl || ''
@@ -110,7 +114,9 @@ const saveSettings = async () => {
       phone: phone.value,
       email: email.value,
       website: website.value,
-      principalName: principalName.value
+      principalName: principalName.value,
+      currentSession: currentSession.value,
+      currentTerm: currentTerm.value
     }
 
     // Add logo: if new file, use new, else keep existing, else don't include
@@ -270,6 +276,39 @@ onMounted(fetchSettings)
                 class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
                 placeholder="https://www.school.com"
               />
+            </div>
+
+            <!-- Current Session -->
+            <div>
+              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
+                Current Session <span class="text-red-500">*</span>
+              </label>
+              <select
+                v-model="currentSession"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
+                required
+              >
+                <option>2023/2024</option>
+                <option>2024/2025</option>
+                <option>2025/2026</option>
+                <option>2026/2027</option>
+              </select>
+            </div>
+
+            <!-- Current Term -->
+            <div>
+              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
+                Current Term <span class="text-red-500">*</span>
+              </label>
+              <select
+                v-model="currentTerm"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
+                required
+              >
+                <option value="First">First Term</option>
+                <option value="Second">Second Term</option>
+                <option value="Third">Third Term</option>
+              </select>
             </div>
           </div>
         </div>

@@ -10,8 +10,8 @@ const defaultSchoolSettings = {
   principalName: "",
   principalSignatureUrl: "/principal-signature.png",
   logoUrl: "",
-  currentSession: "2023/2024",
-  currentTerm: "First"
+  currentSession: "2025/2026",
+  currentTerm: "Third"
 };
 
 const schoolSettingFields = [
