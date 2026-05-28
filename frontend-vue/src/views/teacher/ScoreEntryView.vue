@@ -75,10 +75,13 @@ const fetchStudents = async () => {
   }
 }
 
+const clampCA = (val: any) => Math.min(20, Math.max(0, Number(val || 0)))
+const clampExam = (val: any) => Math.min(60, Math.max(0, Number(val || 0)))
+
 const computeTotal = (st: any) => {
-  const c1 = Number(st.ca1 || 0)
-  const c2 = Number(st.ca2 || 0)
-  const e = Number(st.exam || 0)
+  const c1 = clampCA(st.ca1)
+  const c2 = clampCA(st.ca2)
+  const e = clampExam(st.exam)
   return c1 + c2 + e
 }
 
@@ -118,6 +121,18 @@ watch(students, (newVal, oldVal) => {
   })
 }, { deep: true })
 
+const refreshBroadsheet = async () => {
+  try {
+    const { data } = await api.get(`/api/results/class/${classId}/broadsheet`, {
+      params: { session: session.value, term: term.value }
+    })
+    overallPositions.value = new Map((data.students || []).map((s: any) => [s.studentId, s.position]))
+    overallAverages.value = new Map((data.students || []).map((s: any) => [s.studentId, s.average]))
+  } catch (err) {
+    // broadsheet may not exist yet
+  }
+}
+
 const handleSave = async () => {
   saving.value = true
   success.value = false
@@ -125,9 +140,9 @@ const handleSave = async () => {
   try {
     const scores = students.value.map(s => ({
       studentId: s.studentId,
-      ca1: Number(s.ca1 || 0),
-      ca2: Number(s.ca2 || 0),
-      exam: Number(s.exam || 0)
+      ca1: clampCA(s.ca1),
+      ca2: clampCA(s.ca2),
+      exam: clampExam(s.exam)
     }))
 
     await api.post('/api/teacher/scores', {
@@ -138,6 +153,7 @@ const handleSave = async () => {
       scores
     })
     success.value = true
+    await refreshBroadsheet()
     setTimeout(() => { success.value = false }, 3000)
   } catch (err: any) {
     error.value = err.response?.data?.error || 'Failed to save scores'
@@ -218,27 +234,33 @@ onMounted(fetchStudents)
               </td>
               <td class="px-4 py-6">
                 <input 
-                  v-model="st.ca1" 
+                  :value="st.ca1"
                   type="number" 
+                  min="0"
                   max="20"
+                  @input="st.ca1 = clampCA(($event.target as HTMLInputElement).value)"
                   class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
                   placeholder="0"
                 />
               </td>
               <td class="px-4 py-6">
                 <input 
-                  v-model="st.ca2" 
+                  :value="st.ca2"
                   type="number" 
+                  min="0"
                   max="20"
+                  @input="st.ca2 = clampCA(($event.target as HTMLInputElement).value)"
                   class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
                   placeholder="0"
                 />
               </td>
               <td class="px-4 py-6">
                 <input 
-                  v-model="st.exam" 
+                  :value="st.exam"
                   type="number" 
+                  min="0"
                   max="60"
+                  @input="st.exam = clampExam(($event.target as HTMLInputElement).value)"
                   class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
                   placeholder="0"
                 />

@@ -28,13 +28,28 @@ const modalRoot = ref<HTMLElement | null>(null)
 
 const scores = ref<Map<string, any>>(new Map())
 
+const clampCA = (val: any) => Math.min(20, Math.max(0, Number(val || 0)))
+const clampExam = (val: any) => Math.min(60, Math.max(0, Number(val || 0)))
+
 const computeTotal = (subjectId: string) => {
   const score = scores.value.get(subjectId)
   if (!score) return 0
-  const c1 = Number(score.ca1 || 0)
-  const c2 = Number(score.ca2 || 0)
-  const e = Number(score.exam || 0)
+  const c1 = clampCA(score.ca1)
+  const c2 = clampCA(score.ca2)
+  const e = clampExam(score.exam)
   return c1 + c2 + e
+}
+
+const onCAInput = (subjectId: string, field: string, event: Event) => {
+  const val = Number((event.target as HTMLInputElement).value || 0)
+  const score = scores.value.get(subjectId)
+  if (score) score[field] = clampCA(val)
+}
+
+const onExamInput = (subjectId: string, event: Event) => {
+  const val = Number((event.target as HTMLInputElement).value || 0)
+  const score = scores.value.get(subjectId)
+  if (score) score.exam = clampExam(val)
 }
 
 const computeGrade = (total: number) => {
@@ -166,9 +181,9 @@ const handleSave = async () => {
   try {
     const scoresData = Array.from(scores.value.entries()).map(([subjectId, score]) => ({
       subjectId,
-      ca1: Number(score.ca1 || 0),
-      ca2: Number(score.ca2 || 0),
-      exam: Number(score.exam || 0)
+      ca1: clampCA(score.ca1),
+      ca2: clampCA(score.ca2),
+      exam: clampExam(score.exam)
     }))
     
     await api.post(`/api/admin/students/${props.student.studentId}/scores`, {
@@ -290,28 +305,31 @@ onMounted(fetchData)
                   </td>
                   <td class="px-2 py-3">
                     <input 
-                      v-model.number="scores.get(subject.id).ca1"
+                      :value="scores.get(subject.id)?.ca1 ?? 0"
                       type="number" 
                       min="0" 
                       max="20"
+                      @input="onCAInput(subject.id, 'ca1', $event)"
                       class="w-12 sm:w-14 px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-semibold text-center focus:ring-2 focus:ring-royal-purple outline-none"
                     />
                   </td>
                   <td class="px-2 py-3">
                     <input 
-                      v-model.number="scores.get(subject.id).ca2"
+                      :value="scores.get(subject.id)?.ca2 ?? 0"
                       type="number" 
                       min="0" 
                       max="20"
+                      @input="onCAInput(subject.id, 'ca2', $event)"
                       class="w-12 sm:w-14 px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-semibold text-center focus:ring-2 focus:ring-royal-purple outline-none"
                     />
                   </td>
                   <td class="px-2 py-3">
                     <input 
-                      v-model.number="scores.get(subject.id).exam"
+                      :value="scores.get(subject.id)?.exam ?? 0"
                       type="number" 
                       min="0" 
                       max="60"
+                      @input="onExamInput(subject.id, $event)"
                       class="w-12 sm:w-14 px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-semibold text-center focus:ring-2 focus:ring-royal-purple outline-none"
                     />
                   </td>

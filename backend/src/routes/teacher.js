@@ -173,6 +173,8 @@ teacherRouter.post(
       const exam = Number(s.exam || 0);
       if (!studentId) throw Object.assign(new Error("Missing studentId"), { statusCode: 400 });
       
+      if (ca1 > 20 || ca2 > 20) throw Object.assign(new Error("CA score cannot exceed 20"), { statusCode: 400 });
+      if (exam > 60) throw Object.assign(new Error("Exam score cannot exceed 60"), { statusCode: 400 });
       const total = ca1 + ca2 + exam;
       if (total > 100) throw Object.assign(new Error("Total score cannot exceed 100"), { statusCode: 400 });
 

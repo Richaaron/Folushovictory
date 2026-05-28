@@ -1,4 +1,9 @@
 import { SafeDatabase } from "../firestore-utils/index.js";
+import { getClassById } from "./classes.js";
+
+function normalizeClassRef(value) {
+  return String(value || "").trim().toLowerCase();
+}
 
 export async function createStudent(student) {
   return SafeDatabase.createWithValidation("students", student, "student", { checkDuplicates: true });
@@ -36,6 +41,14 @@ export async function createStudentWithParent({ student, parentUser }) {
 
 export async function listStudentsByClass(classId) {
   let data;
+  const normalizedClassId = normalizeClassRef(classId);
+  let className = null;
+
+  const cls = await getClassById(String(classId || "").trim()).catch(() => null);
+  if (cls && cls.name) {
+    className = normalizeClassRef(cls.name);
+  }
+
   try {
     const result = await SafeDatabase.query(
       "students",
@@ -46,7 +59,18 @@ export async function listStudentsByClass(classId) {
   } catch (error) {
     console.error("Class student query failed, falling back to in-memory filtering:", error?.message || error);
     const result = await SafeDatabase.query("students", [], { pageSize: 1000 });
-    data = result.data.filter((student) => String(student.classId) === String(classId));
+    data = result.data.filter((student) => {
+      const studentClassRef = normalizeClassRef(student.classId);
+      return studentClassRef === normalizedClassId || (className && studentClassRef === className);
+    });
+  }
+
+  if (!Array.isArray(data) || data.length === 0) {
+    const result = await SafeDatabase.query("students", [], { pageSize: 1000 });
+    data = result.data.filter((student) => {
+      const studentClassRef = normalizeClassRef(student.classId);
+      return studentClassRef === normalizedClassId || (className && studentClassRef === className);
+    });
   }
 
   return data.sort((a, b) => {
@@ -56,6 +80,23 @@ export async function listStudentsByClass(classId) {
     if (first !== 0) return first;
     return String(a.studentId || "").localeCompare(String(b.studentId || ""), undefined, { numeric: true });
   });
+}
+
+export async function countStudentsByClass(classId) {
+  try {
+    return await SafeDatabase.count("students", [["classId", "==", classId]]);
+  } catch (error) {
+    console.error("Student count query failed, falling back to filtered count:", error?.message || error);
+  }
+
+  const normalizedClassId = normalizeClassRef(classId);
+  const cls = await getClassById(String(classId || "").trim()).catch(() => null);
+  const className = cls?.name ? normalizeClassRef(cls.name) : null;
+  const result = await SafeDatabase.query("students", [], { pageSize: 1000 });
+  return result.data.filter((student) => {
+    const studentClassRef = normalizeClassRef(student.classId);
+    return studentClassRef === normalizedClassId || (className && studentClassRef === className);
+  }).length;
 }
 
 export async function getStudentById(studentId) {

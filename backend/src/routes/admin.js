@@ -5,7 +5,7 @@ import { asyncHandler } from "../http.js";
 import { generateTeacherUsername, generateStudentId, generateParentUsername } from "../ids.js";
 import { generateRandomPassword, hashPassword } from "../security.js";
 import { createUser, deleteUser, getUserByUsername, updateUser } from "../repos/users.js";
-import { createStudent, createStudentWithParent, listStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
+import { createStudent, createStudentWithParent, listStudentsByClass, countStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
 import { createClass, listClasses, updateClass, getClassById, revokeFormTeacherStatus } from "../repos/classes.js";
 import { validateTeacherPayload, validateStudentPayload, validateStudentUpdatePayload } from "../validation.js";
 import { createSubject, listSubjects, getSubjectById } from "../repos/subjects.js";
@@ -566,6 +566,12 @@ adminRouter.post(
     for (const score of scores) {
       const { subjectId, ca1, ca2, exam } = score;
       if (!subjectId) continue;
+
+      const c1 = Number(ca1 || 0);
+      const c2 = Number(ca2 || 0);
+      const e = Number(exam || 0);
+      if (c1 > 20 || c2 > 20) return res.status(400).json({ error: "CA score cannot exceed 20" });
+      if (e > 60) return res.status(400).json({ error: "Exam score cannot exceed 60" });
       
       await upsertNumericScore({
         session: String(session),
@@ -573,9 +579,9 @@ adminRouter.post(
         classId: String(classId),
         studentId: String(studentId),
         subjectId: String(subjectId),
-        ca1: Number(ca1 || 0),
-        ca2: Number(ca2 || 0),
-        exam: Number(exam || 0),
+        ca1: c1,
+        ca2: c2,
+        exam: e,
         enteredBy
       });
     }
@@ -630,7 +636,7 @@ adminRouter.get(
     const classes = await listClasses();
     const enriched = await Promise.all(
       classes.map(async (c) => {
-        const studentCount = await SafeDatabase.count("students", [["classId", "==", c.id]]);
+        const studentCount = await countStudentsByClass(c.id);
         return { ...c, studentCount };
       })
     );
