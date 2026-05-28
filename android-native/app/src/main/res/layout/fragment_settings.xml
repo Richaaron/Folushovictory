@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#030206"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="School Settings"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/inputSchoolName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="School name"
+            android:inputType="textCapWords"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputSchoolMotto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="School motto"
+            android:inputType="textCapWords"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputSchoolAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="School address"
+            android:inputType="textPostalAddress"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputSchoolPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone number"
+            android:inputType="phone"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputSchoolEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="School email"
+            android:inputType="textEmailAddress"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputSchoolWebsite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Website"
+            android:inputType="textUri"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputPrincipalName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Principal name"
+            android:inputType="textCapWords"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Term &amp; Session"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputCurrentSession"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Current session"
+            android:inputType="text"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputCurrentTerm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Current term"
+            android:inputType="text"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputResumptionDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Resumption date"
+            android:inputType="text"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="20dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save School Settings"
+            android:backgroundTint="#4B5563"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="24dp"
+            android:layout_marginBottom="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveTermMeta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Update Term Metadata"
+            android:backgroundTint="#2563EB"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="24dp"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change Password"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputOldPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Current password"
+            android:inputType="textPassword"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputNewPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="New password"
+            android:inputType="textPassword"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChangePassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change Password"
+            android:backgroundTint="#10B981"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="24dp"
+            android:layout_marginBottom="24dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Logout"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="#EF4444"
+            app:cornerRadius="24dp"
+            android:paddingVertical="14dp"
+            android:layout_marginBottom="24dp" />
+
+    </LinearLayout>
+</ScrollView>

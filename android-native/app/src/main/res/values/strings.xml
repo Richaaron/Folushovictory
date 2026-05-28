@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Folusho Victory Schools</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="please_fill_all_fields">Please fill in all fields</string>
+    <string name="login_successful">Login successful!</string>
+    <string name="login_failed">Login failed</string>
+</resources>

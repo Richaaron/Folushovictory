@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#030206"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Grading Scale"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Edit the grading intervals in the format: LETTER MIN MAX REMARK. One entry per line. Example: A 70 100 Excellent performance"
+            android:textColor="#94A3B8"
+            android:textSize="12sp"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/inputGradingScale"
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:hint="A 70 100 Excellent\nB 60 69 Very good\nC 50 59 Good"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btnSaveGradingScale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Grading Scale"
+            android:background="#2563EB"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:textAllCaps="false"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="When saved, the grading scale will be applied to broadsheets and report generation. Use min and max values as inclusive boundaries."
+            android:textColor="#94A3B8"
+            android:textSize="12sp"
+            android:layout_marginBottom="16dp" />
+
+    </LinearLayout>
+</ScrollView>

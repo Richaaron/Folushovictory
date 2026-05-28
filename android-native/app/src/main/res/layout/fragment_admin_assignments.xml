@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#030206"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Teacher Assignments"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Assign subjects to a teacher across classes. Class IDs are optional; if blank, the backend will expand subjects to the matching classes for the teacher."
+            android:textColor="#94A3B8"
+            android:textSize="12sp"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/inputAssignmentTeacher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Teacher username"
+            android:inputType="text"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputAssignmentSubjects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Subject IDs (comma-separated)"
+            android:inputType="text"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/inputAssignmentClasses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Class IDs (optional, comma-separated)"
+            android:inputType="text"
+            android:backgroundTint="#94A3B8"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#94A3B8"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveAssignments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Assign Subjects"
+            android:backgroundTint="#2563EB"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:textAllCaps="false"
+            app:cornerRadius="24dp"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Once assigned, teachers can enter scores for their subject assignments and the system will route results to the correct classes."
+            android:textColor="#94A3B8"
+            android:textSize="12sp"
+            android:layout_marginBottom="16dp" />
+
+    </LinearLayout>
+</ScrollView>

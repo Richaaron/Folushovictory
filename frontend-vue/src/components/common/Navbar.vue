@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Menu, X, LogOut, Sun, Moon } from 'lucide-vue-next'
+import { Menu, X, LogOut } from 'lucide-vue-next'
 
 const props = defineProps<{
   portal: 'Admin' | 'Teacher' | 'Parent'
@@ -12,18 +12,6 @@ const props = defineProps<{
 
 const router = useRouter()
 const mobileMenuOpen = ref(false)
-const isDark = ref(true)
-
-const toggleTheme = () => {
-  isDark.value = !isDark.value
-  if (isDark.value) {
-    document.documentElement.classList.add('dark')
-    localStorage.setItem('theme', 'dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-    localStorage.setItem('theme', 'light')
-  }
-}
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
@@ -58,11 +46,6 @@ watch(() => router.currentRoute.value.path, () => {
       </router-link>
 
       <div class="flex items-center gap-2 sm:gap-3">
-        <button @click="toggleTheme" class="academic-nav-btn" :aria-label="isDark ? 'Light Mode' : 'Dark Mode'">
-          <Sun v-if="isDark" class="w-4 h-4" />
-          <Moon v-else class="w-4 h-4" />
-        </button>
-
         <div v-if="username" class="hidden md:flex items-center gap-3 pl-3 border-l border-[#C9A84C]/15">
           <div class="text-right">
             <p class="text-xs font-black text-[#F5F0E8] leading-none tracking-wide">{{ username }}</p>

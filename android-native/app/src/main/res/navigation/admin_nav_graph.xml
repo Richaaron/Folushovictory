@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/admin_nav_graph"
+    app:startDestination="@id/adminDashboard">
+
+    <!-- Admin Dashboard -->
+    <fragment
+        android:id="@+id/adminDashboard"
+        android:name="com.folushovictory.schools.DashboardFragment"
+        android:label="Admin Dashboard" />
+
+    <!-- Teacher Management -->
+    <fragment
+        android:id="@+id/teacherManagement"
+        android:name="com.folushovictory.schools.TeachersFragment"
+        android:label="Faculty Management" />
+
+    <!-- Class Management -->
+    <fragment
+        android:id="@+id/classManagement"
+        android:name="com.folushovictory.schools.ClassesFragment"
+        android:label="Classes" />
+
+    <!-- Student Management -->
+    <fragment
+        android:id="@+id/studentManagement"
+        android:name="com.folushovictory.schools.StudentsFragment"
+        android:label="Students" />
+
+    <!-- Broadsheet / Master Results -->
+    <fragment
+        android:id="@+id/broadsheet"
+        android:name="com.folushovictory.schools.BroadsheetFragment"
+        android:label="Master Broadsheet" />
+
+    <!-- Settings -->
+    <fragment
+        android:id="@+id/settings"
+        android:name="com.folushovictory.schools.SettingsFragment"
+        android:label="Settings" />
+
+</navigation>

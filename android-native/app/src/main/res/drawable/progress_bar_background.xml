@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@android:id/background"
+        android:height="8dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/input_bg" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <item
+        android:id="@android:id/progress"
+        android:height="8dp">
+        <scale android:scaleWidth="100%">
+            <shape android:shape="rectangle">
+                <gradient
+                    android:startColor="@color/portal_admin"
+                    android:endColor="@color/portal_teacher"
+                    android:angle="90" />
+                <corners android:radius="4dp" />
+            </shape>
+        </scale>
+    </item>
+</layer-list>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/parent_nav_graph"
+    app:startDestination="@id/parentDashboard">
+
+    <!-- Parent Dashboard -->
+    <fragment
+        android:id="@+id/parentDashboard"
+        android:name="com.folushovictory.schools.ParentDashboardFragment"
+        android:label="Dashboard" />
+
+    <!-- Student Report / Report Cards -->
+    <fragment
+        android:id="@+id/studentReport"
+        android:name="com.folushovictory.schools.StudentReportFragment"
+        android:label="Report Card" />
+
+    <!-- Parent Reports / Bulk Reports -->
+    <fragment
+        android:id="@+id/parentReports"
+        android:name="com.folushovictory.schools.ParentReportsFragment"
+        android:label="Reports" />
+
+    <!-- Settings -->
+    <fragment
+        android:id="@+id/parentSettings"
+        android:name="com.folushovictory.schools.SettingsFragment"
+        android:label="Settings" />
+
+</navigation>

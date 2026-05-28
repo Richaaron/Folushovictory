@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/teacher_nav_graph"
+    app:startDestination="@id/teacherDashboard">
+
+    <!-- Teacher Dashboard -->
+    <fragment
+        android:id="@+id/teacherDashboard"
+        android:name="com.folushovictory.schools.TeacherDashboardFragment"
+        android:label="Teacher Dashboard" />
+
+    <!-- Form Class / Class Management -->
+    <fragment
+        android:id="@+id/formClassManagement"
+        android:name="com.folushovictory.schools.FormClassFragment"
+        android:label="Form Classes" />
+
+    <!-- Score Entry -->
+    <fragment
+        android:id="@+id/scoreEntry"
+        android:name="com.folushovictory.schools.ScoreEntryFragment"
+        android:label="Score Entry" />
+
+    <!-- Broadsheet -->
+    <fragment
+        android:id="@+id/teacherBroadsheet"
+        android:name="com.folushovictory.schools.BroadsheetFragment"
+        android:label="Broadsheet" />
+
+    <!-- Settings -->
+    <fragment
+        android:id="@+id/teacherSettings"
+        android:name="com.folushovictory.schools.SettingsFragment"
+        android:label="Settings" />
+
+</navigation>

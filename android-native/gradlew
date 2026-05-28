@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+##############################################################################
+# Gradle start up script for UN*X
+##############################################################################
+set -e
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CLASSPATH="${SCRIPT_DIR}/gradle/wrapper/gradle-wrapper.jar"
+if [ ! -f "${CLASSPATH}" ]; then
+  echo "ERROR: Gradle wrapper jar not found at ${CLASSPATH}. Please copy gradle-wrapper.jar into gradle/wrapper/."
+  exit 1
+fi
+java -jar "${CLASSPATH}" "$@"
