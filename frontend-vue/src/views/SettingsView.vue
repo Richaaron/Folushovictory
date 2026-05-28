@@ -56,55 +56,56 @@ const handleChangePassword = async () => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl space-y-8 fade-in">
+  <div class="mx-auto max-w-6xl space-y-8 fade-in relative">
+    <span class="floating-math" aria-hidden="true">π</span>
     <div v-if="isAdmin" class="space-y-6">
       <SchoolSettingsPanel />
     </div>
 
-    <section class="glass-card rounded-[2.5rem] border border-slate-700/60 bg-slate-950/95 p-8 shadow-[0_30px_60px_rgba(0,0,0,0.28)]">
-      <div class="mb-8 flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/60 text-amber-300 border border-slate-700/60">
-          <Lock class="h-5 w-5" />
+    <section class="parchment-card p-6 lg:p-8">
+      <div class="flex items-center gap-4 mb-8">
+        <div class="h-12 w-12 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 flex items-center justify-center">
+          <Lock class="w-5 h-5 text-[#C9A84C]" />
         </div>
         <div>
-          <h3 class="text-lg font-black tracking-tight text-white">Account Security</h3>
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Update your access credentials</p>
+          <h3 class="academic-heading text-lg text-[#FAFAF7]">Account Security</h3>
+          <p class="text-sm text-[#F5F0E8]/50">Update your access credentials</p>
         </div>
-
-      </div>
-      <div v-if="passwordSuccess" class="mb-8 flex items-center gap-4 rounded-2xl border border-emerald-700/60 bg-emerald-900/20 p-4 text-emerald-200 fade-in">
-        <CheckCircle2 class="h-6 w-6" />
-        <span class="text-sm font-black uppercase tracking-widest">Password updated successfully!</span>
       </div>
 
-      <div v-if="passwordError" class="mb-8 flex items-center gap-4 rounded-2xl border border-red-700/60 bg-red-900/20 p-4 text-red-300 fade-in">
-        <AlertCircle class="h-6 w-6 flex-shrink-0" />
-        <span class="text-sm font-black uppercase tracking-widest">{{ passwordError }}</span>
+      <div v-if="passwordSuccess" class="mb-6 flex items-center gap-4 rounded-xl border border-[#7A9E7E]/25 bg-[#7A9E7E]/10 p-4 fade-in">
+        <CheckCircle2 class="w-5 h-5 text-[#7A9E7E]" />
+        <span class="text-xs font-black uppercase tracking-widest text-[#A8C4AB]">Password updated successfully!</span>
+      </div>
+
+      <div v-if="passwordError" class="mb-6 flex items-center gap-4 rounded-xl border border-[#8B3A52]/25 bg-[#8B3A52]/10 p-4 fade-in">
+        <AlertCircle class="w-5 h-5 text-[#B45A74] flex-shrink-0" />
+        <span class="text-xs font-black uppercase tracking-widest text-[#B45A74]">{{ passwordError }}</span>
       </div>
 
       <form @submit.prevent="handleChangePassword" class="space-y-8">
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div class="space-y-2">
-            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Current Password</label>
-            <input v-model="passwordForm.oldPassword" type="password" required class="w-full rounded-2xl border-none bg-slate-900/60 text-white px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-amber-500" />
+            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-[#C9A84C]/60">Current Password</label>
+            <input v-model="passwordForm.oldPassword" type="password" required class="academic-input" />
           </div>
           <div class="space-y-2">
-            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-slate-400">New Password</label>
-            <input v-model="passwordForm.newPassword" type="password" required class="w-full rounded-2xl border-none bg-slate-900/60 text-white px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-amber-500" />
+            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-[#C9A84C]/60">New Password</label>
+            <input v-model="passwordForm.newPassword" type="password" required class="academic-input" />
           </div>
         </div>
 
-        <div class="grid grid-cols-1 items-end gap-8 md:grid-cols-2">
+        <div class="grid grid-cols-1 items-end gap-6 md:grid-cols-2">
           <div class="space-y-2">
-            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Confirm New Password</label>
-            <input v-model="passwordForm.confirmPassword" type="password" required class="w-full rounded-2xl border-none bg-slate-900/60 text-white px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-amber-500" />
+            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-[#C9A84C]/60">Confirm New Password</label>
+            <input v-model="passwordForm.confirmPassword" type="password" required class="academic-input" />
           </div>
           <button
             type="submit"
             :disabled="savingPassword"
-            class="flex items-center justify-center gap-2 rounded-2xl bg-amber-500 px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg transition-all hover:bg-amber-600 disabled:bg-slate-400"
+            class="chalkboard-btn chalkboard-btn-gold"
           >
-            <component :is="savingPassword ? Loader2 : Lock" :class="{ 'animate-spin': savingPassword }" class="h-4 w-4" />
+            <component :is="savingPassword ? Loader2 : Lock" :class="{ 'animate-spin': savingPassword }" class="w-4 h-4" />
             {{ savingPassword ? 'Updating...' : 'Update Password' }}
           </button>
         </div>

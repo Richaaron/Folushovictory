@@ -246,87 +246,89 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
 </script>
 
 <template>
-  <div class="space-y-8 fade-in">
+  <div class="space-y-6 sm:space-y-8 fade-in relative">
+    <span class="floating-math" aria-hidden="true">√</span>
     <!-- Header -->
-    <section class="admin-hero-card no-print">
+    <section class="parchment-card p-6 lg:p-8 no-print">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div>
-          <h1 class="hero-title">Master <span>Broadsheet</span></h1>
-          <p class="hero-subtitle">Consolidated Academic Performance Records</p>
+          <h1 class="academic-heading text-2xl sm:text-3xl text-[#FAFAF7]">Master Broadsheet</h1>
+          <div class="gold-accent"></div>
+          <p class="text-sm text-[#F5F0E8]/50">Consolidated Academic Performance Records</p>
         </div>
-        <div class="hero-panel-actions">
+        <div class="flex flex-wrap items-center gap-3">
         <button 
           @click="$router.push({ name: 'bulk-reports', params: { classId: selectedClassId }, query: { session: selectedSession, term: selectedTerm } })"
           :disabled="!selectedClassId"
-          class="flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/50 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-100 transition hover:text-royal-purple disabled:opacity-50"
+          class="chalkboard-btn text-[10px]"
         >
-          <Printer class="w-4 h-4" /> Bulk Results
+          <Printer class="w-3 h-3" /> Bulk Results
         </button>
         <button 
           @click="handlePrint"
-          class="flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/50 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-100 transition hover:text-royal-purple"
+          class="chalkboard-btn text-[10px]"
         >
-          <Printer class="w-4 h-4" /> Print View
+          <Printer class="w-3 h-3" /> Print View
         </button>
         <button
           @click="handleExportExcel"
           :disabled="!broadsheet || loading"
-          class="flex items-center gap-3 rounded-2xl purple-gradient px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+          class="chalkboard-btn chalkboard-btn-gold text-[10px]"
         >
-          <Download class="w-4 h-4" /> Export Excel
+          <Download class="w-3 h-3" /> Export Excel
         </button>
         </div>
       </div>
     </section>
 
     <!-- Filters -->
-    <div class="glass-card rounded-3xl border border-slate-700/60 bg-slate-950/95 p-6 grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
+    <div class="parchment-card p-4 sm:p-5 grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
       <div class="space-y-2">
-        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Academic Session</label>
-        <select v-model="selectedSession" class="w-full px-6 py-4 bg-slate-900/60 text-white border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-royal-purple">
+        <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Academic Session</label>
+        <select v-model="selectedSession" class="academic-select">
           <option v-for="session in sessionOptions" :key="session" :value="session">{{ session }}</option>
         </select>
       </div>
       <div class="space-y-2">
-        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Academic Term</label>
-        <select v-model="selectedTerm" class="w-full px-6 py-4 bg-slate-900/60 text-white border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-royal-purple">
+        <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Academic Term</label>
+        <select v-model="selectedTerm" class="academic-select">
           <option value="1st">First Term</option>
           <option value="2nd">Second Term</option>
           <option value="3rd">Third Term</option>
         </select>
       </div>
       <div class="space-y-2">
-        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Class</label>
-        <select v-model="selectedClassId" class="w-full px-6 py-4 bg-slate-900/60 text-white border-none rounded-2xl text-xs font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-royal-purple">
+        <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Select Class</label>
+        <select v-model="selectedClassId" class="academic-select">
           <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
         </select>
       </div>
     </div>
 
     <!-- Broadsheet Content -->
-    <div class="glass-card rounded-[2.5rem] border border-slate-700/60 bg-slate-950/95 overflow-hidden min-h-[500px]">
+    <div class="parchment-card overflow-hidden min-h-[500px]">
       <div v-if="loading" class="h-[500px] flex items-center justify-center">
         <div class="text-center">
-          <Loader2 class="w-12 h-12 text-royal-purple animate-spin mx-auto mb-4" />
-          <p class="text-xs font-black uppercase tracking-widest text-slate-400">Compiling Broadsheet Data...</p>
+          <Loader2 class="w-12 h-12 text-[#C9A84C]/50 animate-spin mx-auto mb-4" />
+          <p class="text-xs font-black uppercase tracking-widest text-[#F5F0E8]/50">Compiling Broadsheet Data...</p>
         </div>
       </div>
       
       <div v-else-if="error" class="h-[500px] flex items-center justify-center p-8 text-center">
         <div class="max-w-md">
-          <AlertCircle class="w-16 h-16 text-red-500 mx-auto mb-6 opacity-20" />
-          <h3 class="text-lg font-black text-white mb-2 uppercase tracking-tight">Compilation Error</h3>
-          <p class="text-sm text-slate-500 mb-8">{{ error }}</p>
-          <button @click="fetchBroadsheet" class="text-xs font-black uppercase tracking-widest text-royal-purple hover:underline">Retry Compilation</button>
+          <AlertCircle class="w-16 h-16 text-[#B45A74] mx-auto mb-6 opacity-20" />
+          <h3 class="academic-heading text-lg text-[#FAFAF7] mb-2">Compilation Error</h3>
+          <p class="text-sm text-[#F5F0E8]/50 mb-8">{{ error }}</p>
+          <button @click="fetchBroadsheet" class="chalkboard-btn text-[10px]">Retry</button>
         </div>
       </div>
 
       <div v-else-if="broadsheet" class="overflow-x-auto print:overflow-visible">
-        <div class="px-6 py-6 text-center border-b border-slate-800/40 bg-slate-950/90">
-          <h2 class="text-2xl font-black uppercase tracking-tight text-white">{{ broadsheet.school?.name || 'Folusho Victory Schools' }}</h2>
-          <p v-if="broadsheet.school?.motto" class="mt-1 text-[10px] font-black uppercase tracking-widest text-royal-purple">{{ broadsheet.school.motto }}</p>
-          <p v-if="broadsheet.school?.address" class="mt-2 text-xs font-bold text-slate-500 dark:text-slate-400">{{ broadsheet.school.address }}</p>
-          <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+        <div class="px-6 py-6 text-center border-b border-[#C9A84C]/10 bg-[#1B2A4A]/30">
+          <h2 class="academic-heading text-xl text-[#FAFAF7]">{{ broadsheet.school?.name || 'Folusho Victory Schools' }}</h2>
+          <p v-if="broadsheet.school?.motto" class="mt-1 text-[10px] font-black uppercase tracking-widest gold-text">{{ broadsheet.school.motto }}</p>
+          <p v-if="broadsheet.school?.address" class="mt-2 text-xs font-bold text-[#F5F0E8]/50">{{ broadsheet.school.address }}</p>
+          <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#F5F0E8]/40">
             <span v-if="broadsheet.school?.phone">{{ broadsheet.school.phone }}</span>
             <span v-if="broadsheet.school?.phone && broadsheet.school?.email"> | </span>
             <span v-if="broadsheet.school?.email">{{ broadsheet.school.email }}</span>
@@ -334,41 +336,41 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
             <span v-if="broadsheet.school?.website">{{ broadsheet.school.website }}</span>
           </p>
           <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
-            <span class="rounded-lg bg-slate-900/60 border border-slate-700/60 px-3 py-1.5 text-slate-200">{{ broadsheet.class?.name }}</span>
-            <span class="rounded-lg bg-slate-900/60 border border-slate-700/60 px-3 py-1.5 text-royal-purple">{{ selectedSession }}</span>
-            <span class="rounded-lg bg-slate-900/60 border border-slate-700/60 px-3 py-1.5 text-amber-400">{{ formatTermLabel(selectedTerm) }}</span>
+            <span class="rounded-md bg-[#1B2A4A]/80 border border-[#C9A84C]/15 px-3 py-1.5 text-[#FAFAF7]">{{ broadsheet.class?.name }}</span>
+            <span class="rounded-md bg-[#1B2A4A]/80 border border-[#C9A84C]/15 px-3 py-1.5 text-[#C9A84C]">{{ selectedSession }}</span>
+            <span class="rounded-md bg-[#1B2A4A]/80 border border-[#C9A84C]/15 px-3 py-1.5 gold-text">{{ formatTermLabel(selectedTerm) }}</span>
           </div>
         </div>
         <table class="w-full border-collapse">
           <thead>
-            <tr class="bg-slate-900/60">
-              <th rowspan="2" class="px-4 py-6 border-b border-r border-slate-700/60 text-[9px] font-black uppercase tracking-widest text-slate-400 min-w-[180px] text-left">Student Profile</th>
-              <th v-for="sub in broadsheet.subjects" :key="sub.id" colspan="5" class="px-2 py-3 border-b border-r border-slate-700/60 text-[8px] font-black uppercase tracking-widest text-royal-purple text-center">
+            <tr class="bg-[#1B2A4A]/60">
+              <th rowspan="2" class="px-4 py-5 border-b border-r border-[#C9A84C]/10 text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 min-w-[180px] text-left">Student Profile</th>
+              <th v-for="sub in broadsheet.subjects" :key="sub.id" colspan="5" class="px-2 py-3 border-b border-r border-[#C9A84C]/10 text-[8px] font-black uppercase tracking-widest text-[#C9A84C]/70 text-center">
                 {{ sub.name }}
               </th>
-              <th colspan="4" class="px-4 py-3 border-b border-slate-700/60 text-[9px] font-black uppercase tracking-widest text-amber-500 text-center">Summary</th>
+              <th colspan="4" class="px-4 py-3 border-b border-[#C9A84C]/10 text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/70 text-center">Summary</th>
             </tr>
-            <tr class="bg-slate-900/60">
+            <tr class="bg-[#1B2A4A]/60">
               <template v-for="sub in broadsheet.subjects" :key="sub.id + '-sub'">
-                <th class="px-1 py-2 border-b border-r border-slate-700/60 text-[7px] font-black text-slate-400 text-center w-12">1st CA</th>
-                <th class="px-1 py-2 border-b border-r border-slate-700/60 text-[7px] font-black text-slate-400 text-center w-12">2nd CA</th>
-                <th class="px-1 py-2 border-b border-r border-slate-700/60 text-[7px] font-black text-slate-400 text-center w-12">Exam</th>
-                <th class="px-1 py-2 border-b border-r border-slate-700/60 text-[7px] font-black text-slate-300 text-center w-12 bg-slate-800/40">Total</th>
-                <th class="px-1 py-2 border-b border-r border-slate-700/60 text-[7px] font-black text-slate-400 text-center w-10">
+                <th class="px-1 py-2 border-b border-r border-[#C9A84C]/10 text-[7px] font-black text-[#F5F0E8]/50 text-center w-12">1st CA</th>
+                <th class="px-1 py-2 border-b border-r border-[#C9A84C]/10 text-[7px] font-black text-[#F5F0E8]/50 text-center w-12">2nd CA</th>
+                <th class="px-1 py-2 border-b border-r border-[#C9A84C]/10 text-[7px] font-black text-[#F5F0E8]/50 text-center w-12">Exam</th>
+                <th class="px-1 py-2 border-b border-r border-[#C9A84C]/10 text-[7px] font-black text-[#FAFAF7] text-center w-12 bg-[#1B2A4A]/80">Total</th>
+                <th class="px-1 py-2 border-b border-r border-[#C9A84C]/10 text-[7px] font-black text-[#F5F0E8]/50 text-center w-10">
                   {{ isSSS ? 'Grade' : 'Pos' }}
                 </th>
               </template>
-              <th class="px-2 py-2 border-b border-r border-slate-700/60 text-[8px] font-black text-slate-400 text-center">TOT</th>
-              <th class="px-2 py-2 border-b border-r border-slate-700/60 text-[8px] font-black text-slate-400 text-center">AVG</th>
-              <th class="px-2 py-2 border-b border-r border-slate-700/60 text-[8px] font-black text-slate-400 text-center">POS</th>
-              <th class="px-2 py-2 border-b border-slate-700/60 text-[8px] font-black text-slate-400 text-center">RES</th>
+              <th class="px-2 py-2 border-b border-r border-[#C9A84C]/10 text-[8px] font-black text-[#F5F0E8]/50 text-center">TOT</th>
+              <th class="px-2 py-2 border-b border-r border-[#C9A84C]/10 text-[8px] font-black text-[#F5F0E8]/50 text-center">AVG</th>
+              <th class="px-2 py-2 border-b border-r border-[#C9A84C]/10 text-[8px] font-black text-[#F5F0E8]/50 text-center">POS</th>
+              <th class="px-2 py-2 border-b border-[#C9A84C]/10 text-[8px] font-black text-[#F5F0E8]/50 text-center">RES</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            <tr v-for="student in broadsheet.students" :key="student.studentId" class="hover:bg-slate-900/50 transition-colors">
-              <td class="px-4 py-4 border-r border-slate-700/60">
+          <tbody>
+            <tr v-for="student in broadsheet.students" :key="student.studentId" class="hover:bg-[#C9A84C]/3 transition-colors">
+              <td class="px-4 py-4 border-r border-[#C9A84C]/8">
                 <div class="flex items-center gap-2">
-                  <div class="text-[9px] font-black text-slate-400 w-4">{{ student.position }}</div>
+                  <div class="text-[9px] font-black text-[#F5F0E8]/40 w-4">{{ student.position }}</div>
                   <div 
                     @click="$router.push({ 
                       name: 'student-report', 
@@ -377,37 +379,37 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
                     })"
                     class="cursor-pointer group/name"
                   >
-                    <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase truncate max-w-[120px] group-hover/name:text-royal-purple transition-colors">{{ student.lastName }} {{ student.firstName }}</p>
-                    <p class="text-[8px] font-bold text-slate-400 tracking-widest uppercase">{{ student.studentId }}</p>
+                    <p class="text-[11px] font-black text-[#FAFAF7] uppercase truncate max-w-[120px] group-hover/name:text-[#C9A84C] transition-colors">{{ student.lastName }} {{ student.firstName }}</p>
+                    <p class="text-[8px] font-bold text-[#F5F0E8]/40 tracking-widest uppercase">{{ student.studentId }}</p>
                   </div>
                 </div>
               </td>
               <template v-for="sub in broadsheet.subjects" :key="sub.id + '-score'">
                 <template v-if="student.scores && student.scores[sub.id]">
-                  <td class="px-1 py-4 border-r border-slate-700/60 text-center text-[9px] font-bold text-slate-400">{{ student.scores[sub.id].ca1 }}</td>
-                  <td class="px-1 py-4 border-r border-slate-700/60 text-center text-[9px] font-bold text-slate-400">{{ student.scores[sub.id].ca2 }}</td>
-                  <td class="px-1 py-4 border-r border-slate-700/60 text-center text-[9px] font-bold text-slate-400">{{ student.scores[sub.id].exam }}</td>
-                  <td class="px-1 py-4 border-r border-slate-700/60 text-center text-[9px] font-black text-white bg-slate-900/30">{{ student.scores[sub.id].total }}</td>
-                  <td class="px-1 py-4 border-r border-slate-700/60 text-center text-[9px] font-black">
-                    <span v-if="isSSS" :class="student.scores[sub.id].grade === 'F' ? 'text-red-500' : 'text-emerald-500'">{{ student.scores[sub.id].grade }}</span>
-                    <span v-else class="text-slate-500">{{ student.scores[sub.id].subjectPosition || '-' }}</span>
+                  <td class="px-1 py-4 border-r border-[#C9A84C]/8 text-center text-[9px] font-bold text-[#F5F0E8]/60">{{ student.scores[sub.id].ca1 }}</td>
+                  <td class="px-1 py-4 border-r border-[#C9A84C]/8 text-center text-[9px] font-bold text-[#F5F0E8]/60">{{ student.scores[sub.id].ca2 }}</td>
+                  <td class="px-1 py-4 border-r border-[#C9A84C]/8 text-center text-[9px] font-bold text-[#F5F0E8]/60">{{ student.scores[sub.id].exam }}</td>
+                  <td class="px-1 py-4 border-r border-[#C9A84C]/8 text-center text-[9px] font-black text-[#FAFAF7] bg-[#1B2A4A]/60">{{ student.scores[sub.id].total }}</td>
+                  <td class="px-1 py-4 border-r border-[#C9A84C]/8 text-center text-[9px] font-black">
+                    <span v-if="isSSS" :class="student.scores[sub.id].grade === 'F' ? 'text-[#B45A74]' : 'text-[#7A9E7E]'">{{ student.scores[sub.id].grade }}</span>
+                    <span v-else class="text-[#F5F0E8]/50">{{ student.scores[sub.id].subjectPosition || '-' }}</span>
                   </td>
                 </template>
                 <template v-else>
-                  <td colspan="5" class="px-1 py-4 border-r border-slate-700/60 text-center text-slate-200">-</td>
+                  <td colspan="5" class="px-1 py-4 border-r border-[#C9A84C]/8 text-center text-[#F5F0E8]/40">-</td>
                 </template>
               </template>
-              <td class="px-2 py-4 border-r border-slate-700/60 text-center text-xs font-black text-white">
+              <td class="px-2 py-4 border-r border-[#C9A84C]/8 text-center text-xs font-black text-[#FAFAF7]">
                 {{ student.total }}
               </td>
-              <td class="px-2 py-4 border-r border-slate-700/60 text-center text-xs font-black text-royal-purple">
+              <td class="px-2 py-4 border-r border-[#C9A84C]/8 text-center text-xs font-black text-[#C9A84C]">
                 {{ student.average }}%
               </td>
-              <td class="px-2 py-4 border-r border-slate-700/60 text-center text-xs font-black text-royal-gold">
+              <td class="px-2 py-4 border-r border-[#C9A84C]/8 text-center text-xs font-black gold-text">
                 {{ student.position }}
               </td>
               <td class="px-2 py-4 text-center">
-                <span class="text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest" :class="[student.average >= 40 ? 'bg-emerald-900/30 text-emerald-300' : 'bg-red-900/30 text-red-300']">
+                <span class="text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest" :class="[student.average >= 40 ? 'bg-[#7A9E7E]/20 text-[#7A9E7E] border border-[#7A9E7E]/20' : 'bg-[#8B3A52]/20 text-[#B45A74] border border-[#8B3A52]/20']">
                   {{ student.average >= 40 ? 'PASS' : 'FAIL' }}
                 </span>
               </td>
@@ -416,9 +418,9 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         </table>
       </div>
 
-      <div v-else class="h-[500px] flex items-center justify-center p-8 text-center text-slate-400">
+      <div v-else class="h-[500px] flex items-center justify-center p-8 text-center text-[#F5F0E8]/50">
         <div class="max-w-xs">
-          <FileSpreadsheet class="w-16 h-16 mx-auto mb-6 opacity-10" />
+          <FileSpreadsheet class="w-16 h-16 mx-auto mb-6 opacity-10 text-[#C9A84C]" />
           <p class="text-xs font-black uppercase tracking-widest">Select class and session parameters to generate the master broadsheet.</p>
         </div>
       </div>
@@ -426,11 +428,11 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
 
     <!-- Visual Analytics -->
     <div v-if="broadsheet && !loading && !error" class="fade-in">
-      <div class="mb-8 flex items-center justify-between no-print">
-        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-          <TrendingUp class="w-5 h-5 text-royal-purple" /> Visual <span class="text-royal-purple">Analytics</span>
+      <div class="mb-6 flex items-center justify-between no-print">
+        <h2 class="academic-heading text-lg text-[#FAFAF7] flex items-center gap-3">
+          <TrendingUp class="w-5 h-5 text-[#C9A84C]" /> Visual <span class="gold-text">Analytics</span>
         </h2>
-        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Class Performance Insights</p>
+        <p class="text-[9px] font-black uppercase tracking-widest text-[#F5F0E8]/40">Class Performance Insights</p>
       </div>
       <PerformanceCharts :students="broadsheet.students" :subjects="broadsheet.subjects" class="no-print" />
     </div>

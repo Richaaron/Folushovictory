@@ -8,6 +8,36 @@ export default {
   theme: {
     extend: {
       colors: {
+        navy: {
+          DEFAULT: '#1B2A4A',
+          light: '#243656',
+        },
+        cream: {
+          DEFAULT: '#F5F0E8',
+          light: '#FAF8F3',
+        },
+        chalk: '#FAFAF7',
+        gold: {
+          DEFAULT: '#C9A84C',
+          light: '#E8D08A',
+          dark: '#A8872E',
+        },
+        sage: {
+          DEFAULT: '#7A9E7E',
+          light: '#A8C4AB',
+        },
+        burgundy: {
+          DEFAULT: '#8B3A52',
+          light: '#B45A74',
+        },
+        ink: {
+          DEFAULT: '#1E1E2E',
+          soft: '#3A3A4A',
+        },
+        parchment: {
+          DEFAULT: '#F5F0E8',
+          dark: '#E8E0D0',
+        },
         royal: {
           purple: '#581C87',
           gold: '#D4AF37',

@@ -387,55 +387,57 @@ onMounted(fetchTeachers)
 </script>
 
 <template>
-  <div class="space-y-4 sm:space-y-8 lg:space-y-10 fade-in py-3 sm:py-6">
+  <div class="space-y-6 sm:space-y-8 fade-in relative">
+    <span class="floating-math" aria-hidden="true">∑</span>
     <!-- Header -->
-    <section class="admin-hero-card flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <section class="parchment-card p-6 lg:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div>
-        <div class="flex items-center gap-2 sm:gap-3 mb-4">
-          <div class="h-1 w-16 bg-nebula-500 rounded-full"></div>
-          <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-nebula-500">Personnel Core</span>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-1 w-10 bg-[#C9A84C] rounded-full"></div>
+          <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-[#C9A84C]/60">Personnel Core</span>
         </div>
-        <h1 class="hero-title">Staff <span>Faculty</span></h1>
-        <p class="hero-subtitle">Institutional Onboarding & Resource Allocation</p>
+        <h1 class="academic-heading text-2xl sm:text-3xl text-[#FAFAF7]">Staff Faculty</h1>
+        <div class="gold-accent"></div>
+        <p class="text-sm text-[#F5F0E8]/50 max-w-2xl">Institutional Onboarding & Resource Allocation</p>
       </div>
       <button 
         @click="showAddModal = true"
-        class="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 rounded-lg sm:rounded-[1.5rem] nebula-gradient px-4 sm:px-8 py-3 sm:py-4 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-nebula-500/30 transition hover:scale-105 active:scale-95 group min-h-[44px] min-w-[44px] sm:min-w-[auto]"
+        class="chalkboard-btn chalkboard-btn-gold"
       >
-        <UserPlus class="w-4 sm:w-5 h-4 sm:h-5 group-hover:rotate-12 transition-transform flex-shrink-0" /> 
-        <span class="hidden sm:inline">Enroll New Faculty</span><span class="sm:hidden">Add</span>
+        <UserPlus class="w-4 h-4" />
+        <span>Enroll New Faculty</span>
       </button>
     </section>
 
     <!-- Filters & Search -->
-    <div class="glass-card rounded-[2.5rem] bg-slate-950/90 border border-slate-700/60 p-4 sm:p-6 flex flex-col gap-4">
+    <div class="parchment-card p-4 sm:p-6 flex flex-col gap-4">
       <div class="relative flex-grow">
-        <Search class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-nebula-500 flex-shrink-0" />
+        <Search class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-[#C9A84C]/50 flex-shrink-0" />
         <input 
           v-model="searchQuery"
           type="text" 
           placeholder="Search faculty..."
-          class="w-full pl-10 sm:pl-16 pr-4 sm:pr-8 py-3 sm:py-5 bg-slate-900/60 border-none rounded-lg sm:rounded-[1.5rem] text-xs sm:text-sm font-bold text-white focus:bg-slate-950 focus:ring-4 focus:ring-nebula-500/10 outline-none transition-all placeholder-slate-400 min-h-[44px]"
+          class="academic-input pl-10 sm:pl-16"
         />
       </div>
     </div>
 
     <!-- Teachers Directory -->
-    <section class="glass-card rounded-[2rem] border border-slate-700/60 bg-slate-950/95 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-      <div class="px-4 py-5 sm:px-6 sm:py-7 border-b border-slate-800/70 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <section class="parchment-card p-4 sm:p-6">
+      <div class="p-4 sm:p-6 border-b border-[#C9A84C]/10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p class="text-[10px] uppercase tracking-[0.3em] text-slate-400">Faculty Directory</p>
-          <h2 class="mt-2 text-xl sm:text-2xl font-black text-white">Active teachers overview</h2>
-          <p class="mt-2 text-sm text-slate-500 max-w-2xl">Manage teacher profiles, resend credentials, and keep staffing aligned.</p>
+          <p class="text-[9px] uppercase tracking-[0.3em] text-[#C9A84C]/50 font-bold">Faculty Directory</p>
+          <h2 class="academic-heading text-xl text-[#FAFAF7] mt-1">Active teachers overview</h2>
+          <p class="mt-2 text-xs text-[#F5F0E8]/50 max-w-2xl">Manage teacher profiles, resend credentials, and keep staffing aligned.</p>
         </div>
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <div class="rounded-[1.75rem] bg-slate-900/70 border border-slate-700/70 p-4 text-center">
-            <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Total</p>
-            <p class="mt-2 text-2xl font-black text-white">{{ teachers.length }}</p>
+        <div class="flex gap-3">
+          <div class="rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/15 p-4 text-center min-w-[90px]">
+            <p class="text-[8px] uppercase tracking-[0.25em] text-[#C9A84C]/50 font-bold">Total</p>
+            <p class="academic-heading text-xl text-[#FAFAF7] mt-1">{{ teachers.length }}</p>
           </div>
-          <div class="rounded-[1.75rem] bg-slate-900/70 border border-slate-700/70 p-4 text-center">
-            <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Visible</p>
-            <p class="mt-2 text-2xl font-black text-white">{{ filteredTeachers.length }}</p>
+          <div class="rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/15 p-4 text-center min-w-[90px]">
+            <p class="text-[8px] uppercase tracking-[0.25em] text-[#C9A84C]/50 font-bold">Visible</p>
+            <p class="academic-heading text-xl text-[#FAFAF7] mt-1">{{ filteredTeachers.length }}</p>
           </div>
         </div>
       </div>
@@ -453,50 +455,50 @@ onMounted(fetchTeachers)
           <p class="mt-3 text-sm text-slate-500">Adjust your filter or enroll a new staff member to populate the directory.</p>
         </div>
 
-        <div v-else class="grid gap-4">
-          <article v-for="teacher in filteredTeachers" :key="teacher.username" class="rounded-[2rem] border border-slate-800/70 bg-slate-900/80 p-5 sm:p-6 shadow-[0_18px_40px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5">
+        <div v-else class="grid gap-3">
+          <article v-for="teacher in filteredTeachers" :key="teacher.username" class="rounded-xl border border-[#C9A84C]/12 bg-[#1B2A4A]/40 p-5 sm:p-6 transition-all hover:border-[#C9A84C]/25 hover:bg-[#1B2A4A]/60">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div class="flex items-center gap-4 min-w-0">
-                <div class="h-14 w-14 rounded-3xl bg-nebula-500/15 flex items-center justify-center text-2xl font-black text-nebula-500">
+                <div class="h-14 w-14 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 flex items-center justify-center text-xl font-black text-[#C9A84C]">
                   {{ teacher.displayName.charAt(0) }}
                 </div>
                 <div class="min-w-0">
-                  <p class="truncate text-base sm:text-lg font-black text-white">{{ teacher.displayName }}</p>
-                  <div class="mt-2 flex flex-wrap gap-2 text-[9px] uppercase tracking-[0.25em] text-slate-400">
+                  <p class="truncate text-base sm:text-lg font-black text-[#FAFAF7]">{{ teacher.displayName }}</p>
+                  <div class="mt-2 flex flex-wrap gap-2 text-[9px] uppercase tracking-[0.25em] text-[#F5F0E8]/40">
                     <span class="truncate">@{{ teacher.username }}</span>
                     <span class="truncate">{{ teacher.email || 'No Email' }}</span>
                   </div>
                 </div>
               </div>
               <div class="flex flex-wrap items-center justify-end gap-2">
-                <button v-if="teacher.email" @click="handleResendCredentials(teacher)" class="p-2 sm:p-3 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-emerald-300 hover:border-emerald-500/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center">
+                <button v-if="teacher.email" @click="handleResendCredentials(teacher)" class="p-2.5 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#7A9E7E] hover:border-[#7A9E7E]/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center">
                   <Mail class="w-4 h-4" />
                 </button>
-                <button @click="openEditModal(teacher)" class="p-2 sm:p-3 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-nebula-300 hover:border-nebula-500/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center">
+                <button @click="openEditModal(teacher)" class="p-2.5 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center">
                   <Edit2 class="w-4 h-4" />
                 </button>
-                <button @click="handleDelete(teacher.username)" class="p-2 sm:p-3 rounded-xl bg-slate-900/70 border border-slate-700/70 text-slate-200 hover:bg-slate-950 hover:text-rose-400 hover:border-rose-500/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center">
+                <button @click="handleDelete(teacher.username)" class="p-2.5 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#B45A74] hover:border-[#B45A74]/30 transition-all min-h-[36px] min-w-[36px] flex items-center justify-center">
                   <Trash2 class="w-4 h-4" />
                 </button>
               </div>
             </div>
             <div class="mt-5 grid gap-3 sm:grid-cols-3">
-              <div class="rounded-[1.5rem] border border-slate-800/70 bg-slate-950/80 p-4">
-                <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Department</p>
-                <p class="mt-2 text-sm font-black text-white">{{ teacher.department || 'Secondary' }}</p>
+              <div class="rounded-xl border border-[#C9A84C]/10 bg-[#1B2A4A]/60 p-4">
+                <p class="text-[8px] uppercase tracking-[0.25em] text-[#C9A84C]/50 font-bold">Department</p>
+                <p class="mt-1 text-sm font-black text-[#FAFAF7]">{{ teacher.department || 'Secondary' }}</p>
               </div>
-              <div class="rounded-[1.5rem] border border-slate-800/70 bg-slate-950/80 p-4">
-                <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Role</p>
-                <p class="mt-2 text-sm font-black text-white">{{ teacher.formClassId ? 'Form Teacher' : 'Subject Teacher' }}</p>
+              <div class="rounded-xl border border-[#C9A84C]/10 bg-[#1B2A4A]/60 p-4">
+                <p class="text-[8px] uppercase tracking-[0.25em] text-[#C9A84C]/50 font-bold">Role</p>
+                <p class="mt-1 text-sm font-black text-[#FAFAF7]">{{ teacher.formClassId ? 'Form Teacher' : 'Subject Teacher' }}</p>
               </div>
-              <div class="rounded-[1.5rem] border border-slate-800/70 bg-slate-950/80 p-4">
-                <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Primary Class</p>
-                <p class="mt-2 text-sm font-black text-white">{{ teacher.formClassId ? classes.find(c => c.id === teacher.formClassId)?.name || 'Assigned' : 'Not Assigned' }}</p>
+              <div class="rounded-xl border border-[#C9A84C]/10 bg-[#1B2A4A]/60 p-4">
+                <p class="text-[8px] uppercase tracking-[0.25em] text-[#C9A84C]/50 font-bold">Primary Class</p>
+                <p class="mt-1 text-sm font-black text-[#FAFAF7]">{{ teacher.formClassId ? classes.find(c => c.id === teacher.formClassId)?.name || 'Assigned' : 'Not Assigned' }}</p>
               </div>
-              <div v-if="teacher.department !== 'Primary/Nursery'" class="rounded-[1.5rem] border border-slate-800/70 bg-slate-950/80 p-4 col-span-full">
-                <p class="text-[9px] uppercase tracking-[0.25em] text-slate-500">Secondary Subjects</p>
+              <div v-if="teacher.department !== 'Primary/Nursery'" class="rounded-xl border border-[#C9A84C]/10 bg-[#1B2A4A]/60 p-4 col-span-full">
+                <p class="text-[8px] uppercase tracking-[0.25em] text-[#C9A84C]/50 font-bold">Secondary Subjects</p>
                 <div class="mt-3 flex flex-wrap gap-2">
-                  <span v-for="subject in getSecondarySubjectNames(teacher)" :key="subject" class="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-[11px] font-black text-emerald-300">
+                  <span v-for="subject in getSecondarySubjectNames(teacher)" :key="subject" class="rounded-full bg-[#C9A84C]/10 border border-[#C9A84C]/20 px-3 py-1 text-xs font-bold text-[#C9A84C]/80">
                     {{ subject }}
                   </span>
                   <span v-if="getSecondarySubjectNames(teacher).length === 0" class="text-sm font-black text-slate-400">No secondary subjects assigned</span>
@@ -518,8 +520,8 @@ onMounted(fetchTeachers)
       leave-to-class="opacity-0 scale-95"
     >
       <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="add-teacher-title">
-        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xl transition-opacity" @click="showAddModal = false"></div>
-        <div class="glass-card rounded-[2.5rem] md:rounded-[3rem] w-full max-w-2xl p-6 md:p-12 shadow-2xl relative z-10 border border-white/40 dark:border-slate-700/50 max-h-[95vh] overflow-y-auto scrollbar-premium">
+        <div class="absolute inset-0 bg-[#1B2A4A]/80 backdrop-blur-xl transition-opacity" @click="showAddModal = false"></div>
+        <div class="parchment-card p-6 md:p-10 w-full max-w-2xl shadow-2xl relative z-10 max-h-[95vh] overflow-y-auto">
           <div class="flex items-center justify-between mb-8 md:mb-10">
             <div class="flex items-center gap-5">
               <div class="h-12 w-12 md:h-14 md:w-14 rounded-2xl nebula-gradient flex items-center justify-center text-white shadow-2xl shadow-nebula-500/30">

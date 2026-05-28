@@ -7,7 +7,10 @@ import {
   Check, 
   AlertCircle,
   Loader2,
-  Image as ImageIcon
+  Image as ImageIcon,
+  School,
+  User,
+  FileSignature
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -17,7 +20,6 @@ const saving = ref(false)
 const error = ref('')
 const successMessage = ref('')
 
-// Form fields
 const schoolName = ref('')
 const motto = ref('')
 const address = ref('')
@@ -28,7 +30,6 @@ const principalName = ref('')
 const currentSession = ref('')
 const currentTerm = ref('Third')
 
-// File uploads
 const logoFile = ref<File | null>(null)
 const logoPreview = ref('')
 const signatureFile = ref<File | null>(null)
@@ -43,8 +44,6 @@ const fetchSettings = async () => {
   try {
     const resp = await api.get(SETTINGS_ENDPOINT)
     settings.value = resp.data
-    
-    // Populate form fields
     schoolName.value = resp.data.name || ''
     motto.value = resp.data.motto || ''
     address.value = resp.data.address || ''
@@ -54,7 +53,6 @@ const fetchSettings = async () => {
     principalName.value = resp.data.principalName || ''
     currentSession.value = resp.data.currentSession || ''
     currentTerm.value = resp.data.currentTerm || 'Third'
-    
     logoPreview.value = resp.data.logoUrl || ''
     signaturePreview.value = resp.data.principalSignatureUrl || ''
   } catch (err: any) {
@@ -119,14 +117,12 @@ const saveSettings = async () => {
       currentTerm: currentTerm.value
     }
 
-    // Add logo: if new file, use new, else keep existing, else don't include
     if (logoFile.value) {
       payload.logoUrl = logoPreview.value
     } else if (settings.value?.logoUrl) {
       payload.logoUrl = settings.value.logoUrl
     }
 
-    // Add principal signature: if preview exists (either new or existing), use it!
     if (signaturePreview.value) {
       payload.principalSignatureUrl = signaturePreview.value
     } else if (settings.value?.principalSignatureUrl) {
@@ -139,10 +135,9 @@ const saveSettings = async () => {
     settings.value = resp.data
     logoFile.value = null
     signatureFile.value = null
-    
-    // Reload to show updated values
+
     await fetchSettings()
-    
+
     setTimeout(() => {
       successMessage.value = ''
     }, 5000)
@@ -158,136 +153,121 @@ onMounted(fetchSettings)
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- Header -->
-    <section class="admin-hero-card mb-6">
-      <div>
-        <h2 class="hero-title">School Settings</h2>
-        <p class="hero-subtitle">Manage school information and official documents</p>
+  <div class="space-y-6 fade-in">
+    <section class="parchment-card p-6 lg:p-8">
+      <div class="flex items-center gap-4">
+        <div class="h-14 w-14 rounded-2xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 flex items-center justify-center">
+          <School class="w-7 h-7 text-[#C9A84C]" />
+        </div>
+        <div>
+          <h2 class="academic-heading text-2xl text-[#FAFAF7]">School Settings</h2>
+          <p class="text-sm text-[#F5F0E8]/50 mt-0.5">Manage school information and official documents</p>
+        </div>
       </div>
     </section>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="flex items-center justify-center py-16">
-      <Loader2 class="w-12 h-12 text-teal-600 animate-spin" />
+    <div v-if="loading" class="flex items-center justify-center py-20">
+      <Loader2 class="w-12 h-12 text-[#C9A84C]/50 animate-spin" />
     </div>
 
     <div v-else class="space-y-6">
       <!-- Success Message -->
-      <div v-if="successMessage" class="flex items-start gap-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl">
-        <Check class="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
-        <div>
-          <p class="font-bold text-emerald-900 dark:text-emerald-200">{{ successMessage }}</p>
-        </div>
+      <div v-if="successMessage" class="flex items-start gap-4 p-4 rounded-xl bg-[#7A9E7E]/10 border border-[#7A9E7E]/25">
+        <Check class="w-5 h-5 text-[#7A9E7E] flex-shrink-0 mt-0.5" />
+        <p class="text-sm font-bold text-[#A8C4AB]">{{ successMessage }}</p>
       </div>
 
-      <!-- Error Message -->
-      <div v-if="error" class="flex items-start gap-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl">
-        <AlertCircle class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
-        <div>
-          <p class="font-bold text-red-900 dark:text-red-200">{{ error }}</p>
-        </div>
+      <div v-if="error" class="flex items-start gap-4 p-4 rounded-xl bg-[#8B3A52]/10 border border-[#8B3A52]/25">
+        <AlertCircle class="w-5 h-5 text-[#B45A74] flex-shrink-0 mt-0.5" />
+        <p class="text-sm font-bold text-[#B45A74]">{{ error }}</p>
       </div>
 
-      <!-- Main Form -->
       <form @submit.prevent="saveSettings" class="space-y-8">
-        <!-- School Basic Info Section -->
-        <div class="glass-card rounded-[2.5rem] p-8 border-royal-gold/15 bg-slate-950/95 space-y-6">
-          <h3 class="text-xl font-bold text-white flex items-center gap-2">
-            <span class="w-1 h-6 bg-teal-600 rounded-full"></span>
-            Basic Information
-          </h3>
+        <div class="parchment-card p-6 lg:p-8 space-y-6">
+          <div class="flex items-center gap-3 pb-4 border-b border-[#C9A84C]/10">
+            <div class="h-8 w-1 rounded-full bg-[#C9A84C]"></div>
+            <h3 class="academic-heading text-lg text-[#FAFAF7]">Basic Information</h3>
+          </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- School Name -->
             <div>
-              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
-                School Name <span class="text-red-500">*</span>
+              <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
+                School Name <span class="text-[#B45A74]">*</span>
               </label>
               <input
                 v-model="schoolName"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
+                class="academic-input"
                 placeholder="Enter school name"
                 required
               />
             </div>
 
-            <!-- Motto -->
             <div>
-              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
+              <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
                 School Motto
               </label>
               <input
                 v-model="motto"
                 type="text"
-                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
+                class="academic-input"
                 placeholder="Enter school motto"
               />
             </div>
 
-            <!-- Address -->
             <div class="md:col-span-2">
-              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
+              <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
                 School Address
               </label>
               <textarea
                 v-model="address"
-                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all resize-none"
+                class="academic-input resize-none"
                 rows="2"
                 placeholder="Enter full school address"
               ></textarea>
             </div>
 
-            <!-- Phone -->
             <div>
-              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
+              <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
                 Phone Number
               </label>
               <input
                 v-model="phone"
                 type="tel"
-                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
+                class="academic-input"
                 placeholder="+234 (0) XXX XXX XXXX"
               />
             </div>
 
-            <!-- Email -->
             <div>
-              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
+              <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
                 Email Address
               </label>
               <input
                 v-model="email"
                 type="email"
-                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
+                class="academic-input"
                 placeholder="info@school.com"
               />
             </div>
 
-            <!-- Website -->
             <div>
-              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
+              <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
                 Website
               </label>
               <input
                 v-model="website"
                 type="url"
-                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
+                class="academic-input"
                 placeholder="https://www.school.com"
               />
             </div>
 
-            <!-- Current Session -->
             <div>
-              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
-                Current Session <span class="text-red-500">*</span>
+              <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
+                Current Session <span class="text-[#B45A74]">*</span>
               </label>
-              <select
-                v-model="currentSession"
-                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
-                required
-              >
+              <select v-model="currentSession" class="academic-select" required>
                 <option>2023/2024</option>
                 <option>2024/2025</option>
                 <option>2025/2026</option>
@@ -295,16 +275,11 @@ onMounted(fetchSettings)
               </select>
             </div>
 
-            <!-- Current Term -->
             <div>
-              <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
-                Current Term <span class="text-red-500">*</span>
+              <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
+                Current Term <span class="text-[#B45A74]">*</span>
               </label>
-              <select
-                v-model="currentTerm"
-                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
-                required
-              >
+              <select v-model="currentTerm" class="academic-select" required>
                 <option value="First">First Term</option>
                 <option value="Second">Second Term</option>
                 <option value="Third">Third Term</option>
@@ -313,55 +288,52 @@ onMounted(fetchSettings)
           </div>
         </div>
 
-        <!-- Principal Section -->
-        <div class="glass-card rounded-[2.5rem] p-8 border-royal-gold/15 bg-slate-950/95 space-y-6">
-          <h3 class="text-xl font-bold text-white flex items-center gap-2">
-            <span class="w-1 h-6 bg-amber-500 rounded-full"></span>
-            Principal Information
-          </h3>
+        <div class="parchment-card p-6 lg:p-8 space-y-6">
+          <div class="flex items-center gap-3 pb-4 border-b border-[#C9A84C]/10">
+            <div class="h-8 w-1 rounded-full bg-[#C9A84C]"></div>
+            <h3 class="academic-heading text-lg text-[#FAFAF7]">Principal Information</h3>
+          </div>
 
-          <!-- Principal Name -->
           <div>
-            <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
+            <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
+              <User class="w-3 h-3 inline mr-1" />
               Principal's Full Name
             </label>
             <input
               v-model="principalName"
               type="text"
-              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
+              class="academic-input"
               placeholder="Enter principal's name"
             />
           </div>
 
-          <!-- Principal Signature Upload -->
           <div>
-            <label class="block text-sm font-bold text-slate-900 dark:text-white mb-2">
-              Principal's Signature (for report cards)
+            <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
+              <FileSignature class="w-3 h-3 inline mr-1" />
+              Principal's Signature
             </label>
-            <p class="text-xs text-slate-500 mb-3">Upload a high-quality image of the principal's signature (PNG or JPG)</p>
-            
+            <p class="text-xs text-[#F5F0E8]/40 mb-3">Upload a high-quality image of the principal's signature (PNG or JPG)</p>
+
             <div class="space-y-3">
-              <!-- Current Signature Preview -->
-              <div v-if="signaturePreview" class="relative bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div v-if="signaturePreview" class="relative rounded-xl p-4 bg-[#1B2A4A]/60 border border-[#C9A84C]/15">
                 <img :src="signaturePreview" class="h-16 object-contain" alt="Principal Signature" />
                 <button
                   v-if="signatureFile"
                   type="button"
                   @click="clearSignature"
-                  class="absolute top-2 right-2 p-1 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                  class="absolute top-2 right-2 p-1 bg-[#8B3A52] hover:bg-[#B45A74] text-white rounded-lg transition-colors"
                 >
                   <X class="w-4 h-4" />
                 </button>
               </div>
 
-              <!-- Upload Button -->
               <div
                 @click="signatureFileInput?.click()"
-                class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center cursor-pointer hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/10 transition-all"
+                class="border-2 border-dashed border-[#C9A84C]/15 rounded-xl p-8 text-center cursor-pointer hover:border-[#C9A84C]/35 hover:bg-[#C9A84C]/3 transition-all"
               >
-                <Upload class="w-8 h-8 text-teal-600 mx-auto mb-2" />
-                <p class="font-bold text-slate-900 dark:text-white mb-1">Click to upload signature</p>
-                <p class="text-xs text-slate-500">PNG or JPG • Max 2MB</p>
+                <Upload class="w-8 h-8 text-[#C9A84C]/50 mx-auto mb-2" />
+                <p class="text-sm font-bold text-[#F5F0E8]/70 mb-1">Click to upload signature</p>
+                <p class="text-xs text-[#F5F0E8]/40">PNG or JPG • Max 2MB</p>
               </div>
 
               <input
@@ -375,34 +347,31 @@ onMounted(fetchSettings)
           </div>
         </div>
 
-        <!-- School Logo Section -->
-        <div class="glass-card rounded-[2.5rem] p-8 border-royal-gold/15 bg-slate-950/95 space-y-6">
-          <h3 class="text-xl font-bold text-white flex items-center gap-2">
-            <span class="w-1 h-6 bg-blue-600 rounded-full"></span>
-            School Logo
-          </h3>
+        <div class="parchment-card p-6 lg:p-8 space-y-6">
+          <div class="flex items-center gap-3 pb-4 border-b border-[#C9A84C]/10">
+            <div class="h-8 w-1 rounded-full bg-[#C9A84C]"></div>
+            <h3 class="academic-heading text-lg text-[#FAFAF7]">School Logo</h3>
+          </div>
 
-          <!-- Logo Preview -->
-          <div v-if="logoPreview" class="relative bg-slate-50 dark:bg-slate-800 rounded-xl p-8 border border-slate-200 dark:border-slate-700 text-center">
+          <div v-if="logoPreview" class="relative rounded-xl p-8 bg-[#1B2A4A]/60 border border-[#C9A84C]/15 text-center">
             <img :src="logoPreview" class="h-24 mx-auto object-contain" alt="School Logo" />
             <button
               v-if="logoFile"
               type="button"
               @click="clearLogo"
-              class="absolute top-2 right-2 p-1 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+              class="absolute top-2 right-2 p-1 bg-[#8B3A52] hover:bg-[#B45A74] text-white rounded-lg transition-colors"
             >
               <X class="w-4 h-4" />
             </button>
           </div>
 
-          <!-- Upload Button -->
           <div
             @click="logoFileInput?.click()"
-            class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center cursor-pointer hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/10 transition-all"
+            class="border-2 border-dashed border-[#C9A84C]/15 rounded-xl p-8 text-center cursor-pointer hover:border-[#C9A84C]/35 hover:bg-[#C9A84C]/3 transition-all"
           >
-            <ImageIcon class="w-8 h-8 text-teal-600 mx-auto mb-2" />
-            <p class="font-bold text-slate-900 dark:text-white mb-1">Click to upload school logo</p>
-            <p class="text-xs text-slate-500">PNG or JPG • Max 2MB</p>
+            <ImageIcon class="w-8 h-8 text-[#C9A84C]/50 mx-auto mb-2" />
+            <p class="text-sm font-bold text-[#F5F0E8]/70 mb-1">Click to upload school logo</p>
+            <p class="text-xs text-[#F5F0E8]/40">PNG or JPG • Max 2MB</p>
           </div>
 
           <input
@@ -414,15 +383,14 @@ onMounted(fetchSettings)
           />
         </div>
 
-        <!-- Submit Button -->
         <div class="flex gap-3">
           <button
             type="submit"
             :disabled="saving"
-            class="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 disabled:bg-slate-400 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-wider transition-colors shadow-lg"
+            class="chalkboard-btn chalkboard-btn-gold"
           >
-            <Save v-if="!saving" class="w-5 h-5" />
-            <Loader2 v-else class="w-5 h-5 animate-spin" />
+            <Save v-if="!saving" class="w-4 h-4" />
+            <Loader2 v-else class="w-4 h-4 animate-spin" />
             {{ saving ? 'Saving...' : 'Save Settings' }}
           </button>
         </div>
@@ -430,10 +398,3 @@ onMounted(fetchSettings)
     </div>
   </div>
 </template>
-
-<style scoped>
-input:focus,
-textarea:focus {
-  outline: none;
-}
-</style>

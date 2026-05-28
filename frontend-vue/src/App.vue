@@ -2,7 +2,6 @@
 import { onMounted } from 'vue'
 
 onMounted(() => {
-  // Restore theme from localStorage
   const theme = localStorage.getItem('theme')
   if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark')
@@ -15,20 +14,15 @@ onMounted(() => {
 <template>
   <div class="app-shell">
     <div class="app-academic-bg" aria-hidden="true">
-      <div class="orb orb-purple"></div>
-      <div class="orb orb-gold"></div>
-      <div class="orb orb-violet"></div>
-      <div class="grid-overlay"></div>
-      <span class="academic-symbol symbol-sum">∑</span>
-      <span class="academic-symbol symbol-pi">π</span>
-      <span class="academic-symbol symbol-lambda">λ</span>
-      <span class="academic-symbol symbol-root">√</span>
-      <span class="sparkle sparkle-one"></span>
-      <span class="sparkle sparkle-two"></span>
-      <span class="sparkle sparkle-three"></span>
+      <span class="floating-math">∫</span>
+      <span class="floating-math">∑</span>
+      <span class="floating-math">π</span>
+      <span class="floating-math">√</span>
+      <span class="floating-math">∂</span>
+      <span class="floating-math">θ</span>
     </div>
 
-    <div class="relative z-10 min-h-screen bg-slate-950 text-slate-100">
+    <div class="relative z-10 min-h-screen text-[#F5F0E8]">
       <router-view v-slot="{ Component }">
         <transition name="page" mode="out-in">
           <component :is="Component" />
@@ -41,29 +35,26 @@ onMounted(() => {
 <style>
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .page-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(12px);
 }
 
 .page-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-8px);
 }
 
-/* Global Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-slate-100 dark:bg-slate-900;
-}
-
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #1B2A4A; }
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 dark:bg-slate-700 rounded-full hover:bg-royal-purple transition-colors;
+  background: rgba(201, 168, 76, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 168, 76, 0.35);
 }
 </style>
