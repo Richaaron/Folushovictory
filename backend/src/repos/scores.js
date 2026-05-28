@@ -9,6 +9,17 @@ function normalizeTerm(value) {
   return String(value || '').trim();
 }
 
+function termVariants(value) {
+  const normalized = normalizeTerm(value);
+  const raw = String(value || '').trim();
+  const variants = new Set();
+  if (normalized) variants.add(normalized);
+  if (raw && raw !== normalized) variants.add(raw);
+  const ordinalToWord = { '1st': 'First', '2nd': 'Second', '3rd': 'Third' };
+  if (ordinalToWord[normalized]) variants.add(ordinalToWord[normalized]);
+  return [...variants];
+}
+
 function scoreId({ session, term, classId, studentId, subjectId }) {
   return `${session}_${term}_${classId}_${studentId}_${subjectId}`;
 }
@@ -47,7 +58,7 @@ export async function upsertTraitScore({ session, term, classId, studentId, subj
 }
 
 export async function listScoresForClass({ session, term, classId }) {
-  const terms = [...new Set([normalizeTerm(term), term].filter(Boolean))];
+  const terms = termVariants(term);
   const { data } = await SafeDatabase.query(
     "scores",
     [
@@ -61,7 +72,7 @@ export async function listScoresForClass({ session, term, classId }) {
 }
 
 export async function listScoresForStudent({ session, term, studentId }) {
-  const terms = [...new Set([normalizeTerm(term), term].filter(Boolean))];
+  const terms = termVariants(term);
   const { data } = await SafeDatabase.query(
     "scores",
     [
