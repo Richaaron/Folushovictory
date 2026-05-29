@@ -303,6 +303,7 @@ teacherRouter.post(
       session: String(session),
       term: String(term),
       studentId: String(studentId),
+      classId: student.classId,
       released: !!released,
       releasedBy: req.user.username
     });

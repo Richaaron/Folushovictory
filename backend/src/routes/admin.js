@@ -977,10 +977,13 @@ adminRouter.post(
     // ADMIN: Release results for any student, regardless of form teacher assignment
     const { session, term, studentId, released } = req.body || {};
     if (!session || !term || !studentId) return res.status(400).json({ error: "Missing fields" });
+    const student = await getStudentById(String(studentId));
+    if (!student) return res.status(404).json({ error: "Student not found" });
     const result = await setReleaseStatus({
       session: String(session),
       term: String(term),
       studentId: String(studentId),
+      classId: student.classId,
       released: !!released,
       releasedBy: req.user.username
     });
@@ -989,8 +992,7 @@ adminRouter.post(
     if (!!released) {
       (async () => {
         try {
-          const student = await getStudentById(studentId);
-          if (student && student.parentUsername) {
+          if (student.parentUsername) {
             const parent = await getUserByUsername(student.parentUsername);
             if (parent && parent.email) {
               await sendResultReleasedEmail({
