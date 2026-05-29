@@ -19,6 +19,7 @@ const term = ref(String(route.query.term || '').trim())
 const data = ref<any>(null)
 const loading = ref(true)
 const error = ref('')
+const previewMode = computed(() => String(route.query.preview || '').toLowerCase() === 'true')
 
 const fetchData = async () => {
   loading.value = true
@@ -139,7 +140,7 @@ onMounted(fetchData)
       <p class="mx-auto mb-8 max-w-md text-slate-300">{{ error }}</p>
     </div>
 
-    <div v-else-if="data && !data.released" class="rounded-3xl border border-slate-700/60 bg-slate-950/90 p-20 text-center shadow-xl shadow-slate-900/10">
+    <div v-else-if="data && !data.released && !previewMode" class="rounded-3xl border border-slate-700/60 bg-slate-950/90 p-20 text-center shadow-xl shadow-slate-900/10">
       <Lock class="mx-auto mb-6 h-20 w-20 text-royal-purple opacity-20" />
       <h2 class="mb-4 text-3xl font-black text-white">Result Not Released</h2>
       <p class="mx-auto mb-8 max-w-md text-slate-300">This academic report has been compiled but is currently locked by the school administration.</p>
@@ -172,6 +173,9 @@ onMounted(fetchData)
         <p v-if="data.school?.email">{{ data.school.email }}</p>
         <p v-if="schoolWebsite">{{ schoolWebsite }}</p>
       </section>
+      <div v-if="previewMode" class="mb-4 rounded-3xl border border-amber-300/40 bg-amber-50/80 p-4 text-amber-900">
+        <strong>Preview mode enabled:</strong> this report is not released yet, but you are viewing it as a teacher preview.
+      </div>
 
       <section class="student-band">
         <div>

@@ -27,6 +27,8 @@ const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
 const success = ref(false)
+const releaseMessage = ref('')
+const releaseError = ref('')
 
 const session = ref('2023/2024')
 const term = ref('First')
@@ -137,6 +139,8 @@ const saveAllRemarks = async () => {
 }
 
 const releaseResult = async (studentId: string, released: boolean) => {
+  releaseMessage.value = ''
+  releaseError.value = ''
   try {
     await api.post('/api/teacher/results/release', {
       session: session.value,
@@ -146,8 +150,11 @@ const releaseResult = async (studentId: string, released: boolean) => {
     })
     const student = students.value.find(s => s.studentId === studentId)
     if (student) student.released = released
-  } catch (err) {
+    releaseMessage.value = released ? 'Result successfully released.' : 'Result successfully revoked.'
+    window.setTimeout(() => { releaseMessage.value = '' }, 3000)
+  } catch (err: any) {
     console.error('Error releasing result:', err)
+    releaseError.value = err.response?.data?.error || err.message || 'Failed to update release status.'
   }
 }
 
@@ -157,6 +164,14 @@ onMounted(fetchStudents)
 <template>
   <div class="space-y-8 fade-in">
     <!-- Header -->
+    <div v-if="releaseMessage || releaseError" class="space-y-3">
+      <div v-if="releaseMessage" class="rounded-3xl border border-emerald-400/40 bg-emerald-950/10 p-4 text-emerald-100">
+        {{ releaseMessage }}
+      </div>
+      <div v-if="releaseError" class="rounded-3xl border border-red-400/40 bg-red-950/10 p-4 text-red-100">
+        {{ releaseError }}
+      </div>
+    </div>
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
       <div class="flex items-center gap-4">
         <button @click="router.back()" class="h-12 w-12 rounded-2xl bg-slate-900/60 border border-slate-700/60 shadow-sm flex items-center justify-center text-slate-200 hover:text-royal-purple transition-all">
@@ -287,7 +302,7 @@ onMounted(fetchStudents)
               <td class="px-8 py-6 text-center">
                 <div class="flex items-center justify-center gap-3">
                   <button 
-                    @click="router.push({ name: 'student-report', params: { studentId: st.studentId }, query: { session: session, term: term } })"
+                    @click="router.push({ name: 'student-report', params: { studentId: st.studentId }, query: { session: session, term: term, preview: 'true' } })"
                     class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:text-royal-purple transition-all flex items-center justify-center"
                     title="Preview Report Card"
                   >
