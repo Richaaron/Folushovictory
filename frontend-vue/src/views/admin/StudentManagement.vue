@@ -16,7 +16,6 @@ import {
   Printer
 } from 'lucide-vue-next'
 import api from '../../services/api'
-import StudentScoreModal from '../../components/admin/StudentScoreModal.vue'
 
 const router = useRouter()
 const students = ref<any[]>([])
@@ -28,8 +27,6 @@ const searchQuery = ref('')
 const showEditModal = ref(false)
 const editingStudent = ref<any>(null)
 const editModalRoot = ref<HTMLElement | null>(null)
-const showScoreModal = ref(false)
-const selectedStudent = ref<any>(null)
 const stats = ref({
   total: 0,
   newlyEnrolled: 0,
@@ -200,16 +197,6 @@ const handleUpdateStudent = async () => {
     const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
     alert(`❌ Update Failed: ${errorMsg}`)
   }
-}
-
-const openScoreModal = (student: any) => {
-  selectedStudent.value = student
-  showScoreModal.value = true
-}
-
-const handleScoreSaved = () => {
-  showScoreModal.value = false
-  selectedStudent.value = null
 }
 
 const openResultPreview = (student: any) => {
@@ -535,15 +522,5 @@ onMounted(async () => {
         </div>
       </div>
     </transition>
-
-    <!-- Student Score Modal -->
-    <StudentScoreModal 
-      v-if="selectedStudent"
-      :is-open="showScoreModal"
-      :student="selectedStudent"
-      :class-id="selectedStudent.classId || selectedClassId"
-      @close="showScoreModal = false"
-      @saved="handleScoreSaved"
-    />
   </div>
 </template>
