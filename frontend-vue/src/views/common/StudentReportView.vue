@@ -150,8 +150,7 @@ onMounted(fetchData)
       <header class="report-header">
         <div class="brand-panel">
           <div class="logo-mark">
-            <img v-if="data.school?.logoUrl" :src="data.school.logoUrl" :alt="data.school.name || 'School logo'" />
-            <span v-else>{{ schoolInitials }}</span>
+            <img :src="data.school?.logoUrl || '/logo.png'" :alt="data.school?.name || 'School logo'" />
           </div>
           <div class="brand-copy">
             <p class="document-kicker">Official Student Report Card</p>
@@ -306,9 +305,9 @@ onMounted(fetchData)
 
 .report-header {
   display: grid;
-  grid-template-columns: 1fr 260px;
+  grid-template-columns: 1fr 280px;
   gap: 28px;
-  padding: 34px 38px;
+  padding: 42px 46px;
   color: white;
   background:
     linear-gradient(135deg, rgba(38, 16, 68, 0.98), rgba(88, 28, 135, 0.96), rgba(14, 10, 24, 0.98)),
@@ -324,15 +323,15 @@ onMounted(fetchData)
 
 .logo-mark {
   display: flex;
-  width: 86px;
-  height: 86px;
+  width: 120px;
+  height: 120px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  border: 3px solid rgba(255, 255, 255, 0.7);
+  border: 4px solid rgba(255, 255, 255, 0.85);
   background: white;
   color: #581c87;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 900;
   font-family: Georgia, "Times New Roman", serif;
 }
@@ -341,7 +340,7 @@ onMounted(fetchData)
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 6px;
+  padding: 10px;
 }
 
 .brand-copy {
@@ -365,12 +364,14 @@ onMounted(fetchData)
 
 .document-kicker {
   color: #f5c542;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
 }
 
 .brand-copy h1 {
   margin: 0;
-  font-size: 34px;
+  font-size: 46px;
   font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
@@ -822,9 +823,17 @@ tbody tr:nth-child(even) {
   }
 
   .logo-mark {
-    width: 68px;
-    height: 68px;
+    width: 90px;
+    height: 90px;
     border-color: #581c87 !important;
+  }
+
+  .brand-copy h1 {
+    font-size: 30px;
+  }
+
+  .document-kicker {
+    font-size: 11px;
   }
 
   .term-panel {
