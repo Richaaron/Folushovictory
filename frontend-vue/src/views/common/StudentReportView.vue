@@ -779,7 +779,7 @@ tbody tr:nth-child(even) {
     border: 0;
     box-shadow: none;
     page-break-inside: avoid;
-    transform: scale(0.90);
+    transform: scale(0.86);
     transform-origin: top left;
   }
 
@@ -798,8 +798,8 @@ tbody tr:nth-child(even) {
   }
 
   .remark-box {
-    min-height: 120px;
-    padding: 8px;
+    min-height: 100px;
+    padding: 6px;
   }
 
   .signature-line {
@@ -808,8 +808,8 @@ tbody tr:nth-child(even) {
   }
 
   .report-header {
-    grid-template-columns: 1fr 190px;
-    padding: 16px 18px;
+    grid-template-columns: 1fr 160px;
+    padding: 12px 12px;
     background: white !important;
     color: #1e1b4b !important;
     border-bottom: 4px solid #581c87;
@@ -817,7 +817,7 @@ tbody tr:nth-child(even) {
   }
 
   .brand-copy h1 {
-    font-size: 28px;
+    font-size: 24px;
     color: #1e1b4b !important;
     line-height: 1.05;
   }
@@ -845,7 +845,7 @@ tbody tr:nth-child(even) {
   }
 
   .term-panel strong {
-    font-size: 20px;
+    font-size: 18px;
     color: #1e1b4b !important;
   }
 
@@ -865,7 +865,7 @@ tbody tr:nth-child(even) {
 
   .report-footer {
     grid-template-columns: 140px 1fr;
-    padding: 12px 16px;
+    padding: 8px 10px;
     background: #f8fafc !important;
     color: #1e1b4b !important;
     border-top: 3px solid #581c87;
@@ -877,17 +877,28 @@ tbody tr:nth-child(even) {
   }
 
   th {
-    padding: 5px 4px;
-    font-size: 7px;
+    padding: 4px 3px;
+    font-size: 6px;
     line-height: 1.1;
     background: #e2e8f0 !important;
     color: #1e1b4b !important;
   }
 
   td {
-    padding: 4px 3px;
-    font-size: 8px;
+    padding: 3px 2px;
+    font-size: 7px;
     line-height: 1.15;
+  }
+
+  /* prevent any forced page breaks and remove bottom margin on last elements */
+  article.report-card, article.report-card * {
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .report-card :last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
   }
 
   tr,
