@@ -79,16 +79,6 @@ const getPositionSuffix = (pos: number) => {
   return `${pos}th`
 }
 
-const schoolInitials = computed(() => {
-  const name = data.value?.school?.name || 'School'
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 3)
-    .map((part: string) => part[0]?.toUpperCase())
-    .join('')
-})
-
 const schoolWebsite = computed(() => data.value?.school?.website?.replace(/^https?:\/\//, '') || '')
 const formTeacherName = computed(() => data.value?.formTeacher?.displayName || `${data.value?.class?.name || 'Class'} Form Teacher`)
 const subjectRows = computed(() => data.value?.result?.perSubject || [])
