@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { 
   Search, 
   UserPlus, 
@@ -11,11 +12,13 @@ import {
   Trash2,
   Edit2,
   FileText,
-  BookOpen
+  Eye,
+  Printer
 } from 'lucide-vue-next'
 import api from '../../services/api'
 import StudentScoreModal from '../../components/admin/StudentScoreModal.vue'
 
+const router = useRouter()
 const students = ref<any[]>([])
 const classes = ref<any[]>([])
 const loading = ref(true)
@@ -209,6 +212,30 @@ const handleScoreSaved = () => {
   selectedStudent.value = null
 }
 
+const openResultPreview = (student: any) => {
+  const studentId = student.studentId || student.id
+  router.push({
+    name: 'student-report',
+    params: { studentId },
+    query: { preview: 'true', session: '2023/2024', term: 'First' }
+  })
+}
+
+const printStudentResult = (student: any) => {
+  const studentId = student.studentId || student.id
+  const newWindow = window.open(
+    `/#/report/${studentId}?preview=true&session=2023/2024&term=First`,
+    '_blank'
+  )
+  if (newWindow) {
+    newWindow.addEventListener('load', () => {
+      setTimeout(() => {
+        newWindow.print()
+      }, 500)
+    })
+  }
+}
+
 watch(selectedClassId, fetchStudents)
 
 onMounted(async () => {
@@ -306,7 +333,7 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="student in filteredStudents" :key="student.studentId || student.id" @click="openScoreModal(student)" class="group cursor-pointer transition-colors hover:bg-[#C9A84C]/3">
+            <tr v-for="student in filteredStudents" :key="student.studentId || student.id" @click="openResultPreview(student)" class="group cursor-pointer transition-colors hover:bg-[#C9A84C]/3">
               <td class="align-top">
                 <span class="inline-flex items-center px-3 py-1 rounded-md bg-[#1B2A4A]/80 text-[10px] font-black uppercase tracking-[0.25em] text-[#C9A84C]/80 border border-[#C9A84C]/15">{{ student.studentId }}</span>
               </td>
@@ -330,8 +357,11 @@ onMounted(async () => {
               </td>
               <td class="align-top text-right">
                 <div class="inline-flex items-center justify-end gap-2">
-                  <button @click.stop="openScoreModal(student)" class="p-2 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
-                    <BookOpen class="w-4 h-4" />
+                  <button @click.stop="openResultPreview(student)" title="View Result" class="p-2 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
+                    <Eye class="w-4 h-4" />
+                  </button>
+                  <button @click.stop="printStudentResult(student)" title="Print Result" class="p-2 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
+                    <Printer class="w-4 h-4" />
                   </button>
                   <button @click.stop="openEditModal(student)" class="p-2 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
                     <Edit2 class="w-4 h-4" />
