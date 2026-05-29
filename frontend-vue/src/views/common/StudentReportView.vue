@@ -268,9 +268,8 @@ onMounted(fetchData)
         <div class="remark-box teacher-box">
           <span>Class Teacher's Remark</span>
           <p>{{ data.teacherRemark || 'Remark will be added by the class teacher.' }}</p>
-          <div class="teacher-signature">{{ formTeacherName }}</div>
           <div class="signature-line"></div>
-          <strong>{{ formTeacherName }}</strong>
+          <div class="teacher-signature-name">{{ formTeacherName }}</div>
           <small>Class Teacher's Signature & Date</small>
         </div>
 
@@ -653,14 +652,18 @@ tbody tr:nth-child(even) {
   object-fit: contain;
 }
 
-.teacher-signature {
+.teacher-signature-name {
   font-family: "Brush Script MT", "Segoe Script", cursive;
-  font-size: 34px;
+  font-size: 24px;
   color: #241036;
   text-align: center;
-  padding-top: 10px;
-  line-height: 1;
-  margin-bottom: -8px;
+  line-height: 1.1;
+  margin-top: 6px;
+}
+
+.remark-box strong,
+.teacher-signature-name {
+  display: block;
 }
 
 .remark-box strong {
@@ -766,12 +769,31 @@ tbody tr:nth-child(even) {
     width: 100%;
     border: 0;
     box-shadow: none;
+    page-break-inside: avoid;
   }
 
   .report-card,
   .report-card * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .remarks-section,
+  .remark-box,
+  .result-section,
+  .performance-summary,
+  .student-band {
+    break-inside: avoid;
+  }
+
+  .remark-box {
+    min-height: 180px;
+    padding: 12px;
+  }
+
+  .signature-line {
+    height: 64px;
+    margin-top: auto;
   }
 
   .report-header {
