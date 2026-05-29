@@ -760,11 +760,27 @@ tbody tr:nth-child(even) {
     padding: 0;
   }
 
+  /* print page sizing and margins to force single A4 output */
+  @page {
+    size: A4 portrait;
+    margin: 6mm;
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
   .report-card {
-    width: 100%;
+    width: calc(210mm - 12mm); /* A4 width minus page margins */
+    max-width: calc(210mm - 12mm);
+    margin: 0 auto;
     border: 0;
     box-shadow: none;
     page-break-inside: avoid;
+    transform: scale(0.90);
+    transform-origin: top left;
   }
 
   .report-card,
@@ -782,29 +798,32 @@ tbody tr:nth-child(even) {
   }
 
   .remark-box {
-    min-height: 180px;
-    padding: 12px;
+    min-height: 120px;
+    padding: 8px;
   }
 
   .signature-line {
-    height: 64px;
+    height: 45px;
     margin-top: auto;
   }
 
   .report-header {
-    grid-template-columns: 1fr 220px;
-    padding: 20px 24px;
+    grid-template-columns: 1fr 190px;
+    padding: 16px 18px;
     background: white !important;
     color: #1e1b4b !important;
-    border-bottom: 5px solid #581c87;
+    border-bottom: 4px solid #581c87;
+    gap: 10px;
   }
 
   .brand-copy h1 {
-    font-size: 25px;
+    font-size: 28px;
     color: #1e1b4b !important;
+    line-height: 1.05;
   }
 
   .document-kicker {
+    font-size: 10px;
     color: #581c87 !important;
   }
 
@@ -813,27 +832,20 @@ tbody tr:nth-child(even) {
   }
 
   .logo-mark {
-    width: 90px;
-    height: 90px;
+    width: 76px;
+    height: 76px;
     border-color: #581c87 !important;
-  }
-
-  .brand-copy h1 {
-    font-size: 30px;
-  }
-
-  .document-kicker {
-    font-size: 11px;
   }
 
   .term-panel {
     background: #f8fafc !important;
     border-color: #581c87 !important;
     color: #1e1b4b !important;
+    padding: 10px 12px;
   }
 
   .term-panel strong {
-    font-size: 24px;
+    font-size: 20px;
     color: #1e1b4b !important;
   }
 
@@ -848,11 +860,12 @@ tbody tr:nth-child(even) {
 
   .school-contact p {
     background: #f8fafc !important;
+    padding: 8px 10px;
   }
 
   .report-footer {
-    grid-template-columns: 150px 1fr;
-    padding: 14px 24px;
+    grid-template-columns: 140px 1fr;
+    padding: 12px 16px;
     background: #f8fafc !important;
     color: #1e1b4b !important;
     border-top: 3px solid #581c87;
@@ -864,15 +877,17 @@ tbody tr:nth-child(even) {
   }
 
   th {
-    padding: 8px 6px;
-    font-size: 8px;
+    padding: 5px 4px;
+    font-size: 7px;
+    line-height: 1.1;
     background: #e2e8f0 !important;
     color: #1e1b4b !important;
   }
 
   td {
-    padding: 7px 6px;
-    font-size: 10px;
+    padding: 4px 3px;
+    font-size: 8px;
+    line-height: 1.15;
   }
 
   tr,
@@ -895,13 +910,13 @@ tbody tr:nth-child(even) {
   .result-section,
   .cumulative-section,
   .remarks-section {
-    padding-left: 24px;
-    padding-right: 24px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   .student-band,
   .performance-summary {
-    gap: 8px;
+    gap: 6px;
   }
 
   .result-section,
@@ -913,11 +928,6 @@ tbody tr:nth-child(even) {
   .remarks-section {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     padding-bottom: 18px;
-  }
-
-  .remark-box {
-    min-height: 190px;
-    padding: 14px;
   }
 }
 </style>
