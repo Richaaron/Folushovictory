@@ -9,7 +9,7 @@ const menuItems = [
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
+  <div class="min-h-screen flex flex-col text-[#F5F0E8] relative overflow-hidden bg-slate-950">
     <Navbar portal="Teacher" username="Staff User" :menuItems="menuItems" />
     <main class="flex-grow p-4 sm:p-8 overflow-x-hidden">
       <div class="mx-auto max-w-7xl">

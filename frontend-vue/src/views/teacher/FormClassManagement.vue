@@ -163,8 +163,8 @@ onMounted(fetchStudents)
           <ArrowLeft class="w-5 h-5" />
         </button>
         <div>
-          <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Class Management</h1>
-          <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">{{ className }} • Form Teacher Oversight</p>
+          <h1 class="text-3xl font-black text-white tracking-tight">Class Management</h1>
+          <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">{{ className }} • Form Teacher Oversight</p>
         </div>
       </div>
       
@@ -216,7 +216,7 @@ onMounted(fetchStudents)
         </div>
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Students</p>
-          <p class="text-2xl font-black text-slate-900 dark:text-white">{{ students.length }}</p>
+          <p class="text-2xl font-black text-white">{{ students.length }}</p>
         </div>
       </div>
         <div class="academic-card rounded-3xl p-8 flex items-center gap-6">
@@ -225,7 +225,7 @@ onMounted(fetchStudents)
         </div>
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Remarks Pending</p>
-          <p class="text-2xl font-black text-slate-900 dark:text-white">{{ students.filter(s => !s.remark).length }}</p>
+          <p class="text-2xl font-black text-white">{{ students.filter(s => !s.remark).length }}</p>
         </div>
       </div>
         <div class="academic-card rounded-3xl p-8 flex items-center gap-6">
@@ -234,7 +234,7 @@ onMounted(fetchStudents)
         </div>
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Results Released</p>
-          <p class="text-2xl font-black text-slate-900 dark:text-white">{{ students.filter(s => s.released).length }}</p>
+          <p class="text-2xl font-black text-white">{{ students.filter(s => s.released).length }}</p>
         </div>
       </div>
     </div>
@@ -262,7 +262,7 @@ onMounted(fetchStudents)
                     {{ st.lastName[0] }}{{ st.firstName[0] }}
                   </div>
                   <div>
-                    <p class="text-sm font-black text-slate-900 dark:text-white">{{ st.lastName }} {{ st.firstName }}</p>
+                    <p class="text-sm font-black text-white">{{ st.lastName }} {{ st.firstName }}</p>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
                   </div>
                 </div>
