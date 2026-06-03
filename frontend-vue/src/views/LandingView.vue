@@ -112,9 +112,10 @@ const features = [
         <img
           src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1600&q=60&auto=format&fit=crop"
           alt="Academic background"
-          class="w-full h-full object-cover opacity-30 grayscale"
+          class="w-full h-full object-cover grayscale"
+          style="opacity:0.18"
         />
-        <img src="/logo.png" alt="logo" class="absolute right-12 bottom-6 h-40 opacity-100 md:opacity-10 transform rotate-6" />
+        <img src="/logo.png" alt="logo" class="absolute right-12 bottom-6 h-40 opacity-100 md:opacity-[0.06] transform rotate-6" />
       </div>
       <div class="relative mx-auto max-w-7xl px-6 lg:px-8 z-10">
         <div class="grid gap-12 lg:grid-cols-2 lg:items-center">

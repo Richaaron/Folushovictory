@@ -144,7 +144,7 @@ const cardImages = [
               class="glass-card rounded-[2rem] p-8 border-royal-purple/10 group hover:border-royal-gold/30 transition-all relative overflow-hidden"
             >
               <div class="absolute inset-0 z-0 pointer-events-none">
-                <img :src="cardImages[idx % cardImages.length]" class="w-full h-full object-cover opacity-10 grayscale" alt="" />
+                <img :src="cardImages[idx % cardImages.length]" class="w-full h-full object-cover grayscale" style="opacity:0.06" alt="" />
               </div>
               <div class="flex justify-between items-start mb-6">
                 <div class="h-12 w-12 rounded-2xl bg-slate-900/70 text-royal-purple flex items-center justify-center border border-slate-700/60">
@@ -217,7 +217,7 @@ const cardImages = [
               class="glass-card p-5 rounded-[2rem] border border-slate-700/60 bg-slate-950/95 group hover:border-royal-gold/30 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
             >
               <div class="absolute inset-0 z-0 pointer-events-none">
-                <img :src="cardImages[idx % cardImages.length]" class="w-full h-full object-cover opacity-8 grayscale" alt="" />
+                <img :src="cardImages[idx % cardImages.length]" class="w-full h-full object-cover grayscale" style="opacity:0.06" alt="" />
               </div>
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0">
