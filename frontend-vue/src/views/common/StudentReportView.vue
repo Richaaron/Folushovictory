@@ -631,7 +631,8 @@ onMounted(fetchData)
   position: absolute;
   top: 12px;
   right: 12px;
-  h-6 w-6;
+  width: 1.5rem;
+  height: 1.5rem;
   opacity: 0.15;
 }
 
