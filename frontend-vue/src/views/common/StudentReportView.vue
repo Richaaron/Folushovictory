@@ -7,7 +7,11 @@ import {
   Loader2,
   AlertCircle,
   Lock,
-  Download
+  Download,
+  Award,
+  TrendingUp,
+  Star,
+  Calendar
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -105,109 +109,147 @@ onMounted(fetchData)
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl space-y-8 p-4 fade-in report-screen">
-    <div class="no-print sticky top-0 z-50 flex items-center justify-between rounded-2xl border border-slate-700/60 bg-slate-950/90 p-4 shadow-xl shadow-black/20">
-      <button @click="$router.back()" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300 transition-colors hover:text-royal-purple">
+  <div class="mx-auto max-w-7xl space-y-6 p-4 fade-in report-screen">
+    <!-- Action Bar -->
+    <div class="no-print sticky top-0 z-50 flex items-center justify-between rounded-2xl border border-gray-700/50 bg-gray-900/90 p-4 shadow-xl backdrop-blur-xl">
+      <button @click="$router.back()" class="flex items-center gap-2 text-sm font-medium text-gray-300 transition-all hover:text-purple-400">
         <ArrowLeft class="h-5 w-5" /> Back
       </button>
       <div class="flex gap-3">
-        <button @click="handleDownload" class="flex items-center gap-2 rounded-xl bg-slate-900/60 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-slate-800 border border-slate-700/60">
+        <button @click="handleDownload" class="neon-btn neon-btn-outline px-6 py-2 text-sm">
           <Download class="h-4 w-4" /> Download PDF
         </button>
-        <button @click="handlePrint" class="flex items-center gap-2 rounded-xl bg-purple-800 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-colors hover:bg-purple-900">
+        <button @click="handlePrint" class="neon-btn px-6 py-2 text-sm">
           <Printer class="h-4 w-4" /> Print
         </button>
       </div>
     </div>
 
+    <!-- Loading State -->
     <div v-if="loading" class="flex h-96 items-center justify-center">
-      <Loader2 class="h-16 w-16 animate-spin text-purple-800" />
+      <Loader2 class="h-16 w-16 animate-spin text-purple-500" />
     </div>
 
-    <div v-else-if="error" class="rounded-3xl border border-red-700/50 bg-red-900/20 p-20 text-center shadow-xl shadow-red-900/10">
-      <AlertCircle class="mx-auto mb-6 h-20 w-20 text-red-400 opacity-20" />
-      <h2 class="mb-4 text-3xl font-black text-white">Access Restricted</h2>
-      <p class="mx-auto mb-8 max-w-md text-slate-300">{{ error }}</p>
+    <!-- Error State -->
+    <div v-else-if="error" class="glass-card p-20 text-center">
+      <AlertCircle class="mx-auto mb-6 h-20 w-20 text-red-400 opacity-30" />
+      <h2 class="neon-heading mb-4 text-3xl text-white">Access Restricted</h2>
+      <p class="mx-auto max-w-md text-gray-400">{{ error }}</p>
     </div>
 
-    <div v-else-if="data && !data.released && !previewMode" class="rounded-3xl border border-slate-700/60 bg-slate-950/90 p-20 text-center shadow-xl shadow-slate-900/10">
-      <Lock class="mx-auto mb-6 h-20 w-20 text-royal-purple opacity-20" />
-      <h2 class="mb-4 text-3xl font-black text-white">Result Not Released</h2>
-      <p class="mx-auto mb-8 max-w-md text-slate-300">This academic report has been compiled but is currently locked by the school administration.</p>
+    <!-- Locked State -->
+    <div v-else-if="data && !data.released && !previewMode" class="glass-card p-20 text-center">
+      <Lock class="mx-auto mb-6 h-20 w-20 text-purple-400 opacity-30" />
+      <h2 class="neon-heading mb-4 text-3xl text-white">Result Not Released</h2>
+      <p class="mx-auto max-w-md text-gray-400">This academic report has been compiled but is currently locked by the school administration.</p>
     </div>
 
+    <!-- Report Card -->
     <article v-else-if="data" class="report-card">
+      <!-- Background Watermark Logo -->
+      <div class="watermark-logo">
+        <img :src="data.school?.logoUrl || '/logo.png'" :alt="data.school?.name || 'School logo'" />
+      </div>
+
+      <!-- Top Neon Line -->
+      <div class="report-top-line"></div>
+
+      <!-- Header -->
       <header class="report-header">
         <div class="brand-panel">
           <div class="logo-mark">
             <img :src="data.school?.logoUrl || '/logo.png'" :alt="data.school?.name || 'School logo'" />
           </div>
           <div class="brand-copy">
-            <p class="document-kicker">Official Student Report Card</p>
+            <p class="document-kicker">
+              <Star class="inline h-3 w-3" /> Official Academic Report
+            </p>
             <h1>{{ data.school?.name || 'School Name' }}</h1>
             <p class="motto">{{ data.school?.motto || 'Excellence in Education' }}</p>
           </div>
         </div>
 
         <div class="term-panel">
+          <Calendar class="mb-2 h-6 w-6" />
           <span>Academic Session</span>
           <strong>{{ data.session }}</strong>
           <small>{{ data.term }} Term</small>
         </div>
       </header>
 
+      <!-- School Contact -->
       <section class="school-contact" aria-label="School contact information">
-        <p v-if="data.school?.address">{{ data.school.address }}</p>
-        <p v-if="data.school?.phone">{{ data.school.phone }}</p>
-        <p v-if="data.school?.email">{{ data.school.email }}</p>
-        <p v-if="schoolWebsite">{{ schoolWebsite }}</p>
+        <div v-if="data.school?.address" class="contact-item">
+          <span class="contact-label">Address</span>
+          <p>{{ data.school.address }}</p>
+        </div>
+        <div v-if="data.school?.phone" class="contact-item">
+          <span class="contact-label">Phone</span>
+          <p>{{ data.school.phone }}</p>
+        </div>
+        <div v-if="data.school?.email" class="contact-item">
+          <span class="contact-label">Email</span>
+          <p>{{ data.school.email }}</p>
+        </div>
+        <div v-if="schoolWebsite" class="contact-item">
+          <span class="contact-label">Website</span>
+          <p>{{ schoolWebsite }}</p>
+        </div>
       </section>
-      <div v-if="previewMode" class="mb-4 rounded-3xl border border-amber-300/40 bg-amber-50/80 p-4 text-amber-900">
-        <strong>Preview mode enabled:</strong> this report is not released yet, but you are viewing it as a teacher preview.
+
+      <!-- Preview Banner -->
+      <div v-if="previewMode" class="preview-banner">
+        <strong>Preview Mode:</strong> This report is not released yet, but you are viewing it as a teacher preview.
       </div>
 
+      <!-- Student Info -->
       <section class="student-band">
-        <div>
+        <div class="info-card">
           <span>Student Name</span>
           <strong>{{ data.student.lastName }} {{ data.student.firstName }}</strong>
         </div>
-        <div>
+        <div class="info-card">
           <span>Student ID</span>
           <strong>{{ data.student.studentId }}</strong>
         </div>
-        <div>
+        <div class="info-card">
           <span>Class</span>
           <strong>{{ data.class.name }}</strong>
         </div>
-        <div>
+        <div class="info-card">
           <span>Gender</span>
           <strong>{{ data.student.gender || 'N/A' }}</strong>
         </div>
       </section>
 
+      <!-- Performance Summary -->
       <section class="performance-summary">
-        <div>
+        <div class="stat-card stat-purple">
+          <Award class="stat-icon" />
           <span>Total Marks</span>
           <strong>{{ data.result?.total ?? 'N/A' }}</strong>
         </div>
-        <div>
+        <div class="stat-card stat-blue">
+          <TrendingUp class="stat-icon" />
           <span>Average</span>
           <strong>{{ data.result?.average ?? 'N/A' }}%</strong>
         </div>
-        <div>
-          <span>{{ positionBasedClass ? 'Position' : 'Overall Grade' }}</span>
+        <div class="stat-card stat-cyan">
+          <Star class="stat-icon" />
+          <span>{{ positionBasedClass ? 'Position' : 'Grade' }}</span>
           <strong>{{ positionBasedClass ? getPositionSuffix(data.result?.position) : overallGrade }}</strong>
         </div>
-        <div>
+        <div class="stat-card stat-pink">
           <span>Status</span>
           <strong>{{ data.released ? 'Released' : 'Draft' }}</strong>
         </div>
       </section>
 
+      <!-- Academic Performance Table -->
       <section class="result-section">
         <div class="section-title">
           <span>Academic Performance</span>
-          <strong>{{ data.term }} Term</strong>
+          <strong>{{ data.term }} Term Results</strong>
         </div>
 
         <div class="table-frame">
@@ -225,12 +267,12 @@ onMounted(fetchData)
             </thead>
             <tbody>
               <tr v-for="sub in subjectRows" :key="sub.subjectId">
-                <td>{{ sub.subjectName }}</td>
+                <td class="subject-name">{{ sub.subjectName }}</td>
                 <td>{{ sub.ca1 ?? '-' }}</td>
                 <td>{{ sub.ca2 ?? '-' }}</td>
                 <td>{{ sub.exam ?? '-' }}</td>
                 <td class="total-cell">{{ sub.total ?? '-' }}</td>
-                <td><span class="grade-pill" :class="getGradeColor(sub.grade)">{{ sub.grade || '-' }}</span></td>
+                <td><span class="grade-badge" :class="getGradeColor(sub.grade)">{{ sub.grade || '-' }}</span></td>
                 <td>{{ sub.remark || '-' }}</td>
               </tr>
             </tbody>
@@ -238,18 +280,19 @@ onMounted(fetchData)
         </div>
       </section>
 
+      <!-- Cumulative Record -->
       <section v-if="data.cumulative" class="cumulative-section">
         <div class="section-title">
           <span>Cumulative Record</span>
           <strong>Session Progress</strong>
         </div>
         <div class="cumulative-grid">
-          <div v-for="item in data.cumulative.previousTerms" :key="item.term">
+          <div v-for="item in data.cumulative.previousTerms" :key="item.term" class="cumulative-card">
             <span>{{ item.term }} Term</span>
             <strong>{{ item.average }}%</strong>
             <small>Total: {{ item.total }}</small>
           </div>
-          <div v-if="data.cumulative.sessionAverage">
+          <div v-if="data.cumulative.sessionAverage" class="cumulative-card cumulative-highlight">
             <span>Session Average</span>
             <strong>{{ data.cumulative.sessionAverage }}%</strong>
             <small>Total: {{ data.cumulative.sessionTotal }}</small>
@@ -257,51 +300,107 @@ onMounted(fetchData)
         </div>
       </section>
 
+      <!-- Remarks Section -->
       <section class="remarks-section">
         <div class="remark-box teacher-box">
           <span>Class Teacher's Remark</span>
           <p>{{ data.teacherRemark || 'Remark will be added by the class teacher.' }}</p>
-          <div class="signature-line"></div>
-          <div class="teacher-signature-name">{{ formTeacherName }}</div>
-          <small>Class Teacher's Signature & Date</small>
+          <div class="signature-area">
+            <div v-if="data.formTeacher?.signatureUrl" class="signature-image">
+              <img :src="data.formTeacher.signatureUrl" alt="Teacher signature" />
+            </div>
+            <div v-else class="signature-line"></div>
+            <div class="teacher-name">{{ formTeacherName }}</div>
+            <small>Class Teacher's Signature & Date</small>
+          </div>
         </div>
 
         <div class="remark-box principal-box">
           <span>Principal's Remark</span>
           <p>{{ data.principalRemark || 'Highly commendable academic performance.' }}</p>
-          <div v-if="data.school?.principalSignatureUrl" class="signature-image">
-            <img :src="data.school.principalSignatureUrl" alt="Principal signature" />
+          <div class="signature-area">
+            <div v-if="data.school?.principalSignatureUrl" class="signature-image">
+              <img :src="data.school.principalSignatureUrl" alt="Principal signature" />
+            </div>
+            <div v-else class="signature-line"></div>
+            <strong>{{ data.school?.principalName || 'Principal' }}</strong>
+            <small>Principal's Signature & Stamp</small>
           </div>
-          <div v-else class="signature-line"></div>
-          <strong>{{ data.school?.principalName || 'Principal' }}</strong>
-          <small>Principal's Signature & Stamp</small>
         </div>
       </section>
 
+      <!-- Footer -->
+      <footer class="report-footer">
+        <div class="footer-brand">
+          <strong>{{ data.school?.name || 'School Name' }}</strong>
+          <span>Academic Excellence</span>
+        </div>
+        <div class="footer-copy">
+          <p>Generated on {{ new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+        </div>
+      </footer>
 
+      <!-- Bottom Neon Line -->
+      <div class="report-bottom-line"></div>
     </article>
   </div>
 </template>
 
 <style scoped>
 .report-card {
+  position: relative;
   overflow: hidden;
-  background: #ffffff;
-  border: 1px solid #d9d1e8;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
   color: #172033;
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
 }
 
+/* Watermark Logo */
+.watermark-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  width: 60%;
+  max-width: 500px;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.watermark-logo img {
+  width: 100%;
+  height: auto;
+  filter: grayscale(100%);
+}
+
+/* Top & Bottom Neon Lines */
+.report-top-line,
+.report-bottom-line {
+  height: 4px;
+  background: linear-gradient(90deg, #a855f7, #3b82f6, #06b6d4, #a855f7);
+  background-size: 200% 100%;
+  animation: gradient-flow 4s ease infinite;
+}
+
+@keyframes gradient-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Header */
 .report-header {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 260px;
   gap: 28px;
-  padding: 42px 46px;
-  color: white;
-  background:
-    linear-gradient(135deg, rgba(38, 16, 68, 0.98), rgba(88, 28, 135, 0.96), rgba(14, 10, 24, 0.98)),
-    repeating-linear-gradient(45deg, rgba(245, 197, 66, 0.16) 0 1px, transparent 1px 18px);
+  padding: 40px 46px;
+  background: linear-gradient(135deg, rgba(10, 14, 39, 0.98), rgba(17, 22, 56, 0.98));
+  backdrop-filter: blur(20px);
 }
 
 .brand-panel {
@@ -313,67 +412,60 @@ onMounted(fetchData)
 
 .logo-mark {
   display: flex;
-  width: 120px;
-  height: 120px;
+  width: 110px;
+  height: 110px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  border: 4px solid rgba(255, 255, 255, 0.85);
-  background: white;
-  color: #581c87;
-  font-size: 28px;
-  font-weight: 900;
-  font-family: Georgia, "Times New Roman", serif;
+  border: 3px solid rgba(168, 85, 247, 0.5);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
 }
 
 .logo-mark img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 10px;
+  padding: 12px;
 }
 
 .brand-copy {
   min-width: 0;
 }
 
-.document-kicker,
-.section-title span,
-.student-band span,
-.performance-summary span,
-.remark-box span,
-.report-footer span,
-.term-panel span {
-  display: block;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
-}
-
 .document-kicker {
-  color: #f5c542;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 10px;
-  font-size: 12px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #a855f7;
 }
 
 .brand-copy h1 {
   margin: 0;
-  font-size: 46px;
+  font-size: 42px;
   font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: 'Cambria', 'Georgia', serif;
+  background: linear-gradient(135deg, #ffffff, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .motto {
   margin-top: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.86);
-  font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .term-panel {
@@ -381,91 +473,185 @@ onMounted(fetchData)
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  background: rgba(255, 255, 255, 0.14);
+  padding: 24px;
+  border: 2px solid rgba(168, 85, 247, 0.3);
+  border-radius: 16px;
+  background: rgba(168, 85, 247, 0.1);
+  backdrop-filter: blur(10px);
   text-align: center;
+  color: white;
 }
 
 .term-panel strong {
   margin: 8px 0;
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 900;
+  background: linear-gradient(135deg, #ffffff, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .term-panel small {
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
 }
 
+.term-panel span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* School Contact */
 .school-contact {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1px;
-  background: #d9d1e8;
-  border-bottom: 4px solid #f5c542;
+  background: #e2e8f0;
+  border-bottom: 3px solid #a855f7;
 }
 
-.school-contact p {
-  min-height: 46px;
+.contact-item {
+  padding: 12px 16px;
+  background: #ffffff;
+}
+
+.contact-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.contact-item p {
   margin: 0;
-  padding: 11px 16px;
-  background: #fbf8ff;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
   color: #334155;
 }
 
-.student-band,
-.performance-summary {
+/* Preview Banner */
+.preview-banner {
+  margin: 16px 38px 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #fbbf24;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.05));
+  font-size: 13px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+/* Student Band */
+.student-band {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   padding: 24px 38px 0;
 }
 
-.student-band div,
-.performance-summary div,
-.cumulative-grid div {
-  border: 1px solid #ded3ee;
-  background: #fbfcfe;
+.info-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
   padding: 14px 16px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
 }
 
-.student-band strong,
-.performance-summary strong {
+.info-card span {
+  display: block;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.info-card strong {
   display: block;
   margin-top: 5px;
   color: #0f172a;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 900;
   text-transform: uppercase;
+  font-family: 'Cambria', 'Georgia', serif;
 }
 
+/* Performance Summary */
 .performance-summary {
-  padding-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding: 20px 38px 0;
 }
 
-.performance-summary div {
-  border-top: 4px solid #581c87;
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  overflow: hidden;
 }
 
-.performance-summary div:nth-child(2) {
-  border-top-color: #f5c542;
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
 }
 
-.performance-summary div:nth-child(3) {
-  border-top-color: #111827;
+.stat-purple::before {
+  background: linear-gradient(90deg, #a855f7, #ec4899);
 }
 
-.performance-summary div:nth-child(4) {
-  border-top-color: #7e22ce;
+.stat-blue::before {
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
 }
 
-.performance-summary strong {
-  font-size: 22px;
+.stat-cyan::before {
+  background: linear-gradient(90deg, #06b6d4, #10b981);
 }
 
+.stat-pink::before {
+  background: linear-gradient(90deg, #ec4899, #a855f7);
+}
+
+.stat-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  h-6 w-6;
+  opacity: 0.15;
+}
+
+.stat-card span {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.stat-card strong {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f172a;
+  font-family: 'Cambria', 'Georgia', serif;
+}
+
+/* Section Title */
 .result-section,
 .cumulative-section,
 .remarks-section {
@@ -476,21 +662,33 @@ onMounted(fetchData)
   display: flex;
   align-items: end;
   justify-content: space-between;
-  margin-bottom: 12px;
-  color: #475569;
+  margin-bottom: 14px;
+}
+
+.section-title span {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
 }
 
 .section-title strong {
-  color: #581c87;
   font-size: 13px;
   font-weight: 900;
   text-transform: uppercase;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: 'Cambria', 'Georgia', serif;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+/* Table */
 .table-frame {
   overflow: hidden;
-  border: 1px solid #cbd5e1;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
 }
 
 table {
@@ -500,8 +698,8 @@ table {
 }
 
 th {
-  padding: 12px 10px;
-  background: #241036;
+  padding: 14px 10px;
+  background: linear-gradient(135deg, #0a0e27, #111638);
   color: white;
   font-size: 9px;
   font-weight: 900;
@@ -517,13 +715,27 @@ td:first-child {
 }
 
 td {
-  padding: 11px 10px;
+  padding: 12px 10px;
   border-top: 1px solid #e2e8f0;
   color: #334155;
   font-size: 12px;
   font-weight: 700;
   text-align: center;
   word-break: break-word;
+}
+
+.subject-name {
+  font-weight: 800;
+  color: #0f172a;
+  font-family: 'Cambria', 'Georgia', serif;
+}
+
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: rgba(168, 85, 247, 0.05);
 }
 
 tbody tr:nth-child(even) {
@@ -533,66 +745,91 @@ tbody tr:nth-child(even) {
 .total-cell {
   color: #0f172a;
   font-weight: 900;
+  font-size: 13px;
 }
 
-.grade-pill {
+.grade-badge {
   display: inline-flex;
-  min-width: 34px;
+  min-width: 36px;
   justify-content: center;
-  border: 1px solid currentColor;
-  padding: 4px 8px;
+  border-radius: 8px;
+  padding: 6px 10px;
   font-size: 11px;
   font-weight: 900;
 }
 
 .grade-excellent {
-  color: #3b0764;
-  background: #f3e8ff;
+  color: #581c87;
+  background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+  border: 2px solid #d8b4fe;
 }
 
 .grade-strong {
   color: #854d0e;
-  background: #fef3c7;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #fcd34d;
 }
 
 .grade-fair {
   color: #b45309;
-  background: #fef3c7;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #fcd34d;
 }
 
 .grade-danger {
   color: #b91c1c;
-  background: #fee2e2;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  border: 2px solid #fca5a5;
 }
 
 .grade-neutral {
   color: #475569;
   background: #f1f5f9;
+  border: 2px solid #e2e8f0;
 }
 
+/* Cumulative Section */
 .cumulative-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
-.cumulative-grid span,
-.cumulative-grid small {
+.cumulative-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+}
+
+.cumulative-highlight {
+  border-color: #a855f7;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(59, 130, 246, 0.05));
+}
+
+.cumulative-card span,
+.cumulative-card small {
   display: block;
   color: #64748b;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 900;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.cumulative-grid strong {
+.cumulative-card strong {
   display: block;
-  margin: 4px 0;
-  color: #581c87;
-  font-size: 20px;
+  margin: 6px 0;
+  font-size: 22px;
   font-weight: 900;
+  font-family: 'Cambria', 'Georgia', serif;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+/* Remarks Section */
 .remarks-section {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -602,37 +839,67 @@ tbody tr:nth-child(even) {
 
 .remark-box {
   display: flex;
-  min-height: 230px;
+  min-height: 220px;
   flex-direction: column;
-  border: 1px solid #cbd5e1;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
   padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.remark-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+
+.teacher-box::before {
+  background: linear-gradient(90deg, #a855f7, #ec4899);
+}
+
+.principal-box::before {
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
 }
 
 .teacher-box {
-  background: #faf5ff;
-  border-top: 5px solid #581c87;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), #ffffff);
 }
 
 .principal-box {
-  background: #fffbeb;
-  border-top: 5px solid #f5c542;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), #ffffff);
+}
+
+.remark-box span {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
 }
 
 .remark-box p {
-  min-height: 56px;
+  min-height: 50px;
   margin: 10px 0 14px;
   color: #334155;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   font-style: italic;
   line-height: 1.5;
 }
 
+.signature-area {
+  margin-top: auto;
+}
+
 .signature-line,
 .signature-image {
-  height: 94px;
+  height: 80px;
   margin-top: auto;
-  border-bottom: 2px solid #475569;
+  border-bottom: 2px solid #cbd5e1;
 }
 
 .signature-image {
@@ -642,29 +909,25 @@ tbody tr:nth-child(even) {
 }
 
 .signature-image img {
-  max-width: 280px;
-  max-height: 86px;
+  max-width: 260px;
+  max-height: 76px;
   object-fit: contain;
 }
 
-.teacher-signature-name {
-  font-family: "Brush Script MT", "Segoe Script", cursive;
-  font-size: 24px;
-  color: #241036;
+.teacher-name {
+  font-family: 'Brush Script MT', 'Segoe Script', cursive;
+  font-size: 22px;
+  color: #0a0e27;
   text-align: center;
   line-height: 1.1;
   margin-top: 6px;
 }
 
-.remark-box strong,
-.teacher-signature-name {
-  display: block;
-}
-
 .remark-box strong {
+  display: block;
   margin-top: 8px;
   color: #0f172a;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
   text-align: center;
   text-transform: uppercase;
@@ -681,31 +944,42 @@ tbody tr:nth-child(even) {
   text-transform: uppercase;
 }
 
+/* Footer */
 .report-footer {
   display: grid;
-  grid-template-columns: 160px 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 22px;
   align-items: center;
-  padding: 18px 38px;
-  background: #09090b;
+  padding: 20px 38px;
+  background: linear-gradient(135deg, #0a0e27, #111638);
   color: white;
 }
 
-.report-footer strong {
+.footer-brand strong {
   display: block;
-  margin-top: 4px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 900;
+  font-family: 'Cambria', 'Georgia', serif;
+  background: linear-gradient(135deg, #ffffff, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.report-footer p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.78);
+.footer-brand span {
   font-size: 11px;
-  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-copy p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  font-weight: 600;
   text-align: right;
 }
 
+/* Responsive */
 @media (max-width: 860px) {
   .report-header,
   .remarks-section,
@@ -720,11 +994,12 @@ tbody tr:nth-child(even) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .report-footer p {
+  .footer-copy p {
     text-align: left;
   }
 }
 
+/* Print Styles */
 @page {
   size: A4;
   margin: 10mm;
@@ -739,18 +1014,6 @@ tbody tr:nth-child(even) {
     print-color-adjust: exact !important;
   }
 
-  :global(html),
-  :global(body) {
-    width: 210mm;
-    height: 297mm;
-  }
-
-  @page {
-    size: A4;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
   .no-print {
     display: none !important;
   }
@@ -760,185 +1023,66 @@ tbody tr:nth-child(even) {
     padding: 0;
   }
 
-  /* print page sizing and margins to force single A4 output */
   @page {
     size: A4 portrait;
     margin: 6mm;
   }
 
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-
   .report-card {
-    width: calc(210mm - 12mm); /* A4 width minus page margins */
+    width: calc(210mm - 12mm);
     max-width: calc(210mm - 12mm);
     margin: 0 auto;
     border: 0;
+    border-radius: 0;
     box-shadow: none;
     page-break-inside: avoid;
-    transform: scale(0.86);
+    transform: scale(0.92);
     transform-origin: top left;
   }
 
-  .report-card,
-  .report-card * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .remarks-section,
-  .remark-box,
-  .result-section,
-  .performance-summary,
-  .student-band {
-    break-inside: avoid;
-  }
-
-  .remark-box {
-    min-height: 100px;
-    padding: 6px;
-  }
-
-  .signature-line {
-    height: 45px;
-    margin-top: auto;
+  .watermark-logo {
+    opacity: 0.03;
   }
 
   .report-header {
-    grid-template-columns: 1fr 160px;
-    padding: 12px 12px;
-    background: white !important;
-    color: #1e1b4b !important;
-    border-bottom: 4px solid #581c87;
-    gap: 10px;
+    grid-template-columns: 1fr 180px;
+    padding: 16px 16px;
   }
 
   .brand-copy h1 {
-    font-size: 24px;
-    color: #1e1b4b !important;
-    line-height: 1.05;
-  }
-
-  .document-kicker {
-    font-size: 10px;
-    color: #581c87 !important;
-  }
-
-  .motto {
-    color: #475569 !important;
+    font-size: 26px;
   }
 
   .logo-mark {
-    width: 76px;
-    height: 76px;
-    border-color: #581c87 !important;
+    width: 80px;
+    height: 80px;
   }
 
   .term-panel {
-    background: #f8fafc !important;
-    border-color: #581c87 !important;
-    color: #1e1b4b !important;
-    padding: 10px 12px;
+    padding: 12px 14px;
   }
 
   .term-panel strong {
-    font-size: 18px;
-    color: #1e1b4b !important;
-  }
-
-  .term-panel small,
-  .term-panel span {
-    color: #475569 !important;
-  }
-
-  .school-contact {
-    border-bottom-color: #581c87 !important;
-  }
-
-  .school-contact p {
-    background: #f8fafc !important;
-    padding: 8px 10px;
-  }
-
-  .report-footer {
-    grid-template-columns: 140px 1fr;
-    padding: 8px 10px;
-    background: #f8fafc !important;
-    color: #1e1b4b !important;
-    border-top: 3px solid #581c87;
-  }
-
-  .report-footer p,
-  .report-footer strong {
-    color: #1e1b4b !important;
+    font-size: 20px;
   }
 
   th {
-    padding: 4px 3px;
-    font-size: 6px;
-    line-height: 1.1;
-    background: #e2e8f0 !important;
-    color: #1e1b4b !important;
+    padding: 6px 4px;
+    font-size: 7px;
   }
 
   td {
-    padding: 3px 2px;
-    font-size: 7px;
-    line-height: 1.15;
+    padding: 4px 3px;
+    font-size: 8px;
   }
 
-  /* prevent any forced page breaks and remove bottom margin on last elements */
-  article.report-card, article.report-card * {
-    page-break-inside: avoid !important;
-    page-break-after: avoid !important;
+  .remark-box {
+    min-height: 120px;
+    padding: 12px;
   }
 
-  .report-card :last-child {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-  }
-
-  tr,
-  .remark-box,
-  .performance-summary div,
-  .student-band div {
-    break-inside: avoid;
-  }
-
-  .school-contact,
-  .student-band,
-  .performance-summary,
-  .cumulative-grid,
-  .remarks-section {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .student-band,
-  .performance-summary,
-  .result-section,
-  .cumulative-section,
-  .remarks-section {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  .student-band,
-  .performance-summary {
-    gap: 6px;
-  }
-
-  .result-section,
-  .cumulative-section,
-  .remarks-section {
-    padding-top: 16px;
-  }
-
-  .remarks-section {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding-bottom: 18px;
+  .signature-line {
+    height: 50px;
   }
 }
 </style>
