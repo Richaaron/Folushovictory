@@ -44,6 +44,10 @@ const router = createRouter({
           component: () => import('../views/admin/AdminDashboard.vue')
         },
         {
+          path: 'dashboard',
+          component: () => import('../views/admin/AdminDashboard.vue')
+        },
+        {
           path: 'teachers',
           name: 'admin-teachers',
           component: () => import('../views/admin/TeacherManagement.vue')
@@ -80,6 +84,10 @@ const router = createRouter({
           component: () => import('../views/teacher/TeacherDashboard.vue')
         },
         {
+          path: 'dashboard',
+          component: () => import('../views/teacher/TeacherDashboard.vue')
+        },
+        {
           path: 'scores/:id',
           name: 'teacher-scores',
           component: () => import('../views/teacher/ScoreEntryView.vue')
@@ -108,6 +116,10 @@ const router = createRouter({
         {
           path: '',
           name: 'parent-dashboard',
+          component: () => import('../views/parent/ParentDashboard.vue')
+        },
+        {
+          path: 'dashboard',
           component: () => import('../views/parent/ParentDashboard.vue')
         },
         {

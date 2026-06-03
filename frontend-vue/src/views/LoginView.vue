@@ -141,7 +141,7 @@ const handleLogin = async () => {
     authStore.setToken(response.data.token)
     authStore.setUser(response.data.user)
 
-    const redirectPath = `/${portal.value}/dashboard`
+    const redirectPath = `/${portal.value}`
     router.push(redirectPath)
   } catch (err: any) {
     error.value = err.response?.data?.error || err.response?.data?.message || 'Login failed. Please check your credentials.'
