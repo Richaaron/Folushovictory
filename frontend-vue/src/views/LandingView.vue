@@ -76,6 +76,27 @@ const features = [
     
     <div class="grid-pattern" aria-hidden="true"></div>
 
+    <!-- ═══════ HEADER WITH LOGO ═══════ -->
+    <header class="relative z-20 border-b border-white/5 bg-gradient-to-b from-gray-900/60 to-transparent backdrop-blur-sm">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/50 overflow-hidden">
+            <img src="/logo.png" alt="Folusho Victory Schools" class="h-full w-full object-contain" />
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">FOLUSHO VICTORY</span>
+            <span class="text-xs text-gray-400">School Management Platform</span>
+          </div>
+        </div>
+        <button 
+          @click="navigateToLogin('admin')"
+          class="neon-btn text-sm px-4 py-2"
+        >
+          Admin Access
+        </button>
+      </div>
+    </header>
+
     <!-- ═══════ FLOATING PARTICLES ═══════ -->
     <div class="particle" style="left: 10%; animation-delay: 0s;" aria-hidden="true"></div>
     <div class="particle" style="left: 25%; animation-delay: -3s; background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" aria-hidden="true"></div>
@@ -83,9 +104,6 @@ const features = [
     <div class="particle" style="left: 55%; animation-delay: -9s;" aria-hidden="true"></div>
     <div class="particle" style="left: 70%; animation-delay: -12s; background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink);" aria-hidden="true"></div>
     <div class="particle" style="left: 85%; animation-delay: -15s; background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" aria-hidden="true"></div>
-
-    <!-- ═══════ TOP NEON LINE ═══════ -->
-    <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 opacity-80" aria-hidden="true"></div>
 
     <!-- ═══════ HERO SECTION - FULL WIDTH ═══════ -->
     <section class="hero-section">
