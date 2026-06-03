@@ -144,7 +144,7 @@ const handleLogin = async () => {
     const redirectPath = `/${portal.value}/dashboard`
     router.push(redirectPath)
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Login failed. Please check your credentials.'
+    error.value = err.response?.data?.error || err.response?.data?.message || 'Login failed. Please check your credentials.'
   } finally {
     loading.value = false
   }
