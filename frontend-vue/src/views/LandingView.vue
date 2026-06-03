@@ -114,7 +114,7 @@ const features = [
           alt="Academic background"
           class="w-full h-full object-cover opacity-30 grayscale"
         />
-        <img src="/logo.png" alt="logo" class="absolute right-12 bottom-6 h-40 opacity-10 transform rotate-6" />
+        <img src="/logo.png" alt="logo" class="absolute right-12 bottom-6 h-40 opacity-100 md:opacity-10 transform rotate-6" />
       </div>
       <div class="relative mx-auto max-w-7xl px-6 lg:px-8 z-10">
         <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
