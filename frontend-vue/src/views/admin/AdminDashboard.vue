@@ -154,7 +154,7 @@ onMounted(async () => {
         @keydown.space.prevent="router.push(stat.route)"
       >
         <div class="absolute inset-0 z-0 pointer-events-none">
-          <img :src="statImages[stats.value.indexOf(stat) % statImages.length]" class="w-full h-full object-cover grayscale" style="opacity:0.08" alt="" />
+          <img :src="statImages[stats.indexOf(stat) % statImages.length]" class="w-full h-full object-cover grayscale" style="opacity:0.08" alt="" />
         </div>
         <div class="flex items-start justify-between gap-4">
           <div class="h-12 w-12 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 flex items-center justify-center relative z-10">
