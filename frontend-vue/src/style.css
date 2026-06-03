@@ -29,6 +29,13 @@ body {
   font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
   color: var(--cream);
   background: var(--navy);
+  background-image: 
+    linear-gradient(rgba(27, 42, 74, 0.92), rgba(20, 32, 56, 0.88)),
+    url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 .dark body {
@@ -47,6 +54,7 @@ body {
     radial-gradient(ellipse at 85% 18%, rgba(30, 46, 74, 0.12) 0%, transparent 40%),
     radial-gradient(ellipse at 50% 75%, rgba(122, 158, 126, 0.06) 0%, transparent 50%),
     linear-gradient(180deg, rgba(27, 42, 74, 0.98), rgba(20, 32, 56, 0.95));
+  opacity: 0.3;
 }
 
 /* Math-symbol watermark pattern (applied to cards/panels) */

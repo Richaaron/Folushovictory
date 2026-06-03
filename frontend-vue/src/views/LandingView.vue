@@ -718,4 +718,14 @@ const navigateToLogin = (portal: string) => {
     padding: 1.5rem;
   }
 }
+
+/* Academic Background Image for Landing Page */
+.landing-root {
+  background-image: 
+    linear-gradient(135deg, rgba(88, 28, 135, 0.85), rgba(30, 27, 75, 0.90)),
+    url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
 </style>

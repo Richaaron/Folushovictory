@@ -171,7 +171,7 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+  <div class="login-root relative min-h-screen overflow-hidden bg-slate-950 text-white">
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(88,28,135,0.24),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(212,175,55,0.16),transparent_30%)] pointer-events-none"></div>
     <div class="absolute -left-16 top-16 h-72 w-72 rounded-full bg-royal-purple/10 blur-3xl"></div>
     <div class="absolute right-0 bottom-20 h-64 w-64 rounded-full bg-royal-gold/10 blur-3xl"></div>
@@ -429,5 +429,15 @@ const handleLogin = async () => {
 
 .animate-shake {
   animation: shake 0.32s ease-in-out;
+}
+
+/* Academic Background Image for Login Page */
+.login-root {
+  background-image: 
+    linear-gradient(135deg, rgba(27, 42, 74, 0.90), rgba(30, 27, 75, 0.85)),
+    url('https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 </style>
