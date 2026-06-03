@@ -23,7 +23,7 @@
 <style>
 .app-shell {
   background-image: 
-    linear-gradient(135deg, rgba(10, 14, 39, 0.85), rgba(17, 22, 56, 0.88)),
+    linear-gradient(135deg, rgba(10, 14, 39, 0.93), rgba(17, 22, 56, 0.95)),
     url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80');
   background-size: cover;
   background-position: center;
