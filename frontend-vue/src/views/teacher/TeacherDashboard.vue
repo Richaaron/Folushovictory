@@ -67,6 +67,12 @@ const fetchData = async () => {
 }
 
 onMounted(fetchData)
+
+const cardImages = [
+  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=60&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&q=60&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&q=60&auto=format&fit=crop'
+]
 </script>
 
 <template>
@@ -133,10 +139,13 @@ onMounted(fetchData)
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div 
-              v-for="item in assignments" 
+              v-for="(item, idx) in assignments" 
               :key="item.id"
-              class="glass-card rounded-[2rem] p-8 border-royal-purple/10 group hover:border-royal-gold/30 transition-all"
+              class="glass-card rounded-[2rem] p-8 border-royal-purple/10 group hover:border-royal-gold/30 transition-all relative overflow-hidden"
             >
+              <div class="absolute inset-0 z-0 pointer-events-none">
+                <img :src="cardImages[idx % cardImages.length]" class="w-full h-full object-cover opacity-10 grayscale" alt="" />
+              </div>
               <div class="flex justify-between items-start mb-6">
                 <div class="h-12 w-12 rounded-2xl bg-slate-900/70 text-royal-purple flex items-center justify-center border border-slate-700/60">
                   <ClipboardCheck class="w-6 h-6" />
@@ -202,11 +211,14 @@ onMounted(fetchData)
           </h3>
           <div class="space-y-4">
             <div 
-              v-for="cls in formClasses" 
+              v-for="(cls, idx) in formClasses" 
               :key="cls.id" 
               @click="router.push({ name: 'teacher-form-class', params: { classId: cls.id }, query: { className: cls.name } })"
-              class="glass-card p-5 rounded-[2rem] border border-slate-700/60 bg-slate-950/95 group hover:border-royal-gold/30 hover:-translate-y-1 transition-all cursor-pointer"
+              class="glass-card p-5 rounded-[2rem] border border-slate-700/60 bg-slate-950/95 group hover:border-royal-gold/30 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
             >
+              <div class="absolute inset-0 z-0 pointer-events-none">
+                <img :src="cardImages[idx % cardImages.length]" class="w-full h-full object-cover opacity-8 grayscale" alt="" />
+              </div>
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0">
                   <p class="text-sm font-black text-white truncate">{{ cls.name }}</p>

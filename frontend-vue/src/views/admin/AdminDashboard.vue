@@ -39,6 +39,13 @@ const stats = ref([
   { name: 'Avg. Performance', key: 'avgPerformance', value: '0%', icon: TrendingUp, route: '/admin/broadsheet' },
 ])
 
+const statImages = [
+  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=60&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=60&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&q=60&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1588072432836-e10032774350?w=1200&q=60&auto=format&fit=crop'
+]
+
 const fetchActivityLogs = async () => {
   try {
     const { data } = await api.get('/api/admin/activity-logs', { params: { limit: 5 } })
@@ -139,18 +146,21 @@ onMounted(async () => {
         v-for="stat in stats"
         :key="stat.name"
         @click="router.push(stat.route)"
-        class="stat-card cursor-pointer"
+        class="stat-card cursor-pointer relative overflow-hidden"
         role="button"
         :aria-label="`View details for ${stat.name}: ${stat.value}`"
         tabindex="0"
         @keydown.enter="router.push(stat.route)"
         @keydown.space.prevent="router.push(stat.route)"
       >
+        <div class="absolute inset-0 z-0 pointer-events-none">
+          <img :src="statImages[stats.value.indexOf(stat) % statImages.length]" class="w-full h-full object-cover opacity-20 grayscale" alt="" />
+        </div>
         <div class="flex items-start justify-between gap-4">
-          <div class="h-12 w-12 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 flex items-center justify-center">
+          <div class="h-12 w-12 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 flex items-center justify-center relative z-10">
             <component :is="stat.icon" class="w-5 h-5 text-[#C9A84C]" />
           </div>
-          <div class="rounded-full bg-[#1B2A4A]/60 px-3 py-1 border border-[#C9A84C]/10">
+          <div class="rounded-full bg-[#1B2A4A]/60 px-3 py-1 border border-[#C9A84C]/10 relative z-10">
             <span class="text-[8px] font-black uppercase tracking-[0.25em] text-[#C9A84C]/50">Live</span>
           </div>
         </div>
