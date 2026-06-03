@@ -106,8 +106,17 @@ const features = [
     <div class="particle" style="left: 85%; animation-delay: -15s; background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" aria-hidden="true"></div>
 
     <!-- ═══════ HERO SECTION - FULL WIDTH ═══════ -->
-    <section class="hero-section">
-      <div class="relative mx-auto max-w-7xl px-6 lg:px-8">
+    <section class="hero-section relative">
+      <!-- subtle academic watermark image + translucent logo -->
+      <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1600&q=60&auto=format&fit=crop"
+          alt="Academic background"
+          class="w-full h-full object-cover opacity-30 grayscale"
+        />
+        <img src="/logo.png" alt="logo" class="absolute right-12 bottom-6 h-40 opacity-10 transform rotate-6" />
+      </div>
+      <div class="relative mx-auto max-w-7xl px-6 lg:px-8 z-10">
         <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
           
           <!-- LEFT: Hero Content -->
