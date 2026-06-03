@@ -722,10 +722,123 @@ const navigateToLogin = (portal: string) => {
 /* Academic Background Image for Landing Page */
 .landing-root {
   background-image: 
-    linear-gradient(135deg, rgba(88, 28, 135, 0.85), rgba(30, 27, 75, 0.90)),
+    linear-gradient(135deg, rgba(88, 28, 135, 0.80), rgba(30, 27, 75, 0.85)),
     url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1920&q=80');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+}
+
+/* Enhanced orb animations */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: orb-float 15s ease-in-out infinite alternate;
+}
+
+@keyframes orb-float {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+  100% { transform: translate(10px, -10px) scale(1.05); }
+}
+
+/* Portal button modern styling */
+.portal-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.portal-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.portal-btn:hover::before {
+  opacity: 1;
+}
+
+.portal-btn:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+}
+
+/* Academic symbols enhanced */
+.acad-symbol {
+  position: absolute;
+  pointer-events: none;
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.06);
+  animation: acad-float 20s ease-in-out infinite alternate;
+  text-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+}
+
+@keyframes acad-float {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.04; }
+  25% { transform: translateY(-25px) rotate(8deg) scale(1.08); opacity: 0.08; }
+  50% { transform: translateY(10px) rotate(-5deg) scale(0.96); opacity: 0.05; }
+  75% { transform: translateY(-15px) rotate(3deg) scale(1.04); opacity: 0.07; }
+  100% { transform: translateY(-8px) rotate(-2deg) scale(1); opacity: 0.06; }
+}
+
+/* Academic formulas */
+.acad-formula {
+  position: absolute;
+  pointer-events: none;
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  color: rgba(245, 158, 11, 0.08);
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  animation: formula-drift 25s ease-in-out infinite alternate;
+}
+
+@keyframes formula-drift {
+  0% { transform: translateX(0) translateY(0); opacity: 0.05; }
+  50% { transform: translateX(20px) translateY(-15px); opacity: 0.1; }
+  100% { transform: translateX(-10px) translateY(10px); opacity: 0.06; }
+}
+
+/* Academic icons */
+.acad-icon {
+  position: absolute;
+  pointer-events: none;
+  width: 40px;
+  height: 40px;
+  color: rgba(139, 92, 246, 0.1);
+  animation: icon-spin 30s linear infinite;
+}
+
+@keyframes icon-spin {
+  0% { transform: rotate(0deg) scale(1); opacity: 0.08; }
+  50% { transform: rotate(180deg) scale(1.1); opacity: 0.12; }
+  100% { transform: rotate(360deg) scale(1); opacity: 0.08; }
+}
+
+/* Sparkle dots */
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  animation: sparkle-pulse 2s ease-in-out infinite;
+}
+
+.sparkle.gold {
+  background: rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+@keyframes sparkle-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.5); opacity: 0.8; }
 }
 </style>

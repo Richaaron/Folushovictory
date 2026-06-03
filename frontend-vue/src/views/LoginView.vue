@@ -434,10 +434,93 @@ const handleLogin = async () => {
 /* Academic Background Image for Login Page */
 .login-root {
   background-image: 
-    linear-gradient(135deg, rgba(27, 42, 74, 0.90), rgba(30, 27, 75, 0.85)),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 27, 75, 0.88)),
     url('https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=1920&q=80');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+}
+
+/* Enhanced form card animations */
+.form-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.form-card:hover::before {
+  opacity: 1;
+}
+
+/* Field input modern styling */
+.field-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: white;
+  padding-left: 2.5rem;
+  font-size: 0.95rem;
+}
+
+.field-input:focus {
+  outline: none;
+}
+
+.field-input::placeholder {
+  color: rgba(148, 163, 184, 0.5);
+}
+
+/* Portal selector enhanced */
+.portal-selector {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.portal-selector:hover {
+  transform: scale(1.05);
+}
+
+/* Button glow effect */
+@keyframes button-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
+  }
+}
+
+/* Card entrance animation */
+@keyframes card-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-card-in {
+  animation: card-entrance 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.delay-150 {
+  animation-delay: 0.15s;
+  opacity: 0;
+}
+
+.delay-250 {
+  animation-delay: 0.25s;
+  opacity: 0;
 }
 </style>

@@ -22,28 +22,34 @@
 </template>
 
 <style>
-.page-enter-active,
+.page-enter-active {
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .page-leave-active {
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .page-enter-from {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(20px) scale(0.98);
 }
 
 .page-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(-12px) scale(0.98);
 }
 
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #1B2A4A; }
+::-webkit-scrollbar-track { background: #0f172a; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(201, 168, 76, 0.2);
+  background: rgba(99, 102, 241, 0.3);
   border-radius: 9999px;
+  transition: background 0.3s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(201, 168, 76, 0.35);
+  background: rgba(99, 102, 241, 0.5);
 }
 </style>
