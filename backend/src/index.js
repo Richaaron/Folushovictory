@@ -47,7 +47,8 @@ app.use(express.json({ limit: "2mb" }));
 app.get("/", (req, res) => res.send("Folusho Victory Schools API - Up and running!"));
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-app.use("/api/auth", authRouter);
+// Support both the API prefix and legacy/non-prefixed login endpoint.
+app.use(["/api/auth", "/auth"], authRouter);
 app.use("/api", meRouter);
 app.use("/api", configRouter);
 app.use("/api/admin", adminRouter);
