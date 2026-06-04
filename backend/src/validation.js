@@ -37,7 +37,7 @@ export function validateEmail(value, required = false) {
   if (!pattern.test(normalized)) {
     throw new ValidationError("Invalid email address");
   }
-  return normalized;
+  return normalized.toLowerCase();
 }
 
 export function validateTeacherPayload(body) {

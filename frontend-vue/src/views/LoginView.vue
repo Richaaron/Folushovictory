@@ -212,7 +212,7 @@ const handleLogin = async () => {
             <!-- Username -->
             <div>
               <label class="mb-2 block text-sm font-medium text-gray-300">
-                Username
+                Email or Username
               </label>
               <div class="relative">
                 <User class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -221,7 +221,7 @@ const handleLogin = async () => {
                   type="text"
                   required
                   class="modern-input pl-12"
-                  placeholder="Enter your username"
+                  placeholder="Enter your email or username"
                 />
               </div>
             </div>

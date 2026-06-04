@@ -1,6 +1,6 @@
 import express from "express";
 import { asyncHandler } from "../http.js";
-import { getUserByUsername, createUser } from "../repos/users.js";
+import { getUserByUsername, getUserByEmail, createUser } from "../repos/users.js";
 import { verifyPassword, signJwt, hashPassword } from "../security.js";
 import { Roles } from "../constants.js";
 import { logActivity } from "../services/activityLog.js";
@@ -18,7 +18,11 @@ authRouter.post(
     const { portal, username, password } = req.body || {};
     if (!portal || !username || !password) return res.status(400).json({ error: "Missing fields" });
 
-    const user = await getUserByUsername(String(username).trim());
+    const identifier = String(username).trim();
+    let user = await getUserByUsername(identifier);
+    if (!user && identifier.includes("@")) {
+      user = await getUserByEmail(identifier);
+    }
     if (!user) return res.status(401).json({ error: "Invalid credentials" });
     if (user.portal && portal && String(user.portal).toUpperCase() !== String(portal).toUpperCase()) {
       return res.status(403).json({ error: "Wrong portal" });

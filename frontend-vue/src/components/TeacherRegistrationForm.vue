@@ -15,17 +15,13 @@
         
         <div class="credentials-box">
           <div class="credential-item">
-            <label>Your Username</label>
-            <div class="username-display">{{ registrationData.username }}</div>
-            <button @click="copyToClipboard(registrationData.username)" class="copy-btn" title="Copy to clipboard">
-              📋 Copy
-            </button>
-          </div>
-          <div class="credential-item">
             <label>Email</label>
             <p>{{ registrationData.email }}</p>
           </div>
         </div>
+        <p class="success-note">
+          You can now sign in using your email and password.
+        </p>
 
         <div class="allocation-info" v-if="registrationData.subjectsAssigned || registrationData.formClassAssigned">
           <h3>Your Allocations</h3>

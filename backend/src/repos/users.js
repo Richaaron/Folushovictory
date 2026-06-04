@@ -22,6 +22,12 @@ export async function getUserByUsername(username) {
   }
 }
 
+export async function getUserByEmail(email) {
+  const normalizedEmail = String(email).trim().toLowerCase();
+  const { data } = await SafeDatabase.query("users", [["email", "==", normalizedEmail]], { pageSize: 1 });
+  return data.length > 0 ? data[0] : null;
+}
+
 export async function createUser(user, options = {}) {
   const normalizedDocId = options.docId ? String(options.docId).toLowerCase().trim() : null;
   return SafeDatabase.createWithValidation("users", user, "user", { 
