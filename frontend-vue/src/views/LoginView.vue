@@ -264,10 +264,15 @@ const handleLogin = async () => {
           </form>
 
           <!-- Footer -->
-          <div class="mt-6 text-center">
+          <div class="mt-6 text-center space-y-3">
             <a href="/forgot-password" class="text-sm text-gray-400 hover:text-purple-400 transition-colors">
               Forgot your password?
             </a>
+            <div v-if="portal === 'teacher'" class="text-sm">
+              <router-link to="/register/teacher" class="text-cyan-300 hover:text-cyan-100 transition-colors">
+                Don't have an account? Sign up
+              </router-link>
+            </div>
           </div>
         </div>
 
