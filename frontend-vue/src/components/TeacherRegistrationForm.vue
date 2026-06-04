@@ -1,6 +1,7 @@
 <template>
-  <div class="teacher-registration-container">
-    <div class="registration-card">
+  <div class="teacher-registration-container login-root relative min-h-screen overflow-hidden">
+    <div class="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-12 lg:px-8">
+      <div class="registration-card glass-card glass-card-purple p-10 w-full max-w-xl">
       <!-- Header -->
       <div class="registration-header">
         <h1>Teacher Registration</h1>
@@ -59,6 +60,7 @@
             :disabled="isSubmitting"
             @blur="validateField('email')"
             required
+            class="modern-input"
           />
           <span v-if="fieldErrors.email" class="error-message">{{ fieldErrors.email }}</span>
         </div>
@@ -74,6 +76,7 @@
             :disabled="isSubmitting"
             @blur="validateField('displayName')"
             required
+            class="modern-input"
           />
           <span v-if="fieldErrors.displayName" class="error-message">{{ fieldErrors.displayName }}</span>
         </div>
@@ -90,6 +93,7 @@
               :disabled="isSubmitting"
               @blur="validateField('password')"
               required
+              class="modern-input"
             />
             <button
               type="button"
@@ -121,6 +125,7 @@
             @blur="validateField('registrationCode')"
             maxlength="14"
             required
+            class="modern-input"
           />
           <span v-if="fieldErrors.registrationCode" class="error-message">{{ fieldErrors.registrationCode }}</span>
           <div v-else class="code-hint">Format: tch-2026-NNN (e.g., tch-2026-001)</div>
@@ -141,7 +146,7 @@
         <!-- Submit Button -->
         <button
           type="submit"
-          class="btn btn-primary btn-submit"
+          class="neon-btn neon-btn-cyan w-full btn-submit"
           :disabled="isSubmitting || !isFormValid"
           :class="{ 'btn-loading': isSubmitting }"
         >
@@ -165,6 +170,7 @@
       </p>
     </div>
   </div>
+</div>
 </template>
 
 <script>
