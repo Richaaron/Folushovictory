@@ -90,3 +90,30 @@ export function validateStudentUpdatePayload(body) {
   }
   return patch;
 }
+
+export function validateTeacherRegistration(body) {
+  const email = validateEmail(body.email, true);
+  const password = requiredString(body.password, "password");
+  const displayName = requiredString(body.displayName, "displayName");
+  const registrationCode = requiredString(body.registrationCode, "registrationCode");
+
+  if (password.length < 6) {
+    throw new ValidationError("Password must be at least 6 characters long");
+  }
+
+  // Validate registration code format: tch-2026-NNN
+  const normalizedCode = String(registrationCode).trim().toUpperCase();
+  const codeRegex = /^TCH-2026-\d{3}$/;
+  if (!codeRegex.test(normalizedCode)) {
+    throw new ValidationError("Invalid registration code format. Expected format: tch-2026-NNN (e.g., tch-2026-001)");
+  }
+
+  return {
+    email,
+    password,
+    displayName,
+    registrationCode: normalizedCode,
+    portal: "TEACHER",
+    role: Roles.TEACHER
+  };
+}

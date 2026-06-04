@@ -19,6 +19,8 @@ import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
 import { sendEmail, sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 import { performHealthCheck, validateDataIntegrity, getCollectionMetrics, SafeDatabase } from "../firestore-utils/index.js";
+import { generateSimpleRegistrationCode } from "../registrationCodeUtils.js";
+import { createRegistrationCode, listRegistrationCodes, revokeRegistrationCode, getRegistrationCodeByCode } from "../repos/registrationCodes.js";
 
 export const adminRouter = express.Router();
 
@@ -451,6 +453,263 @@ adminRouter.get(
     // Sort in memory
     teachers.sort((a, b) => a.username.localeCompare(b.username));
     return res.json({ teachers });
+  })
+);
+
+// ==========================================
+// TEACHER REGISTRATION CODES
+// ==========================================
+
+adminRouter.post(
+  "/registration-codes",
+  asyncHandler(async (req, res) => {
+    const { displayName, email, subjectIds, formClassId, expiryDays } = req.body || {};
+    
+    if (!displayName) {
+      return res.status(400).json({ error: "Missing displayName" });
+    }
+
+    // Generate code using database counter for sequential numbering
+    const code = await generateSimpleRegistrationCode(SafeDatabase.db);
+    
+    // Calculate expiry date
+    let expiresAt = null;
+    if (expiryDays && expiryDays > 0) {
+      expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + expiryDays);
+      expiresAt = expiresAt.toISOString();
+    }
+
+    // Create code record with subject and form class allocations
+    const codeRecord = await createRegistrationCode({
+      code,
+      displayName: String(displayName).trim(),
+      email: email ? String(email).trim() : null,
+      subjectIds: Array.isArray(subjectIds) ? subjectIds : [],
+      formClassId: formClassId ? String(formClassId).trim() : null,
+      expiresAt
+    });
+
+    // Log activity
+    await logActivity({
+      actor: req.user.username,
+      role: Roles.ADMIN,
+      action: "Generated teacher registration code",
+      details: { 
+        code,
+        displayName,
+        subjectCount: (subjectIds || []).length,
+        hasFormClass: !!formClassId,
+        expiryDays
+      },
+      resourceType: "registrationCode",
+      resourceId: code
+    }).catch((error) => console.error("Activity log failed:", error));
+
+    return res.status(201).json({
+      success: true,
+      message: "✅ Registration code generated successfully",
+      code: {
+        code,
+        displayName,
+        email: email || null,
+        subjectsCount: (subjectIds || []).length,
+        formClassAssigned: !!formClassId,
+        expiresAt,
+        createdAt: new Date().toISOString(),
+        status: "ACTIVE"
+      }
+    });
+  })
+);
+
+adminRouter.get(
+  "/registration-codes",
+  asyncHandler(async (req, res) => {
+    const { status, used } = req.query;
+    
+    const filters = {};
+    if (status) filters.status = String(status).toUpperCase();
+    if (used !== undefined) filters.used = used === "true";
+
+    const codes = await listRegistrationCodes(filters);
+    
+    return res.json({
+      total: codes.length,
+      codes: codes.map(c => ({
+        code: c.code,
+        displayName: c.displayName,
+        email: c.email,
+        subjectsCount: (c.subjectIds || []).length,
+        formClassAssigned: !!c.formClassId,
+        status: c.status,
+        used: c.used,
+        usedBy: c.usedBy || null,
+        usedAt: c.usedAt || null,
+        createdAt: c.createdAt,
+        expiresAt: c.expiresAt
+      }))
+    });
+  })
+);
+
+adminRouter.get(
+  "/registration-codes/:code",
+  asyncHandler(async (req, res) => {
+    const { code } = req.params;
+    const codeRecord = await getRegistrationCodeByCode(code);
+    
+    if (!codeRecord) {
+      return res.status(404).json({ error: "Registration code not found" });
+    }
+
+    return res.json({
+      code: codeRecord.code,
+      displayName: codeRecord.displayName,
+      email: codeRecord.email,
+      subjectIds: codeRecord.subjectIds || [],
+      formClassId: codeRecord.formClassId,
+      status: codeRecord.status,
+      used: codeRecord.used,
+      usedBy: codeRecord.usedBy || null,
+      usedAt: codeRecord.usedAt || null,
+      createdAt: codeRecord.createdAt,
+      expiresAt: codeRecord.expiresAt
+    });
+  })
+);
+
+adminRouter.delete(
+  "/registration-codes/:code",
+  asyncHandler(async (req, res) => {
+    const { code } = req.params;
+    
+    const codeRecord = await getRegistrationCodeByCode(code);
+    if (!codeRecord) {
+      return res.status(404).json({ error: "Registration code not found" });
+    }
+
+    if (codeRecord.used) {
+      return res.status(400).json({ error: "Cannot revoke a code that has already been used" });
+    }
+
+    await revokeRegistrationCode(code);
+
+    // Log activity
+    await logActivity({
+      actor: req.user.username,
+      role: Roles.ADMIN,
+      action: "Revoked teacher registration code",
+      details: { code, displayName: codeRecord.displayName },
+      resourceType: "registrationCode",
+      resourceId: code
+    }).catch((error) => console.error("Activity log failed:", error));
+
+    return res.json({ 
+      success: true, 
+      message: `✅ Registration code ${code} has been revoked` 
+    });
+  })
+);
+
+adminRouter.post(
+  "/registration-codes/:code/send",
+  asyncHandler(async (req, res) => {
+    const { code } = req.params;
+    const { recipientEmail } = req.body || {};
+
+    const codeRecord = await getRegistrationCodeByCode(code);
+    if (!codeRecord) {
+      return res.status(404).json({ error: "Registration code not found" });
+    }
+
+    if (codeRecord.used) {
+      return res.status(400).json({ error: "Code has already been used" });
+    }
+
+    const targetEmail = recipientEmail || codeRecord.email;
+    if (!targetEmail) {
+      return res.status(400).json({ error: "No email address found or provided" });
+    }
+
+    const emailHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
+        </div>
+        <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+          <h2 style="margin-top: 0; color: #5D3FD3;">Teacher Registration Invitation</h2>
+          <p>Hello <strong>${codeRecord.displayName}</strong>,</p>
+          <p>You have been invited to join the Folusho Victory Schools teacher portal. Your account has been pre-configured with your subject and class allocations.</p>
+          
+          <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0; border-left: 4px solid #5D3FD3;">
+            <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Your Registration Code</p>
+            <p style="margin: 16px 0 0; font-size: 24px; text-align: center; letter-spacing: 2px;"><strong style="color: #0B6E4F; font-family: monospace;">${codeRecord.code}</strong></p>
+            <p style="margin: 12px 0 0; font-size: 12px; color: #94a3b8;">Use this code when creating your account</p>
+          </div>
+
+          <div style="background-color: #eff6ff; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
+            <p style="margin: 0; font-size: 14px; color: #1e40af;">
+              <strong>Subject Allocations:</strong> ${(codeRecord.subjectIds || []).length} subject(s) assigned<br />
+              <strong>Form Class:</strong> ${codeRecord.formClassId ? "✓ Form class assigned" : "No form class assigned"}
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/register/teacher" 
+               style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+               Create Your Account
+            </a>
+          </div>
+
+          <p style="font-size: 13px; color: #64748b; margin-top: 24px;">
+            <strong>How to register:</strong><br />
+            1. Click the button above to visit the registration page<br />
+            2. Enter your full name, email, and password<br />
+            3. Enter the registration code: <strong style="font-family: monospace;">${codeRecord.code}</strong><br />
+            4. Your subjects and class allocation will be automatically applied
+          </p>
+
+          ${codeRecord.expiresAt ? `<p style="font-size: 12px; color: #f97316; margin-top: 16px;">⏰ <strong>This code expires on:</strong> ${new Date(codeRecord.expiresAt).toLocaleDateString()}</p>` : ""}
+
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0;" />
+          
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 0;">
+            © ${new Date().getFullYear()} Folusho Victory Schools. All rights reserved.<br />
+            If you have any questions, please contact the school administration.
+          </p>
+        </div>
+      </div>
+    `;
+
+    try {
+      await sendEmail({
+        to: targetEmail,
+        subject: "Teacher Registration Invitation - FVS Teacher Portal",
+        html: emailHtml
+      });
+
+      // Log activity
+      await logActivity({
+        actor: req.user.username,
+        role: Roles.ADMIN,
+        action: "Sent teacher registration code",
+        details: { code, displayName: codeRecord.displayName, sentTo: targetEmail },
+        resourceType: "registrationCode",
+        resourceId: code
+      }).catch((error) => console.error("Activity log failed:", error));
+
+      return res.json({
+        success: true,
+        message: `✅ Registration code sent successfully to ${targetEmail}`
+      });
+    } catch (error) {
+      console.error("Failed to send registration code email:", error);
+      return res.status(500).json({
+        error: "Failed to send email. Please try again.",
+        details: error.message
+      });
+    }
   })
 );
 

@@ -13,11 +13,8 @@ export const config = {
   googleCredentialsPath: process.env.GOOGLE_APPLICATION_CREDENTIALS || "",
   firebaseServiceAccountJson: process.env.FIREBASE_SERVICE_ACCOUNT_JSON || "",
   frontendOrigin: process.env.FRONTEND_ORIGIN || "http://localhost:5000",
-  smtpHost: process.env.SMTP_HOST || "",
-  smtpPort: Number(process.env.SMTP_PORT || 587),
-  smtpSecure: process.env.SMTP_SECURE === "true",
-  smtpUser: process.env.SMTP_USER || "",
-  smtpPass: process.env.SMTP_PASS || "",
+  resendApiKey: process.env.RESEND_API_KEY || "",
+  resendFromEmail: process.env.RESEND_FROM_EMAIL || "noreply@folushovictory.com",
   supabaseUrl: process.env.SUPABASE_URL || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 };
