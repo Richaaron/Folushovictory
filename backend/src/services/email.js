@@ -78,7 +78,18 @@ export const sendResultReleasedEmail = async ({ parentEmail, parentName, student
   });
 };
 
-export const sendTeacherWelcomeEmail = async ({ teacherEmail, teacherName, username, subjectCount = 0, hasFormClass = false }) => {
+export const sendTeacherWelcomeEmail = async ({ teacherEmail, teacherName, username, subjectCount = 0, hasFormClass = false, registrationCode = null }) => {
+  const frontend = process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app';
+  const registrationLink = registrationCode ? `${frontend}/register/teacher?code=${encodeURIComponent(registrationCode)}` : `${frontend}/login/teacher`;
+  const buttonText = registrationCode ? 'Complete Registration' : 'Access Staff Portal';
+  const registrationNote = registrationCode ? `
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
+          <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Your Registration Code</p>
+          <p style="margin: 16px 0 0; font-size: 24px; text-align: center; letter-spacing: 2px;"><strong style="color: #0B6E4F; font-family: monospace;">${registrationCode}</strong></p>
+          <p style="margin: 12px 0 0; font-size: 12px; color: #94a3b8;">Use this code when creating your account</p>
+        </div>
+      ` : '';
+
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
       <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
@@ -87,11 +98,12 @@ export const sendTeacherWelcomeEmail = async ({ teacherEmail, teacherName, usern
       <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
         <h2 style="margin-top: 0; color: #5D3FD3;">Welcome to the FVS Teacher Portal, ${teacherName}!</h2>
         <p>Your teacher account has been successfully created. You can now access the academic staff portal to manage your classes, subjects, and results digitally.</p>
+        ${registrationNote}
         
         <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
           <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Your Login Credentials</p>
           <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F; font-family: monospace;">${username}</span></p>
-          <p style="margin: 5px 0; font-size: 14px; color: #64748b;">Your password is the one you created during registration.</p>
+          <p style="margin: 5px 0; font-size: 14px; color: #64748b;">${registrationCode ? 'Click the button below to complete your registration and set your password.' : 'Your password is the one you created during registration.'}</p>
         </div>
 
         <div style="background-color: #eff6ff; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
@@ -103,8 +115,8 @@ export const sendTeacherWelcomeEmail = async ({ teacherEmail, teacherName, usern
         </div>
 
         <div style="text-align: center; margin: 32px 0;">
-          <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/teacher" 
-             style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Access Staff Portal</a>
+          <a href="${registrationLink}" 
+             style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">${buttonText}</a>
         </div>
 
         <div style="background-color: #f0fdf4; padding: 16px; border-radius: 8px; border-left: 4px solid #22c55e; margin: 24px 0;">

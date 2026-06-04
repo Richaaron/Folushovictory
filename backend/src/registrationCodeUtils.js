@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { SafeDatabase } from "./firestore-utils/index.js";
 
 /**
  * Registration Code Utility
@@ -94,17 +95,36 @@ export function decodeRegistrationCode(code) {
  */
 export async function generateSimpleRegistrationCode(database) {
   try {
-    // Get counter for code generation
-    const idsRef = database.collection('ids').doc('registrationCodes');
-    const snap = await idsRef.get();
-    
-    let counter = 1;
-    if (snap.exists && snap.data().count) {
-      counter = snap.data().count + 1;
+    // Attempt Firestore-style counter if a Firestore-like database was provided
+    let counter = null;
+    try {
+      if (database && typeof database.collection === 'function') {
+        const idsRef = database.collection('ids').doc('registrationCodes');
+        const snap = await idsRef.get();
+        counter = 1;
+        if (snap.exists && snap.data().count) {
+          counter = snap.data().count + 1;
+        }
+        // Update counter for next code
+        await idsRef.set({ count: counter }, { merge: true });
+      }
+    } catch (err) {
+      // ignore and fallback to SafeDatabase below
+      counter = null;
     }
-    
-    // Update counter for next code
-    await idsRef.set({ count: counter }, { merge: true });
+
+    // If Firestore-style counter not available, use SafeDatabase (Supabase) counter
+    if (counter === null) {
+      try {
+        // Ensure there is a counters/ids record; use SafeDatabase.increment to atomically increment
+        // This will create the record if it doesn't exist via upsert semantics used elsewhere
+        const newCount = await SafeDatabase.increment('ids', 'registrationCodes', 'count', 1);
+        counter = Number(newCount || 1);
+      } catch (err) {
+        console.error('Error generating registration code:', err);
+        throw new Error('Failed to generate registration code');
+      }
+    }
     
     // Format: tch-2026-NNN (e.g., tch-2026-001)
     const paddedNumber = String(counter).padStart(3, '0');

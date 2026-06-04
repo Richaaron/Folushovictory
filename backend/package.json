@@ -8,7 +8,8 @@
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "create-admin": "node scripts/createAdmin.js",
-    "seed-defaults": "node scripts/seedDefaults.js"
+    "seed-defaults": "node scripts/seedDefaults.js",
+    "migrate:init-registration": "node scripts/init_registration_tables.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.0",

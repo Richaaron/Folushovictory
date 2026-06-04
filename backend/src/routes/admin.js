@@ -138,79 +138,39 @@ adminRouter.get(
 adminRouter.post(
   "/teachers",
   asyncHandler(async (req, res) => {
+    // Admin-created teacher should only generate a registration code (tch-2026-NNN)
     const payload = validateTeacherPayload(req.body || {});
-    const username = await generateTeacherUsername();
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-    let password = "";
-    for (let i = 0; i < 8; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    const passwordHash = await hashPassword(password);
 
-    // Create user with username as document ID for proper lookup
-    await createUser({
-      username,
-      email: payload.email,
-      portal: "TEACHER",
-      role: Roles.TEACHER,
+    // Generate a sequential human-friendly registration code
+    const code = await generateSimpleRegistrationCode(SafeDatabase.db);
+
+    // Create registration code record with optional email and formClass assignment
+    const codeRecord = await createRegistrationCode({
+      code,
       displayName: payload.displayName,
-      passwordHash,
-      formClassId: payload.formClassId || null
-    }, { docId: username });
-
-    let emailSent = false;
-    let emailError = null;
-
-    if (payload.email) {
-      const emailHtml = `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-            <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
-            </div>
-            <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
-              <h2 style="margin-top: 0; color: #5D3FD3;">Welcome, ${payload.displayName}!</h2>
-              <p>Your academic staff portal account has been created successfully. You can now manage your classes, subjects, and results digitally.</p>
-              
-              <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
-                <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Login Credentials</p>
-                <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${username}</span></p>
-                <p style="margin: 5px 0 0; font-size: 16px;"><strong>Temporary Password:</strong> <span style="color: #0B6E4F;">${password}</span></p>
-              </div>
-
-              <div style="text-align: center; margin: 32px 0;">
-                <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/teacher" 
-                   style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                   Access Staff Portal
-                </a>
-              </div>
-
-              <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; pt: 16px;">
-                This is an automated security message. Please do not share your credentials with anyone.
-              </p>
-            </div>
-          </div>
-        `;
-
-      // Send email in background to avoid blocking the request
-      sendEmail({
-        to: payload.email,
-        subject: "Your FVS Teacher Portal Credentials",
-        html: emailHtml
-      }).then(() => {
-        console.log(`✅ Welcome email sent successfully to ${payload.email}`);
-      }).catch(err => {
-        console.error(`❌ Failed to send teacher email to ${payload.email}:`, err?.message || err);
-      });
-      emailSent = true; // Assume true since we fired it off
-    }
-
-    return res.status(201).json({ 
-      username, 
-      password,
       email: payload.email || null,
-      emailSent,
-      emailError,
-      message: "✅ Account created successfully! Credentials will be emailed shortly."
+      subjectIds: [],
+      formClassId: payload.formClassId || null,
+      expiresAt: null
+    });
+
+    // Log activity
+    await logActivity({
+      actor: req.user.username,
+      role: Roles.ADMIN,
+      action: "Generated teacher registration code (admin)",
+      details: { code, displayName: payload.displayName, email: payload.email || null },
+      resourceType: "registrationCode",
+      resourceId: code
+    }).catch((error) => console.error("Activity log failed:", error));
+
+    return res.status(201).json({
+      success: true,
+      code: codeRecord.code,
+      displayName: codeRecord.displayName,
+      email: codeRecord.email || null,
+      formClassAssigned: !!codeRecord.formClassId,
+      message: `✅ Registration code ${codeRecord.code} generated. No email sent; teacher will self-register.`
     });
   })
 );
@@ -281,6 +241,86 @@ adminRouter.post(
         error: "Failed to send email. However, the password was reset.",
         password // Still return it so admin can provide it manually
       });
+    }
+  })
+);
+
+// ADMIN: Resend a registration invitation to a teacher by username
+adminRouter.post(
+  "/teachers/:username/resend-registration",
+  asyncHandler(async (req, res) => {
+    const { username } = req.params;
+    const user = await getUserByUsername(username);
+    if (!user) return res.status(404).json({ error: "Teacher not found" });
+    if (!user.email) return res.status(400).json({ error: "Teacher has no email address" });
+
+    // Find an active, unused registration code for this teacher (by email)
+    const { data: codes } = await SafeDatabase.query(
+      "registrationCodes",
+      [["email", "==", String(user.email).trim().toLowerCase()], ["used", "==", false], ["status", "==", "ACTIVE"]],
+      { pageSize: 10 }
+    );
+
+    const codeRecord = codes && codes.length > 0 ? codes[0] : null;
+    if (!codeRecord) return res.status(404).json({ error: "No active registration code found for this teacher" });
+
+    const link = `${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/register/teacher?code=${encodeURIComponent(codeRecord.code)}`;
+
+    const emailHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
+        </div>
+        <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+          <h2 style="margin-top: 0; color: #5D3FD3;">Teacher Registration Invitation</h2>
+          <p>Hello <strong>${codeRecord.displayName}</strong>,</p>
+          <p>You have been invited to join the Folusho Victory Schools teacher portal. Your account has been pre-configured with your subject and class allocations.</p>
+
+          <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0; border-left: 4px solid #5D3FD3;">
+            <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Your Registration Code</p>
+            <p style="margin: 16px 0 0; font-size: 24px; text-align: center; letter-spacing: 2px;"><strong style="color: #0B6E4F; font-family: monospace;">${codeRecord.code}</strong></p>
+            <p style="margin: 12px 0 0; font-size: 12px; color: #94a3b8;">Use this code when creating your account</p>
+          </div>
+
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${link}" 
+               style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+               Create Your Account
+            </a>
+          </div>
+
+          <p style="font-size: 13px; color: #64748b; margin-top: 24px;">
+            <strong>How to register:</strong><br />
+            1. Click the button above to visit the registration page<br />
+            2. Enter your full name, email, and password<br />
+            3. Enter the registration code: <strong style="font-family: monospace;">${codeRecord.code}</strong><br />
+            4. Your subjects and class allocation will be automatically applied
+          </p>
+
+          ${codeRecord.expiresAt ? `<p style="font-size: 12px; color: #f97316; margin-top: 16px;">⏰ <strong>This code expires on:</strong> ${new Date(codeRecord.expiresAt).toLocaleDateString()}</p>` : ""}
+
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0;" />
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 0;">© ${new Date().getFullYear()} Folusho Victory Schools. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+
+    try {
+      await sendEmail({ to: user.email, subject: "Teacher Registration Invitation - FVS Teacher Portal", html: emailHtml });
+
+      await logActivity({
+        actor: req.user.username,
+        role: Roles.ADMIN,
+        action: "Resent teacher registration code",
+        details: { code: codeRecord.code, displayName: codeRecord.displayName, sentTo: user.email },
+        resourceType: "registrationCode",
+        resourceId: codeRecord.code
+      }).catch((error) => console.error("Activity log failed:", error));
+
+      return res.json({ success: true, message: `✅ Registration code resent successfully to ${user.email}` });
+    } catch (error) {
+      console.error("Failed to resend registration email:", error);
+      return res.status(500).json({ error: "Failed to send registration email. Please try again.", details: error.message });
     }
   })
 );
@@ -656,7 +696,7 @@ adminRouter.post(
           </div>
 
           <div style="text-align: center; margin: 32px 0;">
-            <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/register/teacher" 
+            <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/register/teacher?code=${encodeURIComponent(codeRecord.code)}" 
                style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                Create Your Account
             </a>

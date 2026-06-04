@@ -4,6 +4,7 @@ import { assertConfig, config } from "./config.js";
 import { authRouter } from "./routes/auth.js";
 import { meRouter } from "./routes/me.js";
 import { adminRouter } from "./routes/admin.js";
+import { devAdminRouter } from "./routes/devAdmin.js";
 import { teacherRouter } from "./routes/teacher.js";
 import { parentRouter } from "./routes/parent.js";
 import { resultsRouter } from "./routes/results.js";
@@ -54,6 +55,10 @@ app.use(["/api/auth", "/auth"], authRouter);
 app.use("/api", meRouter);
 app.use("/api", configRouter);
 app.use("/api/admin", adminRouter);
+// Mount dev-only admin helper when explicitly enabled
+if (process.env.ENABLE_LOCAL_DEV_ROUTES === "true" && process.env.NODE_ENV !== "production") {
+  app.use("/__dev__/admin", devAdminRouter);
+}
 app.use("/api/teacher", teacherRouter);
 app.use("/api/parent", parentRouter);
 app.use("/api/results", resultsRouter);
