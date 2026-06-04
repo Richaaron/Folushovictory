@@ -38,6 +38,7 @@ const password = ref('')
 const passwordVisible = ref(false)
 const loading = ref(false)
 const error = ref('')
+const needSignup = ref(false)
 
 const portalConfig: Record<PortalKey, {
   title: string;
@@ -144,7 +145,13 @@ const handleLogin = async () => {
     const redirectPath = `/${portal.value}`
     router.push(redirectPath)
   } catch (err: any) {
+    const serverCode = err.response?.data?.code
     error.value = err.response?.data?.error || err.response?.data?.message || 'Login failed. Please check your credentials.'
+    if (serverCode === 'NEED_SIGNUP') {
+      needSignup.value = true
+    } else {
+      needSignup.value = false
+    }
   } finally {
     loading.value = false
   }
@@ -205,6 +212,10 @@ const handleLogin = async () => {
           >
             <AlertCircle class="h-4 w-4" />
             {{ error }}
+          </div>
+
+          <div v-if="needSignup && portal === 'teacher'" class="mb-4 text-sm text-amber-200 bg-amber-900/10 border border-amber-700/20 rounded p-3">
+            It looks like your account needs initial setup. <router-link to="/register/teacher" class="underline text-amber-100">Complete registration</router-link>
           </div>
 
           <!-- Login Form -->

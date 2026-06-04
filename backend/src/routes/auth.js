@@ -28,6 +28,14 @@ authRouter.post(
       return res.status(403).json({ error: "Wrong portal" });
     }
 
+    // Require initial signup for teachers who don't have a password yet
+    if (user.role === Roles.TEACHER && (!user.passwordHash || user.passwordHash === "")) {
+      return res.status(403).json({
+        error: "Teacher accounts must complete initial signup before logging in. Use the registration page.",
+        code: "NEED_SIGNUP"
+      });
+    }
+
     const ok = await verifyPassword(password, user.passwordHash || "");
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
