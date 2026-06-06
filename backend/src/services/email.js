@@ -101,9 +101,10 @@ export const sendTeacherWelcomeEmail = async ({ teacherEmail, teacherName, usern
         ${registrationNote}
         
         <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
-          <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Your Login Credentials</p>
-          <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F; font-family: monospace;">${username}</span></p>
-          <p style="margin: 5px 0; font-size: 14px; color: #64748b;">${registrationCode ? 'Click the button below to complete your registration and set your password.' : 'Your password is the one you created during registration.'}</p>
+          <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">How to Log In</p>
+          <p style="margin: 10px 0 0; font-size: 16px;"><strong>Email:</strong> <span style="color: #0B6E4F;">${teacherEmail}</span></p>
+          <p style="margin: 5px 0 0; font-size: 16px;"><strong>Password:</strong> <span style="color: #64748b;">${registrationCode ? 'Set during registration' : 'The password you created during registration'}</span></p>
+          <p style="margin: 12px 0 0; font-size: 13px; color: #94a3b8;">Log in using your <strong>email address</strong> and password at the Teacher Portal.</p>
         </div>
 
         <div style="background-color: #eff6ff; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
@@ -141,6 +142,67 @@ export const sendTeacherWelcomeEmail = async ({ teacherEmail, teacherName, usern
   return sendEmail({
     to: teacherEmail,
     subject: "Welcome to FVS Teacher Portal - Your Account is Ready",
+    html
+  });
+};
+
+export const sendLoginChangeNotificationEmail = async ({ teacherEmail, teacherName }) => {
+  const frontend = process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app';
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+      <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
+      </div>
+      <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+        <h2 style="margin-top: 0; color: #5D3FD3;">Important Login Update 🔑</h2>
+        <p>Dear ${teacherName || 'Teacher'},</p>
+        <p>We've updated the login process for the FVS Teacher Portal to make it easier and more secure for you.</p>
+
+        <div style="background-color: #fef3c7; padding: 20px; border-radius: 12px; border-left: 4px solid #f59e0b; margin: 24px 0;">
+          <p style="margin: 0; font-size: 15px; color: #92400e; font-weight: bold;">What's Changed?</p>
+          <p style="margin: 10px 0 0; font-size: 14px; color: #78350f;">
+            You can now log in using your <strong>email address</strong> and password instead of your registration code.
+          </p>
+        </div>
+
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
+          <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">How to Log In</p>
+          <p style="margin: 12px 0 4px; font-size: 14px; color: #1e293b;">
+            <strong>1.</strong> Go to the Teacher Portal login page
+          </p>
+          <p style="margin: 4px 0; font-size: 14px; color: #1e293b;">
+            <strong>2.</strong> Enter your <strong>email address</strong>: <span style="color: #0B6E4F; font-weight: bold;">${teacherEmail}</span>
+          </p>
+          <p style="margin: 4px 0; font-size: 14px; color: #1e293b;">
+            <strong>3.</strong> Enter your <strong>password</strong> (the one you set during registration)
+          </p>
+        </div>
+
+        <div style="background-color: #eff6ff; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
+          <p style="margin: 0; font-size: 13px; color: #1e40af;">
+            💡 <strong>Note:</strong> Your old registration code will still work as a backup login method, but we recommend using your email for a smoother experience.
+          </p>
+        </div>
+
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${frontend}/login/teacher" 
+             style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Go to Teacher Portal</a>
+        </div>
+
+        <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; padding-top: 16px; text-align: center;">
+          If you have any issues logging in, please contact the school administration.
+        </p>
+        <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 16px;">
+          © ${new Date().getFullYear()} Folusho Victory Schools. All rights reserved.
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to: teacherEmail,
+    subject: "FVS Teacher Portal - Login Update: Use Your Email to Sign In",
     html
   });
 };

@@ -220,19 +220,19 @@ const handleLogin = async () => {
 
           <!-- Login Form -->
           <form @submit.prevent="handleLogin" class="space-y-6">
-            <!-- Username -->
+            <!-- Username / Email -->
             <div>
               <label class="mb-2 block text-sm font-medium text-gray-300">
-                Email or Username
+                {{ portal === 'teacher' ? 'Email Address' : 'Email or Username' }}
               </label>
               <div class="relative">
                 <User class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <input
                   v-model="username"
-                  type="text"
+                  :type="portal === 'teacher' ? 'email' : 'text'"
                   required
                   class="modern-input pl-12"
-                  placeholder="Enter your email or username"
+                  :placeholder="portal === 'teacher' ? 'Enter your email address' : 'Enter your email or username'"
                 />
               </div>
             </div>
