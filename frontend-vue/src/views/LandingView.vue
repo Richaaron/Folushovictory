@@ -117,15 +117,6 @@ const features = [
     <!-- ═══════ HERO SECTION - FULL WIDTH ═══════ -->
     <section class="hero-section relative">
       <!-- subtle academic watermark image + translucent logo -->
-      <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1600&q=60&auto=format&fit=crop"
-          alt="Academic background"
-          class="w-full h-full object-cover grayscale"
-          style="opacity:0.18"
-        />
-        <img src="/logo.png" alt="logo" class="absolute right-12 bottom-6 h-40 opacity-100 md:opacity-[0.06] transform rotate-6" />
-      </div>
       <div class="relative mx-auto max-w-7xl px-6 lg:px-8 z-10">
         <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
           
@@ -282,9 +273,6 @@ const features = [
 <style scoped>
 .landing-root {
   background: var(--bg-primary);
-  background-image: 
-    linear-gradient(135deg, rgba(10, 14, 39, 0.92), rgba(17, 22, 56, 0.95)),
-    url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&q=80');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
