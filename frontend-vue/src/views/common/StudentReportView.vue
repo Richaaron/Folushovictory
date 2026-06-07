@@ -1037,7 +1037,8 @@ tbody tr:nth-child(even) {
     border-radius: 0;
     box-shadow: none;
     page-break-inside: avoid;
-    transform: scale(0.92);
+    /* slightly more aggressive shrink to fit single page */
+    transform: scale(0.88);
     transform-origin: top left;
   }
 
@@ -1046,12 +1047,13 @@ tbody tr:nth-child(even) {
   }
 
   .report-header {
-    grid-template-columns: 1fr 180px;
-    padding: 12px 12px;
+    grid-template-columns: 1fr 160px;
+    padding: 8px 8px;
+    gap: 12px;
   }
 
   .brand-copy h1 {
-    font-size: 26px;
+    font-size: 22px;
   }
 
   .logo-mark {
@@ -1060,7 +1062,7 @@ tbody tr:nth-child(even) {
   }
 
   .term-panel {
-    padding: 10px 12px;
+    padding: 6px 8px;
   }
 
   .term-panel strong {
@@ -1072,7 +1074,14 @@ tbody tr:nth-child(even) {
   .table-frame table td {
     font-size: 14px !important;
     padding: 2px 4px !important;
-    line-height: 1.05 !important;
+    line-height: 1 !important;
+    vertical-align: middle !important;
+  }
+
+  /* Force reduced row height where possible */
+  .table-frame table tbody tr {
+    height: auto !important;
+    max-height: 20px !important;
   }
 
   /* Ensure first column remains left-aligned but keeps tight padding */
@@ -1086,37 +1095,37 @@ tbody tr:nth-child(even) {
   /* 2) Remarks font size */
   .remark-box p {
     font-size: 12px !important;
-    margin: 6px 0 8px !important;
-    min-height: 36px !important;
-    line-height: 1.3 !important;
+    margin: 4px 0 6px !important;
+    min-height: 28px !important;
+    line-height: 1.25 !important;
   }
 
   /* 3) Shrink signature areas */
   .remark-box {
-    min-height: 80px !important;
-    padding: 10px !important;
+    min-height: 60px !important;
+    padding: 8px !important;
   }
 
   .signature-area {
-    margin-top: 8px !important;
+    margin-top: 6px !important;
   }
 
   .signature-line,
   .signature-image {
-    height: 50px !important;
-    margin-top: 4px !important;
+    height: 44px !important;
+    margin-top: 2px !important;
     border-bottom: 2px solid #cbd5e1 !important;
   }
 
   .signature-image img {
-    max-width: 200px !important;
-    max-height: 46px !important;
+    max-width: 180px !important;
+    max-height: 40px !important;
     object-fit: contain !important;
   }
 
   .teacher-name {
-    font-size: 14px !important;
-    margin-top: 4px !important;
+    font-size: 12px !important;
+    margin-top: 2px !important;
   }
 
   /* Tighten spacing in footer */
