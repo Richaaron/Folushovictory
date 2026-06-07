@@ -15,17 +15,6 @@ const route = useRoute()
     <!-- Grid Pattern -->
     <div class="grid-pattern" aria-hidden="true"></div>
 
-    <video
-      v-if="route.name !== 'landing'"
-      class="background-video"
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="metadata"
-      src="/videos/landing-video.mp4"
-    />
-
     <div class="relative z-10 min-h-screen">
       <router-view v-slot="{ Component }">
         <transition name="page" mode="out-in">
@@ -38,9 +27,11 @@ const route = useRoute()
 
 <style>
 .app-shell {
-  background-image: 
-    linear-gradient(135deg, rgba(10, 14, 39, 0.93), rgba(17, 22, 56, 0.95)),
-    url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80');
+  background-color: #0d0904;
+  background-image:
+    radial-gradient(circle at top right, rgba(255, 214, 88, 0.12), transparent 18%),
+    radial-gradient(circle at 20% 20%, rgba(255, 184, 28, 0.10), transparent 20%),
+    linear-gradient(180deg, rgba(24, 16, 6, 0.96), rgba(10, 8, 5, 0.98));
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
