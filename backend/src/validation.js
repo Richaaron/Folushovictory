@@ -102,8 +102,8 @@ export function validateTeacherRegistration(body) {
   }
 
   // Validate registration code format: tch-2026-NNN
-  const normalizedCode = String(registrationCode).trim().toUpperCase();
-  const codeRegex = /^TCH-2026-\d{3}$/;
+  const normalizedCode = String(registrationCode).trim().toLowerCase();
+  const codeRegex = /^tch-2026-\d{3}$/;
   if (!codeRegex.test(normalizedCode)) {
     throw new ValidationError("Invalid registration code format. Expected format: tch-2026-NNN (e.g., tch-2026-001)");
   }
