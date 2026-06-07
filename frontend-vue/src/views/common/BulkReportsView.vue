@@ -593,6 +593,9 @@ onMounted(fetchStudents)
   :global(body) {
     width: 210mm;
     height: 297mm;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
   }
 
   @page {
@@ -608,16 +611,36 @@ onMounted(fetchStudents)
   .bulk-report-page {
     max-width: none;
     padding: 0;
+    overflow: hidden !important;
   }
 
   .print-area {
     display: block;
+    overflow: hidden !important;
   }
 
-  .print-card,
+  .print-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 270mm !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  .print-card:not(:last-child) {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
   .withheld-page {
-    page-break-after: always;
-    break-after: page;
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
     box-shadow: none;
   }
 
@@ -660,7 +683,7 @@ onMounted(fetchStudents)
   .withheld-table th,
   .withheld-table td {
     font-size: 14px !important;
-    padding: 2px 4px !important;
+    padding: 8px 4px !important;
     line-height: 1.15 !important;
     border-color: #cbd5e1 !important;
   }
