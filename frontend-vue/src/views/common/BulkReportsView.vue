@@ -656,9 +656,95 @@ onMounted(fetchStudents)
   }
 
   .result-table th,
+  .result-table td,
+  .withheld-table th,
+  .withheld-table td {
+    font-size: 14px !important;
+    padding: 2px 4px !important;
+    line-height: 1.15 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  .result-table th,
   .withheld-table th {
     background: #e2e8f0 !important;
     color: #1e1b4b !important;
+    font-weight: 700 !important;
+  }
+
+  .result-table,
+  .withheld-table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    font-size: 14px !important;
+  }
+
+  .result-table th,
+  .result-table td,
+  .withheld-table th,
+  .withheld-table td {
+    white-space: nowrap !important;
+  }
+
+  .remarks-grid {
+    gap: 10px !important;
+    padding: 0 0 8px !important;
+  }
+
+  .remarks-grid div {
+    min-height: auto !important;
+    border: 1px solid #cbd5e1 !important;
+    border-top: 4px solid #581c87 !important;
+    padding: 10px !important;
+  }
+
+  .remarks-grid p {
+    min-height: auto !important;
+    margin: 4px 0 8px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+  }
+
+  .remarks-grid span,
+  .remarks-grid strong {
+    font-size: 12px !important;
+  }
+
+  .teacher-signature,
+  .signature-line,
+  .signature-image {
+    height: 50px !important;
+    margin: 0 !important;
+  }
+
+  .signature-line {
+    border-bottom: 1.5px solid #475569 !important;
+  }
+
+  .signature-image img {
+    max-height: 48px !important;
+    object-fit: contain !important;
+  }
+
+  .teacher-signature {
+    font-size: 16px !important;
+    padding-top: 4px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .report-head {
+    padding: 14px 18px !important;
+  }
+
+  .report-head h2 {
+    font-size: 20px !important;
+  }
+
+  .student-strip,
+  .summary-strip {
+    gap: 8px !important;
+    padding: 0 16px 8px !important;
   }
 
   .summary-strip div {
