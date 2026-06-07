@@ -75,6 +75,15 @@ const features = [
     <div class="neon-bg-orb" style="width: 300px; height: 300px; background: var(--neon-pink); bottom: -100px; right: 20%; animation-delay: -10s;" aria-hidden="true"></div>
     
     <div class="grid-pattern" aria-hidden="true"></div>
+    <video
+      class="landing-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      src="/videos/landing-video.mp4"
+    />
 
     <!-- ═══════ HEADER WITH LOGO ═══════ -->
     <header class="relative z-20 border-b border-white/5 bg-gradient-to-b from-gray-900/60 to-transparent backdrop-blur-sm">
@@ -279,5 +288,17 @@ const features = [
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  overflow: hidden;
+}
+
+.landing-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.24;
+  z-index: 0;
+  pointer-events: none;
 }
 </style>

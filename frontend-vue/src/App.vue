@@ -1,5 +1,10 @@
 
 
+<script setup lang="ts">
+import { useRoute } from 'vue-router'
+const route = useRoute()
+</script>
+
 <template>
   <div class="app-shell relative">
     <!-- Animated Background Orbs -->
@@ -9,6 +14,17 @@
     
     <!-- Grid Pattern -->
     <div class="grid-pattern" aria-hidden="true"></div>
+
+    <video
+      v-if="route.name !== 'landing'"
+      class="background-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      src="/videos/app-video.mp4"
+    />
 
     <div class="relative z-10 min-h-screen">
       <router-view v-slot="{ Component }">
@@ -48,6 +64,17 @@
 .page-leave-to {
   opacity: 0;
   transform: translateY(-15px) scale(0.96);
+}
+
+.background-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.32;
+  z-index: 0;
+  pointer-events: none;
 }
 
 ::-webkit-scrollbar { width: 10px; }
