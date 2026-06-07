@@ -23,7 +23,7 @@ const route = useRoute()
       loop
       playsinline
       preload="metadata"
-      src="/videos/app-video.mp4"
+      src="/videos/landing-video.mp4"
     />
 
     <div class="relative z-10 min-h-screen">

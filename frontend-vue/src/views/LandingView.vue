@@ -82,7 +82,7 @@ const features = [
       loop
       playsinline
       preload="metadata"
-      src="/videos/landing-video.mp4"
+      src="/videos/app-video.mp4"
     />
 
     <!-- ═══════ HEADER WITH LOGO ═══════ -->
