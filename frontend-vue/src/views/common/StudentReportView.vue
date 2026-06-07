@@ -1047,7 +1047,7 @@ tbody tr:nth-child(even) {
 
   .report-header {
     grid-template-columns: 1fr 180px;
-    padding: 16px 16px;
+    padding: 12px 12px;
   }
 
   .brand-copy h1 {
@@ -1060,30 +1060,86 @@ tbody tr:nth-child(even) {
   }
 
   .term-panel {
-    padding: 12px 14px;
+    padding: 10px 12px;
   }
 
   .term-panel strong {
     font-size: 20px;
   }
 
-  th {
-    padding: 6px 4px;
-    font-size: 7px;
+  /* 1) Increase Table Font Size + tighten vertical padding */
+  .table-frame table th,
+  .table-frame table td {
+    font-size: 14px !important;
+    padding: 2px 4px !important;
+    line-height: 1.05 !important;
   }
 
-  td {
-    padding: 4px 3px;
-    font-size: 8px;
+  /* Ensure first column remains left-aligned but keeps tight padding */
+  .table-frame table th:first-child,
+  .table-frame table td:first-child {
+    text-align: left !important;
+    width: 26% !important;
+    padding-left: 6px !important;
   }
 
+  /* 2) Remarks font size */
+  .remark-box p {
+    font-size: 12px !important;
+    margin: 6px 0 8px !important;
+    min-height: 36px !important;
+    line-height: 1.3 !important;
+  }
+
+  /* 3) Shrink signature areas */
   .remark-box {
-    min-height: 120px;
-    padding: 12px;
+    min-height: 80px !important;
+    padding: 10px !important;
   }
 
-  .signature-line {
-    height: 50px;
+  .signature-area {
+    margin-top: 8px !important;
+  }
+
+  .signature-line,
+  .signature-image {
+    height: 50px !important;
+    margin-top: 4px !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+  }
+
+  .signature-image img {
+    max-width: 200px !important;
+    max-height: 46px !important;
+    object-fit: contain !important;
+  }
+
+  .teacher-name {
+    font-size: 14px !important;
+    margin-top: 4px !important;
+  }
+
+  /* Tighten spacing in footer */
+  .report-footer {
+    padding: 12px 18px !important;
+    gap: 12px !important;
+  }
+
+  /* Reduce table header height where possible */
+  .table-frame thead th {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  /* Avoid page breaks inside critical sections */
+  .report-header,
+  .table-frame,
+  .remarks-section,
+  .report-footer { page-break-inside: avoid !important; break-inside: avoid !important; }
+
+  /* Final fallback to force single page: slightly reduce overall scale if still needed */
+  @media print and (max-height: 1120px) {
+    .report-card { transform: scale(0.9) !important; }
   }
 }
 </style>
