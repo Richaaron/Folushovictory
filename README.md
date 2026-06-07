@@ -119,6 +119,49 @@ If you need a custom endpoint, set `VITE_API_URL` in `frontend-vue/.env`.
 
 ---
 
+## Power BI Reporting Integration
+
+This project now includes a Power BI-friendly export endpoint in the backend API.
+
+- Admins can fetch JSON-ready report data from `GET /api/admin/powerbi/export`
+- Use the query string parameters `session` and `term` to scope data
+- Power BI can consume this endpoint using the Web connector and generate dashboards from:
+  - `classes`
+  - `students`
+  - `publishes`
+  - `scores`
+  - aggregated summaries like `studentsByClass` and `scoreStatsByClass`
+
+To use Power BI against the local backend during development:
+
+```bash
+cd backend
+npm run dev
+```
+
+Then point Power BI Desktop to:
+
+```
+http://localhost:4000/api/admin/powerbi/export
+```
+
+> Note: this endpoint is protected by admin JWT bearer authentication.
+> You must provide an `Authorization: Bearer <token>` header, so use Power BI's advanced Web connector settings or a custom connector.
+
+Example URL with filters:
+
+```
+http://localhost:4000/api/admin/powerbi/export?session=2025/2026&term=Third
+```
+
+If you are using the hosted backend, point Power BI to:
+
+```
+https://folushovictory-backend.onrender.com/api/admin/powerbi/export
+```
+
+---
+
 ## Running the App
 
 1. Start the backend:
