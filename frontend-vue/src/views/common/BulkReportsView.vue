@@ -600,7 +600,7 @@ onMounted(fetchStudents)
 
   @page {
     size: A4;
-    margin: 0 !important;
+    margin: 10mm !important;
     padding: 0 !important;
   }
 
@@ -611,12 +611,12 @@ onMounted(fetchStudents)
   .bulk-report-page {
     max-width: none;
     padding: 0;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   .print-area {
     display: block;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   .print-card {
@@ -624,7 +624,7 @@ onMounted(fetchStudents)
     flex-direction: column;
     justify-content: space-between;
     min-height: 270mm !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     page-break-after: auto !important;
@@ -706,7 +706,9 @@ onMounted(fetchStudents)
   .result-table td,
   .withheld-table th,
   .withheld-table td {
-    white-space: nowrap !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
   }
 
   .remarks-grid {
