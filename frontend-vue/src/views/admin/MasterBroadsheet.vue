@@ -323,7 +323,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         </div>
       </div>
 
-      <div v-else-if="broadsheet" class="overflow-x-auto print:overflow-visible">
+      <div v-else-if="broadsheet" class="overflow-x-auto print:overflow-visible broadsheet-print-section">
         <div class="px-6 py-6 text-center border-b border-[#C9A84C]/10 bg-[#1B2A4A]/30">
           <h2 class="academic-heading text-xl text-[#FAFAF7]">{{ broadsheet.school?.name || 'Folusho Victory Schools' }}</h2>
           <p v-if="broadsheet.school?.motto" class="mt-1 text-[10px] font-black uppercase tracking-widest gold-text">{{ broadsheet.school.motto }}</p>
@@ -509,6 +509,34 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
 
   .bg-slate-900\/30 {
     background: #f1f5f9 !important;
+  }
+
+  .broadsheet-print-section {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    overflow: visible !important;
+  }
+
+  .broadsheet-print-section .parchment-card,
+  .broadsheet-print-section .px-6,
+  .broadsheet-print-section .py-6 {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .broadsheet-print-section table {
+    width: 100% !important;
+    margin: 0 !important;
+    border-collapse: collapse !important;
+  }
+
+  .broadsheet-print-section th,
+  .broadsheet-print-section td {
+    padding: 4pt !important;
   }
 }
 
