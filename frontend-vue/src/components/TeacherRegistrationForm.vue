@@ -210,8 +210,7 @@ export default {
 
     // Normalize and validate code input (format: tch-2026-NNN)
     const formatCodeInput = () => {
-      // Simply uppercase the input - user should enter code in format tch-2026-001
-      form.value.registrationCode = form.value.registrationCode.toUpperCase();
+      form.value.registrationCode = String(form.value.registrationCode || '').trim().toLowerCase();
     };
 
     // Validate individual fields

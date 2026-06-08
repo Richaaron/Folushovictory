@@ -223,16 +223,16 @@ const handleLogin = async () => {
             <!-- Username / Email -->
             <div>
               <label class="mb-2 block text-sm font-medium text-gray-300">
-                {{ portal === 'teacher' ? 'Email Address' : 'Email or Username' }}
+                {{ portal === 'teacher' ? 'Email or Teacher Code' : 'Email or Username' }}
               </label>
               <div class="relative">
                 <User class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <input
                   v-model="username"
-                  :type="portal === 'teacher' ? 'email' : 'text'"
+                  type="text"
                   required
                   class="modern-input pl-12"
-                  :placeholder="portal === 'teacher' ? 'Enter your email address' : 'Enter your email or username'"
+                  :placeholder="portal === 'teacher' ? 'Enter your email or teacher code (e.g. tch-2026-001)' : 'Enter your email or username'"
                 />
               </div>
             </div>

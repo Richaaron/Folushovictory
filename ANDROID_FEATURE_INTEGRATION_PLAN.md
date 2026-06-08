@@ -277,10 +277,22 @@ data class SchoolClass(
 abstract class AppDatabase : RoomDatabase()
 ```
 
+#### 6.4 Power BI Reporting
+- [ ] Add backend report export endpoint for Power BI consumption
+- [ ] Support session and term filtering for dashboard data
+- [ ] Provide export-ready datasets for classes, students, publishes, and scores
+- [ ] Use reports to build admin analytics and trend dashboards
+- [ ] Document the Power BI connector URL and required query parameters
+
+**Power BI use cases:**
+- Class performance trends by subject
+- Student distribution across classes
+- Release and publish status by term
+- Score averages and report generation summaries
+
 ---
 
-### **PHASE 7: Testing & Deployment (Week 6-7)**
-Priority: **HIGH**
+### **PHASE 7: Testing & Deployment (Week 6-7)**nPriority: **HIGH**
 
 #### 7.1 Quality Assurance
 - [ ] Unit tests for ViewModels

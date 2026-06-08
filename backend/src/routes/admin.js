@@ -19,10 +19,39 @@ import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
 import { sendEmail, sendResultReleasedEmail, sendLoginChangeNotificationEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 import { performHealthCheck, validateDataIntegrity, getCollectionMetrics, SafeDatabase } from "../firestore-utils/index.js";
+import { getIdColumnName } from "../firestore-utils/db-utils.js";
 import { generateSimpleRegistrationCode } from "../registrationCodeUtils.js";
 import { createRegistrationCode, listRegistrationCodes, revokeRegistrationCode, getRegistrationCodeByCode } from "../repos/registrationCodes.js";
 
 export const adminRouter = express.Router();
+
+async function queryAllDocuments(collectionName, constraints = [], options = {}) {
+  const idCol = getIdColumnName(collectionName);
+  const pageSize = Math.min(options.pageSize || 1000, 1000);
+  let allData = [];
+  let lastId = null;
+  let hasMore = true;
+
+  while (hasMore) {
+    const queryConstraints = [...constraints];
+    if (lastId !== null) {
+      queryConstraints.push([idCol, ">", lastId]);
+    }
+
+    const result = await SafeDatabase.query(collectionName, queryConstraints, {
+      ...options,
+      pageSize
+    });
+
+    allData.push(...result.data);
+    hasMore = result.hasMore;
+    lastId = result.lastDoc?.[idCol] ?? null;
+
+    if (!hasMore || result.data.length === 0) break;
+  }
+
+  return allData;
+}
 
 // ==========================================
 // ADMIN ACCESS POLICY
@@ -131,6 +160,77 @@ adminRouter.get(
       },
       resultStatus,
       activeTerm
+    });
+  })
+);
+
+adminRouter.get(
+  "/powerbi/export",
+  asyncHandler(async (req, res) => {
+    const { session, term } = req.query;
+    const schoolSettings = await getSchoolSettings();
+    const currentSession = String(session || schoolSettings.currentSession);
+    const currentTerm = String(term || schoolSettings.currentTerm);
+
+    const [classes, students, publishes, scores] = await Promise.all([
+      listClasses(),
+      queryAllDocuments("students", [], { pageSize: 1000 }),
+      queryAllDocuments(
+        "publishes",
+        [
+          ["session", "==", currentSession],
+          ["term", "==", currentTerm]
+        ],
+        { pageSize: 1000 }
+      ),
+      queryAllDocuments(
+        "scores",
+        [
+          ["session", "==", currentSession],
+          ["term", "==", currentTerm]
+        ],
+        { pageSize: 1000 }
+      )
+    ]);
+
+    const studentsByClass = classes.map((cls) => ({
+      classId: cls.id,
+      className: cls.name,
+      studentCount: students.filter((student) => student.classId === cls.id).length
+    }));
+
+    const scoreStatsByClass = classes.map((cls) => {
+      const classScores = scores.filter((score) => score.classId === cls.id);
+      const totalScore = classScores.reduce((sum, score) => {
+        const ca1 = Number(score.ca1 || 0);
+        const ca2 = Number(score.ca2 || 0);
+        const exam = Number(score.exam || 0);
+        return sum + ca1 + ca2 + exam;
+      }, 0);
+      return {
+        classId: cls.id,
+        className: cls.name,
+        scoreRowCount: classScores.length,
+        averageScore: classScores.length > 0 ? Number((totalScore / classScores.length).toFixed(2)) : 0
+      };
+    });
+
+    return res.json({
+      exportType: "PowerBI",
+      currentSession,
+      currentTerm,
+      totals: {
+        classes: classes.length,
+        students: students.length,
+        publishes: publishes.length,
+        scores: scores.length
+      },
+      studentsByClass,
+      scoreStatsByClass,
+      classes,
+      students,
+      publishes,
+      scores
     });
   })
 );

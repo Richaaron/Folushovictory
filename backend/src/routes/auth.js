@@ -21,20 +21,17 @@ authRouter.post(
     const identifier = String(username).trim();
     let user;
 
-    // Teachers must login with email address only
+    // Teachers sign in with either their assigned teacher code or email address and password
     if (portal && String(portal).toUpperCase() === "TEACHER") {
-      if (!identifier.includes("@")) {
-        return res.status(403).json({
-          error: "Teachers must login with their email address.",
-          code: "EMAIL_REQUIRED"
-        });
+      user = await getUserByUsername(identifier);
+      if (!user && identifier.includes("@")) {
+        user = await getUserByEmail(identifier);
       }
-      user = await getUserByEmail(identifier);
       if (!user) return res.status(401).json({ error: "Invalid credentials" });
       // Require initial signup for teachers who don't have a password yet
       if (!user.passwordHash || user.passwordHash === "") {
         return res.status(403).json({
-          error: "Teacher accounts must complete initial signup before logging in. Use the registration page.",
+          error: "Teacher accounts must complete initial setup before logging in. Use the registration page.",
           code: "NEED_SIGNUP"
         });
       }

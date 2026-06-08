@@ -102,9 +102,9 @@ export const sendTeacherWelcomeEmail = async ({ teacherEmail, teacherName, usern
         
         <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
           <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">How to Log In</p>
-          <p style="margin: 10px 0 0; font-size: 16px;"><strong>Email:</strong> <span style="color: #0B6E4F;">${teacherEmail}</span></p>
+          <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${registrationCode || username}</span></p>
           <p style="margin: 5px 0 0; font-size: 16px;"><strong>Password:</strong> <span style="color: #64748b;">${registrationCode ? 'Set during registration' : 'The password you created during registration'}</span></p>
-          <p style="margin: 12px 0 0; font-size: 13px; color: #94a3b8;">Log in using your <strong>email address</strong> and password at the Teacher Portal.</p>
+          <p style="margin: 12px 0 0; font-size: 13px; color: #94a3b8;">Log in using your <strong>teacher code</strong> and password at the Teacher Portal.</p>
         </div>
 
         <div style="background-color: #eff6ff; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
