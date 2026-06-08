@@ -698,7 +698,8 @@ onMounted(fetchStudents)
   .result-table,
   .withheld-table {
     border-collapse: collapse !important;
-    width: 100% !important;
+    width: calc(100% - 50px) !important;
+    margin: 20px 30px 0 20px !important;
     font-size: 14px !important;
   }
 
