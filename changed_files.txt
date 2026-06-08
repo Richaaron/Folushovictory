@@ -1,0 +1,10 @@
+backend/src/config.js
+backend/src/routes/admin.js
+frontend-vue/package-lock.json
+frontend-vue/package.json
+frontend-vue/src/layouts/AdminLayout.vue
+frontend-vue/src/router/index.ts
+frontend-vue/src/views/admin/AdminDashboard.vue
+frontend-vue/src/views/admin/PowerBIEmbedView.vue
+video 1/159049-818026306.mp4
+video 2/278200.mp4

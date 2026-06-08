@@ -235,6 +235,92 @@ adminRouter.get(
   })
 );
 
+async function acquirePowerBIAccessToken({ tenantId, clientId, clientSecret }) {
+  const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+  const params = new URLSearchParams({
+    grant_type: "client_credentials",
+    client_id: clientId,
+    client_secret: clientSecret,
+    scope: "https://analysis.windows.net/powerbi/api/.default"
+  });
+
+  const response = await fetch(tokenUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: params
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(`Power BI auth failed: ${data.error_description || data.error || response.statusText}`);
+  }
+  if (!data.access_token) {
+    throw new Error("Power BI authentication response did not return an access token.");
+  }
+
+  return data.access_token;
+}
+
+async function generatePowerBIEmbedToken({ accessToken, workspaceId, reportId }) {
+  const tokenUrl = `https://api.powerbi.com/v1.0/myorg/groups/${workspaceId}/reports/${reportId}/GenerateToken`;
+  const response = await fetch(tokenUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      accessLevel: "View",
+      allowSaveAs: false
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(`Power BI embed token failed: ${data.error || data.error_description || response.statusText}`);
+  }
+  if (!data.token) {
+    throw new Error("Power BI GenerateToken response did not return a token.");
+  }
+
+  return data;
+}
+
+adminRouter.get(
+  "/powerbi/embed",
+  asyncHandler(async (req, res) => {
+    const tenantId = process.env.POWERBI_TENANT_ID;
+    const clientId = process.env.POWERBI_CLIENT_ID;
+    const clientSecret = process.env.POWERBI_CLIENT_SECRET;
+    const workspaceId = process.env.POWERBI_WORKSPACE_ID;
+    const defaultReportId = process.env.POWERBI_REPORT_ID;
+    const reportId = String(req.query.reportId || defaultReportId || "");
+
+    if (!tenantId || !clientId || !clientSecret || !workspaceId || !reportId) {
+      return res.status(500).json({
+        error: "Power BI embedding is not configured. Please provide POWERBI_TENANT_ID, POWERBI_CLIENT_ID, POWERBI_CLIENT_SECRET, POWERBI_WORKSPACE_ID, and POWERBI_REPORT_ID in environment variables."
+      });
+    }
+
+    const accessToken = await acquirePowerBIAccessToken({ tenantId, clientId, clientSecret });
+    const embedTokenPayload = await generatePowerBIEmbedToken({ accessToken, workspaceId, reportId });
+    const embedUrl = `https://app.powerbi.com/reportEmbed?reportId=${reportId}&groupId=${workspaceId}`;
+
+    return res.json({
+      reportId,
+      workspaceId,
+      embedUrl,
+      embedToken: embedTokenPayload.token,
+      tokenExpiration: embedTokenPayload.expiration,
+      datasetId: embedTokenPayload.datasetId || null,
+      tokenType: "Embed",
+      accessLevel: "View"
+    });
+  })
+);
+
 adminRouter.post(
   "/teachers",
   asyncHandler(async (req, res) => {
