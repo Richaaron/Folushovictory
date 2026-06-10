@@ -1028,8 +1028,9 @@ tbody tr:nth-child(even) {
 
   /* Compact page layout: maximize usable space while remaining printable */
   .report-card {
-    width: calc(210mm - 20mm) !important;
-    max-width: calc(210mm - 20mm) !important;
+    /* Expand to use full printable width and increase type for readability */
+    width: calc(210mm - 12mm) !important;
+    max-width: calc(210mm - 12mm) !important;
     margin: 0 auto !important;
     border: 0 !important;
     border-radius: 0 !important;
@@ -1037,11 +1038,11 @@ tbody tr:nth-child(even) {
     overflow: visible !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    transform: scale(0.96) !important;
+    transform: none !important;
     transform-origin: top center !important;
-    font-size: 11px !important;
-    line-height: 1.05 !important;
-    padding: 0 !important;
+    font-size: 13px !important;
+    line-height: 1.08 !important;
+    padding: 6px 8px !important;
   }
 
   .watermark-logo {
@@ -1074,8 +1075,8 @@ tbody tr:nth-child(even) {
   /* 1) Increase Table Font Size + tighten vertical padding */
   .table-frame table th,
   .table-frame table td {
-    font-size: 11px !important;
-    padding: 2px 6px !important;
+    font-size: 12px !important;
+    padding: 4px 8px !important;
     line-height: 1 !important;
     vertical-align: middle !important;
   }
@@ -1176,9 +1177,9 @@ tbody tr:nth-child(even) {
   .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
 
   .table-frame thead th {
-    padding-top: 2px !important;
-    padding-bottom: 2px !important;
-    font-size: 10px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    font-size: 11px !important;
   }
 
   /* Final fallback: reduce page margin if still overflowing */
