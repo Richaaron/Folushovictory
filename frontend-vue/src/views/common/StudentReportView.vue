@@ -1028,9 +1028,10 @@ tbody tr:nth-child(even) {
 
   /* Compact page layout: maximize usable space while remaining printable */
   .report-card {
-    /* Expand to use full printable width and increase type for readability */
-    width: calc(210mm - 12mm) !important;
-    max-width: calc(210mm - 12mm) !important;
+    /* Expand to use the full printable width and increase type for readability */
+    width: calc(210mm - 8mm) !important;
+    max-width: calc(210mm - 8mm) !important;
+    min-height: calc(297mm - 16mm) !important;
     margin: 0 auto !important;
     border: 0 !important;
     border-radius: 0 !important;
@@ -1040,9 +1041,9 @@ tbody tr:nth-child(even) {
     break-inside: avoid !important;
     transform: none !important;
     transform-origin: top center !important;
-    font-size: 13px !important;
-    line-height: 1.08 !important;
-    padding: 6px 8px !important;
+    font-size: 14px !important;
+    line-height: 1.06 !important;
+    padding: 4px 6px !important;
   }
 
   .watermark-logo {
@@ -1075,8 +1076,8 @@ tbody tr:nth-child(even) {
   /* 1) Increase Table Font Size + tighten vertical padding */
   .table-frame table th,
   .table-frame table td {
-    font-size: 12px !important;
-    padding: 4px 8px !important;
+    font-size: 13px !important;
+    padding: 6px 10px !important;
     line-height: 1 !important;
     vertical-align: middle !important;
   }
@@ -1097,10 +1098,10 @@ tbody tr:nth-child(even) {
 
   /* 2) Remarks font size */
   .remark-box p {
-    font-size: 10.5px !important;
-    margin: 2px 0 4px !important;
-    min-height: 22px !important;
-    line-height: 1.1 !important;
+    font-size: 12px !important;
+    margin: 4px 0 6px !important;
+    min-height: 20px !important;
+    line-height: 1.08 !important;
   }
 
   /* 3) Shrink signature areas */
