@@ -13,7 +13,7 @@ import { setReleaseStatus } from "../repos/releases.js";
 import { generateStudentId, generateParentUsername } from "../ids.js";
 import { hashPassword } from "../security.js";
 import { validateStudentPayload } from "../validation.js";
-import { getUserByUsername } from "../repos/users.js";
+import { getUserByUsername, updateUser } from "../repos/users.js";
 import { sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 
@@ -41,6 +41,43 @@ teacherRouter.get(
     }
     
     return res.json({ classes });
+  })
+);
+
+teacherRouter.get(
+  "/profile",
+  asyncHandler(async (req, res) => {
+    const user = await getUserByUsername(req.user.username);
+    if (!user) return res.status(404).json({ error: "Teacher profile not found" });
+    return res.json({
+      username: user.username,
+      role: user.role,
+      displayName: user.displayName || "",
+      signatureUrl: user.signatureUrl || "",
+      formClassId: user.formClassId || null
+    });
+  })
+);
+
+teacherRouter.post(
+  "/profile",
+  asyncHandler(async (req, res) => {
+    const { displayName, signatureUrl } = req.body || {};
+    const patch = {};
+    if (displayName !== undefined) patch.displayName = String(displayName).trim();
+    if (signatureUrl !== undefined) patch.signatureUrl = String(signatureUrl).trim();
+    if (Object.keys(patch).length === 0) {
+      return res.status(400).json({ error: "No profile changes provided" });
+    }
+
+    const updated = await updateUser(req.user.username, patch);
+    return res.json({
+      username: updated.username,
+      role: updated.role,
+      displayName: updated.displayName || "",
+      signatureUrl: updated.signatureUrl || "",
+      formClassId: updated.formClassId || null
+    });
   })
 );
 

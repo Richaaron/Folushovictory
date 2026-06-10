@@ -251,7 +251,12 @@ async function buildStudentReport({ student, cls, session, term }) {
 
   return {
     school,
-    formTeacher: formTeacher ? { displayName: formTeacher.displayName || formTeacher.username } : null,
+    formTeacher: formTeacher
+      ? {
+          displayName: formTeacher.displayName || formTeacher.username,
+          signatureUrl: formTeacher.signatureUrl || ""
+        }
+      : null,
     released: release.released,
     cumulative,
     feeStatus,

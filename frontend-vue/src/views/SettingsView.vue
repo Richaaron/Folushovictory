@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import {
   Lock,
   Loader2,
@@ -9,9 +9,11 @@ import {
 import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
 import SchoolSettingsPanel from '../components/admin/SchoolSettingsPanel.vue'
+import TeacherSettingsPanel from '../components/teacher/TeacherSettingsPanel.vue'
 
 const authStore = useAuthStore()
 const isAdmin = authStore.userRole === 'ADMIN'
+const isTeacher = authStore.userRole === 'TEACHER'
 
 const savingPassword = ref(false)
 const passwordSuccess = ref(false)
@@ -60,6 +62,9 @@ const handleChangePassword = async () => {
     <span class="floating-math" aria-hidden="true">π</span>
     <div v-if="isAdmin" class="space-y-6">
       <SchoolSettingsPanel />
+    </div>
+    <div v-else-if="isTeacher" class="space-y-6">
+      <TeacherSettingsPanel />
     </div>
 
     <section class="parchment-card p-6 lg:p-8">

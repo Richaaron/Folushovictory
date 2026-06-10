@@ -370,8 +370,10 @@ onMounted(fetchStudents)
             <div>
               <span>Class Teacher's Remark</span>
               <p>{{ report.teacherRemark }}</p>
-              <div class="teacher-signature">{{ report.formTeacher?.displayName || 'Class Teacher' }}</div>
-              <div class="signature-line"></div>
+              <div v-if="report.formTeacher?.signatureUrl" class="signature-image">
+                <img :src="report.formTeacher.signatureUrl" alt="Teacher signature" />
+              </div>
+              <div v-else class="signature-line"></div>
               <strong>{{ report.formTeacher?.displayName || 'Class Teacher' }}</strong>
             </div>
             <div>

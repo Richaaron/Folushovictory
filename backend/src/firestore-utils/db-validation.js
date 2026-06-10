@@ -52,15 +52,27 @@ export const ValidationSchemas = {
       username: "string",
       role: "string",
       email: "string",
+      displayName: "string",
       firstName: "string",
-      lastName: "string"
+      lastName: "string",
+      portal: "string",
+      studentId: "string",
+      formClassId: "string",
+      signatureUrl: "string",
+      passwordHash: "string"
     },
     maxLengths: {
       username: 100,
       role: 20,
       email: 254,
+      displayName: 150,
       firstName: 100,
-      lastName: 100
+      lastName: 100,
+      portal: 20,
+      studentId: 50,
+      formClassId: 50,
+      signatureUrl: 2048,
+      passwordHash: 200
     }
   },
 
