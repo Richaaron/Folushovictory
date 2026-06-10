@@ -73,11 +73,6 @@ const router = createRouter({
           component: () => import('../views/admin/MasterBroadsheet.vue')
         },
         {
-          path: 'powerbi',
-          name: 'admin-powerbi',
-          component: () => import('../views/admin/PowerBIEmbedView.vue')
-        },
-        {
           path: 'settings',
           name: 'settings',
           component: () => import('../views/SettingsView.vue')

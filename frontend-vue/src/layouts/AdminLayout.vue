@@ -24,7 +24,6 @@ const menuItems = [
   { name: 'Classes', icon: BookOpen, route: '/admin/classes' },
   { name: 'Students', icon: GraduationCap, route: '/admin/students' },
   { name: 'Results', icon: BarChart3, route: '/admin/broadsheet' },
-  { name: 'Power BI', icon: BarChart3, route: '/admin/powerbi' },
   { name: 'Settings', icon: Settings, route: '/admin/settings' },
 ]
 </script>

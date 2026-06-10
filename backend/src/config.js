@@ -16,12 +16,7 @@ export const config = {
   resendApiKey: process.env.RESEND_API_KEY || "",
   resendFromEmail: process.env.RESEND_FROM_EMAIL || "noreply@folushovictory.com",
   supabaseUrl: process.env.SUPABASE_URL || "",
-  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
-  powerBiTenantId: process.env.POWERBI_TENANT_ID || "",
-  powerBiClientId: process.env.POWERBI_CLIENT_ID || "",
-  powerBiClientSecret: process.env.POWERBI_CLIENT_SECRET || "",
-  powerBiWorkspaceId: process.env.POWERBI_WORKSPACE_ID || "",
-  powerBiReportId: process.env.POWERBI_REPORT_ID || ""
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 };
 
 export function assertConfig() {

@@ -1020,53 +1020,52 @@ tbody tr:nth-child(even) {
   }
 
   .report-screen {
-    max-width: none;
-    padding: 0;
-  }
-
-  @page {
-    size: A4 portrait;
-    margin: 6mm;
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   .report-card {
-    width: calc(210mm - 12mm);
-    max-width: calc(210mm - 12mm);
-    margin: 0 auto;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    page-break-inside: avoid;
-    /* slightly more aggressive shrink to fit single page */
-    transform: scale(0.88);
-    transform-origin: top left;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+    break-inside: avoid !important;
+    transform: none !important;
+    transform-origin: initial !important;
   }
 
   .watermark-logo {
-    opacity: 0.03;
+    opacity: 0.03 !important;
   }
 
   .report-header {
-    grid-template-columns: 1fr 160px;
-    padding: 8px 8px;
-    gap: 12px;
+    grid-template-columns: 1fr 160px !important;
+    padding: 8px 8px !important;
+    gap: 12px !important;
   }
 
   .brand-copy h1 {
-    font-size: 22px;
+    font-size: 22px !important;
   }
 
   .logo-mark {
-    width: 80px;
-    height: 80px;
+    width: 80px !important;
+    height: 80px !important;
   }
 
   .term-panel {
-    padding: 6px 8px;
+    padding: 6px 8px !important;
   }
 
   .term-panel strong {
-    font-size: 20px;
+    font-size: 20px !important;
   }
 
   /* 1) Increase Table Font Size + tighten vertical padding */
@@ -1144,11 +1143,14 @@ tbody tr:nth-child(even) {
   .report-header,
   .table-frame,
   .remarks-section,
-  .report-footer { page-break-inside: avoid !important; break-inside: avoid !important; }
+  .report-footer {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
 
-  /* Final fallback to force single page: slightly reduce overall scale if still needed */
-  @media print and (max-height: 1120px) {
-    .report-card { transform: scale(0.9) !important; }
+  .table-frame {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }
 </style>

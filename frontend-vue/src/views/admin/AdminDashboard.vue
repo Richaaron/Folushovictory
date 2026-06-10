@@ -36,8 +36,7 @@ const stats = ref([
   { name: 'Total Students', key: 'studentsCount', value: '0', icon: GraduationCap, route: '/admin/students' },
   { name: 'Active Teachers', key: 'teachersCount', value: '0', icon: Users, route: '/admin/teachers' },
   { name: 'Active Classes', key: 'classesCount', value: '0', icon: BookOpen, route: '/admin/classes' },
-  { name: 'Avg. Performance', key: 'avgPerformance', value: '0%', icon: TrendingUp, route: '/admin/broadsheet' },
-  { name: 'Power BI', key: 'powerbi', value: 'Open report', icon: BarChart3, route: '/admin/powerbi' }
+  { name: 'Avg. Performance', key: 'avgPerformance', value: '0%', icon: TrendingUp, route: '/admin/broadsheet' }
 ])
 
 const statImages = [
