@@ -120,7 +120,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
-import { useAiStore } from '../stores/aiStore'
+import { useAiStore } from '../../stores/aiStore'
 
 const aiStore = useAiStore()
 const inputMessage = ref('')
