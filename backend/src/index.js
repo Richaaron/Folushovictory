@@ -9,6 +9,7 @@ import { teacherRouter } from "./routes/teacher.js";
 import { parentRouter } from "./routes/parent.js";
 import { resultsRouter } from "./routes/results.js";
 import { configRouter } from "./routes/config.js";
+import { aiRouter } from "./routes/ai.js";
 import { errorHandler, notFound } from "./http.js";
 
 assertConfig();
@@ -62,6 +63,7 @@ if (process.env.ENABLE_LOCAL_DEV_ROUTES === "true" && process.env.NODE_ENV !== "
 app.use("/api/teacher", teacherRouter);
 app.use("/api/parent", parentRouter);
 app.use("/api/results", resultsRouter);
+app.use("/api/ai", aiRouter);
 
 app.use(notFound);
 app.use(errorHandler);
