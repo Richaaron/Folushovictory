@@ -1,6 +1,6 @@
 import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { verifyAuth } from "../middleware/auth.js";
+import { authRequired } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
  * POST /api/ai/chat
  * Send a message to the AI assistant and get a response
  */
-router.post("/chat", verifyAuth, async (req, res) => {
+router.post("/chat", authRequired, async (req, res) => {
   try {
     const { message, conversationHistory = [] } = req.body;
 
