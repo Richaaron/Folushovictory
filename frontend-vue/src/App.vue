@@ -1,7 +1,5 @@
 
-
 <script setup lang="ts">
-import AiAssistant from './components/common/AiAssistant.vue'
 </script>
 
 <template>
@@ -22,8 +20,6 @@ import AiAssistant from './components/common/AiAssistant.vue'
       </router-view>
     </div>
 
-    <!-- AI Assistant Sidebar -->
-    <AiAssistant />
   </div>
 </template>
 
