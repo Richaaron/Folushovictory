@@ -5,6 +5,45 @@ function normalizeClassRef(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function buildClassMatchValues(classId, cls) {
+  const values = new Set();
+  const add = (value) => {
+    if (!value) return;
+    const trimmed = String(value).trim();
+    if (!trimmed) return;
+    values.add(trimmed.toLowerCase());
+    values.add(trimmed.replace(/\s+/g, ""));
+    values.add(trimmed.replace(/\s+/g, "-"));
+    values.add(trimmed.replace(/\s+/g, "_"));
+  };
+
+  add(classId);
+  add(cls?.id);
+  add(cls?.name);
+  add(cls?.className);
+  add(cls?.classId);
+  return Array.from(values);
+}
+
+function matchesClass(student, classMatchValues) {
+  if (!student || !Array.isArray(classMatchValues) || classMatchValues.length === 0) return false;
+  const studentClassRef = normalizeClassRef(student.classId);
+  const studentClassNameRef = normalizeClassRef(student.className);
+  const studentClassLabelRef = normalizeClassRef(student.classLabel);
+  const studentStreamRef = normalizeClassRef(student.stream);
+  const studentFormClassRef = normalizeClassRef(student.formClassId);
+  return classMatchValues.some((value) => {
+    const normalizedValue = normalizeClassRef(value);
+    return (
+      studentClassRef === normalizedValue ||
+      studentClassNameRef === normalizedValue ||
+      studentClassLabelRef === normalizedValue ||
+      studentStreamRef === normalizedValue ||
+      studentFormClassRef === normalizedValue
+    );
+  });
+}
+
 export async function createStudent(student) {
   return SafeDatabase.createWithValidation("students", student, "student", { checkDuplicates: true });
 }
@@ -42,12 +81,8 @@ export async function createStudentWithParent({ student, parentUser }) {
 export async function listStudentsByClass(classId) {
   let data;
   const normalizedClassId = normalizeClassRef(classId);
-  let className = null;
-
   const cls = await getClassById(String(classId || "").trim()).catch(() => null);
-  if (cls && cls.name) {
-    className = normalizeClassRef(cls.name);
-  }
+  const classMatchValues = buildClassMatchValues(classId, cls);
 
   try {
     const result = await SafeDatabase.query(
@@ -59,17 +94,25 @@ export async function listStudentsByClass(classId) {
   } catch (error) {
     console.error("Class student query failed, falling back to in-memory filtering:", error?.message || error);
     const result = await SafeDatabase.query("students", [], { pageSize: 1000 });
-    data = result.data.filter((student) => {
-      const studentClassRef = normalizeClassRef(student.classId);
-      return studentClassRef === normalizedClassId || (className && studentClassRef === className);
-    });
+    data = result.data.filter((student) => matchesClass(student, classMatchValues));
   }
 
   if (!Array.isArray(data) || data.length === 0) {
     const result = await SafeDatabase.query("students", [], { pageSize: 1000 });
+    data = result.data.filter((student) => matchesClass(student, classMatchValues));
+  }
+
+  if (!Array.isArray(data)) {
+    data = [];
+  }
+
+  if (data.length === 0 && normalizedClassId) {
+    const result = await SafeDatabase.query("students", [], { pageSize: 1000 });
     data = result.data.filter((student) => {
-      const studentClassRef = normalizeClassRef(student.classId);
-      return studentClassRef === normalizedClassId || (className && studentClassRef === className);
+      const refs = [student.classId, student.className, student.classLabel, student.stream, student.formClassId]
+        .map((value) => normalizeClassRef(value))
+        .filter(Boolean);
+      return refs.some((ref) => ref === normalizedClassId || ref.includes(normalizedClassId) || normalizedClassId.includes(ref));
     });
   }
 
@@ -89,14 +132,10 @@ export async function countStudentsByClass(classId) {
     console.error("Student count query failed, falling back to filtered count:", error?.message || error);
   }
 
-  const normalizedClassId = normalizeClassRef(classId);
   const cls = await getClassById(String(classId || "").trim()).catch(() => null);
-  const className = cls?.name ? normalizeClassRef(cls.name) : null;
+  const classMatchValues = buildClassMatchValues(classId, cls);
   const result = await SafeDatabase.query("students", [], { pageSize: 1000 });
-  return result.data.filter((student) => {
-    const studentClassRef = normalizeClassRef(student.classId);
-    return studentClassRef === normalizedClassId || (className && studentClassRef === className);
-  }).length;
+  return result.data.filter((student) => matchesClass(student, classMatchValues)).length;
 }
 
 export async function getStudentById(studentId) {
