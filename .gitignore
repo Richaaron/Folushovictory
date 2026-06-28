@@ -23,3 +23,9 @@ serviceAccountKey.json
 
 frontend-vue/firebase-service-account.json
 backend/serviceAccountKey.json
+
+# Local Netlify folder
+.netlify
+
+# Local Fly CLI helper
+flyctl-bin/
