@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import ws from "ws";
 import { config } from "./config.js";
 
 let supabaseClient = null;
@@ -15,6 +16,9 @@ export function getSupabase() {
         auth: {
           persistSession: false,
           autoRefreshToken: false
+        },
+        realtime: {
+          transport: ws
         }
       }
     );
