@@ -145,6 +145,32 @@ CREATE TABLE IF NOT EXISTS counters (
     "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 12. Activity Logs Table
+CREATE TABLE IF NOT EXISTS activityLogs (
+    id VARCHAR(100) PRIMARY KEY,
+    actor VARCHAR(100) NOT NULL,
+    role VARCHAR(50),
+    action VARCHAR(255) NOT NULL,
+    details JSONB DEFAULT '{}'::jsonb,
+    "resourceType" VARCHAR(100),
+    "resourceId" VARCHAR(100),
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 13. Logs Table
+CREATE TABLE IF NOT EXISTS logs (
+    id VARCHAR(100) PRIMARY KEY,
+    "to" VARCHAR(254),
+    subject VARCHAR(255),
+    type VARCHAR(50),
+    status VARCHAR(50),
+    "messageId" VARCHAR(255),
+    error TEXT,
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Optimize standard indices for fast data loads and computations
 CREATE INDEX IF NOT EXISTS idx_scores_lookup ON scores(session, term, "classId");
 CREATE INDEX IF NOT EXISTS idx_scores_student ON scores(session, term, "studentId");
