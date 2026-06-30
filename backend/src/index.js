@@ -66,8 +66,8 @@ app.use("/api/results", resultsRouter);
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(config.port, () => {
-  process.stdout.write(`Backend running on http://localhost:${config.port}\n`);
+app.listen(config.port, "0.0.0.0", () => {
+  process.stdout.write(`Backend running on http://0.0.0.0:${config.port}\n`);
 });
 
 // Trigger redeployment to clear cached Firebase SDK quota states after plan upgrade
