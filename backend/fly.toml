@@ -1,9 +1,5 @@
 app = "folushovictory-backend"
 primary_region = "lhr"
-
-[build]
-  dockerfile = "Dockerfile"
-
 [env]
   PORT = "4000"
 
