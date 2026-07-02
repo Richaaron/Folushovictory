@@ -229,8 +229,8 @@ onMounted(fetchStudents)
           <tbody class="divide-y divide-slate-700/40">
             <tr v-for="st in students" :key="st.studentId" class="hover:bg-slate-900/20 transition-colors">
               <td class="px-8 py-6">
-                <p class="text-sm font-black text-slate-900 dark:text-white">{{ st.lastName }} {{ st.firstName }}</p>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
+                <p class="text-sm font-black text-white">{{ st.lastName }} {{ st.firstName }}</p>
+                <p class="text-[10px] font-bold text-slate-200 uppercase tracking-widest">{{ st.studentId }}</p>
               </td>
               <td class="px-4 py-6">
                 <input 
