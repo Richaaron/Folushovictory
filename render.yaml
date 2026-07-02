@@ -10,5 +10,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - fromGroup: fvs-secrets
+      - key: RESEND_API_KEY
+        fromGroup: fvs-secrets
+      - key: RESEND_FROM_EMAIL
+        fromGroup: fvs-secrets
 
