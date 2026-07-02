@@ -84,6 +84,17 @@ The backend will run on `http://localhost:4000`.
 
 ---
 
+## Render Backend Deployment
+
+The backend is now configured for Render as the primary hosted target. The repo already includes a Render blueprint in [render.yaml](render.yaml), and the service expects these environment variables to be set in Render:
+
+- `JWT_SECRET`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `FRONTEND_ORIGIN`
+
+For a full walkthrough, see [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
+
 ## Frontend Setup
 
 1. Open a terminal and navigate to `frontend-vue`:

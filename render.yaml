@@ -1,15 +1,14 @@
 services:
-  # 1. Node.js Backend
   - type: web
     name: folushovictory-backend
     runtime: node
     rootDir: backend
     plan: free
-    buildCommand: npm install
+    buildCommand: npm install --omit=dev
     startCommand: npm start
     healthCheckPath: /health
     envVars:
-      - key: PORT
-        value: 4000
+      - key: NODE_ENV
+        value: production
       - fromGroup: fvs-secrets
 
