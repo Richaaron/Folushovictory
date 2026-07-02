@@ -101,7 +101,7 @@ const TABLE_COLUMNS = {
     "id", "classId", "session", "term", "published", "createdAt", "updatedAt"
   ],
   releases: [
-    "id", "classId", "session", "term", "released", "createdAt", "updatedAt"
+    "id", "classId", "studentId", "session", "term", "released", "createdAt", "updatedAt"
   ],
   config: [
     "key", "value", "createdAt", "updatedAt"
@@ -261,9 +261,15 @@ function mapDocument(collectionName, docId, data) {
 
   if (collectionName === "releases") {
     const classId = (mapped.classId || "").trim();
+    const studentId = (mapped.studentId || "").trim();
     mapped.classId = classId;
+    mapped.studentId = studentId;
     if (!classId || !migratedClassIds.has(classId)) {
       console.warn(`⚠️ Skipping release "${docId}": classId "${classId}" not found in migrated classes.`);
+      return null;
+    }
+    if (!studentId || !migratedStudentIds.has(studentId)) {
+      console.warn(`Skipping release "${docId}": studentId "${studentId}" not found in migrated students.`);
       return null;
     }
   }
@@ -407,4 +413,3 @@ async function runMigration() {
 }
 
 runMigration();
-

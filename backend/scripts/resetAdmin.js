@@ -1,12 +1,10 @@
 import { assertConfig } from "../src/config.js";
-import { getFirebaseApp } from "../src/firebase.js";
 import { updateUser, getUserByUsername, createUser } from "../src/repos/users.js";
 import { hashPassword } from "../src/security.js";
 import { Roles } from "../src/constants.js";
 
 async function resetAdmin() {
   assertConfig();
-  getFirebaseApp();
 
   const username = "admin@folusho.com";
   const password = "FolushoVIC1@";
