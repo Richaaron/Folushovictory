@@ -28,4 +28,4 @@ backend/serviceAccountKey.json
 .netlify
 
 # Local Fly CLI helper
-flyctl-bin/
+# (removed flyctl helper)
