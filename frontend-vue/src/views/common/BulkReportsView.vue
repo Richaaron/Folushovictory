@@ -473,7 +473,7 @@ onMounted(fetchStudents)
 .summary-strip strong {
   display: block;
   margin-top: 4px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -493,7 +493,7 @@ onMounted(fetchStudents)
 .withheld-table th {
   background: #241036;
   color: white;
-  font-size: 9px;
+  font-size: 10px;
   padding: 10px;
   text-transform: uppercase;
 }
@@ -501,8 +501,8 @@ onMounted(fetchStudents)
 .result-table td,
 .withheld-table td {
   border: 1px solid #e2e8f0;
-  padding: 8px 10px;
-  font-size: 11px;
+  padding: 10px 10px;
+  font-size: 12px;
   font-weight: 700;
   text-align: center;
 }
@@ -673,12 +673,13 @@ onMounted(fetchStudents)
   }
 
   .report-head h2 {
-    font-size: 24px;
+    font-size: 26px;
     color: #1e1b4b !important;
   }
 
   .report-head p {
     color: #581c87 !important;
+    font-size: 12px;
   }
 
   .report-head .term-box {
@@ -689,6 +690,22 @@ onMounted(fetchStudents)
   .report-head .term-box span,
   .report-head .term-box strong {
     color: #1e1b4b !important;
+    font-size: 13px !important;
+  }
+
+  .student-strip span,
+  .summary-strip span {
+    font-size: 12px !important;
+  }
+
+  .student-strip strong,
+  .summary-strip strong {
+    font-size: 17px !important;
+  }
+
+  .student-strip div,
+  .summary-strip div {
+    padding: 8px !important;
   }
 
   .result-table th,
@@ -777,13 +794,17 @@ onMounted(fetchStudents)
   }
 
   .report-head h2 {
-    font-size: 20px !important;
+    font-size: 22px !important;
+  }
+
+  .report-head {
+    padding: 12px 16px !important;
   }
 
   .student-strip,
   .summary-strip {
     gap: 8px !important;
-    padding: 0 16px 8px !important;
+    padding: 0 14px 6px !important;
   }
 
   .summary-strip div {
