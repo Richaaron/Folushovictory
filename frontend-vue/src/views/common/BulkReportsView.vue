@@ -701,21 +701,21 @@ onMounted(fetchStudents)
 
   .student-strip strong,
   .summary-strip strong {
-    font-size: 17px !important;
+    font-size: 18px !important;
   }
 
   .student-strip div,
   .summary-strip div {
-    padding: 8px !important;
+    padding: 7px !important;
   }
 
   .result-table th,
   .result-table td,
   .withheld-table th,
   .withheld-table td {
-    font-size: 14px !important;
-    padding: 8px 4px !important;
-    line-height: 1.15 !important;
+    font-size: 15px !important;
+    padding: 7px 4px !important;
+    line-height: 1.12 !important;
     border-color: #cbd5e1 !important;
   }
 
@@ -795,11 +795,11 @@ onMounted(fetchStudents)
   }
 
   .report-head h2 {
-    font-size: 22px !important;
+    font-size: 24px !important;
   }
 
   .report-head {
-    padding: 12px 16px !important;
+    padding: 10px 14px !important;
   }
 
   .student-strip,
