@@ -594,10 +594,8 @@ onMounted(fetchStudents)
   :global(html),
   :global(body) {
     width: 210mm;
-    height: 297mm;
     margin: 0 !important;
     padding: 0 !important;
-    overflow: hidden !important;
   }
 
   @page {
@@ -627,6 +625,7 @@ onMounted(fetchStudents)
     overflow: visible !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    break-inside: avoid-page !important;
     page-break-before: always !important;
     break-before: page !important;
     page-break-after: always !important;
@@ -646,8 +645,8 @@ onMounted(fetchStudents)
   .withheld-page {
     page-break-before: always !important;
     break-before: page !important;
-    page-break-after: auto !important;
-    break-after: auto !important;
+    page-break-after: always !important;
+    break-after: page !important;
     box-shadow: none;
   }
 
@@ -655,6 +654,7 @@ onMounted(fetchStudents)
   .withheld-page {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    break-inside: avoid-page !important;
   }
 
   .print-card,
