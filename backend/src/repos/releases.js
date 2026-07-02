@@ -5,14 +5,19 @@ function releaseId({ session, term, studentId }) {
 }
 
 export async function setReleaseStatus({ session, term, studentId, classId, released }) {
+  if (!classId) {
+    const error = new Error("Missing classId for release status");
+    error.statusCode = 400;
+    throw error;
+  }
   const id = releaseId({ session, term, studentId });
   const payload = {
     session,
     term,
     studentId,
+    classId,
     released
   };
-  if (classId) payload.classId = classId;
   return SafeDatabase.upsert("releases", id, payload);
 }
 

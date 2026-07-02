@@ -358,6 +358,7 @@ teacherRouter.post(
     // Authorization check: Teacher must be form teacher of the class
     const student = await getStudentById(studentId);
     if (!student) return res.status(404).json({ error: "Student not found" });
+    if (!student.classId) return res.status(400).json({ error: "Student record is missing classId" });
     const cls = await getClassById(student.classId);
     if (!cls || cls.formTeacherUsername !== req.user.username) {
       return res.status(403).json({ error: "Only the form teacher can release results" });

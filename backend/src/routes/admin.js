@@ -1311,6 +1311,7 @@ adminRouter.post(
     if (!session || !term || !studentId) return res.status(400).json({ error: "Missing fields" });
     const student = await getStudentById(String(studentId));
     if (!student) return res.status(404).json({ error: "Student not found" });
+    if (!student.classId) return res.status(400).json({ error: "Student record is missing classId" });
     const result = await setReleaseStatus({
       session: String(session),
       term: String(term),
