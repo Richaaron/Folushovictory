@@ -4,14 +4,13 @@ function releaseId({ session, term, studentId }) {
   return `${session}_${term}_${studentId}`;
 }
 
-export async function setReleaseStatus({ session, term, studentId, classId, released, releasedBy }) {
+export async function setReleaseStatus({ session, term, studentId, classId, released }) {
   const id = releaseId({ session, term, studentId });
   const payload = {
     session,
     term,
     studentId,
-    released,
-    releasedBy
+    released
   };
   if (classId) payload.classId = classId;
   return SafeDatabase.upsert("releases", id, payload);

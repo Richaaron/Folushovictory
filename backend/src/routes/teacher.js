@@ -9,8 +9,9 @@ import { listStudentsByClass, getStudentById, createStudentWithParent, updateStu
 import { validateStudentUpdatePayload, validateStudentPayload } from "../validation.js";
 import { isPublished } from "../repos/publishes.js";
 import { upsertNumericScore, upsertTraitScore } from "../repos/scores.js";
-import { setTeacherRemark } from "../repos/remarks.js";
-import { setReleaseStatus } from "../repos/releases.js";
+import { setTeacherRemark, listRemarksForStudents } from "../repos/remarks.js";
+import { setReleaseStatus, listReleasesForClass } from "../repos/releases.js";
+import { getSchoolSettings } from "../repos/config.js";
 import { generateStudentId, generateParentUsername } from "../ids.js";
 import { hashPassword } from "../security.js";
 import { getUserByUsername, updateUser } from "../repos/users.js";
@@ -153,17 +154,20 @@ teacherRouter.get(
   "/classes/:classId/students",
   asyncHandler(async (req, res) => {
     const { classId } = req.params;
+    const querySession = String(req.query.session || "").trim();
+    const queryTerm = String(req.query.term || "").trim();
+
     const [assignments, cls] = await Promise.all([
       listAssignmentsByTeacher(req.user.username),
       getClassById(classId)
     ]);
     const isSubjectTeacher = assignments.some((a) => a.classId === classId);
     const isFormTeacher = cls?.formTeacherUsername === req.user.username;
-    
+
     const formClasses = await listClassesByFormTeacher(req.user.username);
     const hasPryNurFormClass = formClasses.some(c => c.level === "PRY" || c.level === "NUR");
     let isPryNurTeacher = hasPryNurFormClass;
-    
+
     if (!isPryNurTeacher) {
       const assignedClassIds = [...new Set(assignments.map(a => a.classId))];
       for (const cid of assignedClassIds) {
@@ -181,8 +185,31 @@ teacherRouter.get(
     if (!isSubjectTeacher && !isFormTeacher && !(isPryNurTeacher && isPryNurClass)) {
       return res.status(403).json({ error: "Forbidden" });
     }
+
+    const schoolSettings = (!querySession || !queryTerm) ? await getSchoolSettings() : null;
+    const session = querySession || String(schoolSettings?.currentSession || "").trim();
+    const term = queryTerm || String(schoolSettings?.currentTerm || "").trim();
+
     const students = await listStudentsByClass(classId);
-    return res.json({ students, class: cls, canAddStudents });
+    const studentIds = students.map((student) => String(student.studentId || "")).filter(Boolean);
+
+    const [remarks, releaseStatuses] = await Promise.all([
+      studentIds.length ? listRemarksForStudents({ session, term, studentIds }) : [],
+      studentIds.length ? listReleasesForClass({ session, term, studentIds }) : {}
+    ]);
+
+    const remarkMap = remarks.reduce((acc, remark) => {
+      acc[remark.studentId] = remark.teacherRemark || "";
+      return acc;
+    }, {});
+
+    const enrichedStudents = students.map((student) => ({
+      ...student,
+      remark: remarkMap[student.studentId] || "",
+      released: !!releaseStatuses[student.studentId]
+    }));
+
+    return res.json({ students: enrichedStudents, class: cls, canAddStudents });
   })
 );
 
@@ -341,8 +368,7 @@ teacherRouter.post(
       term: String(term),
       studentId: String(studentId),
       classId: student.classId,
-      released: !!released,
-      releasedBy: req.user.username
+      released: !!released
     });
 
     // Optional: Send email notification if released

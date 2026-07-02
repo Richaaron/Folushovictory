@@ -1316,8 +1316,7 @@ adminRouter.post(
       term: String(term),
       studentId: String(studentId),
       classId: student.classId,
-      released: !!released,
-      releasedBy: req.user.username
+      released: !!released
     });
 
     // Optional: Send email notification if released
