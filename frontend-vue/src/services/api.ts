@@ -32,6 +32,8 @@ const API_BASE_URL = (() => {
     if (protocol === 'capacitor:') return 'https://folushovictory.onrender.com';
     // production front-end deployed on Netlify should call the backend service on Render
     if (host.endsWith('.netlify.app')) return 'https://folushovictory.onrender.com';
+    // production frontend on folushovictory.online should also use the Render backend
+    if (host === 'folushovictory.online' || host === 'www.folushovictory.online') return 'https://folushovictory.onrender.com';
     // otherwise use same origin for bundled fullstack deployments
     return window.location.origin;
   }
