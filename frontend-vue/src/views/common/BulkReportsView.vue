@@ -601,7 +601,7 @@ onMounted(fetchStudents)
 
   @page {
     size: A4;
-    margin: 10mm !important;
+    margin: 8mm !important;
     padding: 0 !important;
   }
 
@@ -680,7 +680,7 @@ onMounted(fetchStudents)
 
   .report-head p {
     color: #581c87 !important;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .report-head .term-box {
@@ -691,12 +691,12 @@ onMounted(fetchStudents)
   .report-head .term-box span,
   .report-head .term-box strong {
     color: #1e1b4b !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
   }
 
   .student-strip span,
   .summary-strip span {
-    font-size: 12px !important;
+    font-size: 13px !important;
   }
 
   .student-strip strong,
@@ -714,7 +714,7 @@ onMounted(fetchStudents)
   .withheld-table th,
   .withheld-table td {
     font-size: 15px !important;
-    padding: 7px 4px !important;
+    padding: 6px 5px !important;
     line-height: 1.12 !important;
     border-color: #cbd5e1 !important;
   }
@@ -729,9 +729,9 @@ onMounted(fetchStudents)
   .result-table,
   .withheld-table {
     border-collapse: collapse !important;
-    width: calc(100% - 50px) !important;
-    margin: 20px 30px 0 20px !important;
-    font-size: 14px !important;
+    width: 100% !important;
+    margin: 12px 16px 0 16px !important;
+    font-size: 15px !important;
   }
 
   .result-table th,
@@ -744,23 +744,23 @@ onMounted(fetchStudents)
   }
 
   .remarks-grid {
-    gap: 10px !important;
-    padding: 0 0 8px !important;
+    gap: 6px !important;
+    padding: 0 0 6px !important;
   }
 
   .remarks-grid div {
     min-height: auto !important;
     border: 1px solid #cbd5e1 !important;
     border-top: 4px solid #581c87 !important;
-    padding: 10px !important;
+    padding: 8px !important;
   }
 
   .remarks-grid p {
     min-height: auto !important;
-    margin: 4px 0 8px !important;
-    font-size: 12px !important;
+    margin: 3px 0 6px !important;
+    font-size: 11px !important;
     font-weight: 600 !important;
-    line-height: 1.3 !important;
+    line-height: 1.25 !important;
   }
 
   .remarks-grid span,
@@ -771,7 +771,7 @@ onMounted(fetchStudents)
   .teacher-signature,
   .signature-line,
   .signature-image {
-    height: 50px !important;
+    height: 42px !important;
     margin: 0 !important;
   }
 
@@ -780,13 +780,13 @@ onMounted(fetchStudents)
   }
 
   .signature-image img {
-    max-height: 48px !important;
+    max-height: 40px !important;
     object-fit: contain !important;
   }
 
   .teacher-signature {
-    font-size: 16px !important;
-    padding-top: 4px !important;
+    font-size: 14px !important;
+    padding-top: 2px !important;
     margin-bottom: 0 !important;
   }
 
@@ -795,7 +795,7 @@ onMounted(fetchStudents)
   }
 
   .report-head h2 {
-    font-size: 24px !important;
+    font-size: 26px !important;
   }
 
   .report-head {
