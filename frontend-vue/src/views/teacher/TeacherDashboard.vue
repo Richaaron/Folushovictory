@@ -152,8 +152,8 @@ const cardImages = [
                 </div>
               </div>
               
-              <h4 class="text-xl font-black text-slate-900 dark:text-white line-clamp-1">{{ item.subjectName }}</h4>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              <h4 class="text-xl font-black text-white line-clamp-1">{{ item.subjectName }}</h4>
+              <p class="text-[10px] font-bold text-slate-200 uppercase tracking-widest mt-1">
                 {{ item.className }} 
                 <span v-if="item.isPrimary" class="ml-2 px-2 py-0.5 bg-slate-900/60 text-blue-300 rounded-md text-[8px]">Primary</span>
               </p>
