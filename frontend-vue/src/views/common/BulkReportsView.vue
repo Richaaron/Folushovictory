@@ -622,20 +622,25 @@ onMounted(fetchStudents)
   }
 
   .print-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 270mm !important;
+    display: block !important;
+    min-height: auto !important;
     overflow: visible !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    page-break-after: auto !important;
-    break-after: auto !important;
-  }
-
-  .print-card:not(:last-child) {
+    page-break-before: always !important;
+    break-before: page !important;
     page-break-after: always !important;
     break-after: page !important;
+  }
+
+  .print-card:first-child {
+    page-break-before: auto !important;
+    break-before: auto !important;
+  }
+
+  .print-card:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
 
   .withheld-page {
@@ -644,6 +649,12 @@ onMounted(fetchStudents)
     page-break-after: auto !important;
     break-after: auto !important;
     box-shadow: none;
+  }
+
+  .print-card,
+  .withheld-page {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .print-card,
