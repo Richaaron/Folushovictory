@@ -12,7 +12,8 @@ import {
   Send,
   Printer,
   BarChart3,
-  UserPlus
+  UserPlus,
+  Edit2
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -36,6 +37,16 @@ const term = ref('First')
 const canAddStudents = ref(false)
 const currentClass = ref<any>(null)
 const showAddModal = ref(false)
+const showEditModal = ref(false)
+const editingStudent = ref<any>(null)
+const editedStudent = ref({
+  firstName: '',
+  lastName: '',
+  gender: 'Male',
+  parentName: '',
+  parentEmail: '',
+  stream: ''
+})
 
 const isSSS = computed(() => {
   return currentClass.value?.name?.includes('SSS')
@@ -100,6 +111,45 @@ const handleAddStudent = async () => {
     console.error('Error adding student:', err)
     const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
     alert(`❌ Enrollment Failed: ${errorMsg}`)
+  }
+}
+
+const openEditModal = (student: any) => {
+  editingStudent.value = student
+  editedStudent.value = {
+    firstName: student.firstName || '',
+    lastName: student.lastName || '',
+    gender: student.gender || 'Male',
+    parentName: student.parentName || '',
+    parentEmail: student.parentEmail || '',
+    stream: student.stream || ''
+  }
+  showEditModal.value = true
+}
+
+const handleUpdateStudent = async () => {
+  if (!editingStudent.value) return
+  if (!editedStudent.value.firstName || !editedStudent.value.lastName) {
+    alert('❌ Please enter both first name and last name.')
+    return
+  }
+  if (!editedStudent.value.parentName) {
+    alert("❌ Parent/Guardian Name is required.")
+    return
+  }
+
+  try {
+    await api.put(`/api/teacher/students/${editingStudent.value.studentId}`, {
+      ...editedStudent.value,
+      classId
+    })
+    showEditModal.value = false
+    editingStudent.value = null
+    await fetchStudents()
+  } catch (err: any) {
+    console.error('Error updating student:', err)
+    const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
+    alert(`❌ Update Failed: ${errorMsg}`)
   }
 }
 
@@ -302,6 +352,13 @@ onMounted(fetchStudents)
               <td class="px-8 py-6 text-center">
                 <div class="flex items-center justify-center gap-3">
                   <button 
+                    @click="openEditModal(st)"
+                    class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:text-royal-purple transition-all flex items-center justify-center"
+                    title="Edit Student"
+                  >
+                    <Edit2 class="w-4 h-4" />
+                  </button>
+                  <button 
                     @click="router.push({ name: 'student-report', params: { studentId: st.studentId }, query: { session: session, term: term, preview: 'true' } })"
                     class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:text-royal-purple transition-all flex items-center justify-center"
                     title="Preview Report Card"
@@ -394,6 +451,64 @@ onMounted(fetchStudents)
             <div class="pt-4 sm:pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
               <button @click="showAddModal = false" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl bg-slate-900/60 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white hover:bg-slate-800 transition-colors min-h-[44px]">Cancel</button>
               <button @click="handleAddStudent" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl purple-gradient text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 min-h-[44px]">Enroll Student</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Edit Student Modal -->
+    <transition name="fade">
+      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showEditModal = false"></div>
+        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 max-h-[90vh] overflow-y-auto">
+          <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8">Edit <span class="text-royal-purple">Student</span></h2>
+
+          <div class="space-y-4 sm:space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">First Name</label>
+                <input v-model="editedStudent.firstName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Name</label>
+                <input v-model="editedStudent.lastName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
+                <select v-model="editedStudent.gender" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </div>
+              <div v-if="isSSS" class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stream</label>
+                <select v-model="editedStudent.stream" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-xs font-black uppercase tracking-widest outline-none min-h-[44px]">
+                  <option value="">Select Stream</option>
+                  <option value="Science">Science</option>
+                  <option value="Art">Art</option>
+                  <option value="Commercial">Commercial</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
+                <input v-model="editedStudent.parentName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="e.g. Chief Adeleke" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email <span class="text-slate-500 lowercase">(Optional)</span></label>
+                <input v-model="editedStudent.parentEmail" type="email" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="guardian@example.com" />
+              </div>
+            </div>
+
+            <div class="pt-4 sm:pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+              <button @click="showEditModal = false; editingStudent = null" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl bg-slate-900/60 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white hover:bg-slate-800 transition-colors min-h-[44px]">Cancel</button>
+              <button @click="handleUpdateStudent" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl purple-gradient text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 min-h-[44px]">Save Changes</button>
             </div>
           </div>
         </div>

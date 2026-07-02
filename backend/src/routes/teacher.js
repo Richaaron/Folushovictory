@@ -5,14 +5,14 @@ import { asyncHandler } from "../http.js";
 import { listAssignmentsByTeacher, getAssignmentByTriplet } from "../repos/assignments.js";
 import { listClassesByFormTeacher, getClassById } from "../repos/classes.js";
 import { listSubjects, getSubjectById } from "../repos/subjects.js";
-import { listStudentsByClass, getStudentById, createStudentWithParent } from "../repos/students.js";
+import { listStudentsByClass, getStudentById, createStudentWithParent, updateStudent } from "../repos/students.js";
+import { validateStudentUpdatePayload, validateStudentPayload } from "../validation.js";
 import { isPublished } from "../repos/publishes.js";
 import { upsertNumericScore, upsertTraitScore } from "../repos/scores.js";
 import { setTeacherRemark } from "../repos/remarks.js";
 import { setReleaseStatus } from "../repos/releases.js";
 import { generateStudentId, generateParentUsername } from "../ids.js";
 import { hashPassword } from "../security.js";
-import { validateStudentPayload } from "../validation.js";
 import { getUserByUsername, updateUser } from "../repos/users.js";
 import { sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
@@ -455,6 +455,58 @@ teacherRouter.post(
     }).catch((error) => console.error("Activity log failed:", error));
 
     return res.status(201).json({ studentId, parentUsername, parentPassword });
+  })
+);
+
+teacherRouter.put(
+  "/students/:studentId",
+  asyncHandler(async (req, res) => {
+    const { studentId } = req.params;
+    const patch = validateStudentUpdatePayload(req.body || {});
+    const student = await getStudentById(studentId);
+    if (!student) return res.status(404).json({ error: "Student not found" });
+
+    const cls = await getClassById(student.classId);
+    if (!cls) return res.status(404).json({ error: "Student class not found" });
+
+    const isFormTeacher = cls.formTeacherUsername === req.user.username;
+    const formClasses = await listClassesByFormTeacher(req.user.username);
+    const hasPryNurFormClass = formClasses.some((c) => c.level === "PRY" || c.level === "NUR");
+    let isPryNurTeacher = hasPryNurFormClass;
+
+    if (!isPryNurTeacher) {
+      const assignments = await listAssignmentsByTeacher(req.user.username);
+      const assignedClassIds = [...new Set(assignments.map((a) => a.classId))];
+      for (const cid of assignedClassIds) {
+        const assignedClass = await getClassById(cid);
+        if (assignedClass && (assignedClass.level === "PRY" || assignedClass.level === "NUR")) {
+          isPryNurTeacher = true;
+          break;
+        }
+      }
+    }
+
+    const isPryNurClass = cls.level === "PRY" || cls.level === "NUR";
+    const canEdit = isFormTeacher || (isPryNurTeacher && isPryNurClass);
+    if (!canEdit) {
+      return res.status(403).json({ error: "Forbidden: You are not authorized to update this student." });
+    }
+
+    if (patch.classId && patch.classId !== student.classId) {
+      return res.status(403).json({ error: "Changing student class is not allowed." });
+    }
+
+    const updated = await updateStudent(studentId, patch);
+    void logActivity({
+      actor: req.user.username,
+      role: req.user.role,
+      action: "Updated student details",
+      details: { studentId, classId: student.classId, changes: Object.keys(patch) },
+      resourceType: "student",
+      resourceId: studentId
+    }).catch((error) => console.error("Activity log failed:", error));
+
+    return res.json(updated);
   })
 );
 
