@@ -8,8 +8,8 @@ async function resetAdmin() {
   assertConfig();
   getFirebaseApp();
 
-  const username = "admin";
-  const password = "Victory@2024";
+  const username = "admin@folusho.com";
+  const password = "FolushoVIC1@";
   const passwordHash = await hashPassword(password);
 
   const existing = await getUserByUsername(username);
