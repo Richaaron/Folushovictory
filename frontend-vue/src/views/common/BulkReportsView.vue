@@ -610,18 +610,24 @@ onMounted(fetchStudents)
   }
 
   .bulk-report-page {
+    width: 210mm !important;
     max-width: none;
-    padding: 0;
+    padding: 0 !important;
+    margin: 0 auto !important;
     overflow: visible !important;
   }
 
   .print-area {
     display: block;
+    width: 100% !important;
     overflow: visible !important;
   }
 
   .print-card {
     display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     min-height: auto !important;
     overflow: visible !important;
     page-break-inside: avoid !important;
@@ -667,14 +673,14 @@ onMounted(fetchStudents)
   }
 
   .report-head {
-    padding: 20px 24px;
+    padding: 16px 14px !important;
     background: white !important;
     color: #1e1b4b !important;
     border-bottom: 5px solid #581c87;
   }
 
   .report-head h2 {
-    font-size: 26px;
+    font-size: 28px !important;
     color: #1e1b4b !important;
   }
 
@@ -730,8 +736,9 @@ onMounted(fetchStudents)
   .withheld-table {
     border-collapse: collapse !important;
     width: 100% !important;
-    margin: 12px 16px 0 16px !important;
+    margin: 10px 12px 0 12px !important;
     font-size: 15px !important;
+    table-layout: fixed !important;
   }
 
   .result-table th,
@@ -744,15 +751,16 @@ onMounted(fetchStudents)
   }
 
   .remarks-grid {
-    gap: 6px !important;
-    padding: 0 0 6px !important;
+    gap: 8px !important;
+    padding: 0 0 8px !important;
+    width: 100% !important;
   }
 
   .remarks-grid div {
-    min-height: auto !important;
+    min-height: 150px !important;
     border: 1px solid #cbd5e1 !important;
     border-top: 4px solid #581c87 !important;
-    padding: 8px !important;
+    padding: 12px !important;
   }
 
   .remarks-grid p {
