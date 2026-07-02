@@ -115,8 +115,9 @@ const getOverallGrade = (report: any) => {
   return 'N/A'
 }
 
-const generateReports = async (shouldPrint = false) => {
-  if (!selectedCount.value) {
+const generateReports = async (shouldPrint = false, targetStudentIds: string[] | null = null) => {
+  const studentIds = targetStudentIds ?? Array.from(selectedIds.value)
+  if (!studentIds.length) {
     error.value = 'Select at least one student before generating reports.'
     return
   }
@@ -127,7 +128,7 @@ const generateReports = async (shouldPrint = false) => {
     const { data } = await api.post(`/api/results/class/${classId}/bulk-reports`, {
       session: session.value,
       term: term.value,
-      studentIds: Array.from(selectedIds.value)
+      studentIds
     })
     reports.value = (data.reports || []).map((report: any) => ({
       ...report,
@@ -220,7 +221,7 @@ onMounted(fetchStudents)
           <Mail v-else class="h-4 w-4" />
           Email Parents
         </button>
-        <button @click="generateReports(true)" :disabled="generating || selectedCount === 0 || clearedSelected.length === 0" class="flex items-center gap-2 rounded-xl bg-royal-purple px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg disabled:opacity-50">
+        <button @click="generateReports(true, clearedSelected.map(s => s.studentId))" :disabled="generating || selectedCount === 0 || clearedSelected.length === 0" class="flex items-center gap-2 rounded-xl bg-royal-purple px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg disabled:opacity-50">
           <Loader2 v-if="generating" class="h-4 w-4 animate-spin" />
           <Printer v-else class="h-4 w-4" />
           Print Cleared
