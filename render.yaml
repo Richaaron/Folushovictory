@@ -5,7 +5,7 @@ services:
     rootDir: backend
     plan: free
     buildCommand: yarn install --production
-    startCommand: yarn start
+    startCommand: npm run start
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
