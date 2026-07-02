@@ -29,14 +29,14 @@ const API_BASE_URL = (() => {
     // development on localhost -> talk to local backend at port 4000 for dev.
     if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:4000';
     // Capacitor native builds use capacitor://localhost as the origin.
-    if (protocol === 'capacitor:') return 'https://folushovictory-backend.onrender.com';
+    if (protocol === 'capacitor:') return 'https://folushovictory.onrender.com';
     // production front-end deployed on Netlify should call the backend service on Render
-    if (host.endsWith('.netlify.app')) return 'https://folushovictory-backend.onrender.com';
+    if (host.endsWith('.netlify.app')) return 'https://folushovictory.onrender.com';
     // otherwise use same origin for bundled fullstack deployments
     return window.location.origin;
   }
   // fallback to production API
-  return 'https://folushovictory-backend.onrender.com';
+  return 'https://folushovictory.onrender.com';
 })();
 
 const api = axios.create({
