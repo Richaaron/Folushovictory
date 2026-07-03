@@ -23,6 +23,7 @@ const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
 const success = ref(false)
+const savedCount = ref(0)  // number of non-zero scores confirmed saved
 
 const session = ref('2023/2024')
 const term = ref('First')
@@ -178,13 +179,36 @@ watch(students, (newVal, oldVal) => {
   })
 }, { deep: true })
 
-const refreshBroadsheet = async () => {
+const refreshBroadsheet = async (updateScores = false) => {
   try {
     const { data } = await api.get(`/api/results/class/${classId}/broadsheet`, {
       params: { session: session.value, term: term.value }
     })
     overallPositions.value = new Map((data.students || []).map((s: any) => [s.studentId, s.position]))
     overallAverages.value = new Map((data.students || []).map((s: any) => [s.studentId, s.average]))
+
+    // After a successful save, update the student score fields to confirm what was persisted
+    if (updateScores && data.students) {
+      const broadsheetSubjects: any[] = data.subjects || []
+      const canonicalSubjectId = (() => {
+        if (!broadsheetSubjects.length) return subjectId
+        const matched = broadsheetSubjects.find((sub: any) =>
+          sub.id === subjectId || (Array.isArray(sub.aliasIds) && sub.aliasIds.includes(subjectId))
+        )
+        return matched?.id || subjectId
+      })()
+
+      students.value = students.value.map((s: any) => {
+        const studentScore = data.students.find((ds: any) => ds.studentId === s.studentId)
+        const scoreObj = studentScore?.scores?.[canonicalSubjectId] || studentScore?.scores?.[subjectId]
+        return {
+          ...s,
+          ca1: scoreObj?.ca1 !== undefined && scoreObj.ca1 !== null ? scoreObj.ca1 : 0,
+          ca2: scoreObj?.ca2 !== undefined && scoreObj.ca2 !== null ? scoreObj.ca2 : 0,
+          exam: scoreObj?.exam !== undefined && scoreObj.exam !== null ? scoreObj.exam : 0
+        }
+      })
+    }
   } catch (err) {
     // broadsheet may not exist yet
   }
@@ -201,6 +225,7 @@ const handleSave = async () => {
       ca2: clampCA(s.ca2),
       exam: clampExam(s.exam)
     }))
+    savedCount.value = scores.filter(s => s.ca1 > 0 || s.ca2 > 0 || s.exam > 0).length
 
     await api.post('/api/teacher/scores', {
       session: session.value,
@@ -210,10 +235,11 @@ const handleSave = async () => {
       scores
     })
     success.value = true
-    await refreshBroadsheet()
-    setTimeout(() => { success.value = false }, 3000)
+    // Refresh broadsheet AND update displayed scores so teacher sees confirmed saved values
+    await refreshBroadsheet(true)
+    setTimeout(() => { success.value = false }, 5000)
   } catch (err: any) {
-    error.value = err.response?.data?.error || 'Failed to save scores'
+    error.value = err.response?.data?.error || 'Failed to save scores. Please try again.'
   } finally {
     saving.value = false
   }
@@ -257,13 +283,19 @@ onMounted(fetchStudents)
     </div>
 
     <!-- Feedback -->
-    <div v-if="error" class="p-4 rounded-2xl bg-red-900/20 text-red-300 flex items-center gap-3 border border-red-900/30">
-      <AlertCircle class="w-5 h-5" />
-      <span class="text-sm font-bold">{{ error }}</span>
+    <div v-if="error" class="p-4 rounded-2xl bg-red-900/20 text-red-300 flex items-center gap-3 border border-red-700/40">
+      <AlertCircle class="w-5 h-5 flex-shrink-0" />
+      <div>
+        <p class="text-sm font-black">Save Failed</p>
+        <p class="text-xs font-bold mt-0.5 opacity-80">{{ error }}</p>
+      </div>
     </div>
-    <div v-if="success" class="p-4 rounded-2xl bg-emerald-900/20 text-emerald-300 flex items-center gap-3 border border-emerald-900/30">
-      <CheckCircle2 class="w-5 h-5" />
-      <span class="text-sm font-bold">Scores saved successfully!</span>
+    <div v-if="success" class="p-4 rounded-2xl bg-emerald-900/20 text-emerald-300 flex items-center gap-3 border border-emerald-700/40">
+      <CheckCircle2 class="w-5 h-5 flex-shrink-0" />
+      <div>
+        <p class="text-sm font-black">Scores Saved Successfully!</p>
+        <p class="text-xs font-bold mt-0.5 opacity-80">{{ savedCount }} student{{ savedCount === 1 ? '' : 's' }} with non-zero scores. The table below now reflects the confirmed saved values.</p>
+      </div>
     </div>
 
     <!-- Score Table -->
