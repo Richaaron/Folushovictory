@@ -256,6 +256,9 @@ teacherRouter.post(
     if (!session || !term || !classId || !subjectId || !Array.isArray(scores))
       return res.status(400).json({ error: "Missing fields" });
 
+    // Resolve to canonical for auth check, but we still save with the original subjectId
+    // so that two teachers (e.g. IRS teacher and CRS teacher) can each save independently
+    // without overwriting each other. The broadsheet uses aliasIds to combine them.
     const resolvedSubject = await resolveScoreSubjectId(subjectId);
     const canEnter = await canTeacherEnterSubject({
       teacherUsername: req.user.username,
@@ -267,6 +270,11 @@ teacherRouter.post(
 
     const locked = await isPublished({ classId: String(classId), session: String(session), term: String(term) });
     if (locked) return res.status(409).json({ error: "Results already published for this class" });
+
+    // Save scores with the teacher's own subjectId (IRS or CRS), NOT the canonical.
+    // The score key is unique per teacher's subject, preventing overwrites between
+    // the IRS teacher and CRS teacher in the same class.
+    const saveSubjectId = String(subjectId);
 
     const writes = scores.map(async (s) => {
       const studentId = String(s.studentId || "");
@@ -285,7 +293,7 @@ teacherRouter.post(
         term: String(term),
         classId: String(classId),
         studentId,
-        subjectId: resolvedSubject.subjectId,
+        subjectId: saveSubjectId,
         ca1,
         ca2,
         exam,
@@ -298,9 +306,9 @@ teacherRouter.post(
       actor: req.user.username,
       role: req.user.role,
       action: "Entered numeric scores",
-      details: { session: String(session), term: String(term), classId: String(classId), subjectId: resolvedSubject.subjectId, recordCount: scores.length },
+      details: { session: String(session), term: String(term), classId: String(classId), subjectId: saveSubjectId, recordCount: scores.length },
       resourceType: "numeric-scores",
-      resourceId: `${session}_${term}_${classId}_${resolvedSubject.subjectId}`
+      resourceId: `${session}_${term}_${classId}_${saveSubjectId}`
     }).catch((error) => console.error("Activity log failed:", error));
     return res.json({ ok: true });
   })
