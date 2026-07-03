@@ -94,10 +94,24 @@ const fetchStudents = async () => {
       overallAverages.value = new Map((data.students || []).map((s: any) => [s.studentId, s.average]))
       
       // Populate existing scores if present in the broadsheet
+      // The broadsheet may key scores by a canonical subject ID (e.g. "Religious Studies")
+      // even if the teacher's assignment uses an alias ID (e.g. "IRS SSS").
+      // So we try subjectId first, then fall back to any subject whose aliasIds include our subjectId.
       if (data.students) {
+        const broadsheetSubjects: any[] = data.subjects || []
+        const canonicalSubjectId = (() => {
+          if (!broadsheetSubjects.length) return subjectId
+          // Try to find a subject in the broadsheet that lists our subjectId as an alias
+          const matched = broadsheetSubjects.find((sub: any) =>
+            sub.id === subjectId || (Array.isArray(sub.aliasIds) && sub.aliasIds.includes(subjectId))
+          )
+          return matched?.id || subjectId
+        })()
+
         students.value = students.value.map((s: any) => {
           const studentScore = data.students.find((ds: any) => ds.studentId === s.studentId)
-          const scoreObj = studentScore?.scores?.[subjectId]
+          // Look up by canonical ID first, then by raw subjectId
+          const scoreObj = studentScore?.scores?.[canonicalSubjectId] || studentScore?.scores?.[subjectId]
           return {
             ...s,
             ca1: scoreObj?.ca1 !== undefined && scoreObj.ca1 !== null ? scoreObj.ca1 : '',
