@@ -96,7 +96,8 @@ const fetchData = async () => {
       // For SSS: combine track-specific subjects and core general subjects, with manually assigned subjects
       const coreGeneralSubjects = [
         'Mathematics', 'English Language', 'Marketing', 
-        'Citizenship and Heritage studies', 'Economics', 'Biology'
+        'Citizenship and Heritage studies', 'Economics', 'Biology',
+        'Religious Studies', 'Christian Religious Studies', 'Islamic Religious Studies', 'CRS', 'IRS', 'Civic Education'
       ]
       const trackSubjectNames = {
         'Science': ['Chemistry', 'Physics'],

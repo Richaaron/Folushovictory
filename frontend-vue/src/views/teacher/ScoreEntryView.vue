@@ -42,7 +42,8 @@ const fetchStudents = async () => {
     if (classLevel === 'SSS') {
       const coreGeneralSubjects = [
         'Mathematics', 'English Language', 'Marketing', 
-        'Citizenship and Heritage studies', 'Economics', 'Biology'
+        'Citizenship and Heritage studies', 'Economics', 'Biology',
+        'Religious Studies', 'Christian Religious Studies', 'Islamic Religious Studies', 'CRS', 'IRS', 'Civic Education'
       ]
       const trackSubjectNames = {
         'Science': ['Chemistry', 'Physics'],
