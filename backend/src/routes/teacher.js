@@ -17,10 +17,46 @@ import { hashPassword } from "../security.js";
 import { getUserByUsername, updateUser } from "../repos/users.js";
 import { sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
+import { isReligiousStudiesAlias, normalizeLevel, RELIGIOUS_STUDIES_NAME } from "../subjectAliases.js";
 
 export const teacherRouter = express.Router();
 
 teacherRouter.use(authRequired, requireRole(Roles.TEACHER));
+
+async function resolveScoreSubjectId(subjectId) {
+  const selectedSubject = await getSubjectById(String(subjectId));
+  if (!selectedSubject) return { subjectId: String(subjectId), aliasIds: [] };
+
+  const selectedLevel = normalizeLevel(selectedSubject.level);
+  const selectedTrack = selectedLevel === "SSS" ? (selectedSubject.track || "General") : (selectedSubject.track || "");
+  const allSubjects = await listSubjects();
+  const related = allSubjects.filter((subject) => {
+    const subjectLevel = normalizeLevel(subject.level);
+    const subjectTrack = subjectLevel === "SSS" ? (subject.track || "General") : (subject.track || "");
+    const sameLevelAndTrack = subjectLevel === selectedLevel && subjectTrack === selectedTrack;
+    const religiousName = subject.name === RELIGIOUS_STUDIES_NAME || isReligiousStudiesAlias(subject.originalName || subject.name);
+    return sameLevelAndTrack && religiousName;
+  });
+
+  const canonical = related.find((subject) => subject.name === RELIGIOUS_STUDIES_NAME && !isReligiousStudiesAlias(subject.originalName || subject.name));
+  const finalSubjectId = canonical?.id || selectedSubject.id;
+  return {
+    subjectId: finalSubjectId,
+    aliasIds: related.map((subject) => subject.id).filter((id) => id && id !== finalSubjectId)
+  };
+}
+
+async function canTeacherEnterSubject({ teacherUsername, classId, subjectId, aliasIds = [] }) {
+  const direct = await getAssignmentByTriplet({ teacherUsername, classId, subjectId });
+  if (direct) return true;
+
+  if (aliasIds.length === 0) return false;
+  const assignments = await listAssignmentsByTeacher(teacherUsername);
+  return assignments.some((assignment) =>
+    assignment.classId === classId &&
+    aliasIds.includes(assignment.subjectId)
+  );
+}
 
 teacherRouter.get(
   "/form-classes",
@@ -220,12 +256,14 @@ teacherRouter.post(
     if (!session || !term || !classId || !subjectId || !Array.isArray(scores))
       return res.status(400).json({ error: "Missing fields" });
 
-    const assignment = await getAssignmentByTriplet({
+    const resolvedSubject = await resolveScoreSubjectId(subjectId);
+    const canEnter = await canTeacherEnterSubject({
       teacherUsername: req.user.username,
       classId: String(classId),
-      subjectId: String(subjectId)
+      subjectId: resolvedSubject.subjectId,
+      aliasIds: [String(subjectId), ...resolvedSubject.aliasIds]
     });
-    if (!assignment) return res.status(403).json({ error: "Forbidden" });
+    if (!canEnter) return res.status(403).json({ error: "Forbidden" });
 
     const locked = await isPublished({ classId: String(classId), session: String(session), term: String(term) });
     if (locked) return res.status(409).json({ error: "Results already published for this class" });
@@ -247,7 +285,7 @@ teacherRouter.post(
         term: String(term),
         classId: String(classId),
         studentId,
-        subjectId: String(subjectId),
+        subjectId: resolvedSubject.subjectId,
         ca1,
         ca2,
         exam,
@@ -260,9 +298,9 @@ teacherRouter.post(
       actor: req.user.username,
       role: req.user.role,
       action: "Entered numeric scores",
-      details: { session: String(session), term: String(term), classId: String(classId), subjectId: String(subjectId), recordCount: scores.length },
+      details: { session: String(session), term: String(term), classId: String(classId), subjectId: resolvedSubject.subjectId, recordCount: scores.length },
       resourceType: "numeric-scores",
-      resourceId: `${session}_${term}_${classId}_${subjectId}`
+      resourceId: `${session}_${term}_${classId}_${resolvedSubject.subjectId}`
     }).catch((error) => console.error("Activity log failed:", error));
     return res.json({ ok: true });
   })
@@ -275,12 +313,14 @@ teacherRouter.post(
     if (!session || !term || !classId || !subjectId || !Array.isArray(ratings))
       return res.status(400).json({ error: "Missing fields" });
 
-    const assignment = await getAssignmentByTriplet({
+    const resolvedSubject = await resolveScoreSubjectId(subjectId);
+    const canEnter = await canTeacherEnterSubject({
       teacherUsername: req.user.username,
       classId: String(classId),
-      subjectId: String(subjectId)
+      subjectId: resolvedSubject.subjectId,
+      aliasIds: [String(subjectId), ...resolvedSubject.aliasIds]
     });
-    if (!assignment) return res.status(403).json({ error: "Forbidden" });
+    if (!canEnter) return res.status(403).json({ error: "Forbidden" });
 
     const locked = await isPublished({ classId: String(classId), session: String(session), term: String(term) });
     if (locked) return res.status(409).json({ error: "Results already published for this class" });
@@ -297,7 +337,7 @@ teacherRouter.post(
         term: String(term),
         classId: String(classId),
         studentId,
-        subjectId: String(subjectId),
+        subjectId: resolvedSubject.subjectId,
         rating,
         enteredBy: req.user.username
       });

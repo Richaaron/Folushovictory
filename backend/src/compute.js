@@ -81,8 +81,8 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
 
     const perSubject = studentSubjects.map((sub) => {
       const subjectId = sub.id;
-      const key = `${st.id}_${subjectId}`;
-      const sc = scoresByKey.get(key);
+      const scoreSubjectIds = [subjectId, ...(sub.aliasIds || [])].filter(Boolean);
+      const sc = scoreSubjectIds.map((id) => scoresByKey.get(`${st.id}_${id}`)).find(Boolean);
       const ca1 = Number(sc?.ca1 || 0);
       const ca2 = Number(sc?.ca2 || 0);
       const ca = Number(sc?.ca || (ca1 + ca2));
@@ -165,15 +165,15 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
 }
 
 export function traitSheet({ students, subjects, scoresByKey }) {
-  const subjectIds = subjects.map((s) => s.id);
   const rows = students.map((st) => {
-    const perSubject = subjectIds.map((subjectId) => {
-      const key = `${st.id}_${subjectId}`;
-      const sc = scoresByKey.get(key);
+    const perSubject = subjects.map((subject) => {
+      const subjectId = subject.id;
+      const scoreSubjectIds = [subjectId, ...(subject.aliasIds || [])].filter(Boolean);
+      const sc = scoreSubjectIds.map((id) => scoresByKey.get(`${st.id}_${id}`)).find(Boolean);
       const rating = sc?.rating || "";
       return {
         subjectId,
-        subjectName: subjects.find((s) => s.id === subjectId)?.name || subjectId,
+        subjectName: subject.name || subjectId,
         rating
       };
     });

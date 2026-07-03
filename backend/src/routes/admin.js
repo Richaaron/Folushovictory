@@ -22,6 +22,7 @@ import { performHealthCheck, validateDataIntegrity, getCollectionMetrics, SafeDa
 import { getIdColumnName } from "../firestore-utils/db-utils.js";
 import { generateSimpleRegistrationCode } from "../registrationCodeUtils.js";
 import { createRegistrationCode, listRegistrationCodes, revokeRegistrationCode, getRegistrationCodeByCode } from "../repos/registrationCodes.js";
+import { mergeCanonicalSubjects } from "../subjectAliases.js";
 
 export const adminRouter = express.Router();
 
@@ -1040,7 +1041,7 @@ adminRouter.get(
   "/subjects",
   asyncHandler(async (req, res) => {
     const subjects = await listSubjects();
-    return res.json({ subjects });
+    return res.json({ subjects: mergeCanonicalSubjects(subjects) });
   })
 );
 

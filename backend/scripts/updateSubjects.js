@@ -39,16 +39,14 @@ const correctSubjects = [
   { name: "Fine Arts", level: "JSS" },
   { name: "Home Economics", level: "JSS" },
   { name: "Digital Technology", level: "JSS" },
-  { name: "IRS JSS", level: "JSS" },
-  { name: "CRS JSS", level: "JSS" },
+  { name: "Religious Studies", level: "JSS" },
 
   // SENIOR SECONDARY - General Subjects (all tracks)
   { name: "Mathematics", level: "SSS", track: "General" },
   { name: "English Language", level: "SSS", track: "General" },
   { name: "Biology", level: "SSS", track: "General" },
   { name: "Economics", level: "SSS", track: "General" },
-  { name: "IRS SSS", level: "SSS", track: "General" },
-  { name: "CRS SSS", level: "SSS", track: "General" },
+  { name: "Religious Studies", level: "SSS", track: "General" },
   { name: "Marketing", level: "SSS", track: "General" },
   { name: "Citizenship and Heritage studies", level: "SSS", track: "General" },
   { name: "Geography", level: "SSS", track: "General" },
@@ -93,7 +91,7 @@ try {
   console.log("\nSubjects by level:");
   console.log("- Primary: 17 subjects");
   console.log("- JSS: 12 subjects");
-  console.log("- SSS General: 7 subjects");
+  console.log("- SSS General: 9 subjects");
   console.log("- SSS Science: 2 subjects");
   console.log("- SSS Art: 2 subjects");
   console.log("- SSS Commercial: 2 subjects");

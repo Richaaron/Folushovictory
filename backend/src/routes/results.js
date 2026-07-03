@@ -14,6 +14,7 @@ import { listAssignmentsByTeacher } from "../repos/assignments.js";
 import { getUserByUsername } from "../repos/users.js";
 import { getReleaseStatus } from "../repos/releases.js";
 import { sendResultReleasedEmail } from "../services/email.js";
+import { isReligiousStudiesAlias, mergeCanonicalSubjects, normalizeLevel, RELIGIOUS_STUDIES_NAME } from "../subjectAliases.js";
 
 export const resultsRouter = express.Router();
 
@@ -30,16 +31,34 @@ async function subjectsForClass(cls) {
         return null;
       }
     }));
-    return subs.filter(Boolean).map((s) => ({ id: s.id, name: s.name, track: s.track || null, level: s.level || null }));
+    const selectedSubjects = subs.filter(Boolean).map((s) => ({ id: s.id, name: s.name, originalName: s.originalName || s.name, track: s.track || null, level: s.level || null }));
+    const needsReligiousLookup = selectedSubjects.some((subject) =>
+      subject.name === RELIGIOUS_STUDIES_NAME ||
+      isReligiousStudiesAlias(subject.originalName || subject.name)
+    );
+    if (needsReligiousLookup) {
+      const all = await listSubjects();
+      const selectedIds = new Set(selectedSubjects.map((subject) => subject.id));
+      for (const selected of selectedSubjects) {
+        if (selected.name !== RELIGIOUS_STUDIES_NAME && !isReligiousStudiesAlias(selected.originalName || selected.name)) continue;
+        const selectedLevel = normalizeLevel(selected.level);
+        const selectedTrack = selectedLevel === "SSS" ? (selected.track || "General") : (selected.track || "");
+        all.forEach((subject) => {
+          const subjectLevel = normalizeLevel(subject.level);
+          const subjectTrack = subjectLevel === "SSS" ? (subject.track || "General") : (subject.track || "");
+          const relatedReligious =
+            subjectLevel === selectedLevel &&
+            subjectTrack === selectedTrack &&
+            (subject.name === RELIGIOUS_STUDIES_NAME || isReligiousStudiesAlias(subject.originalName || subject.name));
+          if (relatedReligious && !selectedIds.has(subject.id)) {
+            selectedSubjects.push({ id: subject.id, name: subject.name, originalName: subject.originalName || subject.name, track: subject.track || null, level: subject.level || null });
+            selectedIds.add(subject.id);
+          }
+        });
+      }
+    }
+    return mergeCanonicalSubjects(selectedSubjects);
   }
-
-  const normalizeLevel = (level) => {
-    const normalized = String(level || "").trim().toUpperCase();
-    if (normalized === "PRY" || normalized === "PRIMARY" || normalized === "NUR" || normalized.startsWith("PRE")) return "Primary";
-    if (normalized.startsWith("JSS") || normalized.includes("JUNIOR SECONDARY") || normalized.startsWith("JR")) return "JSS";
-    if (normalized.startsWith("SSS") || normalized.includes("SENIOR SECONDARY") || normalized.startsWith("SR")) return "SSS";
-    return normalized;
-  };
 
   let all = [];
   try {
@@ -55,7 +74,7 @@ async function subjectsForClass(cls) {
     filtered = filtered.filter((s) => s.track === "General" || s.track === cls.track);
   }
 
-  return filtered.map((s) => ({ id: s.id, name: s.name, track: s.track || null, level: s.level || null }));
+  return mergeCanonicalSubjects(filtered.map((s) => ({ id: s.id, name: s.name, track: s.track || null, level: s.level || null })));
 }
 
 function generatedPerformanceRemarks(result) {

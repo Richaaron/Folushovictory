@@ -1,7 +1,9 @@
 import { SafeDatabase } from "../firestore-utils/index.js";
+import { canonicalizeSubject, canonicalizeSubjectPayload } from "../subjectAliases.js";
 
 export async function createSubject(data) {
-  return SafeDatabase.createWithValidation("subjects", data, "subject", { checkDuplicates: true });
+  const created = await SafeDatabase.createWithValidation("subjects", canonicalizeSubjectPayload(data), "subject", { checkDuplicates: true });
+  return canonicalizeSubject(created);
 }
 
 export async function listSubjects() {
@@ -10,12 +12,12 @@ export async function listSubjects() {
     [],
     { pageSize: 1000, orderBy: "name", orderDirection: "asc" }
   );
-  return data;
+  return data.map(canonicalizeSubject);
 }
 
 export async function getSubjectById(subjectId) {
   try {
-    return await SafeDatabase.getById("subjects", subjectId);
+    return canonicalizeSubject(await SafeDatabase.getById("subjects", subjectId));
   } catch (error) {
     if (error.statusCode === 404) return null;
     throw error;
@@ -25,9 +27,9 @@ export async function getSubjectById(subjectId) {
 export async function getSubjectByName(name) {
   const { data } = await SafeDatabase.query(
     "subjects",
-    [["name", "==", name]],
+    [["name", "==", canonicalizeSubjectPayload({ name }).name]],
     { pageSize: 1 }
   );
-  return data.length > 0 ? data[0] : null;
+  return data.length > 0 ? canonicalizeSubject(data[0]) : null;
 }
 

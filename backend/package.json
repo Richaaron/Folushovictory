@@ -10,7 +10,8 @@
     "build": "node -e \"console.log('no build needed')\"",
     "create-admin": "node scripts/createAdmin.js",
     "seed-defaults": "node scripts/seedDefaults.js",
-    "migrate:init-registration": "node scripts/init_registration_tables.js"
+    "migrate:init-registration": "node scripts/init_registration_tables.js",
+    "migrate:religious-studies": "node scripts/consolidateReligiousStudiesSubjects.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.0",

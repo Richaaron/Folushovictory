@@ -46,9 +46,22 @@ const normalizeLevel = (value: string) => {
   return normalized
 }
 
+const subjectMatchesId = (subject: any, subjectId: string) => {
+  return subject?.id === subjectId || (subject?.aliasIds || []).includes(subjectId)
+}
+
+const canonicalSubjectIdFor = (subjectId: string) => {
+  const subject = subjects.value.find((s: any) => subjectMatchesId(s, subjectId))
+  return subject?.id || subjectId
+}
+
+const normalizeAssignedSubjectIds = (subjectIds: string[] = []) => {
+  return [...new Set(subjectIds.map(canonicalSubjectIdFor))]
+}
+
 const getTeacherDepartment = (teacher: any) => {
-  const primarySubjectIds = new Set(subjects.value.filter((s: any) => normalizeLevel(s.level) === 'Primary').map((s: any) => s.id))
-  const hasPrimarySubject = teacher.assignedSubjectIds?.some((id: string) => primarySubjectIds.has(id))
+  const primarySubjects = subjects.value.filter((s: any) => normalizeLevel(s.level) === 'Primary')
+  const hasPrimarySubject = teacher.assignedSubjectIds?.some((id: string) => primarySubjects.some((subject: any) => subjectMatchesId(subject, id)))
   const hasPrimaryFormClass = Boolean(teacher.formClassId && isPrimaryClass(teacher.formClassId))
   const hasPrimarySelectedClass = teacher.selectedClassIds?.some((id: string) => isPrimaryClass(id))
   return (hasPrimarySubject || hasPrimaryFormClass || hasPrimarySelectedClass) ? 'Primary/Nursery' : 'Secondary'
@@ -56,8 +69,8 @@ const getTeacherDepartment = (teacher: any) => {
 
 const getTeacherSecondaryLevel = (teacher: any) => {
   if (!teacher.assignedSubjectIds?.length) return 'Both'
-  const hasJss = subjects.value.some((s: any) => teacher.assignedSubjectIds.includes(s.id) && normalizeLevel(s.level) === 'JSS')
-  const hasSss = subjects.value.some((s: any) => teacher.assignedSubjectIds.includes(s.id) && normalizeLevel(s.level) === 'SSS')
+  const hasJss = subjects.value.some((s: any) => teacher.assignedSubjectIds.some((id: string) => subjectMatchesId(s, id)) && normalizeLevel(s.level) === 'JSS')
+  const hasSss = subjects.value.some((s: any) => teacher.assignedSubjectIds.some((id: string) => subjectMatchesId(s, id)) && normalizeLevel(s.level) === 'SSS')
   if (hasJss && !hasSss) return 'JSS'
   if (!hasJss && hasSss) return 'SSS'
   return 'Both'
@@ -71,6 +84,7 @@ const getTeacherRoleType = (teacher: any) => {
 
 const enrichTeacher = (teacher: any) => ({
   ...teacher,
+  assignedSubjectIds: normalizeAssignedSubjectIds(teacher.assignedSubjectIds || []),
   department: getTeacherDepartment(teacher),
   secondaryLevel: getTeacherSecondaryLevel(teacher),
   roleType: getTeacherRoleType(teacher)
@@ -342,7 +356,7 @@ const filteredEditSubjects = computed(() => {
 const getSecondarySubjectNames = (teacher: any) => {
   if (!teacher?.assignedSubjectIds?.length) return []
   return subjects.value
-    .filter(s => teacher.assignedSubjectIds.includes(s.id) && (normalizeLevel(s.level) === 'JSS' || normalizeLevel(s.level) === 'SSS'))
+    .filter(s => teacher.assignedSubjectIds.some((id: string) => subjectMatchesId(s, id)) && (normalizeLevel(s.level) === 'JSS' || normalizeLevel(s.level) === 'SSS'))
     .map(s => s.name)
 }
 
