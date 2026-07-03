@@ -335,7 +335,7 @@ onMounted(fetchStudents)
           <div class="summary-strip">
             <div><span>Total</span><strong>{{ report.result?.total ?? 'N/A' }}</strong></div>
             <div><span>Average</span><strong>{{ report.result?.average ?? 'N/A' }}%</strong></div>
-            <div><span>Release Draft</span><strong>{{ report.released ? 'Released' : 'Draft' }}</strong></div>
+            <div><span>Total Students</span><strong>{{ students?.length || 'N/A' }}</strong></div>
             <div>
               <span>{{ isPositionBasedClass(report) ? 'Position' : 'Overall Grade' }}</span>
               <strong>{{ isPositionBasedClass(report) ? getPositionSuffix(report.result?.position) : getOverallGrade(report) }}</strong>
@@ -636,7 +636,7 @@ onMounted(fetchStudents)
     padding: 0 !important;
     overflow: visible !important;
     transform: scale(var(--print-scale)) !important;
-    transform-origin: top center !important;
+    transform-origin: top left !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     break-inside: avoid-page !important;
