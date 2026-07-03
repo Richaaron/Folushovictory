@@ -59,7 +59,10 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
       
       const subTrack = String(sub.track || "").toUpperCase();
       if (!subTrack || subTrack === "GENERAL") {
-        const coreNames = ['MATHEMATICS', 'ENGLISH LANGUAGE', 'MARKETING', 'CITIZENSHIP AND HERITAGE STUDIES', 'ECONOMICS', 'BIOLOGY'];
+        const coreNames = [
+          'MATHEMATICS', 'ENGLISH LANGUAGE', 'MARKETING', 'CITIZENSHIP AND HERITAGE STUDIES', 'ECONOMICS', 'BIOLOGY',
+          'RELIGIOUS STUDIES', 'CHRISTIAN RELIGIOUS STUDIES', 'ISLAMIC RELIGIOUS STUDIES', 'CRS', 'IRS', 'CIVIC EDUCATION'
+        ];
         if (coreNames.includes(String(sub.name).toUpperCase())) return true;
         
         const selectedIds = Array.isArray(st.subjectIds) ? st.subjectIds : [];
