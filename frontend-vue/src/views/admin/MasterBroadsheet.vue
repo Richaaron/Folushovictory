@@ -339,6 +339,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
             <span class="rounded-md bg-[#1B2A4A]/80 border border-[#C9A84C]/15 px-3 py-1.5 text-[#FAFAF7]">{{ broadsheet.class?.name }}</span>
             <span class="rounded-md bg-[#1B2A4A]/80 border border-[#C9A84C]/15 px-3 py-1.5 text-[#C9A84C]">{{ selectedSession }}</span>
             <span class="rounded-md bg-[#1B2A4A]/80 border border-[#C9A84C]/15 px-3 py-1.5 gold-text">{{ formatTermLabel(selectedTerm) }}</span>
+            <span class="rounded-md bg-[#1B2A4A]/80 border border-[#C9A84C]/15 px-3 py-1.5 text-[#F5F0E8]">Total Students: {{ broadsheet.students?.length || 0 }}</span>
           </div>
         </div>
         <table class="w-full border-collapse">

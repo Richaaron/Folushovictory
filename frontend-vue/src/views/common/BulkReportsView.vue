@@ -627,14 +627,17 @@ onMounted(fetchStudents)
   }
 
   .print-card {
+    --print-scale: 1.22;
     box-sizing: border-box !important;
     display: block !important;
-    width: 202mm !important;
+    width: calc(202mm / var(--print-scale)) !important;
     min-height: 0 !important;
     height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
+    transform: scale(var(--print-scale)) !important;
+    transform-origin: top center !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     break-inside: avoid-page !important;
