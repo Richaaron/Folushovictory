@@ -34,7 +34,49 @@ const fetchStudents = async () => {
       api.get(`/api/teacher/classes/${classId}/students`),
       api.get('/api/config/school')
     ])
-    students.value = studentsResp.data.students.map((s: any) => ({
+    const cls = studentsResp.data.class || {}
+    const classLevel = (cls.level || '').toUpperCase()
+    
+    let filteredStudents = studentsResp.data.students || []
+    
+    if (classLevel === 'SSS') {
+      const coreGeneralSubjects = [
+        'Mathematics', 'English Language', 'Marketing', 
+        'Citizenship and Heritage studies', 'Economics', 'Biology'
+      ]
+      const trackSubjectNames = {
+        'Science': ['Chemistry', 'Physics'],
+        'Art': ['Government', 'Literature in English'],
+        'Commercial': ['Financial Accounting', 'Commerce']
+      }
+      
+      const subjNameUpper = (subjectName || '').toUpperCase()
+      const isCore = coreGeneralSubjects.some(s => s.toUpperCase() === subjNameUpper)
+      
+      if (!isCore) {
+        filteredStudents = filteredStudents.filter((student: any) => {
+          const studentSubjects = student.subjectIds || []
+          if (studentSubjects.includes(subjectId)) return true
+          
+          const classSubjects = cls.subjectIds || []
+          if (classSubjects.includes(subjectId)) return true
+          
+          const studentStream = student.stream || cls.track || ''
+          let streamMatch = false
+          Object.entries(trackSubjectNames).forEach(([track, subjects]) => {
+            if (studentStream.toUpperCase() === track.toUpperCase()) {
+              if (subjects.some(s => s.toUpperCase() === subjNameUpper)) {
+                streamMatch = true
+              }
+            }
+          })
+          
+          return streamMatch
+        })
+      }
+    }
+
+    students.value = filteredStudents.map((s: any) => ({
       ...s,
       ca1: '',
       ca2: '',
