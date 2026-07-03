@@ -11,7 +11,8 @@ import {
   Award,
   TrendingUp,
   Star,
-  Calendar
+  Calendar,
+  Users
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -214,7 +215,7 @@ onMounted(fetchData)
         </div>
         <div class="info-card">
           <span>Class</span>
-          <strong>{{ data.class.name }}</strong>
+          <strong>{{ data.class.name }} ({{ data.totalStudents || 'N/A' }} Students)</strong>
         </div>
         <div class="info-card">
           <span>Gender</span>
@@ -240,8 +241,9 @@ onMounted(fetchData)
           <strong>{{ positionBasedClass ? getPositionSuffix(data.result?.position) : overallGrade }}</strong>
         </div>
         <div class="stat-card stat-pink">
-          <span>Status</span>
-          <strong>{{ data.released ? 'Released' : 'Draft' }}</strong>
+          <Users class="stat-icon" />
+          <span>Total Students</span>
+          <strong>{{ data.totalStudents || 'N/A' }}</strong>
         </div>
       </section>
 
@@ -1184,6 +1186,6 @@ tbody tr:nth-child(even) {
   }
 
   /* Final fallback: reduce page margin if still overflowing */
-  @page { margin: 6mm; }
+  @page { size: A4; margin: 4mm !important; }
 }
 </style>

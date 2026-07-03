@@ -204,6 +204,7 @@ async function buildStudentReport({ student, cls, session, term }) {
 
   let row;
   let cumulative = null;
+  let totalStudents = 0;
 
   if (String(cls.assessmentType).toUpperCase() === "TRAIT") {
     const scores = await optionalResult(
@@ -213,6 +214,12 @@ async function buildStudentReport({ student, cls, session, term }) {
     );
     const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
     row = traitSheet({ students: [student], subjects, scoresByKey }).students[0];
+    const studentsInClass = await optionalResult(
+      `Class students load for report ${student.studentId}`,
+      () => listStudentsByClass(student.classId),
+      [student]
+    );
+    totalStudents = studentsInClass.length;
   } else {
     const scores = await optionalResult(
       `Numeric scores load for ${student.studentId}`,
@@ -225,6 +232,7 @@ async function buildStudentReport({ student, cls, session, term }) {
       () => listStudentsByClass(student.classId),
       [student]
     );
+    totalStudents = studentsInClass.length;
     const sheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey, scale, level: cls.level });
     row = sheet.students.find((s) => s.studentId === student.studentId);
 
@@ -290,6 +298,7 @@ async function buildStudentReport({ student, cls, session, term }) {
     session,
     term,
     published: Boolean(publish),
+    totalStudents,
     resumptionDate: meta?.resumptionDate || "",
     teacherRemark: remarks?.teacherRemark || autoRemarks.teacherRemark,
     principalRemark: remarks?.principalRemark || autoRemarks.principalRemark,
