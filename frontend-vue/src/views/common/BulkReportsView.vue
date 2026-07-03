@@ -335,12 +335,11 @@ onMounted(fetchStudents)
           <div class="summary-strip">
             <div><span>Total</span><strong>{{ report.result?.total ?? 'N/A' }}</strong></div>
             <div><span>Average</span><strong>{{ report.result?.average ?? 'N/A' }}%</strong></div>
-            <div><span>Class Size</span><strong>{{ report.class?.studentCount ?? report.class?.students?.length ?? 'N/A' }}</strong></div>
+            <div><span>Release Draft</span><strong>{{ report.released ? 'Released' : 'Draft' }}</strong></div>
             <div>
               <span>{{ isPositionBasedClass(report) ? 'Position' : 'Overall Grade' }}</span>
               <strong>{{ isPositionBasedClass(report) ? getPositionSuffix(report.result?.position) : getOverallGrade(report) }}</strong>
             </div>
-            <div><span>Release</span><strong>{{ report.released ? 'Released' : 'Draft' }}</strong></div>
           </div>
 
           <table class="result-table">
@@ -837,7 +836,7 @@ onMounted(fetchStudents)
   }
 
   .summary-strip {
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 
   .summary-strip div {
