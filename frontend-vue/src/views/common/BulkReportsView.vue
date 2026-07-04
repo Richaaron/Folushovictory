@@ -239,7 +239,7 @@ const handleExportExcel = async () => {
     const termLabel = formatTermLabel(term.value)
 
     // Helper: wrap a string value in a SpreadsheetML Cell
-    const cell = (value: any, type: 'String' | 'Number' = 'String', bold = false, bg = '', align = 'Left', size = 11, mergeAcross = 0) => {
+    const cell = (value: any, type: 'String' | 'Number' = 'String', _bold = false, _bg = '', _align = 'Left', _size = 11, mergeAcross = 0) => {
       const mergeAttr = mergeAcross > 0 ? ` ss:MergeAcross="${mergeAcross}"` : ''
       const safeVal = String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
       return `<Cell${mergeAttr}><Data ss:Type="${type}">${safeVal}</Data></Cell>`
