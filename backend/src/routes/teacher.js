@@ -294,11 +294,10 @@ teacherRouter.post(
     const locked = await isPublished({ classId: String(classId), session: String(session), term: String(term) });
     if (locked) return res.status(409).json({ error: "Results already published for this class" });
 
-    // Always save with the canonical subjectId.
-    // For Religious Studies: both teachers save under the same canonical column.
-    // Each teacher enters scores for THEIR OWN students, so there is no per-student
-    // overwrite conflict. For non-religious subjects this is the same as subjectId.
-    const saveSubjectId = resolvedSubject.subjectId;
+    // Save scores with the teacher's own subjectId (IRS or CRS), NOT the canonical.
+    // The score key is unique per teacher's subject, preventing overwrites between
+    // the IRS teacher and CRS teacher in the same class.
+    const saveSubjectId = String(subjectId);
 
     const writes = scores.map(async (s) => {
       const studentId = String(s.studentId || "");
@@ -369,7 +368,7 @@ teacherRouter.post(
         term: String(term),
         classId: String(classId),
         studentId,
-        subjectId: resolvedSubject.subjectId,
+        subjectId: String(subjectId),
         rating,
         enteredBy: req.user.username
       });
