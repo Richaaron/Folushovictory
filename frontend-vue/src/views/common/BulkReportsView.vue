@@ -5,6 +5,7 @@ import {
   AlertCircle,
   ArrowLeft,
   CheckSquare,
+  Download,
   Loader2,
   Mail,
   Printer,
@@ -28,6 +29,7 @@ const reports = ref<any[]>([])
 const loading = ref(true)
 const generating = ref(false)
 const notifying = ref(false)
+const exportingExcel = ref(false)
 const error = ref('')
 const notice = ref('')
 const emailSummary = ref<any>(null)
@@ -182,6 +184,158 @@ const notifyParents = async () => {
   }
 }
 
+// ── Excel Export ────────────────────────────────────────────────────────────
+const escapeExcel = (value: any) =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+
+const safeFilePart = (value: any) =>
+  String(value || 'report')
+    .trim()
+    .replace(/[\\/:\*?"<>|]+/g, '-')
+    .replace(/\s+/g, '-')
+
+const formatTermLabel = (term: string) => {
+  if (term === '1st') return 'First Term'
+  if (term === '2nd') return 'Second Term'
+  if (term === '3rd') return 'Third Term'
+  return term
+}
+
+const handleExportExcel = async () => {
+  // Ensure reports are loaded
+  const studentIds = Array.from(selectedIds.value)
+  if (!studentIds.length) {
+    error.value = 'Select at least one student before exporting.'
+    return
+  }
+
+  exportingExcel.value = true
+  error.value = ''
+  try {
+    let data = reports.value
+    if (!data.length) {
+      // Fetch reports if not yet generated
+      const res = await api.post(`/api/results/class/${classId}/bulk-reports`, {
+        session: session.value,
+        term: term.value,
+        studentIds
+      })
+      data = (res.data.reports || []).map((report: any) => ({
+        ...report,
+        feeStatus: { ...(report.feeStatus || {}), owesFees: Boolean(owingOverrides.value[report.student.studentId]) },
+        student: { ...report.student, feeStatus: { ...(report.student?.feeStatus || {}), owesFees: Boolean(owingOverrides.value[report.student.studentId]) } }
+      }))
+    }
+
+    if (!data.length) {
+      error.value = 'No report data available to export.'
+      return
+    }
+
+    // Collect all unique subject names across all reports (preserving order)
+    const subjectMap = new Map<string, string>() // id → name
+    for (const report of data) {
+      for (const s of report.result?.perSubject || []) {
+        if (!subjectMap.has(s.subjectId)) subjectMap.set(s.subjectId, s.subjectName || s.subjectId)
+      }
+    }
+    const subjects = Array.from(subjectMap.entries()) // [id, name][]
+    const totalColumns = 3 + subjects.length * 5 + 4 // pos + id + name + (ca1+ca2+exam+total+grade)*n + total+avg+pos+result
+
+    const school = data[0]?.school || {}
+    const className = data[0]?.class?.name || classInfo.value?.name || 'Class'
+    const termLabel = formatTermLabel(term.value)
+    const contactLine = [school.address, school.phone, school.email, school.website].filter(Boolean).join(' | ')
+
+    const headerRow = `
+      <tr>
+        <th rowspan="2">Pos</th>
+        <th rowspan="2">Student ID</th>
+        <th rowspan="2">Student Name</th>
+        ${subjects.map(([, name]) => `<th colspan="5">${escapeExcel(name)}</th>`).join('')}
+        <th colspan="4">Summary</th>
+      </tr>
+    `
+    const subHeaderRow = `
+      <tr>
+        ${subjects.map(() => '<th>1st CA</th><th>2nd CA</th><th>Exam</th><th>Total</th><th>Grade</th>').join('')}
+        <th>Total</th><th>Average</th><th>Position</th><th>Result</th>
+      </tr>
+    `
+
+    const bodyRows = data.map((report: any) => {
+      const s = report.student
+      const r = report.result || {}
+      const perSubject: any[] = r.perSubject || []
+      const scoreById = Object.fromEntries(perSubject.map((ps: any) => [ps.subjectId, ps]))
+      const studentName = escapeExcel(`${s.lastName || ''} ${s.firstName || ''}`.trim())
+      const subjectCells = subjects.map(([id]) => {
+        const ps = scoreById[id]
+        if (!ps) return '<td></td><td></td><td></td><td></td><td></td>'
+        return `<td>${escapeExcel(ps.ca1 ?? '')}</td><td>${escapeExcel(ps.ca2 ?? '')}</td><td>${escapeExcel(ps.exam ?? '')}</td><td>${escapeExcel(ps.total ?? '')}</td><td>${escapeExcel(ps.grade || '')}</td>`
+      }).join('')
+      const avg = Number(r.average || 0)
+      return `
+        <tr>
+          <td>${escapeExcel(r.position || '')}</td>
+          <td>${escapeExcel(s.studentId)}</td>
+          <td style="text-align:left">${studentName}</td>
+          ${subjectCells}
+          <td>${escapeExcel(r.total ?? '')}</td>
+          <td>${escapeExcel(avg > 0 ? avg + '%' : '')}</td>
+          <td>${escapeExcel(r.position || '')}</td>
+          <td>${avg >= 40 ? 'PASS' : avg > 0 ? 'FAIL' : ''}</td>
+        </tr>
+      `
+    }).join('')
+
+    const workbook = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="UTF-8" />
+          <style>
+            table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
+            th, td { border: 1px solid #9ca3af; padding: 6px 8px; text-align: center; white-space: nowrap; }
+            th { background: #e5e7eb; font-weight: bold; }
+            .hd { font-size: 18px; font-weight: bold; text-align: center; border: none; }
+            .sub { text-align: center; border: none; }
+            .meta { text-align: center; font-weight: bold; border: none; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <tr><td class="hd" colspan="${totalColumns}">${escapeExcel(school.name || 'School')}</td></tr>
+            ${school.motto ? `<tr><td class="sub" colspan="${totalColumns}">${escapeExcel(school.motto)}</td></tr>` : ''}
+            ${contactLine ? `<tr><td class="sub" colspan="${totalColumns}">${escapeExcel(contactLine)}</td></tr>` : ''}
+            <tr><td class="meta" colspan="${totalColumns}">Bulk Result Export | Class: ${escapeExcel(className)} | Session: ${escapeExcel(session.value)} | Term: ${escapeExcel(termLabel)}</td></tr>
+            ${headerRow}
+            ${subHeaderRow}
+            ${bodyRows}
+          </table>
+        </body>
+      </html>
+    `
+
+    const blob = new Blob([workbook], { type: 'application/vnd.ms-excel;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${safeFilePart(className)}-${safeFilePart(session.value)}-${safeFilePart(termLabel)}-bulk-results.xls`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.setTimeout(() => URL.revokeObjectURL(url), 0)
+  } catch (err: any) {
+    error.value = err.response?.data?.error || 'Failed to export Excel. Please generate reports first.'
+  } finally {
+    exportingExcel.value = false
+  }
+}
+
 onMounted(fetchStudents)
 </script>
 
@@ -225,6 +379,11 @@ onMounted(fetchStudents)
           <Loader2 v-if="generating" class="h-4 w-4 animate-spin" />
           <Printer v-else class="h-4 w-4" />
           Print Cleared
+        </button>
+        <button @click="handleExportExcel" :disabled="exportingExcel || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-600 disabled:opacity-50">
+          <Loader2 v-if="exportingExcel" class="h-4 w-4 animate-spin" />
+          <Download v-else class="h-4 w-4" />
+          Export Excel
         </button>
       </div>
     </div>
