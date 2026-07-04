@@ -23,6 +23,11 @@ export const teacherRouter = express.Router();
 
 teacherRouter.use(authRequired, requireRole(Roles.TEACHER));
 
+/**
+ * Resolves a subjectId to its canonical ID.
+ * For Religious Studies variants (IRS, CRS, or renamed "Religious Studies"),
+ * all variants resolve to a single canonical subject ID.
+ */
 async function resolveScoreSubjectId(subjectId) {
   const selectedSubject = await getSubjectById(String(subjectId));
   if (!selectedSubject) return { subjectId: String(subjectId), aliasIds: [] };
@@ -46,16 +51,39 @@ async function resolveScoreSubjectId(subjectId) {
   };
 }
 
+/**
+ * Checks whether a teacher is allowed to enter scores for a given subject in a class.
+ * Handles the Religious Studies edge case where two teachers (IRS + CRS) share the
+ * same canonical subject. If either teacher has an assignment for any religious-studies
+ * variant in the class, both are allowed to enter scores.
+ */
 async function canTeacherEnterSubject({ teacherUsername, classId, subjectId, aliasIds = [] }) {
+  // 1. Direct match: teacher assigned to the exact canonical subject in this class
   const direct = await getAssignmentByTriplet({ teacherUsername, classId, subjectId });
   if (direct) return true;
 
-  if (aliasIds.length === 0) return false;
   const assignments = await listAssignmentsByTeacher(teacherUsername);
-  return assignments.some((assignment) =>
-    assignment.classId === classId &&
-    aliasIds.includes(assignment.subjectId)
-  );
+  const classAssignments = assignments.filter((a) => a.classId === classId);
+  if (classAssignments.length === 0) return false;
+
+  // 2. Alias match: teacher assigned to one of the known alias subject IDs
+  if (aliasIds.length > 0 && classAssignments.some((a) => aliasIds.includes(a.subjectId))) return true;
+
+  // 3. Religious Studies broadening: if the teacher has ANY assignment in this class for a
+  //    subject that is (or was) a religious studies variant, and the target subject is also
+  //    religious studies, allow entry. This handles the case where the admin normalised
+  //    both the IRS and CRS teachers to the same canonical subject ID.
+  const allSubjects = await listSubjects();
+  const classAssignedSubjectIds = new Set(classAssignments.map((a) => a.subjectId));
+  const hasReligiousAssignment = [...classAssignedSubjectIds].some((assignedSubjId) => {
+    const s = allSubjects.find((sub) => sub.id === assignedSubjId);
+    return s && (s.name === RELIGIOUS_STUDIES_NAME || isReligiousStudiesAlias(s.originalName || s.name));
+  });
+  const targetSubject = allSubjects.find((sub) => sub.id === subjectId);
+  const targetIsReligious = targetSubject && (targetSubject.name === RELIGIOUS_STUDIES_NAME || isReligiousStudiesAlias(targetSubject.originalName || targetSubject.name));
+  if (hasReligiousAssignment && targetIsReligious) return true;
+
+  return false;
 }
 
 teacherRouter.get(
@@ -70,8 +98,6 @@ teacherRouter.get(
       if (user && user.formClassId) {
         const cls = await getClassById(user.formClassId);
         if (cls) {
-          // Verify it's actually assigned to them (even if username mismatch)
-          // or just trust the formClassId link
           classes = [cls];
         }
       }
@@ -166,12 +192,9 @@ teacherRouter.get(
           getSubjectById(a.subjectId)
         ]);
 
-        // Fallback: If subject not found by ID, try searching by name if the ID looks like a name
         let finalSubject = subj;
         if (!finalSubject && a.subjectId && a.subjectId.length < 50) {
-          // This handles cases where subjectId might be a legacy name
-          // but in the screenshot it's a long ID, so this fallback won't help for tmzlfjL...
-          // However, if the user re-saved the teacher, they would have new IDs.
+          // Fallback for legacy name-based IDs (no-op for normal IDs)
         }
 
         return {
@@ -256,9 +279,9 @@ teacherRouter.post(
     if (!session || !term || !classId || !subjectId || !Array.isArray(scores))
       return res.status(400).json({ error: "Missing fields" });
 
-    // Resolve to canonical for auth check, but we still save with the original subjectId
-    // so that two teachers (e.g. IRS teacher and CRS teacher) can each save independently
-    // without overwriting each other. The broadsheet uses aliasIds to combine them.
+    // Resolve canonical subject ID. For Religious Studies (IRS/CRS), this ensures
+    // both the IRS teacher and the CRS teacher save under ONE canonical subjectId so
+    // the broadsheet can display all students' scores under the same column.
     const resolvedSubject = await resolveScoreSubjectId(subjectId);
     const canEnter = await canTeacherEnterSubject({
       teacherUsername: req.user.username,
@@ -271,10 +294,11 @@ teacherRouter.post(
     const locked = await isPublished({ classId: String(classId), session: String(session), term: String(term) });
     if (locked) return res.status(409).json({ error: "Results already published for this class" });
 
-    // Save scores with the teacher's own subjectId (IRS or CRS), NOT the canonical.
-    // The score key is unique per teacher's subject, preventing overwrites between
-    // the IRS teacher and CRS teacher in the same class.
-    const saveSubjectId = String(subjectId);
+    // Always save with the canonical subjectId.
+    // For Religious Studies: both teachers save under the same canonical column.
+    // Each teacher enters scores for THEIR OWN students, so there is no per-student
+    // overwrite conflict. For non-religious subjects this is the same as subjectId.
+    const saveSubjectId = resolvedSubject.subjectId;
 
     const writes = scores.map(async (s) => {
       const studentId = String(s.studentId || "");
@@ -584,4 +608,3 @@ teacherRouter.put(
     return res.json(updated);
   })
 );
-

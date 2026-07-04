@@ -85,7 +85,9 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
     const perSubject = studentSubjects.map((sub) => {
       const subjectId = sub.id;
       const scoreSubjectIds = [subjectId, ...(sub.aliasIds || [])].filter(Boolean);
-      const sc = scoreSubjectIds.map((id) => scoresByKey.get(`${st.id}_${id}`)).find(Boolean);
+      const allScores = scoreSubjectIds.map((id) => scoresByKey.get(`${st.id}_${id}`)).filter(Boolean);
+      // Pick the score object that has a non-zero total, otherwise fallback to the first one
+      const sc = allScores.find((s) => (Number(s.ca1 || 0) + Number(s.ca2 || 0) + Number(s.exam || 0)) > 0) || allScores[0];
       const ca1 = Number(sc?.ca1 || 0);
       const ca2 = Number(sc?.ca2 || 0);
       const ca = Number(sc?.ca || (ca1 + ca2));
@@ -172,7 +174,8 @@ export function traitSheet({ students, subjects, scoresByKey }) {
     const perSubject = subjects.map((subject) => {
       const subjectId = subject.id;
       const scoreSubjectIds = [subjectId, ...(subject.aliasIds || [])].filter(Boolean);
-      const sc = scoreSubjectIds.map((id) => scoresByKey.get(`${st.id}_${id}`)).find(Boolean);
+      const allScores = scoreSubjectIds.map((id) => scoresByKey.get(`${st.id}_${id}`)).filter(Boolean);
+      const sc = allScores.find((s) => s.rating) || allScores[0];
       const rating = sc?.rating || "";
       return {
         subjectId,
