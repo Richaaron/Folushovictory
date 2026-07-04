@@ -185,12 +185,6 @@ const notifyParents = async () => {
 }
 
 // ── Excel Export ────────────────────────────────────────────────────────────
-const escapeExcel = (value: any) =>
-  String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
 
 const safeFilePart = (value: any) =>
   String(value || 'report')
