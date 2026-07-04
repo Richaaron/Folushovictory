@@ -199,14 +199,13 @@ const safeFilePart = (value: any) =>
     .replace(/\s+/g, '-')
 
 const formatTermLabel = (term: string) => {
-  if (term === '1st') return 'First Term'
-  if (term === '2nd') return 'Second Term'
-  if (term === '3rd') return 'Third Term'
+  if (term === '1st') return 'First'
+  if (term === '2nd') return 'Second'
+  if (term === '3rd') return 'Third'
   return term
 }
 
 const handleExportExcel = async () => {
-  // Ensure reports are loaded
   const studentIds = Array.from(selectedIds.value)
   if (!studentIds.length) {
     error.value = 'Select at least one student before exporting.'
@@ -218,7 +217,6 @@ const handleExportExcel = async () => {
   try {
     let data = reports.value
     if (!data.length) {
-      // Fetch reports if not yet generated
       const res = await api.post(`/api/results/class/${classId}/bulk-reports`, {
         session: session.value,
         term: term.value,
@@ -236,89 +234,140 @@ const handleExportExcel = async () => {
       return
     }
 
-    // Collect all unique subject names across all reports (preserving order)
-    const subjectMap = new Map<string, string>() // id → name
-    for (const report of data) {
-      for (const s of report.result?.perSubject || []) {
-        if (!subjectMap.has(s.subjectId)) subjectMap.set(s.subjectId, s.subjectName || s.subjectId)
-      }
-    }
-    const subjects = Array.from(subjectMap.entries()) // [id, name][]
-    const totalColumns = 3 + subjects.length * 5 + 4 // pos + id + name + (ca1+ca2+exam+total+grade)*n + total+avg+pos+result
-
     const school = data[0]?.school || {}
     const className = data[0]?.class?.name || classInfo.value?.name || 'Class'
     const termLabel = formatTermLabel(term.value)
-    const contactLine = [school.address, school.phone, school.email, school.website].filter(Boolean).join(' | ')
 
-    const headerRow = `
-      <tr>
-        <th rowspan="2">Pos</th>
-        <th rowspan="2">Student ID</th>
-        <th rowspan="2">Student Name</th>
-        ${subjects.map(([, name]) => `<th colspan="5">${escapeExcel(name)}</th>`).join('')}
-        <th colspan="4">Summary</th>
-      </tr>
-    `
-    const subHeaderRow = `
-      <tr>
-        ${subjects.map(() => '<th>1st CA</th><th>2nd CA</th><th>Exam</th><th>Total</th><th>Grade</th>').join('')}
-        <th>Total</th><th>Average</th><th>Position</th><th>Result</th>
-      </tr>
-    `
+    // Helper: wrap a string value in a SpreadsheetML Cell
+    const cell = (value: any, type: 'String' | 'Number' = 'String', bold = false, bg = '', align = 'Left', size = 11, mergeAcross = 0) => {
+      const mergeAttr = mergeAcross > 0 ? ` ss:MergeAcross="${mergeAcross}"` : ''
+      const safeVal = String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+      return `<Cell${mergeAttr}><Data ss:Type="${type}">${safeVal}</Data></Cell>`
+    }
 
-    const bodyRows = data.map((report: any) => {
+    const row = (...cells: string[]) => `<Row>${cells.join('')}</Row>`
+    const emptyRow = () => `<Row ss:Height="6"/>`
+
+    // Build one worksheet per student
+    const buildStudentSheet = (report: any, sheetName: string) => {
       const s = report.student
       const r = report.result || {}
       const perSubject: any[] = r.perSubject || []
-      const scoreById = Object.fromEntries(perSubject.map((ps: any) => [ps.subjectId, ps]))
-      const studentName = escapeExcel(`${s.lastName || ''} ${s.firstName || ''}`.trim())
-      const subjectCells = subjects.map(([id]) => {
-        const ps = scoreById[id]
-        if (!ps) return '<td></td><td></td><td></td><td></td><td></td>'
-        return `<td>${escapeExcel(ps.ca1 ?? '')}</td><td>${escapeExcel(ps.ca2 ?? '')}</td><td>${escapeExcel(ps.exam ?? '')}</td><td>${escapeExcel(ps.total ?? '')}</td><td>${escapeExcel(ps.grade || '')}</td>`
-      }).join('')
       const avg = Number(r.average || 0)
-      return `
-        <tr>
-          <td>${escapeExcel(r.position || '')}</td>
-          <td>${escapeExcel(s.studentId)}</td>
-          <td style="text-align:left">${studentName}</td>
-          ${subjectCells}
-          <td>${escapeExcel(r.total ?? '')}</td>
-          <td>${escapeExcel(avg > 0 ? avg + '%' : '')}</td>
-          <td>${escapeExcel(r.position || '')}</td>
-          <td>${avg >= 40 ? 'PASS' : avg > 0 ? 'FAIL' : ''}</td>
-        </tr>
-      `
-    }).join('')
+      const fullName = `${s.lastName || ''} ${s.firstName || ''}`.trim()
 
-    const workbook = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-          <meta charset="UTF-8" />
-          <style>
-            table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; }
-            th, td { border: 1px solid #9ca3af; padding: 6px 8px; text-align: center; white-space: nowrap; }
-            th { background: #e5e7eb; font-weight: bold; }
-            .hd { font-size: 18px; font-weight: bold; text-align: center; border: none; }
-            .sub { text-align: center; border: none; }
-            .meta { text-align: center; font-weight: bold; border: none; }
-          </style>
-        </head>
-        <body>
-          <table>
-            <tr><td class="hd" colspan="${totalColumns}">${escapeExcel(school.name || 'School')}</td></tr>
-            ${school.motto ? `<tr><td class="sub" colspan="${totalColumns}">${escapeExcel(school.motto)}</td></tr>` : ''}
-            ${contactLine ? `<tr><td class="sub" colspan="${totalColumns}">${escapeExcel(contactLine)}</td></tr>` : ''}
-            <tr><td class="meta" colspan="${totalColumns}">Bulk Result Export | Class: ${escapeExcel(className)} | Session: ${escapeExcel(session.value)} | Term: ${escapeExcel(termLabel)}</td></tr>
-            ${headerRow}
-            ${subHeaderRow}
-            ${bodyRows}
-          </table>
-        </body>
-      </html>
-    `
+      const subjectRows = perSubject.map((ps: any) =>
+        row(
+          cell(ps.subjectName || ps.subjectId),
+          cell(ps.ca1 ?? ''),
+          cell(ps.ca2 ?? ''),
+          cell(ps.exam ?? ''),
+          cell(ps.total ?? ''),
+          cell(ps.grade || ''),
+          cell(ps.remark || '')
+        )
+      ).join('\n')
+
+      return `
+        <Worksheet ss:Name="${sheetName.replace(/[\\/?*[\]:]/g, '').substring(0, 31)}">
+          <Table ss:DefaultColumnWidth="90">
+            <Column ss:Width="180"/>
+            <Column ss:Width="55"/>
+            <Column ss:Width="55"/>
+            <Column ss:Width="55"/>
+            <Column ss:Width="55"/>
+            <Column ss:Width="45"/>
+            <Column ss:Width="120"/>
+            ${row(cell(school.name || 'School', 'String', true, '#1e1b4b', 'Center', 16, 6))}
+            ${school.motto ? row(cell(school.motto, 'String', false, '', 'Center', 10, 6)) : ''}
+            ${emptyRow()}
+            ${row(cell(`Class: ${className}  |  Session: ${report.session || session.value}  |  Term: ${report.term || termLabel} Term`, 'String', true, '#e5e7eb', 'Center', 11, 6))}
+            ${emptyRow()}
+            ${row(cell('Student Name', 'String', true), cell(fullName, 'String', false, '', 'Left', 11, 5))}
+            ${row(cell('Student ID', 'String', true), cell(s.studentId || '', 'String', false, '', 'Left', 11, 5))}
+            ${row(cell('Gender', 'String', true), cell(s.gender || '', 'String', false, '', 'Left', 11, 5))}
+            ${emptyRow()}
+            ${row(
+              cell('Subject', 'String', true),
+              cell('1st CA', 'String', true),
+              cell('2nd CA', 'String', true),
+              cell('Exam', 'String', true),
+              cell('Total', 'String', true),
+              cell('Grade', 'String', true),
+              cell('Remarks', 'String', true)
+            )}
+            ${subjectRows}
+            ${emptyRow()}
+            ${row(cell('Total Score', 'String', true), cell(r.total ?? '', 'String', true, '', 'Center', 11, 5))}
+            ${row(cell('Average', 'String', true), cell(avg > 0 ? avg + '%' : '', 'String', true, '', 'Center', 11, 5))}
+            ${row(cell('Position in Class', 'String', true), cell(r.position ? `${r.position}` : '', 'String', true, '', 'Center', 11, 5))}
+            ${row(cell('Result', 'String', true), cell(avg >= 40 ? 'PASS' : avg > 0 ? 'FAIL' : '', 'String', true, '', 'Center', 11, 5))}
+            ${emptyRow()}
+            ${row(cell("Class Teacher's Remark", 'String', true), cell(report.teacherRemark || '', 'String', false, '', 'Left', 11, 5))}
+            ${row(cell("Principal's Remark", 'String', true), cell(report.principalRemark || '', 'String', false, '', 'Left', 11, 5))}
+          </Table>
+        </Worksheet>`
+    }
+
+    // Build summary sheet
+    const summaryRows = data.map((report: any) => {
+      const s = report.student
+      const r = report.result || {}
+      const avg = Number(r.average || 0)
+      const fullName = `${s.lastName || ''} ${s.firstName || ''}`.trim()
+      return row(
+        cell(r.position || ''),
+        cell(s.studentId || ''),
+        cell(fullName),
+        cell(r.total ?? ''),
+        cell(avg > 0 ? avg + '%' : ''),
+        cell(avg >= 40 ? 'PASS' : avg > 0 ? 'FAIL' : '')
+      )
+    }).join('\n')
+
+    const summarySheet = `
+      <Worksheet ss:Name="Summary">
+        <Table ss:DefaultColumnWidth="90">
+          <Column ss:Width="50"/>
+          <Column ss:Width="120"/>
+          <Column ss:Width="200"/>
+          <Column ss:Width="80"/>
+          <Column ss:Width="80"/>
+          <Column ss:Width="70"/>
+          ${row(cell(school.name || 'School', 'String', true, '#1e1b4b', 'Center', 16, 5))}
+          ${row(cell(`Class: ${className}  |  Session: ${session.value}  |  Term: ${termLabel}`, 'String', true, '#e5e7eb', 'Center', 11, 5))}
+          ${emptyRow()}
+          ${row(
+            cell('Pos', 'String', true),
+            cell('Student ID', 'String', true),
+            cell('Student Name', 'String', true),
+            cell('Total', 'String', true),
+            cell('Average', 'String', true),
+            cell('Result', 'String', true)
+          )}
+          ${summaryRows}
+        </Table>
+      </Worksheet>`
+
+    const usedNames = new Map<string, number>()
+    const studentSheets = data.map((report: any) => {
+      const s = report.student
+      let baseName = `${s.lastName || ''} ${s.firstName || ''}`.trim().substring(0, 28) || s.studentId
+      const count = usedNames.get(baseName) || 0
+      usedNames.set(baseName, count + 1)
+      const sheetName = count > 0 ? `${baseName} (${count + 1})` : baseName
+      return buildStudentSheet(report, sheetName)
+    }).join('\n')
+
+    const workbook = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:x="urn:schemas-microsoft-com:office:excel"
+  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  ${summarySheet}
+  ${studentSheets}
+</Workbook>`
 
     const blob = new Blob([workbook], { type: 'application/vnd.ms-excel;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
