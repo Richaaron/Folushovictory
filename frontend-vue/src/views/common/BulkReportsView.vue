@@ -715,6 +715,7 @@ onMounted(fetchStudents)
 .withheld-table td:nth-child(2),
 .withheld-table th:nth-child(2) {
   text-align: left;
+  white-space: nowrap;
 }
 
 .remarks-grid {

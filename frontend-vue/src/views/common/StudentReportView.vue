@@ -715,6 +715,7 @@ th:first-child,
 td:first-child {
   width: 26%;
   text-align: left;
+  white-space: nowrap;
 }
 
 td {
