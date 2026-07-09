@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   AlertCircle,
@@ -147,8 +147,13 @@ const generateReports = async (shouldPrint = false, targetStudentIds: string[] |
       }
     }))
 
+    await nextTick()
+    setTimeout(() => {
+      document.getElementById('print-area-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
+
     if (shouldPrint) {
-      window.setTimeout(() => window.print(), 150)
+      window.setTimeout(() => window.print(), 500)
     }
   } catch (err: any) {
     error.value = err.response?.data?.error || 'Failed to generate selected report cards.'
@@ -513,7 +518,7 @@ onMounted(fetchStudents)
         </div>
       </div>
 
-      <div v-if="reports.length" class="print-area space-y-8">
+      <div v-if="reports.length" id="print-area-section" class="print-area space-y-8">
         <section v-for="report in printableReports" :key="report.student.studentId" class="print-card bg-white text-slate-900">
           <header class="report-head">
             <div>
