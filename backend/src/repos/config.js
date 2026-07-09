@@ -11,7 +11,8 @@ const defaultSchoolSettings = {
   principalSignatureUrl: "/principal-signature.png",
   logoUrl: "",
   currentSession: "2025/2026",
-  currentTerm: "Third"
+  currentTerm: "Third",
+  resultEntryDeadline: ""
 };
 
 const schoolSettingFields = [
@@ -25,7 +26,8 @@ const schoolSettingFields = [
   "principalSignatureUrl",
   "logoUrl",
   "currentSession",
-  "currentTerm"
+  "currentTerm",
+  "resultEntryDeadline"
 ];
 
 function normalizeSchoolSettings(settings = {}) {

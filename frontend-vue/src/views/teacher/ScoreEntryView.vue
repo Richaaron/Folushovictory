@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { 
   ArrowLeft, 
@@ -27,6 +27,46 @@ const savedCount = ref(0)  // number of non-zero scores confirmed saved
 
 const session = ref('2023/2024')
 const term = ref('First')
+
+// --- Deadline / countdown ---
+const resultEntryDeadline = ref<string>('')
+const deadlinePassed = ref(false)
+const countdown = ref({ days: 0, hours: 0, minutes: 0, seconds: 0, label: '' })
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+const updateCountdown = () => {
+  if (!resultEntryDeadline.value) {
+    deadlinePassed.value = false
+    countdown.value = { days: 0, hours: 0, minutes: 0, seconds: 0, label: '' }
+    return
+  }
+  const now = Date.now()
+  const end = new Date(resultEntryDeadline.value).getTime()
+  const diff = end - now
+  if (diff <= 0) {
+    deadlinePassed.value = true
+    countdown.value = { days: 0, hours: 0, minutes: 0, seconds: 0, label: 'EXPIRED' }
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null }
+    return
+  }
+  deadlinePassed.value = false
+  const days = Math.floor(diff / 86400000)
+  const hours = Math.floor((diff % 86400000) / 3600000)
+  const minutes = Math.floor((diff % 3600000) / 60000)
+  const seconds = Math.floor((diff % 60000) / 1000)
+  const parts = []
+  if (days) parts.push(`${days}d`)
+  if (hours) parts.push(`${hours}h`)
+  if (minutes) parts.push(`${minutes}m`)
+  parts.push(`${String(seconds).padStart(2, '0')}s`)
+  countdown.value = { days, hours, minutes, seconds, label: parts.join(' ') }
+}
+
+const startCountdownTimer = () => {
+  updateCountdown()
+  if (countdownTimer) clearInterval(countdownTimer)
+  countdownTimer = setInterval(updateCountdown, 1000)
+}
 
 const fetchStudents = async () => {
   loading.value = true
@@ -86,6 +126,10 @@ const fetchStudents = async () => {
     }))
     if (schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
     if (schoolResp.data?.currentTerm) term.value = schoolResp.data.currentTerm
+    if (schoolResp.data?.resultEntryDeadline) {
+      resultEntryDeadline.value = schoolResp.data.resultEntryDeadline
+    }
+    startCountdownTimer()
     // Fetch broadsheet to obtain overall class positions/averages
     try {
       const { data } = await api.get(`/api/results/class/${classId}/broadsheet`, {
@@ -246,6 +290,7 @@ const handleSave = async () => {
 }
 
 onMounted(fetchStudents)
+onUnmounted(() => { if (countdownTimer) clearInterval(countdownTimer) })
 </script>
 
 <template>
@@ -272,13 +317,52 @@ onMounted(fetchStudents)
         </div>
         <button 
           @click="handleSave"
-          :disabled="saving"
+          :disabled="saving || deadlinePassed"
           class="flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50"
         >
           <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
           <Save v-else class="w-4 h-4" /> 
           {{ saving ? 'Saving...' : 'Publish Scores' }}
         </button>
+      </div>
+    </div>
+
+    <!-- Deadline Banner -->
+    <div v-if="resultEntryDeadline" class="rounded-2xl border overflow-hidden"
+      :class="deadlinePassed
+        ? 'border-red-700/60 bg-red-950/50'
+        : countdown.days === 0 && countdown.hours === 0 && countdown.minutes < 30
+          ? 'border-amber-600/60 bg-amber-950/40'
+          : 'border-slate-700/60 bg-slate-900/60'"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 px-6 py-4">
+        <div class="flex items-center gap-3 flex-1">
+          <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl"
+            :class="deadlinePassed ? 'bg-red-700/30' : 'bg-slate-800'"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" :class="deadlinePassed ? 'text-red-400' : 'text-amber-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <p class="text-xs font-black uppercase tracking-widest" :class="deadlinePassed ? 'text-red-400' : 'text-slate-300'">
+              {{ deadlinePassed ? '🔒 Result Entry Paused' : '⏱ Result Entry Deadline' }}
+            </p>
+            <p class="text-xs font-bold mt-0.5"
+              :class="deadlinePassed ? 'text-red-300' : 'text-slate-400'"
+            >
+              {{ deadlinePassed
+                ? 'The deadline has elapsed. Contact the administrator to re-open result entry.'
+                : `Deadline: ${new Date(resultEntryDeadline).toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'short' })}` }}
+            </p>
+          </div>
+        </div>
+        <div v-if="!deadlinePassed" class="flex items-center gap-2 flex-shrink-0">
+          <div v-for="(unit, label) in [['Days', countdown.days], ['Hrs', countdown.hours], ['Min', countdown.minutes], ['Sec', countdown.seconds]]" :key="label"
+            class="flex flex-col items-center w-14 py-2 rounded-xl bg-slate-800/80 border border-slate-700/40"
+          >
+            <span class="text-lg font-black text-white tabular-nums">{{ String(unit[1]).padStart(2,'0') }}</span>
+            <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">{{ unit[0] }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -327,8 +411,9 @@ onMounted(fetchStudents)
                   type="number" 
                   min="0"
                   max="20"
+                  :disabled="deadlinePassed"
                   @input="st.ca1 = clampCA(($event.target as HTMLInputElement).value)"
-                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
+                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" 
                   placeholder="0"
                 />
               </td>
@@ -338,8 +423,9 @@ onMounted(fetchStudents)
                   type="number" 
                   min="0"
                   max="20"
+                  :disabled="deadlinePassed"
                   @input="st.ca2 = clampCA(($event.target as HTMLInputElement).value)"
-                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
+                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" 
                   placeholder="0"
                 />
               </td>
@@ -349,8 +435,9 @@ onMounted(fetchStudents)
                   type="number" 
                   min="0"
                   max="60"
+                  :disabled="deadlinePassed"
                   @input="st.exam = clampExam(($event.target as HTMLInputElement).value)"
-                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none" 
+                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" 
                   placeholder="0"
                 />
               </td>

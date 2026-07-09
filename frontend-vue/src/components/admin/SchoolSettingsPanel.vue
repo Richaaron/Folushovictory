@@ -29,6 +29,7 @@ const website = ref('')
 const principalName = ref('')
 const currentSession = ref('')
 const currentTerm = ref('Third')
+const resultEntryDeadline = ref('')
 
 const logoFile = ref<File | null>(null)
 const logoPreview = ref('')
@@ -53,6 +54,7 @@ const fetchSettings = async () => {
     principalName.value = resp.data.principalName || ''
     currentSession.value = resp.data.currentSession || ''
     currentTerm.value = resp.data.currentTerm || 'Third'
+    resultEntryDeadline.value = resp.data.resultEntryDeadline || ''
     logoPreview.value = resp.data.logoUrl || ''
     signaturePreview.value = resp.data.principalSignatureUrl || ''
   } catch (err: any) {
@@ -114,7 +116,8 @@ const saveSettings = async () => {
       website: website.value,
       principalName: principalName.value,
       currentSession: currentSession.value,
-      currentTerm: currentTerm.value
+      currentTerm: currentTerm.value,
+      resultEntryDeadline: resultEntryDeadline.value
     }
 
     if (logoFile.value) {
@@ -284,6 +287,23 @@ onMounted(fetchSettings)
                 <option value="Second">Second Term</option>
                 <option value="Third">Third Term</option>
               </select>
+            </div>
+
+            <div class="md:col-span-2 mt-4 pt-4 border-t border-[#C9A84C]/10">
+              <label class="block text-xs font-bold text-[#C9A84C]/80 mb-2 uppercase tracking-wider">
+                Result Entry Deadline
+              </label>
+              <p class="text-xs text-[#F5F0E8]/40 mb-3">Set a deadline to pause teacher result entry. Clear this field to allow continuous entry.</p>
+              <div class="flex items-center gap-3">
+                <input
+                  v-model="resultEntryDeadline"
+                  type="datetime-local"
+                  class="academic-input flex-1"
+                />
+                <button type="button" @click="resultEntryDeadline = ''" class="px-4 py-3 bg-[#8B3A52]/20 text-[#B45A74] rounded-xl text-sm font-bold hover:bg-[#8B3A52]/40 transition border border-[#8B3A52]/30 uppercase tracking-widest">
+                  Clear
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -43,7 +43,8 @@ configRouter.post(
       principalSignature,
       principalSignatureUrl,
       currentSession,
-      currentTerm
+      currentTerm,
+      resultEntryDeadline
     } = req.body;
     
     const updateData = {};
@@ -56,6 +57,7 @@ configRouter.post(
     if (principalName !== undefined) updateData.principalName = principalName;
     if (currentSession !== undefined) updateData.currentSession = currentSession;
     if (currentTerm !== undefined) updateData.currentTerm = currentTerm;
+    if (resultEntryDeadline !== undefined) updateData.resultEntryDeadline = resultEntryDeadline;
 
     // Handle logo upload (base64 or data URL)
     const nextLogoUrl = logoUrl || logo;

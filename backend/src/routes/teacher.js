@@ -279,6 +279,14 @@ teacherRouter.post(
     if (!session || !term || !classId || !subjectId || !Array.isArray(scores))
       return res.status(400).json({ error: "Missing fields" });
 
+    const schoolSettings = await getSchoolSettings();
+    if (schoolSettings.resultEntryDeadline) {
+      const deadline = new Date(schoolSettings.resultEntryDeadline);
+      if (new Date() > deadline) {
+        return res.status(403).json({ error: "Result entry is currently paused. The deadline has elapsed. Contact the administrator." });
+      }
+    }
+
     // Resolve canonical subject ID. For Religious Studies (IRS/CRS), this ensures
     // both the IRS teacher and the CRS teacher save under ONE canonical subjectId so
     // the broadsheet can display all students' scores under the same column.
