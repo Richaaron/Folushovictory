@@ -23,13 +23,13 @@ async function restoreSubjectsByLevel() {
       "National Values", "Agricultural Science", "Physical & Health Education", 
       "Home Economics", "Computer Studies", "Religious Studies", "Phonics",
       "Vocational Aptitude", "Quantitative Reasoning", "Verbal Reasoning",
-      "Literature", "Creative Arts", "Writing"
+      "Literature", "Cultural and Creative Arts", "Writing"
     ],
     JSS: [
       "Mathematics", "English Language", "Intermidiate Science", 
       "National Values", "Livestock Studies", "Physical & Health Education", 
       "Home Economics", "Digital Technology", "Religious Studies",
-      "Business Studies", "Hausa", "Fine Arts"
+      "Business Studies", "Hausa", "Cultural and Creative Arts"
     ],
     SSS: [
       "Mathematics", "English Language", "Intermidiate Science",

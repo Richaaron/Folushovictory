@@ -48,13 +48,13 @@ const SUBJECTS = [
   { id: "quant-re", name: "Quantitative Reasoning" },
   { id: "verb-re", name: "Verbal Reasoning" },
   { id: "lit-p", name: "Literature" },
-  { id: "art-p", name: "Creative Arts" },
+  { id: "art-p", name: "Cultural and Creative Arts" },
   { id: "writing", name: "Writing" },
   
   // JSS Specific
   { id: "bus", name: "Business Studies" },
   { id: "hausa", name: "Hausa" },
-  { id: "art-j", name: "Fine Arts" },
+  { id: "art-j", name: "Cultural and Creative Arts" },
   
   // SSS Core
   { id: "bio", name: "Biology" },
