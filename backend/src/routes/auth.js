@@ -46,6 +46,23 @@ authRouter.post(
     const ok = await verifyPassword(password, user.passwordHash || "");
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
+    // Enforce portal-role alignment: a teacher cannot log in as admin, and vice versa
+    const portalUpper = String(portal).toUpperCase();
+    const roleUpper = String(user.role || "").toUpperCase();
+    const portalRoleMap = {
+      ADMIN: "ADMIN",
+      TEACHER: "TEACHER",
+      PARENT: "PARENT"
+    };
+    const expectedRole = portalRoleMap[portalUpper];
+    if (expectedRole && roleUpper !== expectedRole) {
+      const portalLabel = portalUpper.charAt(0) + portalUpper.slice(1).toLowerCase();
+      const actualLabel = roleUpper.charAt(0) + roleUpper.slice(1).toLowerCase();
+      return res.status(403).json({
+        error: `This account is registered as a ${actualLabel}. Please use the ${actualLabel} portal to log in.`
+      });
+    }
+
     const token = signJwt({
       sub: user.username,
       role: user.role,
