@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { 
   Download, 
   FileSpreadsheet, 
   Loader2,
   AlertCircle,
   Printer,
-  TrendingUp
+  TrendingUp,
+  ArrowLeft
 } from 'lucide-vue-next'
 import api from '../../services/api'
 import PerformanceCharts from '../../components/analytics/PerformanceCharts.vue'
@@ -251,10 +252,15 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
     <!-- Header -->
     <section class="parchment-card p-6 lg:p-8 no-print">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div>
-          <h1 class="academic-heading text-2xl sm:text-3xl text-[#FAFAF7]">Master Broadsheet</h1>
-          <div class="gold-accent"></div>
-          <p class="text-sm text-[#F5F0E8]/50">Consolidated Academic Performance Records</p>
+        <div class="flex items-center gap-4">
+          <button @click="$router.back()" class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 text-[#C9A84C] hover:bg-[#C9A84C]/10 transition no-print flex-shrink-0">
+            <ArrowLeft class="w-5 h-5" />
+          </button>
+          <div>
+            <h1 class="academic-heading text-2xl sm:text-3xl text-[#FAFAF7]">Master Broadsheet</h1>
+            <div class="gold-accent"></div>
+            <p class="text-sm text-[#F5F0E8]/50">Consolidated Academic Performance Records</p>
+          </div>
         </div>
         <div class="flex flex-wrap items-center gap-3">
         <button 
