@@ -25,6 +25,66 @@ const error = ref('')
 const success = ref(false)
 const savedCount = ref(0)  // number of non-zero scores confirmed saved
 
+// --- Offline & Drafts ---
+const isOffline = ref(!navigator.onLine)
+const draftAvailable = ref(false)
+const draftData = ref<any>(null)
+const getDraftKey = () => `draft_scores_${session.value}_${term.value}_${classId}_${subjectId}`
+
+const updateOnlineStatus = () => {
+  isOffline.value = !navigator.onLine
+}
+
+const saveDraftLocally = () => {
+  if (loading.value || students.value.length === 0) return
+  const draft = {
+    timestamp: Date.now(),
+    scores: students.value.map(s => ({
+      studentId: s.studentId,
+      ca1: clampCA(s.ca1),
+      ca2: clampCA(s.ca2),
+      exam: clampExam(s.exam)
+    }))
+  }
+  localStorage.setItem(getDraftKey(), JSON.stringify(draft))
+}
+
+const checkLocalDraft = () => {
+  const draftStr = localStorage.getItem(getDraftKey())
+  if (draftStr) {
+    try {
+      draftData.value = JSON.parse(draftStr)
+      draftAvailable.value = true
+    } catch (e) {
+      localStorage.removeItem(getDraftKey())
+    }
+  }
+}
+
+const restoreDraft = () => {
+  if (!draftData.value) return
+  const savedScores = draftData.value.scores || []
+  students.value = students.value.map(s => {
+    const saved = savedScores.find((d: any) => d.studentId === s.studentId)
+    if (saved) {
+      return {
+        ...s,
+        ca1: saved.ca1,
+        ca2: saved.ca2,
+        exam: saved.exam
+      }
+    }
+    return s
+  })
+  draftAvailable.value = false
+}
+
+const discardDraft = () => {
+  localStorage.removeItem(getDraftKey())
+  draftAvailable.value = false
+  draftData.value = null
+}
+
 const session = ref('2023/2024')
 const term = ref('First')
 
@@ -170,6 +230,8 @@ const fetchStudents = async () => {
       overallPositions.value = new Map()
       overallAverages.value = new Map()
     }
+    
+    checkLocalDraft()
   } catch (err) {
     error.value = 'Failed to load students'
   } finally {
@@ -221,6 +283,7 @@ watch(students, (newVal, oldVal) => {
       setTimeout(() => totalFlash.value.delete(s.studentId), 700)
     }
   })
+  saveDraftLocally()
 }, { deep: true })
 
 const refreshBroadsheet = async (updateScores = false) => {
@@ -262,15 +325,23 @@ const handleSave = async () => {
   saving.value = true
   success.value = false
   error.value = ''
-  try {
-    const scores = students.value.map(s => ({
-      studentId: s.studentId,
-      ca1: clampCA(s.ca1),
-      ca2: clampCA(s.ca2),
-      exam: clampExam(s.exam)
-    }))
-    savedCount.value = scores.filter(s => s.ca1 > 0 || s.ca2 > 0 || s.exam > 0).length
+  
+  const scores = students.value.map(s => ({
+    studentId: s.studentId,
+    ca1: clampCA(s.ca1),
+    ca2: clampCA(s.ca2),
+    exam: clampExam(s.exam)
+  }))
+  savedCount.value = scores.filter(s => s.ca1 > 0 || s.ca2 > 0 || s.exam > 0).length
 
+  if (isOffline.value) {
+    saveDraftLocally()
+    error.value = 'You are currently offline. Your scores have been saved securely on this device as a draft. Please click Publish again when your connection is restored.'
+    saving.value = false
+    return
+  }
+
+  try {
     await api.post('/api/teacher/scores', {
       session: session.value,
       term: term.value,
@@ -279,18 +350,34 @@ const handleSave = async () => {
       scores
     })
     success.value = true
+    // Clear draft on successful save
+    discardDraft()
+    
     // Refresh broadsheet AND update displayed scores so teacher sees confirmed saved values
     await refreshBroadsheet(true)
     setTimeout(() => { success.value = false }, 5000)
   } catch (err: any) {
-    error.value = err.response?.data?.error || 'Failed to save scores. Please try again.'
+    if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+      saveDraftLocally()
+      error.value = 'Network error. Your scores have been saved securely on this device as a draft. Please try publishing again later.'
+    } else {
+      error.value = err.response?.data?.error || 'Failed to save scores. Please try again.'
+    }
   } finally {
     saving.value = false
   }
 }
 
-onMounted(fetchStudents)
-onUnmounted(() => { if (countdownTimer) clearInterval(countdownTimer) })
+onMounted(() => {
+  fetchStudents()
+  window.addEventListener('online', updateOnlineStatus)
+  window.addEventListener('offline', updateOnlineStatus)
+})
+onUnmounted(() => { 
+  if (countdownTimer) clearInterval(countdownTimer) 
+  window.removeEventListener('online', updateOnlineStatus)
+  window.removeEventListener('offline', updateOnlineStatus)
+})
 </script>
 
 <template>
@@ -362,6 +449,33 @@ onUnmounted(() => { if (countdownTimer) clearInterval(countdownTimer) })
             <span class="text-lg font-black text-white tabular-nums">{{ String(unit[1]).padStart(2,'0') }}</span>
             <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">{{ unit[0] }}</span>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Draft Banner -->
+    <div v-if="draftAvailable" class="rounded-2xl border border-blue-500/40 bg-blue-900/20 overflow-hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4 px-6 py-4">
+        <div class="flex items-center gap-3 flex-1">
+          <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/20">
+            <Save class="w-5 h-5 text-blue-400" />
+          </div>
+          <div>
+            <p class="text-xs font-black uppercase tracking-widest text-blue-300">
+              Unsaved Offline Draft
+            </p>
+            <p class="text-xs font-bold mt-0.5 text-blue-200/80">
+              You have unsaved changes saved locally from a previous session ({{ new Date(draftData?.timestamp).toLocaleString() }}).
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <button @click="discardDraft" class="px-4 py-2 rounded-xl bg-blue-950/50 text-blue-300 text-xs font-bold hover:bg-blue-900/50 transition">
+            Discard
+          </button>
+          <button @click="restoreDraft" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black shadow-lg shadow-blue-500/20 transition">
+            Restore Draft
+          </button>
         </div>
       </div>
     </div>
