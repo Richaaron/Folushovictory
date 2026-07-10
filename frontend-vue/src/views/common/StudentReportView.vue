@@ -227,7 +227,7 @@ onMounted(fetchData)
       <section class="performance-summary">
         <div class="stat-card stat-purple">
           <Award class="stat-icon" />
-          <span>Total Marks</span>
+          <span>Total Scores</span>
           <strong>{{ data.result?.total ?? 'N/A' }}</strong>
         </div>
         <div class="stat-card stat-blue">
@@ -262,7 +262,7 @@ onMounted(fetchData)
                 <th>1st CA</th>
                 <th>2nd CA</th>
                 <th>Exam</th>
-                <th>Total</th>
+                <th>Total Scores</th>
                 <th>Grade</th>
                 <th>Remarks</th>
               </tr>

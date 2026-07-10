@@ -540,7 +540,7 @@ onMounted(fetchStudents)
           </div>
 
           <div class="summary-strip">
-            <div><span>Total</span><strong>{{ report.result?.total ?? 'N/A' }}</strong></div>
+            <div><span>Total Scores</span><strong>{{ report.result?.total ?? 'N/A' }}</strong></div>
             <div><span>Average</span><strong>{{ report.result?.average ?? 'N/A' }}%</strong></div>
             <div><span>Total Students</span><strong>{{ students?.length || 'N/A' }}</strong></div>
             <div>
@@ -556,7 +556,7 @@ onMounted(fetchStudents)
                 <th>1st CA</th>
                 <th>2nd CA</th>
                 <th>Exam</th>
-                <th>Total</th>
+                <th>Total Scores</th>
                 <th>Grade</th>
                 <th>Remarks</th>
               </tr>
