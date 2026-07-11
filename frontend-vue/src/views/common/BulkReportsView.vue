@@ -12,6 +12,7 @@ import {
   Square,
   UserX
 } from 'lucide-vue-next'
+import html2pdf from 'html2pdf.js'
 import api from '../../services/api'
 
 const route = useRoute()
@@ -28,6 +29,8 @@ const owingOverrides = ref<Record<string, boolean>>({})
 const reports = ref<any[]>([])
 const loading = ref(true)
 const generating = ref(false)
+const downloadingPdf = ref(false)
+
 const notifying = ref(false)
 const exportingExcel = ref(false)
 const error = ref('')
@@ -162,8 +165,33 @@ const generateReports = async (shouldPrint = false, targetStudentIds: string[] |
   }
 }
 
-const handlePrintAll = () => {
-  window.print()
+const handlePrintAll = async () => {
+  const element = document.getElementById('print-area-section')
+  if (!element) return
+
+  downloadingPdf.value = true
+  
+  // Hide action button temporarily
+  const actionBtn = element.querySelector('.no-print')
+  if (actionBtn) {
+    actionBtn.setAttribute('data-html2canvas-ignore', 'true')
+  }
+
+  const opt: any = {
+    margin:       0,
+    filename:     `bulk-reports-${classInfo.value?.name || 'class'}-${session.value.replace(/\//g, '-')}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true, logging: false },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  }
+
+  try {
+    await html2pdf().set(opt).from(element).save()
+  } catch (err) {
+    console.error('PDF Generation failed:', err)
+  } finally {
+    downloadingPdf.value = false
+  }
 }
 
 const notifyParents = async () => {
@@ -622,9 +650,10 @@ onMounted(fetchStudents)
 
         <!-- Action bar at bottom of preview -->
         <div class="no-print mt-12 flex justify-center pb-20">
-          <button @click="handlePrintAll" class="flex items-center gap-3 rounded-full bg-royal-purple px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-purple-900/50 transition hover:bg-purple-600 hover:-translate-y-1">
-            <Download class="h-5 w-5" />
-            Download all as PDF
+          <button @click="handlePrintAll" :disabled="downloadingPdf" class="flex items-center gap-3 rounded-full bg-royal-purple px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-purple-900/50 transition hover:bg-purple-600 hover:-translate-y-1 disabled:opacity-75 disabled:cursor-not-allowed">
+            <Loader2 v-if="downloadingPdf" class="h-5 w-5 animate-spin" />
+            <Download v-else class="h-5 w-5" />
+            {{ downloadingPdf ? 'Generating PDF...' : 'Download all as PDF' }}
           </button>
         </div>
       </div>
