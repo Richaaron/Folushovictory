@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Lock, User, Loader2, AlertCircle, Eye, EyeOff, ShieldCheck, BookOpen, Users } from 'lucide-vue-next'
@@ -171,26 +171,26 @@ const handleLogin = async () => {
     <div class="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-12 lg:px-8">
       
       <!-- Portal Selector -->
-      <div class="mb-8 flex gap-3">
+      <div class="mb-8 flex flex-wrap justify-center gap-2 sm:gap-3 w-full">
         <button
           v-for="option in portalOptions"
           :key="option"
           @click="selectPortal(option)"
-          class="flex items-center gap-2 rounded-full border px-6 py-3 transition-all"
+          class="flex items-center gap-1.5 sm:gap-2 rounded-full border px-3 sm:px-6 py-2 sm:py-3 transition-all text-xs sm:text-sm"
           :class="[
             portal === option
               ? 'border-purple-500/50 bg-purple-500/20 text-white shadow-lg shadow-purple-500/30'
               : 'border-gray-700 bg-gray-800/50 text-gray-400 hover:border-gray-600 hover:bg-gray-800/70'
           ]"
         >
-          <component :is="portalConfig[option].icon" class="h-4 w-4" />
-          <span class="text-sm font-medium">{{ portalConfig[option].title }}</span>
+          <component :is="portalConfig[option].icon" class="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+          <span class="font-medium whitespace-nowrap">{{ portalConfig[option].title }}</span>
         </button>
       </div>
 
       <!-- Login Card -->
       <div class="w-full max-w-md">
-        <div class="glass-card glass-card-purple p-8">
+        <div class="glass-card glass-card-purple p-5 sm:p-8">
           <!-- Header -->
           <div class="mb-8 text-center">
             <div 
