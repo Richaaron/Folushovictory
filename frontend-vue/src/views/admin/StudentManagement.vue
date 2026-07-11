@@ -165,8 +165,10 @@ const handleDelete = async (id: string) => {
     await api.delete(`/api/admin/students/${id}`)
     await fetchStudents()
     await fetchStats()
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error deleting student:', err)
+    const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
+    alert(`❌ Deletion Failed: ${errorMsg}`)
   }
 }
 

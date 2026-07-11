@@ -13,7 +13,8 @@ import {
   Printer,
   BarChart3,
   UserPlus,
-  Edit2
+  Edit2,
+  Trash2
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -150,6 +151,18 @@ const handleUpdateStudent = async () => {
     console.error('Error updating student:', err)
     const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
     alert(`❌ Update Failed: ${errorMsg}`)
+  }
+}
+
+const handleDeleteStudent = async (studentId: string) => {
+  if (!confirm(`Are you sure you want to delete this student record? This action cannot be undone.`)) return
+  try {
+    await api.delete(`/api/teacher/students/${studentId}`)
+    await fetchStudents()
+  } catch (err: any) {
+    console.error('Error deleting student:', err)
+    const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
+    alert(`❌ Deletion Failed: ${errorMsg}`)
   }
 }
 
@@ -364,6 +377,13 @@ onMounted(fetchStudents)
                     title="Preview Report Card"
                   >
                     <FileText class="w-4 h-4" />
+                  </button>
+                  <button 
+                    @click="handleDeleteStudent(st.studentId)"
+                    class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:text-red-500 hover:border-red-500/50 transition-all flex items-center justify-center"
+                    title="Delete Student"
+                  >
+                    <Trash2 class="w-4 h-4" />
                   </button>
                   <div class="w-px h-6 bg-slate-700/40"></div>
                   <button 

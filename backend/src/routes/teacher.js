@@ -5,7 +5,7 @@ import { asyncHandler } from "../http.js";
 import { listAssignmentsByTeacher, getAssignmentByTriplet } from "../repos/assignments.js";
 import { listClassesByFormTeacher, getClassById } from "../repos/classes.js";
 import { listSubjects, getSubjectById } from "../repos/subjects.js";
-import { listStudentsByClass, getStudentById, createStudentWithParent, updateStudent } from "../repos/students.js";
+import { listStudentsByClass, getStudentById, createStudentWithParent, updateStudent, deleteStudent } from "../repos/students.js";
 import { validateStudentUpdatePayload, validateStudentPayload } from "../validation.js";
 import { isPublished } from "../repos/publishes.js";
 import { upsertNumericScore, upsertTraitScore } from "../repos/scores.js";
@@ -14,10 +14,11 @@ import { setReleaseStatus, listReleasesForClass } from "../repos/releases.js";
 import { getSchoolSettings } from "../repos/config.js";
 import { generateStudentId, generateParentUsername } from "../ids.js";
 import { hashPassword } from "../security.js";
-import { getUserByUsername, updateUser } from "../repos/users.js";
+import { getUserByUsername, updateUser, deleteUser } from "../repos/users.js";
 import { sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 import { isReligiousStudiesAlias, normalizeLevel, RELIGIOUS_STUDIES_NAME } from "../subjectAliases.js";
+import { SafeDatabase } from "../firestore-utils/index.js";
 
 export const teacherRouter = express.Router();
 
@@ -613,5 +614,68 @@ teacherRouter.put(
     }).catch((error) => console.error("Activity log failed:", error));
 
     return res.json(updated);
+  })
+);
+
+teacherRouter.delete(
+  "/students/:studentId",
+  asyncHandler(async (req, res) => {
+    const { studentId } = req.params;
+    const student = await getStudentById(studentId);
+    if (!student) return res.status(404).json({ error: "Student not found" });
+
+    const cls = await getClassById(student.classId);
+    if (!cls) return res.status(404).json({ error: "Student class not found" });
+
+    const isFormTeacher = cls.formTeacherUsername === req.user.username;
+    let isPryNurTeacher = false;
+    
+    // Check if pry/nur teacher
+    const formClasses = await listClassesByFormTeacher(req.user.username);
+    if (formClasses.some((c) => c.level === "PRY" || c.level === "NUR")) {
+      isPryNurTeacher = true;
+    } else {
+      const assignments = await listAssignmentsByTeacher(req.user.username);
+      const assignedClassIds = [...new Set(assignments.map((a) => a.classId))];
+      for (const cid of assignedClassIds) {
+        const assignedClass = await getClassById(cid);
+        if (assignedClass && (assignedClass.level === "PRY" || assignedClass.level === "NUR")) {
+          isPryNurTeacher = true;
+          break;
+        }
+      }
+    }
+
+    const isPryNurClass = cls.level === "PRY" || cls.level === "NUR";
+    const canEdit = isFormTeacher || (isPryNurTeacher && isPryNurClass);
+    if (!canEdit) {
+      return res.status(403).json({ error: "Forbidden: You are not authorized to delete this student." });
+    }
+
+    // Find parent user to delete as well
+    const { data: parents } = await SafeDatabase.query(
+      "users",
+      [
+        ["role", "==", Roles.PARENT],
+        ["studentId", "==", studentId.toLowerCase().trim()]
+      ],
+      { pageSize: 10 }
+    );
+    
+    for (const parent of parents) {
+      await deleteUser(parent.username);
+    }
+
+    await deleteStudent(studentId);
+    void logActivity({
+      actor: req.user.username,
+      role: req.user.role,
+      action: "Deleted student",
+      details: { studentId, classId: student.classId },
+      resourceType: "student",
+      resourceId: studentId
+    }).catch((error) => console.error("Activity log failed:", error));
+
+    return res.json({ success: true });
   })
 );

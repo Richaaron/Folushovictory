@@ -155,18 +155,18 @@ export async function updateStudent(studentId, patch) {
 
 export async function deleteStudent(studentId) {
   const normalizedStudentId = String(studentId || "").toLowerCase().trim();
-  return SafeDatabase.deleteWithValidation("students", normalizedStudentId, {
-    validateBeforeDelete: async () => {
-      const scoreCount = await SafeDatabase.count("scores", [["studentId", "==", normalizedStudentId]]);
-      const assignmentCount = await SafeDatabase.count("assignments", [["studentId", "==", normalizedStudentId]]);
-      
-      if (scoreCount > 0) {
-        return { allowed: false, reason: `Cannot delete student with ${scoreCount} score records` };
-      }
-      if (assignmentCount > 0) {
-        return { allowed: false, reason: `Cannot delete student with ${assignmentCount} assignments` };
-      }
-      return { allowed: true, reason: null };
-    }
-  });
+  
+  // Cascade delete scores
+  const { data: scores } = await SafeDatabase.query("scores", [["studentId", "==", normalizedStudentId]], { pageSize: 1000 });
+  for (const score of scores) {
+    await SafeDatabase.deleteWithValidation("scores", score.id);
+  }
+  
+  // Cascade delete assignments (just in case they exist for this studentId)
+  const { data: assignments } = await SafeDatabase.query("assignments", [["studentId", "==", normalizedStudentId]], { pageSize: 1000 });
+  for (const assignment of assignments) {
+    await SafeDatabase.deleteWithValidation("assignments", assignment.id);
+  }
+
+  return SafeDatabase.deleteWithValidation("students", normalizedStudentId);
 }
