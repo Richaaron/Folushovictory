@@ -12,7 +12,6 @@ import {
   Square,
   UserX
 } from 'lucide-vue-next'
-import html2pdf from 'html2pdf.js'
 import api from '../../services/api'
 
 const route = useRoute()
@@ -29,7 +28,6 @@ const owingOverrides = ref<Record<string, boolean>>({})
 const reports = ref<any[]>([])
 const loading = ref(true)
 const generating = ref(false)
-const downloadingPdf = ref(false)
 
 const notifying = ref(false)
 const exportingExcel = ref(false)
@@ -165,34 +163,81 @@ const generateReports = async (shouldPrint = false, targetStudentIds: string[] |
   }
 }
 
-const handlePrintAll = async () => {
-  const element = document.getElementById('print-area-section')
-  if (!element) return
+const handlePrintAll = () => {
+  const el = document.getElementById('print-area-section')
+  if (!el) return
 
-  downloadingPdf.value = true
-  
-  // Hide action button temporarily
-  const actionBtn = element.querySelector('.no-print')
-  if (actionBtn) {
-    actionBtn.setAttribute('data-html2canvas-ignore', 'true')
-  }
+  const filename = `bulk-reports-${classInfo.value?.name || 'class'}-${session.value.replace(/\//g, '-')}`
 
-  const opt: any = {
-    margin:       10,
-    filename:     `bulk-reports-${classInfo.value?.name || 'class'}-${session.value.replace(/\//g, '-')}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true, logging: false, scrollY: 0 },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:    { mode: ['css', 'legacy'], before: '.print-card:not(:first-child), .withheld-page' }
-  }
+  // Clone the element so we can strip out the no-print action bar
+  const clone = el.cloneNode(true) as HTMLElement
+  clone.querySelectorAll('.no-print').forEach(n => n.remove())
 
-  try {
-    await html2pdf().set(opt).from(element).save()
-  } catch (err) {
-    console.error('PDF Generation failed:', err)
-  } finally {
-    downloadingPdf.value = false
+  // Extract all scoped styles from this page (captures the Vue scoped CSS)
+  const styles = Array.from(document.querySelectorAll('style'))
+    .map(s => s.innerText || s.textContent || '')
+    .join('\n')
+
+  // Also grab link stylesheets
+  const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+    .map(l => `<link rel="stylesheet" href="${(l as HTMLLinkElement).href}">`)
+    .join('\n')
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>${filename}</title>
+  ${links}
+  <style>
+    ${styles}
+    @page { size: A4; margin: 4mm; }
+    body { background: white !important; margin: 0; padding: 0; }
+    .no-print { display: none !important; }
+    .bulk-report-page { width: 202mm !important; max-width: none; padding: 0 !important; margin: 0 auto !important; }
+    .print-area { display: block; width: 202mm !important; margin: 0 auto !important; }
+    .print-card {
+      box-sizing: border-box;
+      display: block;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      page-break-before: always;
+      break-before: page;
+    }
+    .print-card:first-child { page-break-before: auto; break-before: auto; }
+    .withheld-page { page-break-before: always; break-before: page; }
+    /* Reset transforms for clean PDF rendering */
+    .print-card { transform: none !important; }
+    /* Preserve colors */
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .html2pdf__page-break { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="print-area">
+    ${clone.innerHTML}
+  </div>
+  <script>
+    window.onload = function() {
+      window.print();
+      window.onafterprint = function() { window.close(); };
+    };
+  <\/script>
+</body>
+</html>`
+
+  const popup = window.open('', '_blank', 'width=900,height=700')
+  if (!popup) {
+    alert('Please allow popups for this site to download the PDF.')
+    return
   }
+  popup.document.open()
+  popup.document.write(html)
+  popup.document.close()
 }
 
 const notifyParents = async () => {
@@ -654,10 +699,9 @@ onMounted(fetchStudents)
 
         <!-- Action bar at bottom of preview -->
         <div class="no-print mt-12 flex justify-center pb-20">
-          <button @click="handlePrintAll" :disabled="downloadingPdf" class="flex items-center gap-3 rounded-full bg-royal-purple px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-purple-900/50 transition hover:bg-purple-600 hover:-translate-y-1 disabled:opacity-75 disabled:cursor-not-allowed">
-            <Loader2 v-if="downloadingPdf" class="h-5 w-5 animate-spin" />
-            <Download v-else class="h-5 w-5" />
-            {{ downloadingPdf ? 'Generating PDF...' : 'Download all as PDF' }}
+          <button @click="handlePrintAll" class="flex items-center gap-3 rounded-full bg-royal-purple px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-purple-900/50 transition hover:bg-purple-600 hover:-translate-y-1">
+            <Download class="h-5 w-5" />
+            Download all as PDF
           </button>
         </div>
       </div>
