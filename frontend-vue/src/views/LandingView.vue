@@ -89,7 +89,7 @@ const features = [
     <header class="relative z-20 border-b border-white/5 bg-gradient-to-b from-gray-900/60 to-transparent backdrop-blur-sm">
       <div class="mx-auto max-w-7xl px-6 lg:px-8 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/50 overflow-hidden">
+          <div class="h-14 w-14 rounded-lg overflow-hidden flex items-center justify-center bg-white/10 backdrop-blur-sm shadow-lg border border-white/20">
             <img src="/logo.png" alt="Folusho Victory Schools" class="h-full w-full object-contain" />
           </div>
           <div class="flex flex-col">
