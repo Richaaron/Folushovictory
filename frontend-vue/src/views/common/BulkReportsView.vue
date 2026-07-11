@@ -178,12 +178,12 @@ const handlePrintAll = async () => {
   }
 
   const opt: any = {
-    margin:       0,
+    margin:       10,
     filename:     `bulk-reports-${classInfo.value?.name || 'class'}-${session.value.replace(/\//g, '-')}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true, logging: false },
+    html2canvas:  { scale: 2, useCORS: true, logging: false, scrollY: 0 },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:    { before: '.print-card:nth-child(n+2), .withheld-page' }
+    pagebreak:    { mode: ['css', 'legacy'], before: '.print-card:not(:first-child), .withheld-page' }
   }
 
   try {
@@ -552,8 +552,9 @@ onMounted(fetchStudents)
       </div>
 
       <div v-if="reports.length" id="print-area-section" class="print-area space-y-8">
-        <section v-for="report in printableReports" :key="report.student.studentId" class="print-card bg-white text-slate-900">
-          <header class="report-head">
+        <template v-for="(report, index) in printableReports" :key="report.student.studentId">
+          <section class="print-card bg-white text-slate-900">
+            <header class="report-head">
             <div>
               <p class="text-[10px] font-black uppercase tracking-widest text-amber-300">Official Student Report Card</p>
               <h2>{{ report.school?.name || 'School Name' }}</h2>
@@ -627,7 +628,9 @@ onMounted(fetchStudents)
               <strong>{{ report.school?.principalName || 'Principal' }}</strong>
             </div>
           </div>
-        </section>
+          </section>
+          <div v-if="index < printableReports.length - 1 || withheldReports.length" class="html2pdf__page-break border-0 h-0 m-0 p-0 break-before-page"></div>
+        </template>
 
         <section v-if="withheldReports.length" class="withheld-page bg-white p-8 text-slate-900">
           <div class="mb-6 flex items-center gap-3">
