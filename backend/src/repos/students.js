@@ -162,11 +162,7 @@ export async function deleteStudent(studentId) {
     await SafeDatabase.deleteWithValidation("scores", score.id);
   }
   
-  // Cascade delete assignments (just in case they exist for this studentId)
-  const { data: assignments } = await SafeDatabase.query("assignments", [["studentId", "==", normalizedStudentId]], { pageSize: 1000 });
-  for (const assignment of assignments) {
-    await SafeDatabase.deleteWithValidation("assignments", assignment.id);
-  }
+  // Assignments do not have a studentId, so we don't need to delete them here
 
   return SafeDatabase.deleteWithValidation("students", normalizedStudentId);
 }
