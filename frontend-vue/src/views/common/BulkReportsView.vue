@@ -1568,7 +1568,6 @@ td {
   .report-top-line,
   .report-bottom-line,
   .cumulative-section,
-  .motto,
   .school-contact { display: none !important; }
 
   /* ---- PRESERVE COLORS ---- */
@@ -1617,16 +1616,17 @@ td {
     padding: 12px 28px !important;
   }
 
-  /* ---- TABLE: BIGGER FONTS ---- */
+  /* ---- TABLE: BIGGER FONTS TO FILL PAGE ---- */
   .table-frame table th {
-    padding: 10px 10px !important;
-    font-size: 11px !important;
+    padding: 11px 10px !important;
+    font-size: 13px !important;
   }
 
   .table-frame table td {
-    padding: 8px 10px !important;
-    font-size: 14px !important;
-    line-height: 1.2 !important;
+    padding: 10px 10px !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    line-height: 1.3 !important;
   }
 
   /* ---- SIGNATURE AREA: moderate shrink ---- */

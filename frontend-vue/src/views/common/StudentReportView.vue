@@ -1165,7 +1165,6 @@ td {
   .cumulative-section,
   .performance-summary,
   .watermark-logo,
-  .motto,
   .school-contact {
     display: none !important;
   }
@@ -1182,9 +1181,16 @@ td {
   .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
 
   .table-frame thead th {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
-    font-size: 11px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    font-size: 13px !important;
+  }
+
+  .table-frame td {
+    padding: 10px 10px !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    line-height: 1.3 !important;
   }
 
   /* Final fallback: reduce page margin if still overflowing */
