@@ -1566,7 +1566,8 @@ td {
   .report-top-line,
   .report-bottom-line,
   .cumulative-section,
-  .school-contact { display: none !important; }
+  .school-contact,
+  .report-footer { display: none !important; }
 
   /* ---- COLOR PRESERVATION ---- */
   .report-header,
@@ -1574,8 +1575,7 @@ td {
   .term-panel,
   .table-frame table th,
   .grade-badge,
-  .remark-box,
-  .report-footer {
+  .remark-box {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -1718,17 +1718,6 @@ td {
 
   .teacher-name { font-size: 12px !important; }
   .signature-area small { font-size: 9px !important; }
-
-  /* ---- FOOTER ---- */
-  .report-footer {
-    padding: 10px 24px !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  .footer-brand strong { font-size: 12px !important; }
-  .footer-brand span { font-size: 9px !important; }
-  .footer-copy p { font-size: 10px !important; }
 
   @page { size: A4 portrait; margin: 4mm !important; }
 }

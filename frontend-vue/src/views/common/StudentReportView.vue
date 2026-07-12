@@ -1165,7 +1165,8 @@ td {
   .cumulative-section,
   .performance-summary,
   .watermark-logo,
-  .school-contact {
+  .school-contact,
+  .report-footer {
     display: none !important;
   }
 
