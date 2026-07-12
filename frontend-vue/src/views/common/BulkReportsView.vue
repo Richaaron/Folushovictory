@@ -1582,8 +1582,8 @@ td {
 
   /* ---- HEADER ---- */
   .report-header {
-    padding: 16px 24px !important;
-    gap: 16px !important;
+    padding: 12px 24px !important;
+    gap: 12px !important;
     grid-template-columns: 1fr 160px !important;
   }
 
@@ -1629,7 +1629,7 @@ td {
 
   /* ---- STUDENT INFO BAND ---- */
   .student-band {
-    padding: 12px 24px 0 !important;
+    padding: 10px 24px 0 !important;
     gap: 8px !important;
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
@@ -1644,7 +1644,7 @@ td {
 
   /* ---- PERFORMANCE STATS ---- */
   .performance-summary {
-    padding: 12px 24px 0 !important;
+    padding: 10px 24px 0 !important;
     gap: 8px !important;
   }
 
@@ -1658,7 +1658,7 @@ td {
 
   /* ---- SECTION TITLE ---- */
   .result-section {
-    padding: 12px 24px 0 !important;
+    padding: 10px 24px 0 !important;
   }
 
   .section-title { margin-bottom: 10px !important; }
@@ -1674,13 +1674,13 @@ td {
   }
 
   .table-frame table th {
-    padding: 9px 9px !important;
-    font-size: 12px !important;
+    padding: 8px 8px !important;
+    font-size: 13px !important;
   }
 
   .table-frame table td {
-    padding: 9px 9px !important;
-    font-size: 14px !important;
+    padding: 8px 8px !important;
+    font-size: 15px !important;
     font-weight: 800 !important;
     line-height: 1.3 !important;
   }
@@ -1692,19 +1692,19 @@ td {
 
   /* ---- REMARKS ---- */
   .remarks-section {
-    padding: 12px 24px 12px !important;
+    padding: 10px 24px 10px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
   .remark-box {
-    min-height: 90px !important;
+    min-height: 80px !important;
     padding: 10px 12px !important;
     border-radius: 8px !important;
   }
 
   .remark-box p {
-    font-size: 12px !important;
+    font-size: 13px !important;
     margin: 4px 0 6px !important;
   }
 
