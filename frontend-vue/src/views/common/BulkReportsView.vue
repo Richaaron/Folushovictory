@@ -1532,10 +1532,8 @@ td {
 
   /* ---- ONE-PAGE-PER-CARD RULE ---- */
   .report-card, .print-card {
-    /* Scale to fill A4 proportionally via zoom */
-    zoom: 0.86 !important;
-    width: calc(210mm / 0.86) !important;
-    max-width: calc(210mm / 0.86) !important;
+    width: 100% !important;
+    max-width: 100% !important;
     min-height: 0 !important;
     height: auto !important;
     margin: 0 !important;
@@ -1584,15 +1582,24 @@ td {
     print-color-adjust: exact !important;
   }
 
-  /* ---- SECTION PADDING TIGHTENING ---- */
+  /* ---- INCREASE READABILITY & PADDING ---- */
   .report-header {
     padding: 20px 28px !important;
   }
+
+  .contact-label { font-size: 10px !important; }
+  .contact-item p { font-size: 13px !important; }
 
   .student-band {
     padding: 16px 28px 0 !important;
     gap: 10px !important;
   }
+  
+  .info-card span { font-size: 10px !important; }
+  .info-card strong { font-size: 16px !important; }
+
+  .stat-card span { font-size: 10px !important; }
+  .stat-card strong { font-size: 26px !important; }
 
   .result-section {
     padding: 16px 28px 0 !important;
@@ -1608,14 +1615,16 @@ td {
     padding: 12px 28px !important;
   }
 
-  /* ---- TABLE: tighten rows slightly ---- */
+  /* ---- TABLE: BIGGER FONTS ---- */
   .table-frame table th {
-    padding: 8px 10px !important;
+    padding: 10px 10px !important;
+    font-size: 11px !important;
   }
 
   .table-frame table td {
-    padding: 5px 10px !important;
-    line-height: 1.1 !important;
+    padding: 8px 10px !important;
+    font-size: 14px !important;
+    line-height: 1.2 !important;
   }
 
   /* ---- SIGNATURE AREA: moderate shrink ---- */
