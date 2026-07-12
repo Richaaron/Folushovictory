@@ -1521,9 +1521,7 @@ tbody tr:nth-child(even) {
     print-color-adjust: exact !important;
   }
 
-  .no-print {
-    display: none !important;
-  }
+  .no-print { display: none !important; }
 
   .print-area {
     width: 100% !important;
@@ -1532,28 +1530,24 @@ tbody tr:nth-child(even) {
     margin: 0 !important;
   }
 
-  /* Compact page layout: maximize usable space while remaining printable */
+  /* ---- ONE-PAGE-PER-CARD RULE ---- */
   .report-card, .print-card {
-    /* Expand to use the full printable width */
-    width: calc(210mm - 8mm) !important;
-    max-width: calc(210mm - 8mm) !important;
-    min-height: calc(297mm - 12mm) !important; /* Force to take up almost full A4 height */
-    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    /* NO min-height — let content dictate height so nothing overflows */
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
     border: 0 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     transform: none !important;
-    transform-origin: top center !important;
-    font-size: 14px !important;
-    line-height: 1.06 !important;
-    padding: 4px 6px !important;
-    
-    /* Ensure strict one-page-per-report logic */
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
     page-break-after: always !important;
     break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .print-card:last-child {
@@ -1564,150 +1558,156 @@ tbody tr:nth-child(even) {
   .withheld-page {
     page-break-before: always !important;
     break-before: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
     box-shadow: none !important;
+  }
+
+  /* ---- HIDE DECORATIVE / NON-ESSENTIAL SECTIONS ---- */
+  .watermark-logo,
+  .report-top-line,
+  .report-bottom-line,
+  .school-contact,
+  .performance-summary,
+  .cumulative-section,
+  .preview-banner,
+  .section-title { display: none !important; }
+
+  /* ---- HEADER: compact ---- */
+  .report-header {
+    padding: 5px 10px !important;
+    gap: 8px !important;
+    grid-template-columns: 1fr 90px !important;
+    background: #0a0e27 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .brand-panel { gap: 10px !important; }
+  .logo-mark { width: 50px !important; height: 50px !important; border-radius: 8px !important; }
+  .brand-copy h1 { font-size: 14px !important; line-height: 1.1 !important; }
+  .document-kicker { font-size: 7px !important; margin-bottom: 4px !important; }
+  .motto { font-size: 9px !important; margin-top: 3px !important; }
+
+  .term-panel {
+    padding: 4px 6px !important;
+    border-radius: 6px !important;
+  }
+  .term-panel span { font-size: 7px !important; }
+  .term-panel strong { font-size: 13px !important; margin: 2px 0 !important; }
+  .term-panel small { font-size: 10px !important; }
+
+  /* ---- STUDENT BAND: compact ---- */
+  .student-band {
+    gap: 5px !important;
+    padding: 6px 10px 0 !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .info-card {
+    padding: 5px 8px !important;
+    border-radius: 6px !important;
+  }
+  .info-card span { font-size: 7px !important; }
+  .info-card strong { font-size: 10px !important; margin-top: 2px !important; }
+
+  /* ---- RESULT SECTION ---- */
+  .result-section { padding: 6px 10px 0 !important; }
+
+  .table-frame {
+    border-radius: 6px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
-  .watermark-logo {
-    opacity: 0.03 !important;
+  .table-frame table th {
+    padding: 4px 6px !important;
+    font-size: 8px !important;
+    background: #0a0e27 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .report-header {
-    grid-template-columns: 1fr 160px !important;
-    padding: 8px 8px !important;
-    gap: 12px !important;
-  }
-
-  .brand-copy h1 {
-    font-size: 22px !important;
-  }
-
-  .logo-mark {
-    width: 80px !important;
-    height: 80px !important;
-  }
-
-  .term-panel {
-    padding: 6px 8px !important;
-  }
-
-  .term-panel strong {
-    font-size: 20px !important;
-  }
-
-  /* 1) Increase Table Font Size + tighten vertical padding */
-  .table-frame table th,
   .table-frame table td {
-    font-size: 13px !important;
-    padding: 6px 10px !important;
-    line-height: 1 !important;
-    vertical-align: middle !important;
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+    line-height: 1.1 !important;
   }
 
-  /* Force reduced row height where possible */
-  .table-frame table tbody tr {
-    height: auto !important;
-    max-height: 20px !important;
-  }
-
-  /* Ensure first column remains left-aligned but keeps tight padding */
   .table-frame table th:first-child,
   .table-frame table td:first-child {
     text-align: left !important;
-    width: 26% !important;
+    width: 28% !important;
     padding-left: 6px !important;
   }
 
-  /* 2) Remarks font size */
-  .remark-box p {
-    font-size: 12px !important;
-    margin: 4px 0 6px !important;
-    min-height: 20px !important;
-    line-height: 1.08 !important;
+  .grade-badge {
+    padding: 2px 5px !important;
+    font-size: 9px !important;
+    min-width: 24px !important;
+    border-radius: 4px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  /* 3) Shrink signature areas */
+  /* ---- REMARKS SECTION ---- */
+  .remarks-section {
+    padding: 6px 10px 6px !important;
+    gap: 8px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
   .remark-box {
-    min-height: 60px !important;
-    padding: 8px !important;
+    min-height: 50px !important;
+    padding: 6px 8px !important;
+    border-radius: 6px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .signature-area {
-    margin-top: 6px !important;
+  .remark-box span { font-size: 7px !important; }
+
+  .remark-box p {
+    font-size: 9px !important;
+    margin: 3px 0 4px !important;
+    min-height: 14px !important;
+    line-height: 1.2 !important;
   }
+
+  .signature-area { margin-top: 4px !important; }
 
   .signature-line,
   .signature-image {
-    height: 44px !important;
+    height: 28px !important;
     margin-top: 2px !important;
-    border-bottom: 2px solid #cbd5e1 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
   }
 
   .signature-image img {
-    max-width: 180px !important;
-    max-height: 40px !important;
+    max-width: 120px !important;
+    max-height: 26px !important;
     object-fit: contain !important;
   }
 
-  .teacher-name {
-    font-size: 12px !important;
-    margin-top: 2px !important;
-  }
+  .teacher-name { font-size: 10px !important; margin-top: 2px !important; }
+  .remark-box strong { font-size: 8px !important; margin-top: 3px !important; }
+  .remark-box small { font-size: 7px !important; margin-top: 1px !important; }
 
-  /* Tighten spacing in footer */
+  /* ---- FOOTER: compact ---- */
   .report-footer {
-    padding: 8px 12px !important;
+    padding: 5px 10px !important;
     gap: 8px !important;
+    background: #0a0e27 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
+  .footer-brand strong { font-size: 10px !important; }
+  .footer-brand span { font-size: 9px !important; }
+  .footer-copy p { font-size: 9px !important; }
 
-  /* Reduce table header height where possible */
-  .table-frame thead th {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
-  }
-
-  /* Avoid page breaks inside critical sections */
-  .report-header,
-  .table-frame,
-  .remarks-section,
-  .report-footer {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-  
-  .table-frame {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  /* HIDE LESS-CRITICAL SECTIONS TO FORCE SINGLE-PAGE OUTPUT */
-  .preview-banner,
-  .cumulative-section,
-  .performance-summary,
-  .school-contact,
-  .report-top-line,
-  .report-bottom-line {
-    display: none !important;
-  }
-
-  /* Tighten header and brand spacing */
-  .report-header {
-    padding: 6px 8px !important;
-    gap: 8px !important;
-    grid-template-columns: 1fr 120px !important;
-  }
-
-  .brand-copy h1 { font-size: 18px !important; }
-  .logo-mark { width: 60px !important; height: 60px !important; border-radius: 12px !important; }
-  .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
-
-  .table-frame thead th {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
-    font-size: 11px !important;
-  }
-
-  @page { size: A4; margin: 4mm !important; }
+  @page { size: A4; margin: 5mm !important; }
 }
 </style>
