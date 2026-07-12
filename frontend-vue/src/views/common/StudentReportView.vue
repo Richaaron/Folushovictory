@@ -1193,16 +1193,16 @@ td {
   .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
 
   .table-frame thead th {
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
-    font-size: 11px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    font-size: 13px !important;
   }
 
   .table-frame td {
-    padding: 8px 8px !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    line-height: 1.2 !important;
+    padding: 11px 10px !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    line-height: 1.3 !important;
   }
 
   /* Final fallback: reduce page margin if still overflowing */

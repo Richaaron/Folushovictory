@@ -1661,9 +1661,9 @@ td {
     padding: 12px 24px 0 !important;
   }
 
-  .section-title { margin-bottom: 8px !important; }
-  .section-title strong { font-size: 13px !important; }
-  .section-title span { font-size: 9px !important; }
+  .section-title { margin-bottom: 10px !important; }
+  .section-title strong { font-size: 14px !important; }
+  .section-title span { font-size: 10px !important; }
 
   /* ---- TABLE ---- */
   .table-frame {
@@ -1674,50 +1674,50 @@ td {
   }
 
   .table-frame table th {
-    padding: 8px 8px !important;
-    font-size: 11px !important;
+    padding: 10px 10px !important;
+    font-size: 13px !important;
   }
 
   .table-frame table td {
-    padding: 8px 8px !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    line-height: 1.2 !important;
+    padding: 11px 10px !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    line-height: 1.3 !important;
   }
 
   .grade-badge {
-    font-size: 11px !important;
-    padding: 3px 6px !important;
+    font-size: 13px !important;
+    padding: 4px 8px !important;
   }
 
   /* ---- REMARKS ---- */
   .remarks-section {
-    padding: 10px 24px 10px !important;
+    padding: 12px 24px 12px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
   .remark-box {
-    min-height: 80px !important;
-    padding: 10px 12px !important;
-    border-radius: 8px !important;
+    min-height: 100px !important;
+    padding: 12px 14px !important;
+    border-radius: 10px !important;
   }
 
   .remark-box p {
-    font-size: 11px !important;
-    margin: 4px 0 6px !important;
+    font-size: 13px !important;
+    margin: 6px 0 8px !important;
   }
 
-  .remark-box span { font-size: 9px !important; }
+  .remark-box span { font-size: 10px !important; }
 
   .signature-line,
   .signature-image {
-    height: 40px !important;
-    margin-top: 4px !important;
+    height: 48px !important;
+    margin-top: 6px !important;
   }
 
-  .teacher-name { font-size: 11px !important; }
-  .signature-area small { font-size: 8px !important; }
+  .teacher-name { font-size: 13px !important; }
+  .signature-area small { font-size: 10px !important; }
 
   @page { size: A4 portrait; margin: 8mm !important; }
 }
