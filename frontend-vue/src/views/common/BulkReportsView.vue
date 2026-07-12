@@ -8,9 +8,17 @@ import {
   Download,
   Loader2,
   Mail,
+  FileText,
+  Save,
   Printer,
   Square,
-  UserX
+  UserX,
+  X,
+  Award,
+  TrendingUp,
+  Star,
+  Calendar,
+  Users
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -118,6 +126,18 @@ const getOverallGrade = (report: any) => {
   return 'N/A'
 }
 
+const getGradeColor = (grade: string) => {
+  if (!grade) return 'grade-neutral'
+  if (grade === 'F') return 'grade-danger'
+  if (['A', 'A+', 'A-'].includes(grade)) return 'grade-excellent'
+  if (['B', 'B+', 'B-'].includes(grade)) return 'grade-strong'
+  if (['C', 'C+', 'C-'].includes(grade)) return 'grade-fair'
+  return 'grade-neutral'
+}
+
+const getSchoolWebsite = (report: any) => report.school?.website?.replace(/^https?:\/\//, '') || ''
+const getFormTeacherName = (report: any) => report.formTeacher?.displayName || `${report.class?.name || 'Class'} Form Teacher`
+
 const generateReports = async (shouldPrint = false, targetStudentIds: string[] | null = null) => {
   const studentIds = targetStudentIds ?? Array.from(selectedIds.value)
   if (!studentIds.length) {
@@ -207,10 +227,17 @@ const handlePrintAll = () => {
     .withheld-page { page-break-before: always; break-before: page; }
     /* Reset transforms for clean PDF rendering, use zoom instead */
     .print-card { transform: none !important; zoom: 1.15 !important; width: calc(202mm / 1.15) !important; }
-    /* Preserve colors */
-    *, *::before, *::after {
+    /* Preserve colors aggressively */
+    html, body, .print-area, .print-card, .print-card * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    /* Force background colors on specific modern elements */
+    th, .report-header, .term-panel, .stat-card, .grade-badge, .remark-box, .report-footer, .report-top-line, .report-bottom-line, .cumulative-card, .logo-mark {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
     }
     .html2pdf__page-break { display: none !important; }
   </style>
@@ -606,82 +633,204 @@ onMounted(fetchStudents)
       </div>
 
       <div v-if="reports.length" id="print-area-section" class="print-area space-y-8">
-        <section v-for="report in printableReports" :key="report.student.studentId" class="print-card bg-white text-slate-900">
-          <header class="report-head">
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-amber-300">Official Student Report Card</p>
-              <h2>{{ report.school?.name || 'School Name' }}</h2>
-              <p>{{ report.school?.motto || 'Excellence in Education' }}</p>
+        <article v-for="report in printableReports" :key="report.student.studentId" class="report-card print-card">
+          <!-- Background Watermark Logo -->
+          <div class="watermark-logo">
+            <img :src="report.school?.logoUrl || '/logo.png'" :alt="report.school?.name || 'School logo'" />
+          </div>
+
+          <!-- Top Neon Line -->
+          <div class="report-top-line"></div>
+
+          <!-- Header -->
+          <header class="report-header">
+            <div class="brand-panel">
+              <div class="logo-mark">
+                <img :src="report.school?.logoUrl || '/logo.png'" :alt="report.school?.name || 'School logo'" />
+              </div>
+              <div class="brand-copy">
+                <p class="document-kicker">
+                  <Star class="inline h-3 w-3" /> Official Academic Report
+                </p>
+                <h1>{{ report.school?.name || 'School Name' }}</h1>
+                <p class="motto">{{ report.school?.motto || 'Excellence in Education' }}</p>
+              </div>
             </div>
-            <div class="term-box">
-              <span>{{ report.session }}</span>
-              <strong>{{ report.term }} Term</strong>
+
+            <div class="term-panel">
+              <Calendar class="mb-2 h-6 w-6" />
+              <span>Academic Session</span>
+              <strong>{{ report.session }}</strong>
+              <small>{{ report.term }} Term</small>
             </div>
           </header>
 
-          <div class="student-strip">
-            <div><span>Name</span><strong>{{ report.student.lastName }} {{ report.student.firstName }}</strong></div>
-            <div><span>ID</span><strong>{{ report.student.studentId }}</strong></div>
-            <div><span>Class</span><strong>{{ report.class.name }}</strong></div>
-            <div><span>Status</span><strong>Fees Cleared</strong></div>
-          </div>
+          <!-- School Contact -->
+          <section class="school-contact" aria-label="School contact information">
+            <div v-if="report.school?.address" class="contact-item">
+              <span class="contact-label">Address</span>
+              <p>{{ report.school.address }}</p>
+            </div>
+            <div v-if="report.school?.phone" class="contact-item">
+              <span class="contact-label">Phone</span>
+              <p>{{ report.school.phone }}</p>
+            </div>
+            <div v-if="report.school?.email" class="contact-item">
+              <span class="contact-label">Email</span>
+              <p>{{ report.school.email }}</p>
+            </div>
+            <div v-if="getSchoolWebsite(report)" class="contact-item">
+              <span class="contact-label">Website</span>
+              <p>{{ getSchoolWebsite(report) }}</p>
+            </div>
+          </section>
 
-          <div class="summary-strip">
-            <div><span>Total Scores</span><strong>{{ report.result?.total ?? 'N/A' }}</strong></div>
-            <div><span>Average</span><strong>{{ report.result?.average ?? 'N/A' }}%</strong></div>
-            <div><span>Total Students</span><strong>{{ students?.length || 'N/A' }}</strong></div>
-            <div>
-              <span>{{ isPositionBasedClass(report) ? 'Position' : 'Overall Grade' }}</span>
+          <!-- Student Info -->
+          <section class="student-band">
+            <div class="info-card">
+              <span>Student Name</span>
+              <strong>{{ report.student.lastName }} {{ report.student.firstName }}</strong>
+            </div>
+            <div class="info-card">
+              <span>Student ID</span>
+              <strong>{{ report.student.studentId }}</strong>
+            </div>
+            <div class="info-card">
+              <span>Class</span>
+              <strong>{{ report.class.name }} ({{ students?.length || 'N/A' }} Students)</strong>
+            </div>
+            <div class="info-card">
+              <span>Gender</span>
+              <strong>{{ report.student.gender || 'N/A' }}</strong>
+            </div>
+            <div class="info-card">
+              <span>Status</span>
+              <strong>Fees Cleared</strong>
+            </div>
+          </section>
+
+          <!-- Performance Summary -->
+          <section class="performance-summary">
+            <div class="stat-card stat-purple">
+              <Award class="stat-icon" />
+              <span>Total Scores</span>
+              <strong>{{ report.result?.total ?? 'N/A' }}</strong>
+            </div>
+            <div class="stat-card stat-blue">
+              <TrendingUp class="stat-icon" />
+              <span>Average</span>
+              <strong>{{ report.result?.average ?? 'N/A' }}%</strong>
+            </div>
+            <div class="stat-card stat-cyan">
+              <Star class="stat-icon" />
+              <span>{{ isPositionBasedClass(report) ? 'Position' : 'Grade' }}</span>
               <strong>{{ isPositionBasedClass(report) ? getPositionSuffix(report.result?.position) : getOverallGrade(report) }}</strong>
             </div>
-          </div>
+            <div class="stat-card stat-pink">
+              <Users class="stat-icon" />
+              <span>Total Students</span>
+              <strong>{{ students?.length || 'N/A' }}</strong>
+            </div>
+          </section>
 
-          <table class="result-table">
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>1st CA</th>
-                <th>2nd CA</th>
-                <th>Exam</th>
-                <th>Total Scores</th>
-                <th>Grade</th>
-                <th>Remarks</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="subject in report.result?.perSubject || []" :key="subject.subjectId">
-                <td>{{ subject.subjectName }}</td>
-                <td>{{ subject.ca1 ?? '-' }}</td>
-                <td>{{ subject.ca2 ?? '-' }}</td>
-                <td>{{ subject.exam ?? '-' }}</td>
-                <td>{{ subject.total ?? '-' }}</td>
-                <td>{{ subject.grade || '-' }}</td>
-                <td>{{ subject.remark || '-' }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- Academic Performance Table -->
+          <section class="result-section">
+            <div class="section-title">
+              <span>Academic Performance</span>
+              <strong>{{ report.term }} Term Results</strong>
+            </div>
 
-          <div class="remarks-grid">
-            <div>
+            <div class="table-frame">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>1st CA</th>
+                    <th>2nd CA</th>
+                    <th>Exam</th>
+                    <th>Total Scores</th>
+                    <th>Grade</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="sub in report.result?.perSubject || []" :key="sub.subjectId">
+                    <td class="subject-name">{{ sub.subjectName }}</td>
+                    <td>{{ sub.ca1 ?? '-' }}</td>
+                    <td>{{ sub.ca2 ?? '-' }}</td>
+                    <td>{{ sub.exam ?? '-' }}</td>
+                    <td class="total-cell">{{ sub.total ?? '-' }}</td>
+                    <td><span class="grade-badge" :class="getGradeColor(sub.grade)">{{ sub.grade || '-' }}</span></td>
+                    <td>{{ sub.remark || '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Cumulative Record -->
+          <section v-if="report.cumulative" class="cumulative-section">
+            <div class="section-title">
+              <span>Cumulative Record</span>
+              <strong>Session Progress</strong>
+            </div>
+            <div class="cumulative-grid">
+              <div v-for="item in report.cumulative.previousTerms" :key="item.term" class="cumulative-card">
+                <span>{{ item.term }} Term</span>
+                <strong>{{ item.average }}%</strong>
+                <small>Total: {{ item.total }}</small>
+              </div>
+              <div v-if="report.cumulative.sessionAverage" class="cumulative-card cumulative-highlight">
+                <span>Session Average</span>
+                <strong>{{ report.cumulative.sessionAverage }}%</strong>
+                <small>Total: {{ report.cumulative.sessionTotal }}</small>
+              </div>
+            </div>
+          </section>
+
+          <!-- Remarks Section -->
+          <section class="remarks-section">
+            <div class="remark-box teacher-box">
               <span>Class Teacher's Remark</span>
-              <p>{{ report.teacherRemark }}</p>
-              <div v-if="report.formTeacher?.signatureUrl" class="signature-image">
-                <img :src="report.formTeacher.signatureUrl" alt="Teacher signature" />
+              <p>{{ report.teacherRemark || 'Remark will be added by the class teacher.' }}</p>
+              <div class="signature-area">
+                <div v-if="report.formTeacher?.signatureUrl" class="signature-image">
+                  <img :src="report.formTeacher.signatureUrl" alt="Teacher signature" />
+                </div>
+                <div v-else class="signature-line"></div>
+                <div class="teacher-name">{{ getFormTeacherName(report) }}</div>
+                <small>Class Teacher's Signature & Date</small>
               </div>
-              <div v-else class="signature-line"></div>
-              <strong>{{ report.formTeacher?.displayName || 'Class Teacher' }}</strong>
             </div>
-            <div>
+
+            <div class="remark-box principal-box">
               <span>Principal's Remark</span>
-              <p>{{ report.principalRemark }}</p>
-              <div v-if="report.school?.principalSignatureUrl" class="signature-image">
-                <img :src="report.school.principalSignatureUrl" alt="Principal signature" />
+              <p>{{ report.principalRemark || 'Highly commendable academic performance.' }}</p>
+              <div class="signature-area">
+                <div v-if="report.school?.principalSignatureUrl" class="signature-image">
+                  <img :src="report.school.principalSignatureUrl" alt="Principal signature" />
+                </div>
+                <div v-else class="signature-line"></div>
+                <strong>{{ report.school?.principalName || 'Principal' }}</strong>
+                <small>Principal's Signature & Stamp</small>
               </div>
-              <div v-else class="signature-line"></div>
-              <strong>{{ report.school?.principalName || 'Principal' }}</strong>
             </div>
-          </div>
-        </section>
+          </section>
+
+          <!-- Footer -->
+          <footer class="report-footer">
+            <div class="footer-brand">
+              <strong>{{ report.school?.name || 'School Name' }}</strong>
+              <span>Academic Excellence</span>
+            </div>
+            <div class="footer-copy">
+              <p>Generated on {{ new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+            </div>
+          </footer>
+
+          <!-- Bottom Neon Line -->
+          <div class="report-bottom-line"></div>
+        </article>
 
         <section v-if="withheldReports.length" class="withheld-page bg-white p-8 text-slate-900">
           <div class="mb-6 flex items-center gap-3">
@@ -716,83 +865,635 @@ onMounted(fetchStudents)
 </template>
 
 <style scoped>
-.report-head {
+.report-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  color: #172033;
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
+}
+
+/* Watermark Logo */
+.watermark-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  width: 60%;
+  max-width: 500px;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.watermark-logo img {
+  width: 100%;
+  height: auto;
+  filter: grayscale(100%);
+}
+
+/* Top & Bottom Neon Lines */
+.report-top-line,
+.report-bottom-line {
+  height: 4px;
+  background: linear-gradient(90deg, #a855f7, #3b82f6, #06b6d4, #a855f7);
+  background-size: 200% 100%;
+  animation: gradient-flow 4s ease infinite;
+}
+
+@keyframes gradient-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Header */
+.report-header {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: 1fr 220px;
+  grid-template-columns: 1fr 260px;
+  gap: 28px;
+  padding: 40px 46px;
+  background: linear-gradient(135deg, rgba(10, 14, 39, 0.98), rgba(17, 22, 56, 0.98));
+  backdrop-filter: blur(20px);
+}
+
+.brand-panel {
+  display: flex;
+  align-items: center;
   gap: 20px;
-  padding: 26px 30px;
-  background: #241036;
-  color: white;
+  min-width: 0;
 }
 
-.report-head h2 {
-  margin: 6px 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 28px;
-  font-weight: 900;
+.logo-mark {
+  display: flex;
+  width: 110px;
+  height: 110px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(168, 85, 247, 0.5);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
+}
+
+.logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+}
+
+.brand-copy {
+  min-width: 0;
+}
+
+.document-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: #a855f7;
 }
 
-.term-box {
+.brand-copy h1 {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  font-family: 'Cambria', 'Georgia', serif;
+  background: linear-gradient(135deg, #ffffff, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.motto {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.term-panel {
+  align-self: stretch;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  padding: 18px;
+  padding: 24px;
+  border: 2px solid rgba(168, 85, 247, 0.3);
+  border-radius: 16px;
+  background: rgba(168, 85, 247, 0.1);
+  backdrop-filter: blur(10px);
   text-align: center;
+  color: white;
 }
 
-.term-box span,
-.student-strip span,
-.summary-strip span,
-.remarks-grid span {
+.term-panel strong {
+  margin: 8px 0;
+  font-size: 30px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffffff, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.term-panel small {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.term-panel span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* School Contact */
+.school-contact {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: #e2e8f0;
+  border-bottom: 3px solid #a855f7;
+}
+
+.contact-item {
+  padding: 12px 16px;
+  background: #ffffff;
+}
+
+.contact-label {
   display: block;
   font-size: 9px;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 4px;
 }
 
-.term-box strong {
-  margin-top: 6px;
-  font-size: 20px;
+.contact-item p {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
 }
 
-.student-strip,
-.summary-strip {
+/* Student Band */
+.student-band {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  padding: 24px 38px 0;
+}
+
+.info-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+}
+
+.info-card span {
+  display: block;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.info-card strong {
+  display: block;
+  margin-top: 5px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-family: 'Cambria', 'Georgia', serif;
+}
+
+/* Performance Summary */
+.performance-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  padding: 18px 30px 0;
+  gap: 14px;
+  padding: 20px 38px 0;
 }
 
-.student-strip div,
-.summary-strip div {
-  border: 1px solid #ded3ee;
-  padding: 12px;
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  overflow: hidden;
 }
 
-.student-strip strong,
-.summary-strip strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 15px;
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.stat-purple::before {
+  background: linear-gradient(90deg, #a855f7, #ec4899);
+}
+
+.stat-blue::before {
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+}
+
+.stat-cyan::before {
+  background: linear-gradient(90deg, #06b6d4, #10b981);
+}
+
+.stat-pink::before {
+  background: linear-gradient(90deg, #ec4899, #a855f7);
+}
+
+.stat-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 1.5rem;
+  height: 1.5rem;
+  opacity: 0.15;
+}
+
+.stat-card span {
+  font-size: 9px;
   font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.stat-card strong {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f172a;
+  font-family: 'Cambria', 'Georgia', serif;
+}
+
+/* Section Title */
+.result-section,
+.cumulative-section,
+.remarks-section {
+  padding: 26px 38px 0;
+}
+
+.section-title {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-title span {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.section-title strong {
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-family: 'Cambria', 'Georgia', serif;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Table */
+.table-frame {
+  overflow: hidden;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+th {
+  padding: 14px 10px;
+  background: linear-gradient(135deg, #0a0e27, #111638);
+  color: white;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
   text-transform: uppercase;
 }
 
-.summary-strip div {
-  border-top: 4px solid #581c87;
+th:first-child,
+td:first-child {
+  width: 26%;
+  text-align: left;
+  white-space: nowrap;
 }
 
-.result-table,
+td {
+  padding: 12px 10px;
+  border-top: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  word-break: break-word;
+}
+
+.subject-name {
+  font-weight: 800;
+  color: #0f172a;
+  font-family: 'Cambria', 'Georgia', serif;
+}
+
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: rgba(168, 85, 247, 0.05);
+}
+
+tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.total-cell {
+  color: #0f172a;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.grade-badge {
+  display: inline-flex;
+  min-width: 36px;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.grade-excellent {
+  color: #581c87;
+  background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+  border: 2px solid #d8b4fe;
+}
+
+.grade-strong {
+  color: #854d0e;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #fcd34d;
+}
+
+.grade-fair {
+  color: #b45309;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #fcd34d;
+}
+
+.grade-danger {
+  color: #b91c1c;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  border: 2px solid #fca5a5;
+}
+
+.grade-neutral {
+  color: #475569;
+  background: #f1f5f9;
+  border: 2px solid #e2e8f0;
+}
+
+/* Cumulative Section */
+.cumulative-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cumulative-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+}
+
+.cumulative-highlight {
+  border-color: #a855f7;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(59, 130, 246, 0.05));
+}
+
+.cumulative-card span,
+.cumulative-card small {
+  display: block;
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cumulative-card strong {
+  display: block;
+  margin: 6px 0;
+  font-size: 22px;
+  font-weight: 900;
+  font-family: 'Cambria', 'Georgia', serif;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Remarks Section */
+.remarks-section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  padding-bottom: 28px;
+}
+
+.remark-box {
+  display: flex;
+  min-height: 220px;
+  flex-direction: column;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.remark-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+
+.teacher-box::before {
+  background: linear-gradient(90deg, #a855f7, #ec4899);
+}
+
+.principal-box::before {
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+}
+
+.teacher-box {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), #ffffff);
+}
+
+.principal-box {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), #ffffff);
+}
+
+.remark-box span {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.remark-box p {
+  min-height: 50px;
+  margin: 10px 0 14px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.signature-area {
+  margin-top: auto;
+}
+
+.signature-line,
+.signature-image {
+  height: 80px;
+  margin-top: auto;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.signature-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signature-image img {
+  max-width: 260px;
+  max-height: 76px;
+  object-fit: contain;
+}
+
+.teacher-name {
+  font-family: 'Brush Script MT', 'Segoe Script', cursive;
+  font-size: 22px;
+  color: #0a0e27;
+  text-align: center;
+  line-height: 1.1;
+  margin-top: 6px;
+}
+
+.remark-box strong {
+  display: block;
+  margin-top: 8px;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.remark-box small {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Footer */
+.report-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: center;
+  padding: 20px 38px;
+  background: linear-gradient(135deg, #0a0e27, #111638);
+  color: white;
+}
+
+.footer-brand strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 900;
+  font-family: 'Cambria', 'Georgia', serif;
+  background: linear-gradient(135deg, #ffffff, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.footer-brand span {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-copy p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Withheld Table (Preserved for "Owing Fees" page) */
 .withheld-table {
-  width: calc(100% - 60px);
-  margin: 22px 30px 0;
+  width: 100%;
+  margin: 22px 0 0;
   border-collapse: collapse;
 }
 
-.result-table th,
 .withheld-table th {
   background: #241036;
   color: white;
@@ -801,84 +1502,12 @@ onMounted(fetchStudents)
   text-transform: uppercase;
 }
 
-.result-table td,
 .withheld-table td {
   border: 1px solid #e2e8f0;
   padding: 10px 10px;
   font-size: 12px;
   font-weight: 700;
   text-align: center;
-}
-
-.result-table td:first-child,
-.result-table th:first-child,
-.withheld-table td:nth-child(2),
-.withheld-table th:nth-child(2) {
-  text-align: left;
-  white-space: nowrap;
-}
-
-.remarks-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  padding: 22px 30px 28px;
-}
-
-.remarks-grid div {
-  min-height: 150px;
-  border: 1px solid #cbd5e1;
-  border-top: 5px solid #581c87;
-  padding: 16px;
-}
-
-.remarks-grid p {
-  min-height: 54px;
-  margin: 10px 0 18px;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.signature-image {
-  height: 42px;
-  margin: -4px 0 6px;
-  text-align: center;
-}
-
-.signature-line,
-.signature-image {
-  height: 78px;
-  margin: -4px 0 6px;
-  text-align: center;
-}
-
-.signature-line {
-  border-bottom: 2px solid #475569;
-}
-
-.signature-image img {
-  max-width: 260px;
-  max-height: 72px;
-  object-fit: contain;
-}
-
-.teacher-signature {
-  font-family: "Brush Script MT", "Segoe Script", cursive;
-  font-size: 28px;
-  color: #241036;
-  text-align: center;
-  padding-top: 8px;
-  line-height: 1;
-  margin-bottom: -6px;
-}
-
-.remarks-grid strong {
-  display: block;
-  border-top: 2px solid #475569;
-  padding-top: 8px;
-  text-align: center;
-  text-transform: uppercase;
 }
 
 @page {
