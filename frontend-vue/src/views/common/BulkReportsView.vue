@@ -1674,20 +1674,20 @@ td {
   }
 
   .table-frame table th {
-    padding: 10px 10px !important;
-    font-size: 13px !important;
+    padding: 9px 9px !important;
+    font-size: 12px !important;
   }
 
   .table-frame table td {
-    padding: 11px 10px !important;
-    font-size: 15px !important;
+    padding: 9px 9px !important;
+    font-size: 14px !important;
     font-weight: 800 !important;
     line-height: 1.3 !important;
   }
 
   .grade-badge {
-    font-size: 13px !important;
-    padding: 4px 8px !important;
+    font-size: 12px !important;
+    padding: 3px 6px !important;
   }
 
   /* ---- REMARKS ---- */
@@ -1698,26 +1698,26 @@ td {
   }
 
   .remark-box {
-    min-height: 100px !important;
-    padding: 12px 14px !important;
-    border-radius: 10px !important;
+    min-height: 90px !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
   }
 
   .remark-box p {
-    font-size: 13px !important;
-    margin: 6px 0 8px !important;
+    font-size: 12px !important;
+    margin: 4px 0 6px !important;
   }
 
   .remark-box span { font-size: 10px !important; }
 
   .signature-line,
   .signature-image {
-    height: 48px !important;
-    margin-top: 6px !important;
+    height: 42px !important;
+    margin-top: 4px !important;
   }
 
-  .teacher-name { font-size: 13px !important; }
-  .signature-area small { font-size: 10px !important; }
+  .teacher-name { font-size: 12px !important; }
+  .signature-area small { font-size: 9px !important; }
 
   @page { size: A4 portrait; margin: 8mm !important; }
 }
