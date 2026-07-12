@@ -1580,149 +1580,149 @@ td {
     print-color-adjust: exact !important;
   }
 
-  /* ---- HEADER: compact ---- */
+  /* ---- HEADER ---- */
   .report-header {
-    padding: 10px 16px !important;
-    gap: 12px !important;
-    grid-template-columns: 1fr 140px !important;
+    padding: 16px 24px !important;
+    gap: 16px !important;
+    grid-template-columns: 1fr 160px !important;
   }
 
-  .brand-panel { gap: 10px !important; }
+  .brand-panel { gap: 14px !important; }
 
   .logo-mark {
-    width: 60px !important;
-    height: 60px !important;
-    border-radius: 10px !important;
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 12px !important;
   }
 
-  .logo-mark img { padding: 6px !important; }
+  .logo-mark img { padding: 8px !important; }
 
   .document-kicker {
-    font-size: 8px !important;
-    margin-bottom: 4px !important;
+    font-size: 9px !important;
+    margin-bottom: 6px !important;
   }
 
   .brand-copy h1 {
-    font-size: 18px !important;
+    font-size: 24px !important;
     line-height: 1.1 !important;
   }
 
   .motto {
-    font-size: 10px !important;
-    margin-top: 3px !important;
+    font-size: 12px !important;
+    margin-top: 4px !important;
   }
 
   .term-panel {
-    padding: 8px 10px !important;
-    border-radius: 8px !important;
+    padding: 12px 14px !important;
+    border-radius: 10px !important;
   }
 
-  .term-panel strong { font-size: 16px !important; margin: 2px 0 !important; }
-  .term-panel small { font-size: 11px !important; }
-  .term-panel span { font-size: 8px !important; }
+  .term-panel strong { font-size: 20px !important; margin: 4px 0 !important; }
+  .term-panel small { font-size: 13px !important; }
+  .term-panel span { font-size: 9px !important; }
 
   /* ---- STUDENT INFO BAND ---- */
   .student-band {
-    padding: 8px 16px 0 !important;
-    gap: 6px !important;
+    padding: 12px 24px 0 !important;
+    gap: 8px !important;
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
 
   .info-card {
-    padding: 8px 10px !important;
-    border-radius: 8px !important;
+    padding: 12px 14px !important;
+    border-radius: 10px !important;
   }
 
-  .info-card span { font-size: 8px !important; }
-  .info-card strong { font-size: 13px !important; margin-top: 2px !important; }
+  .info-card span { font-size: 9px !important; }
+  .info-card strong { font-size: 15px !important; margin-top: 4px !important; }
 
   /* ---- PERFORMANCE STATS ---- */
   .performance-summary {
-    padding: 8px 16px 0 !important;
-    gap: 6px !important;
+    padding: 12px 24px 0 !important;
+    gap: 8px !important;
   }
 
   .stat-card {
-    padding: 8px 10px !important;
-    border-radius: 8px !important;
+    padding: 12px 14px !important;
+    border-radius: 10px !important;
   }
 
-  .stat-card span { font-size: 8px !important; }
-  .stat-card strong { font-size: 20px !important; margin-top: 2px !important; }
+  .stat-card span { font-size: 9px !important; }
+  .stat-card strong { font-size: 26px !important; margin-top: 4px !important; }
 
   /* ---- SECTION TITLE ---- */
   .result-section {
-    padding: 8px 16px 0 !important;
+    padding: 12px 24px 0 !important;
   }
 
-  .section-title { margin-bottom: 6px !important; }
-  .section-title strong { font-size: 11px !important; }
-  .section-title span { font-size: 8px !important; }
+  .section-title { margin-bottom: 8px !important; }
+  .section-title strong { font-size: 13px !important; }
+  .section-title span { font-size: 9px !important; }
 
-  /* ---- TABLE: readable but compact ---- */
+  /* ---- TABLE ---- */
   .table-frame {
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     border-width: 1px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
   .table-frame table th {
-    padding: 7px 8px !important;
-    font-size: 11px !important;
+    padding: 10px 10px !important;
+    font-size: 12px !important;
   }
 
   .table-frame table td {
-    padding: 7px 8px !important;
-    font-size: 13px !important;
+    padding: 10px 10px !important;
+    font-size: 14px !important;
     font-weight: 700 !important;
-    line-height: 1.2 !important;
+    line-height: 1.3 !important;
   }
 
   .grade-badge {
-    font-size: 11px !important;
-    padding: 2px 6px !important;
+    font-size: 12px !important;
+    padding: 3px 8px !important;
   }
 
   /* ---- REMARKS ---- */
   .remarks-section {
-    padding: 8px 16px 8px !important;
+    padding: 12px 24px 12px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
   .remark-box {
-    min-height: 70px !important;
-    padding: 8px 10px !important;
-    border-radius: 8px !important;
+    min-height: 90px !important;
+    padding: 12px 14px !important;
+    border-radius: 10px !important;
   }
 
   .remark-box p {
-    font-size: 11px !important;
-    margin: 2px 0 4px !important;
+    font-size: 12px !important;
+    margin: 4px 0 6px !important;
   }
 
-  .remark-box span { font-size: 8px !important; }
+  .remark-box span { font-size: 9px !important; }
 
   .signature-line,
   .signature-image {
-    height: 36px !important;
-    margin-top: 2px !important;
+    height: 44px !important;
+    margin-top: 4px !important;
   }
 
-  .teacher-name { font-size: 10px !important; }
-  .signature-area small { font-size: 8px !important; }
+  .teacher-name { font-size: 12px !important; }
+  .signature-area small { font-size: 9px !important; }
 
   /* ---- FOOTER ---- */
   .report-footer {
-    padding: 6px 16px !important;
+    padding: 10px 24px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
-  .footer-brand strong { font-size: 11px !important; }
-  .footer-brand span { font-size: 8px !important; }
-  .footer-copy p { font-size: 9px !important; }
+  .footer-brand strong { font-size: 12px !important; }
+  .footer-brand span { font-size: 9px !important; }
+  .footer-copy p { font-size: 10px !important; }
 
   @page { size: A4 portrait; margin: 4mm !important; }
 }
