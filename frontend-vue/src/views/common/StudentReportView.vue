@@ -1189,6 +1189,21 @@ td {
     background: transparent !important;
     backdrop-filter: none !important;
     box-shadow: none !important;
+    border: 2px solid #ccc !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .logo-mark img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    padding: 2px !important; 
+    opacity: 1 !important;
+    visibility: visible !important;
   }
   .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
 

@@ -1596,9 +1596,23 @@ td {
     background: transparent !important;
     backdrop-filter: none !important;
     box-shadow: none !important;
+    border: 2px solid #ccc !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
-  .logo-mark img { padding: 8px !important; }
+  .logo-mark img { 
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    padding: 4px !important; 
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
 
   .document-kicker {
     font-size: 9px !important;
