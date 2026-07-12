@@ -393,31 +393,37 @@ resultsRouter.post(
     );
     const selectedStudents = studentsInClass.filter((student) => selectedIds.includes(student.studentId));
 
-    const reportResults = await Promise.all(
-      selectedStudents.map(async (student) => {
-        try {
-          return {
-            ok: true,
-            report: await buildStudentReport({
-              student,
-              cls,
-              session: String(session),
-              term: String(term)
-            })
-          };
-        } catch (error) {
-          console.error(`Bulk report failed for ${student.studentId}:`, error?.message || error);
-          return {
-            ok: false,
-            error: {
-              studentId: student.studentId,
-              studentName: `${student.lastName || ""} ${student.firstName || ""}`.trim(),
-              error: error?.message || "Failed to build report"
-            }
-          };
-        }
-      })
-    );
+    const reportResults = [];
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < selectedStudents.length; i += BATCH_SIZE) {
+      const batch = selectedStudents.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.all(
+        batch.map(async (student) => {
+          try {
+            return {
+              ok: true,
+              report: await buildStudentReport({
+                student,
+                cls,
+                session: String(session),
+                term: String(term)
+              })
+            };
+          } catch (error) {
+            console.error(`Bulk report failed for ${student.studentId}:`, error?.message || error);
+            return {
+              ok: false,
+              error: {
+                studentId: student.studentId,
+                studentName: `${student.lastName || ""} ${student.firstName || ""}`.trim(),
+                error: error?.message || "Failed to build report"
+              }
+            };
+          }
+        })
+      );
+      reportResults.push(...batchResults);
+    }
 
     const reports = reportResults.filter((item) => item.ok).map((item) => item.report);
     const failed = reportResults.filter((item) => !item.ok).map((item) => item.error);
