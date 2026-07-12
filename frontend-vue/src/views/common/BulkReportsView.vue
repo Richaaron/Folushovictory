@@ -202,10 +202,7 @@ const handlePrintAll = () => {
       width: 100%;
       margin: 0;
       padding: 0;
-      page-break-before: always;
-      break-before: page;
     }
-    .print-card:first-child { page-break-before: auto; break-before: auto; }
     .withheld-page { page-break-before: always; break-before: page; }
     /* Reset transforms for clean PDF rendering */
     .print-card { transform: none !important; }
@@ -608,9 +605,8 @@ onMounted(fetchStudents)
       </div>
 
       <div v-if="reports.length" id="print-area-section" class="print-area space-y-8">
-        <template v-for="(report, index) in printableReports" :key="report.student.studentId">
-          <section class="print-card bg-white text-slate-900">
-            <header class="report-head">
+        <section v-for="report in printableReports" :key="report.student.studentId" class="print-card bg-white text-slate-900">
+          <header class="report-head">
             <div>
               <p class="text-[10px] font-black uppercase tracking-widest text-amber-300">Official Student Report Card</p>
               <h2>{{ report.school?.name || 'School Name' }}</h2>
@@ -684,9 +680,7 @@ onMounted(fetchStudents)
               <strong>{{ report.school?.principalName || 'Principal' }}</strong>
             </div>
           </div>
-          </section>
-          <div v-if="index < printableReports.length - 1 || withheldReports.length" class="html2pdf__page-break border-0 h-0 m-0 p-0 break-before-page"></div>
-        </template>
+        </section>
 
         <section v-if="withheldReports.length" class="withheld-page bg-white p-8 text-slate-900">
           <div class="mb-6 flex items-center gap-3">
@@ -948,15 +942,8 @@ onMounted(fetchStudents)
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     break-inside: avoid-page !important;
-    page-break-before: always !important;
-    break-before: page !important;
     page-break-after: always !important;
     break-after: page !important;
-  }
-
-  .print-card:first-child {
-    page-break-before: auto !important;
-    break-before: auto !important;
   }
 
   .print-card:last-child {
@@ -967,8 +954,6 @@ onMounted(fetchStudents)
   .withheld-page {
     page-break-before: always !important;
     break-before: page !important;
-    page-break-after: always !important;
-    break-after: page !important;
     box-shadow: none;
   }
 
