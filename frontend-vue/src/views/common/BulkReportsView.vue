@@ -1597,21 +1597,20 @@ td {
     backdrop-filter: none !important;
     box-shadow: none !important;
     border: 2px solid #ccc !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    display: block !important;
   }
 
   .logo-mark img { 
     display: block !important;
     width: 100% !important;
     height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
+    max-width: none !important;
     object-fit: contain !important;
     padding: 4px !important; 
     opacity: 1 !important;
     visibility: visible !important;
+    print-color-adjust: economy !important;
+    -webkit-print-color-adjust: economy !important;
   }
 
   .document-kicker {
