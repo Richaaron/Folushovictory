@@ -222,8 +222,8 @@ const handlePrintAll = () => {
     }
     .print-card:first-child { page-break-before: auto; break-before: auto; }
     .withheld-page { page-break-before: always; break-before: page; }
-    /* Reset transforms for clean PDF rendering, use zoom instead */
-    .print-card { transform: none !important; zoom: 1.15 !important; width: calc(202mm / 1.15) !important; }
+    /* Reset transforms for clean PDF rendering */
+    .print-card { transform: none !important; }
     /* Preserve colors aggressively */
     html, body, .print-area, .print-card, .print-card * {
       -webkit-print-color-adjust: exact !important;
@@ -1521,54 +1521,37 @@ tbody tr:nth-child(even) {
     print-color-adjust: exact !important;
   }
 
-  :global(html),
-  :global(body) {
-    width: auto !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  @page {
-    size: A4;
-    margin: 4mm !important;
-    padding: 0 !important;
-  }
-
   .no-print {
     display: none !important;
   }
 
-  .bulk-report-page {
-    width: 202mm !important;
-    max-width: none;
-    padding: 0 !important;
-    margin: 0 auto !important;
-    overflow: visible !important;
-  }
-
   .print-area {
-    display: block;
-    width: 202mm !important;
-    overflow: visible !important;
-    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
-  .print-card {
-    --print-scale: 1.15;
-    box-sizing: border-box !important;
-    display: block !important;
-    width: calc(202mm / var(--print-scale)) !important;
-    min-height: 0 !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  /* Compact page layout: maximize usable space while remaining printable */
+  .report-card, .print-card {
+    /* Expand to use the full printable width */
+    width: calc(210mm - 8mm) !important;
+    max-width: calc(210mm - 8mm) !important;
+    min-height: calc(297mm - 12mm) !important; /* Force to take up almost full A4 height */
+    margin: 0 auto !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
     overflow: visible !important;
     transform: none !important;
-    zoom: var(--print-scale) !important;
+    transform-origin: top center !important;
+    font-size: 14px !important;
+    line-height: 1.06 !important;
+    padding: 4px 6px !important;
+    
+    /* Ensure strict one-page-per-report logic */
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    break-inside: avoid-page !important;
     page-break-after: always !important;
     break-after: page !important;
   }
@@ -1581,186 +1564,150 @@ tbody tr:nth-child(even) {
   .withheld-page {
     page-break-before: always !important;
     break-before: page !important;
-    box-shadow: none;
-  }
-
-  .print-card,
-  .withheld-page {
+    box-shadow: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    break-inside: avoid-page !important;
   }
 
-  .print-card,
-  .print-card *,
-  .withheld-page,
-  .withheld-page * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  .watermark-logo {
+    opacity: 0.03 !important;
   }
 
-  .report-head {
-    grid-template-columns: 1fr 44mm !important;
-    gap: 6mm !important;
-    padding: 5mm 8mm 3mm !important;
-    background: white !important;
-    color: #1e1b4b !important;
-    border-bottom: 1mm solid #581c87;
+  .report-header {
+    grid-template-columns: 1fr 160px !important;
+    padding: 8px 8px !important;
+    gap: 12px !important;
   }
 
-  .report-head h2 {
-    margin: 1mm 0 !important;
+  .brand-copy h1 {
     font-size: 22px !important;
-    line-height: 1.05 !important;
-    color: #1e1b4b !important;
   }
 
-  .report-head p {
-    color: #581c87 !important;
-    font-size: 10px !important;
-    line-height: 1.15 !important;
+  .logo-mark {
+    width: 80px !important;
+    height: 80px !important;
   }
 
-  .report-head .term-box {
-    border-color: #581c87 !important;
-    color: #1e1b4b !important;
-    min-height: 15mm !important;
-    padding: 2.2mm !important;
+  .term-panel {
+    padding: 6px 8px !important;
   }
 
-  .report-head .term-box span,
-  .report-head .term-box strong {
-    color: #1e1b4b !important;
+  .term-panel strong {
+    font-size: 20px !important;
   }
 
-  .report-head .term-box span {
-    font-size: 10px !important;
+  /* 1) Increase Table Font Size + tighten vertical padding */
+  .table-frame table th,
+  .table-frame table td {
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+    line-height: 1 !important;
+    vertical-align: middle !important;
   }
 
-  .report-head .term-box strong {
+  /* Force reduced row height where possible */
+  .table-frame table tbody tr {
+    height: auto !important;
+    max-height: 20px !important;
+  }
+
+  /* Ensure first column remains left-aligned but keeps tight padding */
+  .table-frame table th:first-child,
+  .table-frame table td:first-child {
+    text-align: left !important;
+    width: 26% !important;
+    padding-left: 6px !important;
+  }
+
+  /* 2) Remarks font size */
+  .remark-box p {
     font-size: 12px !important;
-  }
-
-  .student-strip span,
-  .summary-strip span {
-    font-size: 8.5px !important;
-  }
-
-  .student-strip strong,
-  .summary-strip strong {
-    font-size: 10.5px !important;
-    line-height: 1.1 !important;
-  }
-
-  .student-strip div,
-  .summary-strip div {
-    padding: 1.8mm !important;
-  }
-
-  .result-table th,
-  .result-table td,
-  .withheld-table th,
-  .withheld-table td {
-    font-size: 15px !important;
-    padding: 1.1mm 1.4mm !important;
+    margin: 4px 0 6px !important;
+    min-height: 20px !important;
     line-height: 1.08 !important;
-    border-color: #cbd5e1 !important;
   }
 
-  .result-table th,
-  .withheld-table th {
-    background: #e2e8f0 !important;
-    color: #1e1b4b !important;
-    font-weight: 700 !important;
+  /* 3) Shrink signature areas */
+  .remark-box {
+    min-height: 60px !important;
+    padding: 8px !important;
   }
 
-  .result-table,
-  .withheld-table {
-    border-collapse: collapse !important;
-    width: calc(100% - 16mm) !important;
-    margin: 2mm 8mm 0 !important;
-    font-size: 10.5px !important;
-    table-layout: fixed !important;
+  .signature-area {
+    margin-top: 6px !important;
   }
 
-  .result-table th,
-  .result-table td,
-  .withheld-table th,
-  .withheld-table td {
-    white-space: normal !important;
-    word-break: break-word !important;
-    overflow-wrap: anywhere !important;
-  }
-
-  .remarks-grid {
-    gap: 3mm !important;
-    margin-top: 3mm !important;
-    padding: 0 8mm 4mm !important;
-    width: auto !important;
-    page-break-before: avoid !important;
-    break-before: avoid !important;
-  }
-
-  .remarks-grid div {
-    min-height: 28mm !important;
-    border: 1px solid #cbd5e1 !important;
-    border-top: 0.8mm solid #581c87 !important;
-    padding: 2mm !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  .remarks-grid p {
-    min-height: auto !important;
-    margin: 1mm 0 1.5mm !important;
-    font-size: 8.5px !important;
-    font-weight: 600 !important;
-    line-height: 1.25 !important;
-  }
-
-  .remarks-grid span,
-  .remarks-grid strong {
-    font-size: 8.5px !important;
-  }
-
-  .teacher-signature,
   .signature-line,
   .signature-image {
-    height: 17mm !important;
-    margin: 0 !important;
-  }
-
-  .signature-line {
-    border-bottom: 1.5px solid #475569 !important;
+    height: 44px !important;
+    margin-top: 2px !important;
+    border-bottom: 2px solid #cbd5e1 !important;
   }
 
   .signature-image img {
-    max-height: 16mm !important;
+    max-width: 180px !important;
+    max-height: 40px !important;
     object-fit: contain !important;
   }
 
-  .teacher-signature {
-    font-size: 14px !important;
-    padding-top: 2px !important;
-    margin-bottom: 0 !important;
+  .teacher-name {
+    font-size: 12px !important;
+    margin-top: 2px !important;
   }
 
-  .report-head {
-    padding: 5mm 8mm 3mm !important;
+  /* Tighten spacing in footer */
+  .report-footer {
+    padding: 8px 12px !important;
+    gap: 8px !important;
   }
 
-  .student-strip,
-  .summary-strip {
-    gap: 1.6mm !important;
-    padding: 1.8mm 8mm 0 !important;
+  /* Reduce table header height where possible */
+  .table-frame thead th {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
   }
 
-  .summary-strip {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  /* Avoid page breaks inside critical sections */
+  .report-header,
+  .table-frame,
+  .remarks-section,
+  .report-footer {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  
+  .table-frame {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
-  .summary-strip div {
-    border-top-color: #581c87 !important;
+  /* HIDE LESS-CRITICAL SECTIONS TO FORCE SINGLE-PAGE OUTPUT */
+  .preview-banner,
+  .cumulative-section,
+  .performance-summary,
+  .school-contact,
+  .report-top-line,
+  .report-bottom-line {
+    display: none !important;
   }
+
+  /* Tighten header and brand spacing */
+  .report-header {
+    padding: 6px 8px !important;
+    gap: 8px !important;
+    grid-template-columns: 1fr 120px !important;
+  }
+
+  .brand-copy h1 { font-size: 18px !important; }
+  .logo-mark { width: 60px !important; height: 60px !important; border-radius: 12px !important; }
+  .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
+
+  .table-frame thead th {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    font-size: 11px !important;
+  }
+
+  @page { size: A4; margin: 4mm !important; }
 }
 </style>
