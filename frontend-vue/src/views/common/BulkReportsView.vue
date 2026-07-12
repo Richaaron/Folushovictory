@@ -1507,6 +1507,105 @@ td {
   text-align: center;
 }
 
+/* =============================================
+   MOBILE RESPONSIVE STYLES (≤ 640px)
+   ============================================= */
+@media (max-width: 640px) {
+  /* Report card full-width, no side shadow */
+  .report-card {
+    border-radius: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Header stacks logo + name on top, term below */
+  .report-header {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 20px 16px !important;
+  }
+
+  .term-panel {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    padding: 14px 16px !important;
+    align-items: center !important;
+  }
+
+  .brand-copy h1 {
+    font-size: 22px !important;
+  }
+
+  .logo-mark {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  /* School contact: 2 columns instead of 4 */
+  .school-contact {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Student info band: 2 columns */
+  .student-band {
+    grid-template-columns: repeat(2, 1fr) !important;
+    padding: 16px !important;
+    gap: 10px !important;
+  }
+
+  /* Performance stats: 2 columns */
+  .performance-summary {
+    grid-template-columns: repeat(2, 1fr) !important;
+    padding: 16px !important;
+    gap: 10px !important;
+  }
+
+  /* Table: horizontally scrollable so nothing is clipped */
+  .result-section {
+    padding: 16px !important;
+  }
+
+  .table-frame {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .table-frame table {
+    min-width: 500px !important;
+  }
+
+  /* Remarks: stack vertically */
+  .remarks-section {
+    flex-direction: column !important;
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+
+  .remark-box {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Action buttons: full-width stack */
+  .action-bar,
+  .controls-bar {
+    flex-direction: column !important;
+    padding: 12px 16px !important;
+    gap: 10px !important;
+  }
+
+  .action-bar button,
+  .controls-bar button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Withheld card: readable on mobile */
+  .withheld-page {
+    padding: 24px 16px !important;
+  }
+}
+
 @page {
   size: A4;
   margin: 4mm;
