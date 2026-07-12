@@ -203,9 +203,10 @@ const handlePrintAll = () => {
       margin: 0;
       padding: 0;
     }
+    .print-card:first-child { page-break-before: auto; break-before: auto; }
     .withheld-page { page-break-before: always; break-before: page; }
-    /* Reset transforms for clean PDF rendering */
-    .print-card { transform: none !important; }
+    /* Reset transforms for clean PDF rendering, use zoom instead */
+    .print-card { transform: none !important; zoom: 1.15 !important; width: calc(202mm / 1.15) !important; }
     /* Preserve colors */
     *, *::before, *::after {
       -webkit-print-color-adjust: exact !important;
@@ -928,7 +929,7 @@ onMounted(fetchStudents)
   }
 
   .print-card {
-    --print-scale: 1.22;
+    --print-scale: 1.15;
     box-sizing: border-box !important;
     display: block !important;
     width: calc(202mm / var(--print-scale)) !important;
@@ -937,8 +938,8 @@ onMounted(fetchStudents)
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
-    transform: scale(var(--print-scale)) !important;
-    transform-origin: top left !important;
+    transform: none !important;
+    zoom: var(--print-scale) !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     break-inside: avoid-page !important;
