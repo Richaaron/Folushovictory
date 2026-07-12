@@ -1530,7 +1530,7 @@ td {
     margin: 0 !important;
   }
 
-  /* ---- ONE-PAGE-PER-CARD RULE ---- */
+  /* ---- ONE PAGE PER STUDENT ---- */
   .report-card, .print-card {
     width: 100% !important;
     max-width: 100% !important;
@@ -1541,8 +1541,7 @@ td {
     border: 0 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-    overflow: hidden !important;
-    transform: none !important;
+    overflow: visible !important;
     page-break-after: always !important;
     break-after: page !important;
     page-break-inside: avoid !important;
@@ -1562,17 +1561,15 @@ td {
     box-shadow: none !important;
   }
 
-  /* ---- HIDE DECORATIVE / SPACE-WASTING SECTIONS ---- */
-  /* Hidden only the strictly decorative elements to allow maximum natural content */
+  /* ---- HIDE UNNECESSARY SECTIONS ---- */
   .watermark-logo,
   .report-top-line,
   .report-bottom-line,
   .cumulative-section,
   .school-contact { display: none !important; }
 
-  /* ---- PRESERVE COLORS ---- */
+  /* ---- COLOR PRESERVATION ---- */
   .report-header,
-  .school-contact,
   .performance-summary,
   .term-panel,
   .table-frame table th,
@@ -1583,70 +1580,150 @@ td {
     print-color-adjust: exact !important;
   }
 
-  /* ---- INCREASE READABILITY & PADDING ---- */
+  /* ---- HEADER: compact ---- */
   .report-header {
-    padding: 20px 28px !important;
+    padding: 10px 16px !important;
+    gap: 12px !important;
+    grid-template-columns: 1fr 140px !important;
   }
 
-  .contact-label { font-size: 10px !important; }
-  .contact-item p { font-size: 13px !important; }
+  .brand-panel { gap: 10px !important; }
 
+  .logo-mark {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 10px !important;
+  }
+
+  .logo-mark img { padding: 6px !important; }
+
+  .document-kicker {
+    font-size: 8px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .brand-copy h1 {
+    font-size: 18px !important;
+    line-height: 1.1 !important;
+  }
+
+  .motto {
+    font-size: 10px !important;
+    margin-top: 3px !important;
+  }
+
+  .term-panel {
+    padding: 8px 10px !important;
+    border-radius: 8px !important;
+  }
+
+  .term-panel strong { font-size: 16px !important; margin: 2px 0 !important; }
+  .term-panel small { font-size: 11px !important; }
+  .term-panel span { font-size: 8px !important; }
+
+  /* ---- STUDENT INFO BAND ---- */
   .student-band {
-    padding: 16px 28px 0 !important;
-    gap: 10px !important;
+    padding: 8px 16px 0 !important;
+    gap: 6px !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
-  
-  .info-card span { font-size: 10px !important; }
-  .info-card strong { font-size: 16px !important; }
 
-  .stat-card span { font-size: 10px !important; }
-  .stat-card strong { font-size: 26px !important; }
+  .info-card {
+    padding: 8px 10px !important;
+    border-radius: 8px !important;
+  }
 
+  .info-card span { font-size: 8px !important; }
+  .info-card strong { font-size: 13px !important; margin-top: 2px !important; }
+
+  /* ---- PERFORMANCE STATS ---- */
+  .performance-summary {
+    padding: 8px 16px 0 !important;
+    gap: 6px !important;
+  }
+
+  .stat-card {
+    padding: 8px 10px !important;
+    border-radius: 8px !important;
+  }
+
+  .stat-card span { font-size: 8px !important; }
+  .stat-card strong { font-size: 20px !important; margin-top: 2px !important; }
+
+  /* ---- SECTION TITLE ---- */
   .result-section {
-    padding: 16px 28px 0 !important;
+    padding: 8px 16px 0 !important;
   }
 
-  .remarks-section {
-    padding: 16px 28px 16px !important;
+  .section-title { margin-bottom: 6px !important; }
+  .section-title strong { font-size: 11px !important; }
+  .section-title span { font-size: 8px !important; }
+
+  /* ---- TABLE: readable but compact ---- */
+  .table-frame {
+    border-radius: 8px !important;
+    border-width: 1px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
-  .report-footer {
-    padding: 12px 28px !important;
-  }
-
-  /* ---- TABLE: BIGGER FONTS TO FILL PAGE ---- */
   .table-frame table th {
-    padding: 11px 10px !important;
-    font-size: 13px !important;
+    padding: 7px 8px !important;
+    font-size: 11px !important;
   }
 
   .table-frame table td {
-    padding: 10px 10px !important;
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    line-height: 1.3 !important;
+    padding: 7px 8px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
   }
 
-  /* ---- SIGNATURE AREA: moderate shrink ---- */
-  .remark-box {
-    min-height: 100px !important;
+  .grade-badge {
+    font-size: 11px !important;
+    padding: 2px 6px !important;
   }
 
-  .signature-line,
-  .signature-image {
-    height: 50px !important;
-  }
-
-  .table-frame,
-  .remarks-section,
-  .report-footer,
-  .report-header {
+  /* ---- REMARKS ---- */
+  .remarks-section {
+    padding: 8px 16px 8px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
-  @page { size: A4; margin: 5mm !important; }
+  .remark-box {
+    min-height: 70px !important;
+    padding: 8px 10px !important;
+    border-radius: 8px !important;
+  }
+
+  .remark-box p {
+    font-size: 11px !important;
+    margin: 2px 0 4px !important;
+  }
+
+  .remark-box span { font-size: 8px !important; }
+
+  .signature-line,
+  .signature-image {
+    height: 36px !important;
+    margin-top: 2px !important;
+  }
+
+  .teacher-name { font-size: 10px !important; }
+  .signature-area small { font-size: 8px !important; }
+
+  /* ---- FOOTER ---- */
+  .report-footer {
+    padding: 6px 16px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .footer-brand strong { font-size: 11px !important; }
+  .footer-brand span { font-size: 8px !important; }
+  .footer-copy p { font-size: 9px !important; }
+
+  @page { size: A4 portrait; margin: 4mm !important; }
 }
 </style>
