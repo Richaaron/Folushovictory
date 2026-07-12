@@ -1674,12 +1674,12 @@ td {
   }
 
   .table-frame table th {
-    padding: 8px 8px !important;
+    padding: 10px 8px !important;
     font-size: 13px !important;
   }
 
   .table-frame table td {
-    padding: 8px 8px !important;
+    padding: 10px 8px !important;
     font-size: 15px !important;
     font-weight: 800 !important;
     line-height: 1.3 !important;
@@ -1698,8 +1698,8 @@ td {
   }
 
   .remark-box {
-    min-height: 80px !important;
-    padding: 10px 12px !important;
+    min-height: 90px !important;
+    padding: 12px 14px !important;
     border-radius: 8px !important;
   }
 
