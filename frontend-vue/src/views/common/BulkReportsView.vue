@@ -1532,9 +1532,10 @@ tbody tr:nth-child(even) {
 
   /* ---- ONE-PAGE-PER-CARD RULE ---- */
   .report-card, .print-card {
-    width: 100% !important;
-    max-width: none !important;
-    /* NO min-height — let content dictate height so nothing overflows */
+    /* Scale to fill A4 proportionally via zoom */
+    zoom: 0.78 !important;
+    width: calc(210mm / 0.78) !important;
+    max-width: calc(210mm / 0.78) !important;
     min-height: 0 !important;
     height: auto !important;
     margin: 0 !important;
@@ -1563,150 +1564,77 @@ tbody tr:nth-child(even) {
     box-shadow: none !important;
   }
 
-  /* ---- HIDE DECORATIVE / NON-ESSENTIAL SECTIONS ---- */
+  /* ---- HIDE DECORATIVE / SPACE-WASTING SECTIONS ---- */
+  /* These are hidden to save vertical space — the table already has the score data */
   .watermark-logo,
   .report-top-line,
   .report-bottom-line,
   .school-contact,
   .performance-summary,
-  .cumulative-section,
-  .preview-banner,
-  .section-title { display: none !important; }
+  .cumulative-section { display: none !important; }
 
-  /* ---- HEADER: compact ---- */
-  .report-header {
-    padding: 5px 10px !important;
-    gap: 8px !important;
-    grid-template-columns: 1fr 90px !important;
-    background: #0a0e27 !important;
+  /* ---- PRESERVE COLORS ---- */
+  .report-header,
+  .term-panel,
+  .table-frame table th,
+  .grade-badge,
+  .remark-box,
+  .report-footer {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  .brand-panel { gap: 10px !important; }
-  .logo-mark { width: 50px !important; height: 50px !important; border-radius: 8px !important; }
-  .brand-copy h1 { font-size: 14px !important; line-height: 1.1 !important; }
-  .document-kicker { font-size: 7px !important; margin-bottom: 4px !important; }
-  .motto { font-size: 9px !important; margin-top: 3px !important; }
-
-  .term-panel {
-    padding: 4px 6px !important;
-    border-radius: 6px !important;
+  /* ---- SECTION PADDING TIGHTENING ---- */
+  .report-header {
+    padding: 20px 28px !important;
   }
-  .term-panel span { font-size: 7px !important; }
-  .term-panel strong { font-size: 13px !important; margin: 2px 0 !important; }
-  .term-panel small { font-size: 10px !important; }
 
-  /* ---- STUDENT BAND: compact ---- */
   .student-band {
-    gap: 5px !important;
-    padding: 6px 10px 0 !important;
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    padding: 16px 28px 0 !important;
+    gap: 10px !important;
   }
 
-  .info-card {
-    padding: 5px 8px !important;
-    border-radius: 6px !important;
+  .result-section {
+    padding: 16px 28px 0 !important;
   }
-  .info-card span { font-size: 7px !important; }
-  .info-card strong { font-size: 10px !important; margin-top: 2px !important; }
 
-  /* ---- RESULT SECTION ---- */
-  .result-section { padding: 6px 10px 0 !important; }
-
-  .table-frame {
-    border-radius: 6px !important;
+  .remarks-section {
+    padding: 16px 28px 16px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
+  .report-footer {
+    padding: 12px 28px !important;
+  }
+
+  /* ---- TABLE: tighten rows slightly ---- */
   .table-frame table th {
-    padding: 4px 6px !important;
-    font-size: 8px !important;
-    background: #0a0e27 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+    padding: 8px 10px !important;
   }
 
   .table-frame table td {
-    padding: 3px 6px !important;
-    font-size: 10px !important;
+    padding: 5px 10px !important;
     line-height: 1.1 !important;
   }
 
-  .table-frame table th:first-child,
-  .table-frame table td:first-child {
-    text-align: left !important;
-    width: 28% !important;
-    padding-left: 6px !important;
-  }
-
-  .grade-badge {
-    padding: 2px 5px !important;
-    font-size: 9px !important;
-    min-width: 24px !important;
-    border-radius: 4px !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* ---- REMARKS SECTION ---- */
-  .remarks-section {
-    padding: 6px 10px 6px !important;
-    gap: 8px !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
+  /* ---- SIGNATURE AREA: moderate shrink ---- */
   .remark-box {
-    min-height: 50px !important;
-    padding: 6px 8px !important;
-    border-radius: 6px !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+    min-height: 100px !important;
   }
-
-  .remark-box span { font-size: 7px !important; }
-
-  .remark-box p {
-    font-size: 9px !important;
-    margin: 3px 0 4px !important;
-    min-height: 14px !important;
-    line-height: 1.2 !important;
-  }
-
-  .signature-area { margin-top: 4px !important; }
 
   .signature-line,
   .signature-image {
-    height: 28px !important;
-    margin-top: 2px !important;
-    border-bottom: 1px solid #cbd5e1 !important;
+    height: 50px !important;
   }
 
-  .signature-image img {
-    max-width: 120px !important;
-    max-height: 26px !important;
-    object-fit: contain !important;
+  .table-frame,
+  .remarks-section,
+  .report-footer,
+  .report-header {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
-
-  .teacher-name { font-size: 10px !important; margin-top: 2px !important; }
-  .remark-box strong { font-size: 8px !important; margin-top: 3px !important; }
-  .remark-box small { font-size: 7px !important; margin-top: 1px !important; }
-
-  /* ---- FOOTER: compact ---- */
-  .report-footer {
-    padding: 5px 10px !important;
-    gap: 8px !important;
-    background: #0a0e27 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  .footer-brand strong { font-size: 10px !important; }
-  .footer-brand span { font-size: 9px !important; }
-  .footer-copy p { font-size: 9px !important; }
 
   @page { size: A4; margin: 5mm !important; }
 }
