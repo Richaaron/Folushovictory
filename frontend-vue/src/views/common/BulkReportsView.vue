@@ -1567,7 +1567,9 @@ td {
   .watermark-logo,
   .report-top-line,
   .report-bottom-line,
-  .cumulative-section { display: none !important; }
+  .cumulative-section,
+  .motto,
+  .school-contact { display: none !important; }
 
   /* ---- PRESERVE COLORS ---- */
   .report-header,
