@@ -1235,15 +1235,15 @@ td {
   font-family: 'Cambria', 'Georgia', serif;
 }
 
-tbody tr {
+.table-frame tbody tr {
   transition: background 0.2s ease;
 }
 
-tbody tr:hover {
+.table-frame tbody tr:hover {
   background: rgba(168, 85, 247, 0.05);
 }
 
-tbody tr:nth-child(even) {
+.table-frame tbody tr:nth-child(even) {
   background: #f8fafc;
 }
 
