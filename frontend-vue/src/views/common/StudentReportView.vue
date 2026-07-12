@@ -1176,8 +1176,19 @@ td {
     grid-template-columns: 1fr 120px !important;
   }
 
-  .brand-copy h1 { font-size: 18px !important; }
-  .logo-mark { width: 60px !important; height: 60px !important; }
+  .brand-copy h1 { 
+    font-size: 18px !important;
+    background: none !important;
+    -webkit-text-fill-color: #000 !important;
+    color: #000 !important; 
+  }
+  .logo-mark { 
+    width: 60px !important; 
+    height: 60px !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
   .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
 
   .table-frame thead th {

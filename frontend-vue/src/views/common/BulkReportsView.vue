@@ -1593,6 +1593,9 @@ td {
     width: 80px !important;
     height: 80px !important;
     border-radius: 12px !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
   }
 
   .logo-mark img { padding: 8px !important; }
@@ -1605,6 +1608,9 @@ td {
   .brand-copy h1 {
     font-size: 24px !important;
     line-height: 1.1 !important;
+    background: none !important;
+    -webkit-text-fill-color: #000 !important;
+    color: #000 !important;
   }
 
   .motto {
