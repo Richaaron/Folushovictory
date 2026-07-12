@@ -1676,12 +1676,15 @@ td {
   .table-frame table th {
     padding: 10px 8px !important;
     font-size: 13px !important;
+    font-weight: 800 !important;
+    color: #000 !important;
   }
 
   .table-frame table td {
     padding: 10px 8px !important;
-    font-size: 15px !important;
-    font-weight: 800 !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    color: #000 !important;
     line-height: 1.3 !important;
   }
 
