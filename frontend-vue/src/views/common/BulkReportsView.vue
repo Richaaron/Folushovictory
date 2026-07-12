@@ -493,8 +493,9 @@ onMounted(fetchStudents)
           <option value="Second">Second</option>
           <option value="Third">Third</option>
         </select>
-        <button @click="generateReports(false)" :disabled="generating || selectedCount === 0" class="rounded-xl bg-slate-900/60 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:opacity-50 border border-slate-700/60">
-          Preview
+        <button @click="generateReports(false)" :disabled="generating || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-slate-900/60 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:opacity-50 border border-slate-700/60">
+          <Loader2 v-if="generating" class="h-4 w-4 animate-spin" />
+          {{ generating ? 'Loading...' : 'Preview' }}
         </button>
         <button @click="notifyParents" :disabled="notifying || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-50">
           <Loader2 v-if="notifying" class="h-4 w-4 animate-spin" />
@@ -514,8 +515,18 @@ onMounted(fetchStudents)
       </div>
     </div>
 
-    <div v-if="loading" class="no-print flex h-96 items-center justify-center">
+    <div v-if="loading" class="no-print flex h-96 flex-col items-center justify-center gap-4">
       <Loader2 class="h-12 w-12 animate-spin text-royal-purple" />
+      <p class="text-sm font-bold text-slate-400">Loading students...</p>
+    </div>
+
+    <!-- Generating overlay -->
+    <div v-if="generating" class="no-print fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-black/70 backdrop-blur-sm">
+      <div class="flex flex-col items-center gap-4 rounded-2xl border border-slate-700/60 bg-slate-900 p-10 shadow-2xl">
+        <Loader2 class="h-14 w-14 animate-spin text-royal-purple" />
+        <p class="text-base font-black text-white">Generating Report Cards</p>
+        <p class="text-xs font-bold text-slate-400">Please wait while we fetch results for {{ selectedCount }} student(s)...</p>
+      </div>
     </div>
 
     <div v-else-if="error" class="no-print rounded-2xl border border-red-700/50 bg-red-900/20 p-6 text-red-300">
