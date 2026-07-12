@@ -1696,10 +1696,10 @@ td {
 
   .table-frame table td {
     padding: 10px 8px !important;
-    font-size: 16px !important;
+    font-size: 14px !important;
     font-weight: 900 !important;
     color: #000 !important;
-    line-height: 1.3 !important;
+    line-height: 1.2 !important;
   }
 
   .grade-badge {
