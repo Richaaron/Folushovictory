@@ -1533,9 +1533,9 @@ td {
   /* ---- ONE-PAGE-PER-CARD RULE ---- */
   .report-card, .print-card {
     /* Scale to fill A4 proportionally via zoom */
-    zoom: 0.78 !important;
-    width: calc(210mm / 0.78) !important;
-    max-width: calc(210mm / 0.78) !important;
+    zoom: 0.86 !important;
+    width: calc(210mm / 0.86) !important;
+    max-width: calc(210mm / 0.86) !important;
     min-height: 0 !important;
     height: auto !important;
     margin: 0 !important;
@@ -1565,16 +1565,16 @@ td {
   }
 
   /* ---- HIDE DECORATIVE / SPACE-WASTING SECTIONS ---- */
-  /* These are hidden to save vertical space — the table already has the score data */
+  /* Hidden only the strictly decorative elements to allow maximum natural content */
   .watermark-logo,
   .report-top-line,
   .report-bottom-line,
-  .school-contact,
-  .performance-summary,
   .cumulative-section { display: none !important; }
 
   /* ---- PRESERVE COLORS ---- */
   .report-header,
+  .school-contact,
+  .performance-summary,
   .term-panel,
   .table-frame table th,
   .grade-badge,
