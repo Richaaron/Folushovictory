@@ -1511,6 +1511,12 @@ td {
    MOBILE RESPONSIVE STYLES (≤ 640px)
    ============================================= */
 @media (max-width: 640px) {
+  /* Comic Sans for better mobile readability */
+  .report-card,
+  .report-card *:not(svg):not(path) {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive !important;
+  }
+
   /* Report card full-width, no side shadow */
   .report-card {
     border-radius: 0 !important;
