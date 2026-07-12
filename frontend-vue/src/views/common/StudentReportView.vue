@@ -1195,17 +1195,17 @@ td {
   .table-frame thead th {
     padding-top: 6px !important;
     padding-bottom: 6px !important;
-    font-size: 13px !important;
+    font-size: 11px !important;
   }
 
   .table-frame td {
-    padding: 10px 10px !important;
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    line-height: 1.3 !important;
+    padding: 8px 8px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
   }
 
   /* Final fallback: reduce page margin if still overflowing */
-  @page { size: A4; margin: 4mm !important; }
+  @page { size: A4; margin: 8mm !important; }
 }
 </style>

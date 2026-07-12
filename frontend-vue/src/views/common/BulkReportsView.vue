@@ -1667,44 +1667,44 @@ td {
 
   /* ---- TABLE ---- */
   .table-frame {
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     border-width: 1px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
   .table-frame table th {
-    padding: 10px 10px !important;
-    font-size: 12px !important;
+    padding: 8px 8px !important;
+    font-size: 11px !important;
   }
 
   .table-frame table td {
-    padding: 10px 10px !important;
-    font-size: 14px !important;
+    padding: 8px 8px !important;
+    font-size: 13px !important;
     font-weight: 700 !important;
-    line-height: 1.3 !important;
+    line-height: 1.2 !important;
   }
 
   .grade-badge {
-    font-size: 12px !important;
-    padding: 3px 8px !important;
+    font-size: 11px !important;
+    padding: 3px 6px !important;
   }
 
   /* ---- REMARKS ---- */
   .remarks-section {
-    padding: 12px 24px 12px !important;
+    padding: 10px 24px 10px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
   .remark-box {
-    min-height: 90px !important;
-    padding: 12px 14px !important;
-    border-radius: 10px !important;
+    min-height: 80px !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
   }
 
   .remark-box p {
-    font-size: 12px !important;
+    font-size: 11px !important;
     margin: 4px 0 6px !important;
   }
 
@@ -1712,13 +1712,13 @@ td {
 
   .signature-line,
   .signature-image {
-    height: 44px !important;
+    height: 40px !important;
     margin-top: 4px !important;
   }
 
-  .teacher-name { font-size: 12px !important; }
-  .signature-area small { font-size: 9px !important; }
+  .teacher-name { font-size: 11px !important; }
+  .signature-area small { font-size: 8px !important; }
 
-  @page { size: A4 portrait; margin: 4mm !important; }
+  @page { size: A4 portrait; margin: 8mm !important; }
 }
 </style>
