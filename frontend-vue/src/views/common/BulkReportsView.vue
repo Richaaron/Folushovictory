@@ -701,7 +701,7 @@ onMounted(fetchStudents)
 
         <!-- Action bar at bottom of preview -->
         <div class="no-print mt-12 flex justify-center pb-20">
-          <button @click="handlePrintAll" class="flex items-center gap-3 rounded-full bg-royal-purple px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-purple-900/50 transition hover:bg-purple-600 hover:-translate-y-1">
+          <button @click="() => handlePrintAll()" class="flex items-center gap-3 rounded-full bg-royal-purple px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-purple-900/50 transition hover:bg-purple-600 hover:-translate-y-1">
             <Download class="h-5 w-5" />
             Download all as PDF
           </button>
