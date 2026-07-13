@@ -262,9 +262,9 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         <button
           @click="handleExportExcel"
           :disabled="!broadsheet || loading"
-          class="chalkboard-btn chalkboard-btn-gold text-[10px]"
+          class="chalkboard-btn chalkboard-btn-gold text-sm px-6 py-2.5 font-semibold"
         >
-          <Download class="w-3 h-3" /> Export Excel
+          <Download class="w-4 h-4 mr-1" /> Export Excel
         </button>
         </div>
       </div>
