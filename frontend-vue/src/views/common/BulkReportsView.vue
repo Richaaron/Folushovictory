@@ -180,7 +180,7 @@ const generateReports = async (shouldPrint = false, targetStudentIds: string[] |
   }
 }
 
-const handlePrintAll = () => {
+const handlePrintAll = (existingPopup?: Window | null) => {
   const el = document.getElementById('print-area-section')
   if (!el) return
 
@@ -252,7 +252,7 @@ const handlePrintAll = () => {
 </body>
 </html>`
 
-  const popup = window.open('', '_blank', 'width=900,height=700')
+  const popup = existingPopup || window.open('', '_blank', 'width=900,height=700')
   if (!popup) {
     alert('Please allow popups for this site to download the PDF.')
     return
@@ -298,6 +298,14 @@ const handleExportPDF = async () => {
     return
   }
 
+  // Open popup synchronously to bypass browser blockers
+  const popup = window.open('', '_blank', 'width=900,height=700')
+  if (!popup) {
+    error.value = 'Please allow popups for this site to download the PDF.'
+    return
+  }
+  popup.document.write('<html><body style="font-family:sans-serif;padding:2rem;text-align:center;"><h2>Generating Reports...</h2><p>Please wait, loading PDF...</p></body></html>')
+
   exportingPDF.value = true
   error.value = ''
   try {
@@ -310,11 +318,18 @@ const handleExportPDF = async () => {
       })
       reports.value = res.data
     }
+    
+    // Give Vue time to render the DOM
     await nextTick()
-    handlePrintAll()
+    
+    // Delay slightly to let images and DOM fully settle before cloning
+    setTimeout(() => {
+      handlePrintAll(popup)
+      exportingPDF.value = false
+    }, 500)
   } catch (err: any) {
-    error.value = err.response?.data?.error || 'Failed to export PDF. Please generate reports first.'
-  } finally {
+    popup.close()
+    error.value = err.response?.data?.error || 'Failed to export PDF.'
     exportingPDF.value = false
   }
 }
