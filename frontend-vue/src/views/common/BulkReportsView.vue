@@ -870,7 +870,12 @@ onMounted(fetchStudents)
   border-radius: 24px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
   color: #172033;
-  font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+}
+
+/* Apply Comic Sans to ALL text inside the report card */
+.report-card *:not(svg):not(path) {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive !important;
 }
 
 /* Watermark Logo */
