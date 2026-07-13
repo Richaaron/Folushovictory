@@ -278,13 +278,13 @@ const handleExportPDF = async () => {
         ...report,
         feeStatus: {
           ...(report.feeStatus || {}),
-          owesFees: Boolean(owingOverrides.value[report.student.studentId])
+          owesFees: Boolean(owingOverrides.value[report.student?.studentId])
         },
         student: {
           ...report.student,
           feeStatus: {
             ...(report.student?.feeStatus || {}),
-            owesFees: Boolean(owingOverrides.value[report.student.studentId])
+            owesFees: Boolean(owingOverrides.value[report.student?.studentId])
           }
         }
       }))
