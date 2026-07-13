@@ -311,7 +311,7 @@ const handleExportPDF = async () => {
       reports.value = res.data
     }
     await nextTick()
-    downloadPDF(studentIds)
+    handlePrintAll()
   } catch (err: any) {
     error.value = err.response?.data?.error || 'Failed to export PDF. Please generate reports first.'
   } finally {
