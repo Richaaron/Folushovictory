@@ -371,14 +371,6 @@ const handleUpdateTeacher = async () => {
       ? [editingTeacher.value.formClassId]
       : (editingTeacher.value.roleType === 'Form Teacher' ? [editingTeacher.value.formClassId] : [])
 
-    console.log('Update payload:', {
-      displayName: editingTeacher.value.displayName,
-      email: editingTeacher.value.email,
-      formClassId: editingTeacher.value.formClassId || '',
-      classIds,
-      subjectIds: editingTeacher.value.assignedSubjectIds || []
-    })
-
     await api.put(`/api/admin/teachers/${editingTeacher.value.username}`, {
       displayName: editingTeacher.value.displayName,
       email: editingTeacher.value.email,
