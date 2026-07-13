@@ -6,7 +6,6 @@ import {
   FileSpreadsheet, 
   Loader2,
   AlertCircle,
-  Printer,
   TrendingUp,
   ArrowLeft
 } from 'lucide-vue-next'
@@ -260,14 +259,6 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-3">
-        <button 
-          @click="$router.push({ name: 'bulk-reports', params: { classId: selectedClassId }, query: { session: selectedSession, term: selectedTerm } })"
-          :disabled="!selectedClassId"
-          class="chalkboard-btn text-[10px]"
-        >
-          <Printer class="w-3 h-3" /> Bulk Results
-        </button>
-
         <button
           @click="handleExportExcel"
           :disabled="!broadsheet || loading"
