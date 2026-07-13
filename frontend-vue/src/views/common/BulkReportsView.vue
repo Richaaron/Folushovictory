@@ -232,6 +232,15 @@ const handlePrintAll = (existingPopup?: Window | null) => {
       /* Hide unwanted sections in print */
       .school-contact { display: none !important; }
       .report-footer { display: none !important; }
+      /* Enlarge table and remarks to fill the freed vertical space */
+      .result-section { margin-top: 25px !important; }
+      .result-section th { padding: 18px 10px !important; font-size: 11px !important; }
+      .result-section td { padding: 18px 10px !important; font-size: 14px !important; }
+      .remarks-section { margin-top: 25px !important; gap: 20px !important; }
+      .remark-box { padding: 24px 20px !important; }
+      .remark-box p { font-size: 13px !important; line-height: 1.6 !important; }
+      .signature-area { margin-top: 20px !important; }
+      .signature-image { height: 45px !important; }
       /* Preserve all colors */
       * {
         -webkit-print-color-adjust: exact !important;

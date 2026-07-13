@@ -1141,51 +1141,47 @@ td {
     font-size: 20px !important;
   }
 
-  /* 1) Increase Table Font Size + tighten vertical padding */
+  /* 1) Increase Table Font Size + expand vertical padding to fill page */
   .table-frame table th,
   .table-frame table td {
     font-size: 13px !important;
-    padding: 6px 10px !important;
-    line-height: 1 !important;
+    padding: 16px 10px !important;
+    line-height: 1.2 !important;
     vertical-align: middle !important;
   }
 
-  /* Force reduced row height where possible */
+  /* Force expanded row height where possible */
   .table-frame table tbody tr {
     height: auto !important;
-    max-height: 20px !important;
+    min-height: 40px !important;
   }
 
-  /* Ensure first column remains left-aligned but keeps tight padding */
+  /* Ensure first column remains left-aligned but keeps padding */
   .table-frame table th:first-child,
   .table-frame table td:first-child {
     text-align: left !important;
     width: 26% !important;
-    padding-left: 6px !important;
+    padding-left: 10px !important;
   }
 
-  /* 2) Remarks font size */
+  /* 2) Remarks font size and padding */
+  .remarks-section { gap: 20px !important; margin-top: 25px !important; }
+  .remark-box { padding: 20px !important; min-height: 80px !important; }
   .remark-box p {
-    font-size: 12px !important;
-    margin: 4px 0 6px !important;
-    min-height: 20px !important;
-    line-height: 1.08 !important;
+    font-size: 13px !important;
+    margin: 6px 0 !important;
+    line-height: 1.6 !important;
   }
 
-  /* 3) Shrink signature areas */
-  .remark-box {
-    min-height: 60px !important;
-    padding: 8px !important;
-  }
-
+  /* 3) Enlarge signature areas slightly */
   .signature-area {
-    margin-top: 6px !important;
+    margin-top: 15px !important;
   }
 
   .signature-line,
   .signature-image {
-    height: 44px !important;
-    margin-top: 2px !important;
+    height: 45px !important;
+    margin-top: 4px !important;
     border-bottom: 2px solid #cbd5e1 !important;
   }
 
@@ -1197,7 +1193,7 @@ td {
 
   .teacher-name {
     font-size: 12px !important;
-    margin-top: 2px !important;
+    margin-top: 4px !important;
   }
 
   /* Tighten spacing in footer */
@@ -1206,10 +1202,10 @@ td {
     gap: 8px !important;
   }
 
-  /* Reduce table header height where possible */
+  /* Ensure table header height is reasonable */
   .table-frame thead th {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
   }
 
   /* Avoid page breaks inside critical sections */
@@ -1272,19 +1268,19 @@ td {
   .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
 
   .table-frame thead th {
-    padding-top: 10px !important;
-    padding-bottom: 10px !important;
-    font-size: 13px !important;
+    padding-top: 18px !important;
+    padding-bottom: 18px !important;
+    font-size: 12px !important;
     font-weight: 800 !important;
     color: #000 !important;
   }
 
   .table-frame td {
-    padding: 10px 8px !important;
+    padding: 16px 10px !important;
     font-size: 14px !important;
     font-weight: 900 !important;
     color: #000 !important;
-    line-height: 1.2 !important;
+    line-height: 1.4 !important;
   }
 
   /* Final fallback: reduce page margin if still overflowing */
