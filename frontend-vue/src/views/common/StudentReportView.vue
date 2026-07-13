@@ -52,16 +52,6 @@ const fetchData = async () => {
   }
 }
 
-const handlePrint = () => {
-  window.print()
-}
-
-const handleDownload = () => {
-  const originalTitle = document.title
-  document.title = `${data.value.student.lastName}-${data.value.student.firstName}-Report-${data.value.session}-${data.value.term}`
-  window.print()
-  document.title = originalTitle
-}
 
 const getGradeColor = (grade: string) => {
   if (!grade) return 'grade-neutral'
