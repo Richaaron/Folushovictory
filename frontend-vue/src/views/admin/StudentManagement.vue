@@ -11,9 +11,7 @@ import {
   Loader2,
   Trash2,
   Edit2,
-  FileText,
-  Eye,
-  Printer
+  FileText
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -210,20 +208,6 @@ const openResultPreview = (student: any) => {
   })
 }
 
-const printStudentResult = (student: any) => {
-  const studentId = student.studentId || student.id
-  const newWindow = window.open(
-    `/#/report/${studentId}?preview=true&session=2023/2024&term=First`,
-    '_blank'
-  )
-  if (newWindow) {
-    newWindow.addEventListener('load', () => {
-      setTimeout(() => {
-        newWindow.print()
-      }, 500)
-    })
-  }
-}
 
 watch(selectedClassId, fetchStudents)
 
@@ -346,12 +330,7 @@ onMounted(async () => {
               </td>
               <td class="align-top text-right">
                 <div class="inline-flex items-center justify-end gap-2">
-                  <button @click.stop="openResultPreview(student)" title="View Result" class="p-2 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
-                    <Eye class="w-4 h-4" />
-                  </button>
-                  <button @click.stop="printStudentResult(student)" title="Print Result" class="p-2 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
-                    <Printer class="w-4 h-4" />
-                  </button>
+
                   <button @click.stop="openEditModal(student)" class="p-2 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
                     <Edit2 class="w-4 h-4" />
                   </button>
