@@ -150,18 +150,29 @@ const handlePrintAll = (existingPopup?: Window | null) => {
     .map(s => s.innerText || s.textContent || '')
     .join('\n')
 
-  // Also grab link stylesheets
-  const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-    .map(l => `<link rel="stylesheet" href="${(l as HTMLLinkElement).href}">`)
-    .join('\n')
+  // Extract all CSS rules from the main document to inject them synchronously
+  let allCss = ''
+  try {
+    for (const sheet of Array.from(document.styleSheets)) {
+      try {
+        for (const rule of Array.from(sheet.cssRules || [])) {
+          allCss += rule.cssText + '\n'
+        }
+      } catch (e) {
+        console.warn('Could not read cssRules from sheet', e)
+      }
+    }
+  } catch (e) {
+    console.error('Error extracting stylesheets', e)
+  }
 
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>${filename}</title>
-  ${links}
   <style>
+    ${allCss}
     ${styles}
     @page { size: A4; margin: 4mm; }
     body { background: white !important; margin: 0; padding: 0; }
@@ -1507,12 +1518,9 @@ td {
   }
 
   /* ---- HIDE UNNECESSARY SECTIONS ---- */
-  .watermark-logo,
-  .report-top-line,
-  .report-bottom-line,
-  .cumulative-section,
-  .school-contact,
-  .report-footer { display: none !important; }
+  .no-print {
+    display: none !important;
+  }
 
   /* ---- COLOR PRESERVATION ---- */
   .report-header,
