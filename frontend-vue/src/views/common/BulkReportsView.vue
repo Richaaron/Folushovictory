@@ -331,15 +331,35 @@ const handleExportPDF = async () => {
         }
       }))
     }
-    
-    // Give Vue time to render the DOM
+
+    // Wait for Vue to render the DOM with the reports
     await nextTick()
-    
-    // Delay slightly to let images and DOM fully settle before cloning
-    setTimeout(() => {
-      handlePrintAll(popup)
+
+    // Poll until the print-area-section element exists in the DOM (max 10 seconds)
+    const waitForElement = () => new Promise<HTMLElement | null>((resolve) => {
+      let attempts = 0
+      const check = () => {
+        const el = document.getElementById('print-area-section')
+        if (el) return resolve(el)
+        if (attempts++ > 100) return resolve(null) // timeout after ~10s
+        setTimeout(check, 100)
+      }
+      check()
+    })
+
+    const el = await waitForElement()
+    if (!el) {
+      popup.close()
+      error.value = 'Could not render report cards. Please try again.'
       exportingPDF.value = false
-    }, 500)
+      return
+    }
+
+    // Extra delay to let images settle
+    await new Promise(r => setTimeout(r, 800))
+
+    handlePrintAll(popup)
+    exportingPDF.value = false
   } catch (err: any) {
     popup.close()
     error.value = err.response?.data?.error || 'Failed to export PDF.'
