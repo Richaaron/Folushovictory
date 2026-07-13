@@ -221,7 +221,7 @@ const handlePrintAll = (existingPopup?: Window | null) => {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         /* Scale down to force fit on one A4 page */
-        zoom: 0.72 !important;
+        zoom: 0.88 !important;
         transform: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
