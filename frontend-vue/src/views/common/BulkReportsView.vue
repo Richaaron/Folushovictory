@@ -136,37 +136,47 @@ const getFormTeacherName = (report: any) => report.formTeacher?.displayName || `
 
 
 const handlePrintAll = (existingPopup?: Window | null) => {
-  const el = document.getElementById('print-area-section')
-  if (!el) return
-
-  const filename = `bulk-reports-${classInfo.value?.name || 'class'}-${session.value.replace(/\//g, '-')}`
-
-  // Clone the element so we can strip out the no-print action bar
-  const clone = el.cloneNode(true) as HTMLElement
-  clone.querySelectorAll('.no-print').forEach(n => n.remove())
-
-  // Extract all scoped styles from this page (captures the Vue scoped CSS)
-  const styles = Array.from(document.querySelectorAll('style'))
-    .map(s => s.innerText || s.textContent || '')
-    .join('\n')
-
-  // Extract all CSS rules from the main document to inject them synchronously
-  let allCss = ''
-  try {
-    for (const sheet of Array.from(document.styleSheets)) {
-      try {
-        for (const rule of Array.from(sheet.cssRules || [])) {
-          allCss += rule.cssText + '\n'
-        }
-      } catch (e) {
-        console.warn('Could not read cssRules from sheet', e)
-      }
-    }
-  } catch (e) {
-    console.error('Error extracting stylesheets', e)
+  const popup = existingPopup || window.open('', '_blank', 'width=900,height=700')
+  if (!popup) {
+    alert('Please allow popups for this site to download the PDF.')
+    return
   }
+  
+  try {
+    const el = document.getElementById('print-area-section')
+    if (!el) {
+      popup.document.write('<h2>Error: Document not ready.</h2>')
+      return
+    }
 
-  const html = `<!DOCTYPE html>
+    const filename = `bulk-reports-${classInfo.value?.name || 'class'}-${session.value.replace(/\//g, '-')}`
+
+    // Clone the element so we can strip out the no-print action bar
+    const clone = el.cloneNode(true) as HTMLElement
+    clone.querySelectorAll('.no-print').forEach(n => n.remove())
+
+    // Extract all scoped styles from this page (captures the Vue scoped CSS)
+    const styles = Array.from(document.querySelectorAll('style'))
+      .map(s => s.innerText || s.textContent || '')
+      .join('\n')
+
+    // Extract all CSS rules from the main document to inject them synchronously
+    let allCss = ''
+    try {
+      for (const sheet of Array.from(document.styleSheets)) {
+        try {
+          for (const rule of Array.from(sheet.cssRules || [])) {
+            allCss += rule.cssText + '\n'
+          }
+        } catch (e) {
+          console.warn('Could not read cssRules from sheet', e)
+        }
+      }
+    } catch (e) {
+      console.error('Error extracting stylesheets', e)
+    }
+
+    const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -242,14 +252,14 @@ const handlePrintAll = (existingPopup?: Window | null) => {
 </body>
 </html>`
 
-  const popup = existingPopup || window.open('', '_blank', 'width=900,height=700')
-  if (!popup) {
-    alert('Please allow popups for this site to download the PDF.')
-    return
+    popup.document.open()
+    popup.document.write(html)
+    popup.document.close()
+  } catch (err: any) {
+    popup.document.open()
+    popup.document.write('<html><body style="font-family:sans-serif;padding:2rem;color:red;"><h2>Error</h2><p>' + err.message + '</p><pre>' + err.stack + '</pre></body></html>')
+    popup.document.close()
   }
-  popup.document.open()
-  popup.document.write(html)
-  popup.document.close()
 }
 
 const notifyParents = async () => {
