@@ -184,59 +184,58 @@ const handlePrintAll = (existingPopup?: Window | null) => {
   <style>
     ${allCss}
     ${styles}
-    @page { size: A4; margin: 4mm; }
+
+    /* ── BASE SCREEN STYLES FOR POPUP PREVIEW ── */
+    @page { size: A4 portrait; margin: 5mm; }
     body { background: white !important; margin: 0; padding: 0; }
     .no-print { display: none !important; }
-    .bulk-report-page { width: 202mm !important; max-width: none; padding: 0 !important; margin: 0 auto !important; }
-    .print-area { display: block; width: 202mm !important; margin: 0 auto !important; }
+    .bulk-report-page { width: 200mm !important; max-width: none; padding: 0 !important; margin: 0 auto !important; }
+    .print-area { display: block; width: 200mm !important; margin: 0 auto !important; }
     .print-card {
       box-sizing: border-box;
       display: block;
-      width: 100%;
-      margin: 0;
+      width: 200mm;
+      margin: 0 auto;
       padding: 0;
       page-break-after: always !important;
       break-after: page !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .print-card:last-child { page-break-after: auto !important; break-after: auto !important; }
-    .print-card:first-child { page-break-before: auto; break-before: auto; }
-    .withheld-page { page-break-before: always; break-before: page; }
-    /* Reset transforms for clean PDF rendering */
-    .print-card { transform: none !important; }
-    /* Tight compact layout to fit one A4 page */
-    .report-card, .print-card { padding: 0 !important; font-size: 10px !important; }
-    .report-header { padding: 10px 15px !important; gap: 10px !important; }
-    .brand-copy h1 { font-size: 20px !important; }
-    .logo-mark { width: 50px !important; height: 50px !important; padding: 4px !important; }
-    .term-panel { padding: 6px 12px !important; margin: 0 !important; }
-    .student-band, .performance-summary { padding: 8px 10px !important; gap: 8px !important; }
-    .student-band .info-card, .performance-summary .stat-card { padding: 6px 10px !important; font-size: 9px !important; }
-    .result-section { padding: 8px 12px !important; }
-    .result-section th, .result-section td { padding: 4px 6px !important; font-size: 9px !important; }
-    .remarks-section { padding: 8px 12px !important; gap: 8px !important; flex-direction: row !important; }
-    .remark-box { padding: 8px 12px !important; font-size: 9px !important; min-width: 0 !important; width: 50% !important; }
-    .remark-box p { min-height: 25px !important; margin: 3px 0 !important; font-size: 9px !important; }
-    .signature-area { margin-top: 5px !important; padding-top: 5px !important; font-size: 8px !important; }
-    .signature-image { height: 25px !important; }
-    .report-footer { padding: 8px 15px !important; font-size: 8px !important; margin-top: 0 !important; }
-    .cumulative-section { padding: 8px 12px !important; font-size: 9px !important; }
-    .cumulative-grid { gap: 8px !important; }
-    .school-contact { padding: 8px 15px !important; gap: 4px !important; font-size: 9px !important; }
-    .contact-item { margin-bottom: 0 !important; }
-    .report-top-line, .report-bottom-line { height: 2px !important; }
-    /* Preserve colors aggressively */
-    html, body, .print-area, .print-card, .print-card * {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      color-adjust: exact !important;
+    .withheld-page { page-break-before: always !important; break-before: page !important; }
+
+    /* ── PRINT-TIME OVERRIDES (highest priority) ── */
+    @media print {
+      @page { size: A4 portrait; margin: 5mm; }
+      body { margin: 0 !important; padding: 0 !important; background: white !important; }
+      .no-print { display: none !important; }
+      .print-area { display: block !important; width: 200mm !important; margin: 0 auto !important; }
+      .print-card {
+        display: block !important;
+        width: 200mm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        /* Scale down to force fit on one A4 page */
+        zoom: 0.72 !important;
+        transform: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+      }
+      .print-card:last-child { page-break-after: auto !important; break-after: auto !important; }
+      .withheld-page { page-break-before: always !important; break-before: page !important; }
+      /* Preserve all colors */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
     }
-    /* Force background colors on specific modern elements */
-    th, .report-header, .term-panel, .stat-card, .grade-badge, .remark-box, .report-footer, .report-top-line, .report-bottom-line, .cumulative-card, .logo-mark {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      color-adjust: exact !important;
-    }
-    .html2pdf__page-break { display: none !important; }
   </style>
 </head>
 <body>
