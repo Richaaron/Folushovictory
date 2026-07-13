@@ -35,7 +35,7 @@ const loading = ref(true)
 const generating = ref(false)
 
 const notifying = ref(false)
-const exportingExcel = ref(false)
+const exportingPDF = ref(false)
 const error = ref('')
 const notice = ref('')
 const emailSummary = ref<any>(null)
@@ -289,198 +289,33 @@ const notifyParents = async () => {
   }
 }
 
-// ── Excel Export ────────────────────────────────────────────────────────────
+// ── PDF Export ──────────────────────────────────────────────────────────────
 
-const safeFilePart = (value: any) =>
-  String(value || 'report')
-    .trim()
-    .replace(/[\\/:\*?"<>|]+/g, '-')
-    .replace(/\s+/g, '-')
-
-const formatTermLabel = (term: string) => {
-  if (term === '1st') return 'First'
-  if (term === '2nd') return 'Second'
-  if (term === '3rd') return 'Third'
-  return term
-}
-
-const handleExportExcel = async () => {
+const handleExportPDF = async () => {
   const studentIds = Array.from(selectedIds.value)
   if (!studentIds.length) {
     error.value = 'Select at least one student before exporting.'
     return
   }
 
-  exportingExcel.value = true
+  exportingPDF.value = true
   error.value = ''
   try {
-    let data = reports.value
-    if (!data.length) {
+    // Generate reports if not already loaded
+    if (!reports.value.length) {
       const res = await api.post(`/api/results/class/${classId}/bulk-reports`, {
         session: session.value,
         term: term.value,
         studentIds
       })
-      data = (res.data.reports || []).map((report: any) => ({
-        ...report,
-        feeStatus: { ...(report.feeStatus || {}), owesFees: Boolean(owingOverrides.value[report.student.studentId]) },
-        student: { ...report.student, feeStatus: { ...(report.student?.feeStatus || {}), owesFees: Boolean(owingOverrides.value[report.student.studentId]) } }
-      }))
+      reports.value = res.data
     }
-
-    if (!data.length) {
-      error.value = 'No report data available to export.'
-      return
-    }
-
-    const school = data[0]?.school || {}
-    const className = data[0]?.class?.name || classInfo.value?.name || 'Class'
-    const termLabel = formatTermLabel(term.value)
-
-    // Helper: wrap a string value in a SpreadsheetML Cell
-    const cell = (value: any, type: 'String' | 'Number' = 'String', _bold = false, _bg = '', _align = 'Left', _size = 11, mergeAcross = 0) => {
-      const mergeAttr = mergeAcross > 0 ? ` ss:MergeAcross="${mergeAcross}"` : ''
-      const safeVal = String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-      return `<Cell${mergeAttr}><Data ss:Type="${type}">${safeVal}</Data></Cell>`
-    }
-
-    const row = (...cells: string[]) => `<Row>${cells.join('')}</Row>`
-    const emptyRow = () => `<Row ss:Height="6"/>`
-
-    // Build one worksheet per student
-    const buildStudentSheet = (report: any, sheetName: string) => {
-      const s = report.student
-      const r = report.result || {}
-      const perSubject: any[] = r.perSubject || []
-      const avg = Number(r.average || 0)
-      const fullName = `${s.lastName || ''} ${s.firstName || ''}`.trim()
-
-      const subjectRows = perSubject.map((ps: any) =>
-        row(
-          cell(ps.subjectName || ps.subjectId),
-          cell(ps.ca1 ?? ''),
-          cell(ps.ca2 ?? ''),
-          cell(ps.exam ?? ''),
-          cell(ps.total ?? ''),
-          cell(ps.grade || ''),
-          cell(ps.remark || '')
-        )
-      ).join('\n')
-
-      return `
-        <Worksheet ss:Name="${sheetName.replace(/[\\/?*[\]:]/g, '').substring(0, 31)}">
-          <Table ss:DefaultColumnWidth="90">
-            <Column ss:Width="180"/>
-            <Column ss:Width="55"/>
-            <Column ss:Width="55"/>
-            <Column ss:Width="55"/>
-            <Column ss:Width="55"/>
-            <Column ss:Width="45"/>
-            <Column ss:Width="120"/>
-            ${row(cell(school.name || 'School', 'String', true, '#1e1b4b', 'Center', 16, 6))}
-            ${school.motto ? row(cell(school.motto, 'String', false, '', 'Center', 10, 6)) : ''}
-            ${emptyRow()}
-            ${row(cell(`Class: ${className}  |  Session: ${report.session || session.value}  |  Term: ${report.term || termLabel} Term`, 'String', true, '#e5e7eb', 'Center', 11, 6))}
-            ${emptyRow()}
-            ${row(cell('Student Name', 'String', true), cell(fullName, 'String', false, '', 'Left', 11, 5))}
-            ${row(cell('Student ID', 'String', true), cell(s.studentId || '', 'String', false, '', 'Left', 11, 5))}
-            ${row(cell('Gender', 'String', true), cell(s.gender || '', 'String', false, '', 'Left', 11, 5))}
-            ${emptyRow()}
-            ${row(
-              cell('Subject', 'String', true),
-              cell('1st CA', 'String', true),
-              cell('2nd CA', 'String', true),
-              cell('Exam', 'String', true),
-              cell('Total', 'String', true),
-              cell('Grade', 'String', true),
-              cell('Remarks', 'String', true)
-            )}
-            ${subjectRows}
-            ${emptyRow()}
-            ${row(cell('Total Score', 'String', true), cell(r.total ?? '', 'String', true, '', 'Center', 11, 5))}
-            ${row(cell('Average', 'String', true), cell(avg > 0 ? avg + '%' : '', 'String', true, '', 'Center', 11, 5))}
-            ${row(cell('Position in Class', 'String', true), cell(r.position ? `${r.position}` : '', 'String', true, '', 'Center', 11, 5))}
-            ${row(cell('Result', 'String', true), cell(avg >= 40 ? 'PASS' : avg > 0 ? 'FAIL' : '', 'String', true, '', 'Center', 11, 5))}
-            ${emptyRow()}
-            ${row(cell("Class Teacher's Remark", 'String', true), cell(report.teacherRemark || '', 'String', false, '', 'Left', 11, 5))}
-            ${row(cell("Principal's Remark", 'String', true), cell(report.principalRemark || '', 'String', false, '', 'Left', 11, 5))}
-          </Table>
-        </Worksheet>`
-    }
-
-    // Build summary sheet
-    const summaryRows = data.map((report: any) => {
-      const s = report.student
-      const r = report.result || {}
-      const avg = Number(r.average || 0)
-      const fullName = `${s.lastName || ''} ${s.firstName || ''}`.trim()
-      return row(
-        cell(r.position || ''),
-        cell(s.studentId || ''),
-        cell(fullName),
-        cell(r.total ?? ''),
-        cell(avg > 0 ? avg + '%' : ''),
-        cell(avg >= 40 ? 'PASS' : avg > 0 ? 'FAIL' : '')
-      )
-    }).join('\n')
-
-    const summarySheet = `
-      <Worksheet ss:Name="Summary">
-        <Table ss:DefaultColumnWidth="90">
-          <Column ss:Width="50"/>
-          <Column ss:Width="120"/>
-          <Column ss:Width="200"/>
-          <Column ss:Width="80"/>
-          <Column ss:Width="80"/>
-          <Column ss:Width="70"/>
-          ${row(cell(school.name || 'School', 'String', true, '#1e1b4b', 'Center', 16, 5))}
-          ${row(cell(`Class: ${className}  |  Session: ${session.value}  |  Term: ${termLabel}`, 'String', true, '#e5e7eb', 'Center', 11, 5))}
-          ${emptyRow()}
-          ${row(
-            cell('Pos', 'String', true),
-            cell('Student ID', 'String', true),
-            cell('Student Name', 'String', true),
-            cell('Total', 'String', true),
-            cell('Average', 'String', true),
-            cell('Result', 'String', true)
-          )}
-          ${summaryRows}
-        </Table>
-      </Worksheet>`
-
-    const usedNames = new Map<string, number>()
-    const studentSheets = data.map((report: any) => {
-      const s = report.student
-      let baseName = `${s.lastName || ''} ${s.firstName || ''}`.trim().substring(0, 28) || s.studentId
-      const count = usedNames.get(baseName) || 0
-      usedNames.set(baseName, count + 1)
-      const sheetName = count > 0 ? `${baseName} (${count + 1})` : baseName
-      return buildStudentSheet(report, sheetName)
-    }).join('\n')
-
-    const workbook = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-  xmlns:o="urn:schemas-microsoft-com:office:office"
-  xmlns:x="urn:schemas-microsoft-com:office:excel"
-  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-  ${summarySheet}
-  ${studentSheets}
-</Workbook>`
-
-    const blob = new Blob([workbook], { type: 'application/vnd.ms-excel;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${safeFilePart(className)}-${safeFilePart(session.value)}-${safeFilePart(termLabel)}-bulk-results.xls`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.setTimeout(() => URL.revokeObjectURL(url), 0)
+    await nextTick()
+    downloadPDF(studentIds)
   } catch (err: any) {
-    error.value = err.response?.data?.error || 'Failed to export Excel. Please generate reports first.'
+    error.value = err.response?.data?.error || 'Failed to export PDF. Please generate reports first.'
   } finally {
-    exportingExcel.value = false
+    exportingPDF.value = false
   }
 }
 
@@ -529,10 +364,10 @@ onMounted(fetchStudents)
           <Printer v-else class="h-4 w-4" />
           Print Cleared
         </button>
-        <button @click="handleExportExcel" :disabled="exportingExcel || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-600 disabled:opacity-50">
-          <Loader2 v-if="exportingExcel" class="h-4 w-4 animate-spin" />
+        <button @click="handleExportPDF" :disabled="exportingPDF || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-rose-700 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-rose-600 disabled:opacity-50">
+          <Loader2 v-if="exportingPDF" class="h-4 w-4 animate-spin" />
           <Download v-else class="h-4 w-4" />
-          Export Excel
+          Export PDF
         </button>
       </div>
     </div>
