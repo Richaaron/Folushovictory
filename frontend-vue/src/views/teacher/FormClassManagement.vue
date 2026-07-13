@@ -246,22 +246,22 @@ onMounted(fetchStudents)
         </div>
       </div>
       
-      <div class="flex items-center gap-4">
-        <select v-model="term" class="px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
+      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-4 w-full md:w-auto">
+        <select v-model="term" class="w-full sm:w-auto px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
           <option>First</option>
           <option>Second</option>
           <option>Third</option>
         </select>
         <button
           @click="router.push({ name: 'bulk-reports', params: { classId }, query: { session, term } })"
-          class="flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple"
+          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple"
         >
           <Printer class="w-4 h-4" />
           Bulk Results
         </button>
         <button
           @click="router.push({ name: 'teacher-broadsheet', params: { classId }, query: { className, session, term } })"
-          class="flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple"
+          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple"
         >
           <BarChart3 class="w-4 h-4" />
           Broadsheet
@@ -269,7 +269,7 @@ onMounted(fetchStudents)
         <button 
           v-if="canAddStudents"
           @click="showAddModal = true"
-          class="flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95"
+          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95"
         >
           <UserPlus class="w-4 h-4" />
           Add Student
@@ -277,7 +277,7 @@ onMounted(fetchStudents)
         <button 
           @click="saveAllRemarks"
           :disabled="saving"
-          class="flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-8 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple disabled:opacity-50"
+          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-8 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple disabled:opacity-50"
         >
           <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
           <Save v-else class="w-4 h-4" /> 

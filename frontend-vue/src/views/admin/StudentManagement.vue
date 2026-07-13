@@ -229,13 +229,13 @@ onMounted(async () => {
         <div class="gold-accent"></div>
         <p class="text-sm text-[#F5F0E8]/50">Manage Registry and Student Records</p>
       </div>
-      <div class="flex items-center gap-3">
-        <button class="p-3 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
-          <Download class="w-4 h-4" />
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+        <button class="w-full sm:w-auto justify-center flex items-center gap-2 p-3 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
+          <Download class="w-4 h-4" /> <span>Export List</span>
         </button>
         <button 
           @click="showAddModal = true"
-          class="chalkboard-btn chalkboard-btn-gold"
+          class="w-full sm:w-auto justify-center chalkboard-btn chalkboard-btn-gold"
         >
           <UserPlus class="w-4 h-4" /> <span>Register Student</span>
         </button>
