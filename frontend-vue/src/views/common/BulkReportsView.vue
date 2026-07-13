@@ -221,7 +221,7 @@ const handlePrintAll = (existingPopup?: Window | null) => {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         /* Scale down to force fit on one A4 page */
-        zoom: 0.88 !important;
+        zoom: 0.95 !important;
         transform: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
@@ -229,6 +229,9 @@ const handlePrintAll = (existingPopup?: Window | null) => {
       }
       .print-card:last-child { page-break-after: auto !important; break-after: auto !important; }
       .withheld-page { page-break-before: always !important; break-before: page !important; }
+      /* Hide unwanted sections in print */
+      .school-contact { display: none !important; }
+      .report-footer { display: none !important; }
       /* Preserve all colors */
       * {
         -webkit-print-color-adjust: exact !important;
