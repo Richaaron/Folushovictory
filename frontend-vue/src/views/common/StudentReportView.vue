@@ -2,12 +2,10 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import {
-  Printer,
   ArrowLeft,
   Loader2,
   AlertCircle,
   Lock,
-  Download,
   Award,
   TrendingUp,
   Star,
@@ -116,14 +114,7 @@ onMounted(fetchData)
       <button @click="$router.back()" class="flex items-center gap-2 text-sm font-medium text-gray-300 transition-all hover:text-purple-400">
         <ArrowLeft class="h-5 w-5" /> Back
       </button>
-      <div class="flex gap-3">
-        <button @click="handleDownload" class="neon-btn neon-btn-outline px-6 py-2 text-sm">
-          <Download class="h-4 w-4" /> Download PDF
-        </button>
-        <button @click="handlePrint" class="neon-btn px-6 py-2 text-sm">
-          <Printer class="h-4 w-4" /> Print
-        </button>
-      </div>
+
     </div>
 
     <!-- Loading State -->
