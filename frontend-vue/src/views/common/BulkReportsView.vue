@@ -8,7 +8,6 @@ import {
   Download,
   Loader2,
   Mail,
-  Printer,
   Square,
   UserX,
   Award,
@@ -135,50 +134,6 @@ const getGradeColor = (grade: string) => {
 const getSchoolWebsite = (report: any) => report.school?.website?.replace(/^https?:\/\//, '') || ''
 const getFormTeacherName = (report: any) => report.formTeacher?.displayName || `${report.class?.name || 'Class'} Form Teacher`
 
-const generateReports = async (shouldPrint = false, targetStudentIds: string[] | null = null) => {
-  const studentIds = targetStudentIds ?? Array.from(selectedIds.value)
-  if (!studentIds.length) {
-    error.value = 'Select at least one student before generating reports.'
-    return
-  }
-
-  generating.value = true
-  error.value = ''
-  try {
-    const { data } = await api.post(`/api/results/class/${classId}/bulk-reports`, {
-      session: session.value,
-      term: term.value,
-      studentIds
-    })
-    reports.value = (data.reports || []).map((report: any) => ({
-      ...report,
-      feeStatus: {
-        ...(report.feeStatus || {}),
-        owesFees: Boolean(owingOverrides.value[report.student.studentId])
-      },
-      student: {
-        ...report.student,
-        feeStatus: {
-          ...(report.student?.feeStatus || {}),
-          owesFees: Boolean(owingOverrides.value[report.student.studentId])
-        }
-      }
-    }))
-
-    await nextTick()
-    setTimeout(() => {
-      document.getElementById('print-area-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 100)
-
-    if (shouldPrint) {
-      window.setTimeout(() => window.print(), 500)
-    }
-  } catch (err: any) {
-    error.value = err.response?.data?.error || 'Failed to generate selected report cards.'
-  } finally {
-    generating.value = false
-  }
-}
 
 const handlePrintAll = (existingPopup?: Window | null) => {
   const el = document.getElementById('print-area-section')
