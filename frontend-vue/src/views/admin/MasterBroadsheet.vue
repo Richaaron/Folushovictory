@@ -92,9 +92,6 @@ const isSSS = computed(() => {
   return classText.toUpperCase().includes('SSS')
 })
 
-const handlePrint = () => {
-  window.print()
-}
 
 const escapeExcelCell = (value: any) => {
   return String(value ?? '')
@@ -270,12 +267,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         >
           <Printer class="w-3 h-3" /> Bulk Results
         </button>
-        <button 
-          @click="handlePrint"
-          class="chalkboard-btn text-[10px]"
-        >
-          <Printer class="w-3 h-3" /> Print View
-        </button>
+
         <button
           @click="handleExportExcel"
           :disabled="!broadsheet || loading"
