@@ -385,14 +385,14 @@ onMounted(fetchStudents)
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <select v-model="session" class="rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
+      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
+        <select v-model="session" class="w-full sm:w-auto rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
           <option>2026/2027</option>
           <option>2025/2026</option>
           <option>2024/2025</option>
           <option>2023/2024</option>
         </select>
-        <select v-model="term" class="rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
+        <select v-model="term" class="w-full sm:w-auto rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
           <option value="1st">First Term</option>
           <option value="2nd">Second Term</option>
           <option value="3rd">Third Term</option>
@@ -401,13 +401,13 @@ onMounted(fetchStudents)
           <option value="Third">Third</option>
         </select>
 
-        <button @click="notifyParents" :disabled="notifying || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-50">
+        <button @click="notifyParents" :disabled="notifying || selectedCount === 0" class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-50">
           <Loader2 v-if="notifying" class="h-4 w-4 animate-spin" />
           <Mail v-else class="h-4 w-4" />
           Email Parents
         </button>
 
-        <button @click="handleExportPDF" :disabled="exportingPDF || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-rose-700 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-rose-600 disabled:opacity-50">
+        <button @click="handleExportPDF" :disabled="exportingPDF || selectedCount === 0" class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-rose-700 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-rose-600 disabled:opacity-50">
           <Loader2 v-if="exportingPDF" class="h-4 w-4 animate-spin" />
           <Download v-else class="h-4 w-4" />
           Export PDF
