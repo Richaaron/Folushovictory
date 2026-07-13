@@ -378,20 +378,13 @@ onMounted(fetchStudents)
           <option value="Second">Second</option>
           <option value="Third">Third</option>
         </select>
-        <button @click="generateReports(false)" :disabled="generating || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-slate-900/60 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:opacity-50 border border-slate-700/60">
-          <Loader2 v-if="generating" class="h-4 w-4 animate-spin" />
-          {{ generating ? 'Loading...' : 'Preview' }}
-        </button>
+
         <button @click="notifyParents" :disabled="notifying || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-50">
           <Loader2 v-if="notifying" class="h-4 w-4 animate-spin" />
           <Mail v-else class="h-4 w-4" />
           Email Parents
         </button>
-        <button @click="generateReports(true, clearedSelected.map(s => s.studentId))" :disabled="generating || selectedCount === 0 || clearedSelected.length === 0" class="flex items-center gap-2 rounded-xl bg-royal-purple px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg disabled:opacity-50">
-          <Loader2 v-if="generating" class="h-4 w-4 animate-spin" />
-          <Printer v-else class="h-4 w-4" />
-          Print Cleared
-        </button>
+
         <button @click="handleExportPDF" :disabled="exportingPDF || selectedCount === 0" class="flex items-center gap-2 rounded-xl bg-rose-700 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-rose-600 disabled:opacity-50">
           <Loader2 v-if="exportingPDF" class="h-4 w-4 animate-spin" />
           <Download v-else class="h-4 w-4" />
