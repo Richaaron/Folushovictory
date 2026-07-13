@@ -338,7 +338,7 @@ onMounted(fetchData)
   border-radius: 24px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
   color: #172033;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
 }
 
 /* Apply Comic Sans to ALL text inside the report card */
@@ -442,7 +442,7 @@ onMounted(fetchData)
   font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
   background: linear-gradient(135deg, #ffffff, #a855f7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -568,7 +568,7 @@ onMounted(fetchData)
   font-size: 14px;
   font-weight: 900;
   text-transform: uppercase;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
 }
 
 /* Performance Summary */
@@ -637,7 +637,7 @@ onMounted(fetchData)
   font-size: 24px;
   font-weight: 900;
   color: #0f172a;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
 }
 
 /* Section Title */
@@ -666,7 +666,7 @@ onMounted(fetchData)
   font-size: 13px;
   font-weight: 900;
   text-transform: uppercase;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
   background: linear-gradient(135deg, #a855f7, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -717,7 +717,7 @@ td {
 .subject-name {
   font-weight: 800;
   color: #0f172a;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
 }
 
 .table-frame tbody tr {
@@ -812,7 +812,7 @@ td {
   margin: 6px 0;
   font-size: 22px;
   font-weight: 900;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
   background: linear-gradient(135deg, #a855f7, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -949,7 +949,7 @@ td {
   display: block;
   font-size: 14px;
   font-weight: 900;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
   background: linear-gradient(135deg, #ffffff, #a855f7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
