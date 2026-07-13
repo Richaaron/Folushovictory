@@ -182,6 +182,27 @@ const handlePrintAll = (existingPopup?: Window | null) => {
     .withheld-page { page-break-before: always; break-before: page; }
     /* Reset transforms for clean PDF rendering */
     .print-card { transform: none !important; }
+    /* Tight compact layout to fit one A4 page */
+    .report-card, .print-card { padding: 0 !important; font-size: 10px !important; }
+    .report-header { padding: 10px 15px !important; gap: 10px !important; }
+    .brand-copy h1 { font-size: 20px !important; }
+    .logo-mark { width: 50px !important; height: 50px !important; padding: 4px !important; }
+    .term-panel { padding: 6px 12px !important; margin: 0 !important; }
+    .student-band, .performance-summary { padding: 8px 10px !important; gap: 8px !important; }
+    .student-band .info-card, .performance-summary .stat-card { padding: 6px 10px !important; font-size: 9px !important; }
+    .result-section { padding: 8px 12px !important; }
+    .result-section th, .result-section td { padding: 4px 6px !important; font-size: 9px !important; }
+    .remarks-section { padding: 8px 12px !important; gap: 8px !important; flex-direction: row !important; }
+    .remark-box { padding: 8px 12px !important; font-size: 9px !important; min-width: 0 !important; width: 50% !important; }
+    .remark-box p { min-height: 25px !important; margin: 3px 0 !important; font-size: 9px !important; }
+    .signature-area { margin-top: 5px !important; padding-top: 5px !important; font-size: 8px !important; }
+    .signature-image { height: 25px !important; }
+    .report-footer { padding: 8px 15px !important; font-size: 8px !important; margin-top: 0 !important; }
+    .cumulative-section { padding: 8px 12px !important; font-size: 9px !important; }
+    .cumulative-grid { gap: 8px !important; }
+    .school-contact { padding: 8px 15px !important; gap: 4px !important; font-size: 9px !important; }
+    .contact-item { margin-bottom: 0 !important; }
+    .report-top-line, .report-bottom-line { height: 2px !important; }
     /* Preserve colors aggressively */
     html, body, .print-area, .print-card, .print-card * {
       -webkit-print-color-adjust: exact !important;
