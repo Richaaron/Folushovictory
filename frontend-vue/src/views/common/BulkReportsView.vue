@@ -174,7 +174,10 @@ const handlePrintAll = (existingPopup?: Window | null) => {
       width: 100%;
       margin: 0;
       padding: 0;
+      page-break-after: always !important;
+      break-after: page !important;
     }
+    .print-card:last-child { page-break-after: auto !important; break-after: auto !important; }
     .print-card:first-child { page-break-before: auto; break-before: auto; }
     .withheld-page { page-break-before: always; break-before: page; }
     /* Reset transforms for clean PDF rendering */
