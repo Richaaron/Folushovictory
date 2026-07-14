@@ -44,8 +44,9 @@ const selectedStudents = computed(() => students.value.filter((student) => selec
 const selectedCount = computed(() => selectedIds.value.size)
 const owingSelected = computed(() => selectedStudents.value.filter((student) => isOwing(student)))
 const clearedSelected = computed(() => selectedStudents.value.filter((student) => !isOwing(student)))
-const printableReports = computed(() => reports.value.filter((report) => !isOwing(report.student)))
-const withheldReports = computed(() => selectedStudents.value.filter((student) => isOwing(student)))
+const selectedReports = computed(() => reports.value.filter((report) => selectedIds.value.has(report.student?.studentId)))
+const printableReports = computed(() => selectedReports.value.filter((report) => !isOwing(report.student)))
+const withheldReports = computed(() => selectedReports.value.filter((report) => isOwing(report.student)).map(r => r.student))
 
 const fetchStudents = async () => {
   loading.value = true
