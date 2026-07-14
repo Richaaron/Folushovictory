@@ -309,6 +309,7 @@ const notifyParents = async () => {
 const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
 
 const handleExportPDF = async () => {
+  console.log('handleExportPDF called')
   const studentIds = Array.from(selectedIds.value)
   if (!studentIds.length) {
     error.value = 'Select at least one student before exporting.'
@@ -319,6 +320,7 @@ const handleExportPDF = async () => {
   generating.value = true
   error.value = ''
 
+  console.log('Starting API request')
   try {
     // Always re-fetch reports fresh
     const res = await api.post(`/api/results/class/${classId}/bulk-reports`, {
@@ -326,6 +328,8 @@ const handleExportPDF = async () => {
       term: term.value,
       studentIds
     })
+    console.log('API response received:', res.data)
+
     reports.value = (res.data.reports || []).map((report: any) => ({
       ...report,
       feeStatus: {
@@ -340,24 +344,31 @@ const handleExportPDF = async () => {
         }
       }
     }))
+    console.log('Reports set, count:', reports.value.length)
 
     generating.value = false
 
+    console.log('Waiting for nextTick')
     // Wait for Vue to render the report cards in the DOM
     await nextTick()
+    console.log('nextTick done, waiting 1.5s')
     // Give Vue extra time to paint all report cards (especially large classes)
     await new Promise(r => setTimeout(r, 1500))
+    console.log('1.5s done')
 
     if (isMobile()) {
+      console.log('Mobile detected, showing mobilePrintReady')
       mobilePrintReady.value = true
     } else {
+      console.log('Desktop detected, calling handlePrintAll')
       // For desktop, open popup and print
       handlePrintAll()
     }
     exportingPDF.value = false
   } catch (err: any) {
+    console.error('Error in handleExportPDF:', err)
     generating.value = false
-    error.value = err.response?.data?.error || 'Failed to export PDF. Please try again.'
+    error.value = err.response?.data?.error || err.message || 'Failed to export PDF. Please try again.'
     exportingPDF.value = false
   }
 }
