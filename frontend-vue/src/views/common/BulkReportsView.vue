@@ -35,6 +35,7 @@ const generating = ref(false)
 
 const notifying = ref(false)
 const exportingPDF = ref(false)
+const mobilePrintReady = ref(false)
 const error = ref('')
 const notice = ref('')
 const emailSummary = ref<any>(null)
@@ -377,8 +378,8 @@ const handleExportPDF = async () => {
     await new Promise(r => setTimeout(r, 800))
 
     if (isMobile()) {
-      // Mobile: write HTML into a Blob and open via object URL (avoids popup blocker)
-      handlePrintMobile()
+      // Mobile: show the "Print Ready" overlay so user can trigger print synchronously
+      mobilePrintReady.value = true
     } else {
       handlePrintAll(popup!)
     }
@@ -390,13 +391,14 @@ const handleExportPDF = async () => {
   }
 }
 
-// Mobile: print directly in current window — use setTimeout to escape async chain (fixes iOS Safari)
-const handlePrintMobile = () => {
-  // Must use setTimeout to escape the async/await chain.
-  // iOS Safari blocks window.print() called directly inside Promise chains.
+// Mobile: print directly in current window from the overlay button
+const executeMobilePrint = () => {
+  // Directly trigger print in the synchronous context of the button click
+  window.print()
+  // Hide overlay after printing (some browsers block script execution while dialog is open)
   setTimeout(() => {
-    window.print()
-  }, 300)
+    mobilePrintReady.value = false
+  }, 1000)
 }
 
 onMounted(fetchStudents)
@@ -456,6 +458,30 @@ onMounted(fetchStudents)
         <Loader2 class="h-14 w-14 animate-spin text-royal-purple" />
         <p class="text-base font-black text-white">Generating Report Cards</p>
         <p class="text-xs font-bold text-slate-400">Please wait while we fetch results for {{ selectedCount }} student(s)...</p>
+      </div>
+    </div>
+
+    <!-- Mobile Print Ready Overlay -->
+    <div v-if="mobilePrintReady" class="no-print fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-black/80 backdrop-blur-md px-4">
+      <div class="flex w-full max-w-sm flex-col items-center gap-6 rounded-2xl border border-emerald-700/50 bg-slate-900 p-8 shadow-2xl text-center">
+        <div class="rounded-full bg-emerald-500/20 p-4">
+          <CheckSquare class="h-10 w-10 text-emerald-400" />
+        </div>
+        <div>
+          <h2 class="text-xl font-black text-white mb-2">Reports Ready!</h2>
+          <p class="text-sm font-bold text-slate-400">The report cards have been generated and are ready to save.</p>
+        </div>
+        <div class="w-full space-y-3">
+          <button @click="executeMobilePrint" class="w-full rounded-xl bg-royal-purple py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-purple-600">
+            Open Print / PDF Dialog
+          </button>
+          <button @click="mobilePrintReady = false" class="w-full rounded-xl bg-slate-800 py-3 text-xs font-black uppercase tracking-widest text-slate-400 transition hover:bg-slate-700 hover:text-white">
+            Cancel
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-2">
+          Note: In the next screen, you can choose "Save to Files" or select a printer.
+        </p>
       </div>
     </div>
 
