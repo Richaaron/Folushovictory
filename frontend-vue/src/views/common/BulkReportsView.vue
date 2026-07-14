@@ -222,7 +222,7 @@ const handlePrintAll = (existingPopup?: Window | null) => {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         /* Scale down to force fit on one A4 page */
-        zoom: 0.95 !important;
+        zoom: 0.90 !important;
         transform: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
@@ -256,10 +256,12 @@ const handlePrintAll = (existingPopup?: Window | null) => {
     ${clone.innerHTML}
   </div>
   <script>
-    window.onload = function() {
+    // Wait for full render before printing (window.onload fires too early for large documents)
+    setTimeout(function() {
+      window.focus();
       window.print();
       window.onafterprint = function() { window.close(); };
-    };
+    }, 1500);
   <\/script>
 </body>
 </html>`
