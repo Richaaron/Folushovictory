@@ -348,6 +348,10 @@ const handleExportPDF = async () => {
 
     generating.value = false
 
+    console.log('Reports value after fetch:', reports.value)
+    console.log('selectedIds:', selectedIds.value)
+    console.log('printableReports:', printableReports.value)
+
     console.log('Waiting for nextTick')
     // Wait for Vue to render the report cards in the DOM
     await nextTick()
@@ -356,12 +360,17 @@ const handleExportPDF = async () => {
     await new Promise(r => setTimeout(r, 1500))
     console.log('1.5s done')
 
+    const printAreaEl = document.getElementById('print-area-section')
+    console.log('printAreaEl:', printAreaEl)
+    if (printAreaEl) {
+      console.log('printAreaEl.innerHTML:', printAreaEl.innerHTML)
+    }
+
     if (isMobile()) {
       console.log('Mobile detected, showing mobilePrintReady')
       mobilePrintReady.value = true
     } else {
       console.log('Desktop detected, calling handlePrintAll')
-      // For desktop, open popup and print
       handlePrintAll()
     }
     exportingPDF.value = false
@@ -542,6 +551,10 @@ onMounted(fetchStudents)
       </div>
 
       <div v-if="reports.length" id="print-area-section" class="print-area space-y-8">
+        <!-- DEBUG: Temporarily show this on mobile too -->
+        <div v-if="isMobile()" class="no-print bg-yellow-100 p-4 mb-4 text-black">
+          DEBUG: Reports are here! Count: {{ reports.length }}, printable: {{ printableReports.length }}
+        </div>
         <article v-for="report in printableReports" :key="report.student.studentId" class="report-card print-card">
           <!-- Background Watermark Logo -->
           <div class="watermark-logo">
