@@ -1600,6 +1600,8 @@ td {
     break-after: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    /* Remove zoom reduction to allow the content to fill the page */
+    zoom: 1 !important;
   }
 
   .print-card:last-child {
@@ -1738,18 +1740,18 @@ td {
   }
 
   .table-frame table th {
-    padding: 10px 8px !important;
+    padding: 16px 10px !important;
     font-size: 13px !important;
     font-weight: 800 !important;
     color: #000 !important;
   }
 
   .table-frame table td {
-    padding: 10px 8px !important;
+    padding: 16px 10px !important;
     font-size: 14px !important;
     font-weight: 900 !important;
     color: #000 !important;
-    line-height: 1.2 !important;
+    line-height: 1.4 !important;
   }
 
   .grade-badge {
@@ -1759,28 +1761,30 @@ td {
 
   /* ---- REMARKS ---- */
   .remarks-section {
-    padding: 10px 24px 10px !important;
+    padding: 20px 24px 10px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    gap: 20px !important;
   }
 
   .remark-box {
-    min-height: 90px !important;
-    padding: 12px 14px !important;
+    min-height: 100px !important;
+    padding: 18px 20px !important;
     border-radius: 8px !important;
   }
 
   .remark-box p {
-    font-size: 13px !important;
-    margin: 4px 0 6px !important;
+    font-size: 14px !important;
+    margin: 8px 0 10px !important;
+    line-height: 1.6 !important;
   }
 
-  .remark-box span { font-size: 10px !important; }
+  .remark-box span { font-size: 11px !important; }
 
   .signature-line,
   .signature-image {
-    height: 42px !important;
-    margin-top: 4px !important;
+    height: 48px !important;
+    margin-top: 10px !important;
   }
 
   .teacher-name { font-size: 12px !important; }
