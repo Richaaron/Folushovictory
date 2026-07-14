@@ -1600,8 +1600,8 @@ td {
     break-after: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    /* Slight zoom to guarantee fitting on one page, even for students with many subjects */
-    zoom: 0.97 !important;
+    /* Zoom 0.95 safely guarantees it fits, while we expand paddings slightly to still fill it */
+    zoom: 0.95 !important;
   }
 
   .print-card:last-child {
@@ -1740,14 +1740,14 @@ td {
   }
 
   .table-frame table th {
-    padding: 12px 10px !important;
+    padding: 12px 8px !important;
     font-size: 13px !important;
     font-weight: 800 !important;
     color: #000 !important;
   }
 
   .table-frame table td {
-    padding: 12px 10px !important;
+    padding: 10px 8px !important;
     font-size: 14px !important;
     font-weight: 900 !important;
     color: #000 !important;
@@ -1761,21 +1761,21 @@ td {
 
   /* ---- REMARKS ---- */
   .remarks-section {
-    padding: 16px 24px 10px !important;
+    padding: 14px 24px 10px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    gap: 16px !important;
+    gap: 14px !important;
   }
 
   .remark-box {
-    min-height: 90px !important;
+    min-height: 85px !important;
     padding: 14px 16px !important;
     border-radius: 8px !important;
   }
 
   .remark-box p {
     font-size: 13px !important;
-    margin: 6px 0 8px !important;
+    margin: 4px 0 6px !important;
     line-height: 1.4 !important;
   }
 
@@ -1783,8 +1783,8 @@ td {
 
   .signature-line,
   .signature-image {
-    height: 44px !important;
-    margin-top: 6px !important;
+    height: 42px !important;
+    margin-top: 4px !important;
   }
 
   .teacher-name { font-size: 12px !important; }

@@ -1145,7 +1145,7 @@ td {
   .table-frame table th,
   .table-frame table td {
     font-size: 13px !important;
-    padding: 12px 10px !important;
+    padding: 10px 8px !important;
     line-height: 1.2 !important;
     vertical-align: middle !important;
   }
@@ -1165,11 +1165,11 @@ td {
   }
 
   /* 2) Remarks font size and padding */
-  .remarks-section { gap: 16px !important; margin-top: 20px !important; }
-  .remark-box { padding: 14px !important; min-height: 80px !important; }
+  .remarks-section { gap: 14px !important; margin-top: 16px !important; }
+  .remark-box { padding: 12px !important; min-height: 75px !important; }
   .remark-box p {
     font-size: 13px !important;
-    margin: 6px 0 !important;
+    margin: 4px 0 !important;
     line-height: 1.4 !important;
   }
 
@@ -1268,15 +1268,15 @@ td {
   .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
 
   .table-frame thead th {
-    padding-top: 14px !important;
-    padding-bottom: 14px !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
     font-size: 12px !important;
     font-weight: 800 !important;
     color: #000 !important;
   }
 
   .table-frame td {
-    padding: 12px 10px !important;
+    padding: 10px 8px !important;
     font-size: 14px !important;
     font-weight: 900 !important;
     color: #000 !important;
@@ -1285,5 +1285,6 @@ td {
 
   /* Final fallback: reduce page margin if still overflowing */
   @page { size: A4; margin: 8mm !important; }
+  .print-card { zoom: 0.95 !important; }
 }
 </style>
