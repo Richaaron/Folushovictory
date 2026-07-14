@@ -390,11 +390,13 @@ const handleExportPDF = async () => {
   }
 }
 
-// Mobile: print directly in current window (most reliable — no popup needed)
-const handlePrintMobile = async () => {
-  // The current page already has all the CSS to hide .no-print and show .print-area
-  // So we just trigger window.print() directly
-  window.print()
+// Mobile: print directly in current window — use setTimeout to escape async chain (fixes iOS Safari)
+const handlePrintMobile = () => {
+  // Must use setTimeout to escape the async/await chain.
+  // iOS Safari blocks window.print() called directly inside Promise chains.
+  setTimeout(() => {
+    window.print()
+  }, 300)
 }
 
 onMounted(fetchStudents)
