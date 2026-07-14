@@ -308,9 +308,6 @@ const notifyParents = async () => {
 
 const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
 
-// Store popup reference globally for mobile
-let mobilePopup: Window | null = null
-
 const handleExportPDF = async () => {
   const studentIds = Array.from(selectedIds.value)
   if (!studentIds.length) {
@@ -321,21 +318,6 @@ const handleExportPDF = async () => {
   exportingPDF.value = true
   generating.value = true
   error.value = ''
-
-  // Open popup for both desktop AND mobile (synchronously to avoid popup blocking)
-  let popup: Window | null = window.open('', '_blank', 'width=900,height=700')
-  if (!popup) {
-    error.value = 'Please allow popups for this site to export the PDF.'
-    exportingPDF.value = false
-    generating.value = false
-    return
-  }
-  popup.document.write('<html><body style="font-family:sans-serif;padding:2rem;text-align:center;"><h2>Generating Reports...</h2><p>Please wait, loading PDF...</p></body></html>')
-
-  // If mobile, store popup ref and show overlay
-  if (isMobile()) {
-    mobilePopup = popup
-  }
 
   try {
     // Always re-fetch reports fresh
@@ -369,23 +351,20 @@ const handleExportPDF = async () => {
     if (isMobile()) {
       mobilePrintReady.value = true
     } else {
-      handlePrintAll(popup!)
+      // For desktop, open popup and print
+      handlePrintAll()
     }
     exportingPDF.value = false
   } catch (err: any) {
-    if (popup) popup.close()
     generating.value = false
     error.value = err.response?.data?.error || 'Failed to export PDF. Please try again.'
     exportingPDF.value = false
   }
 }
 
-// Mobile: print using the popup
+// Mobile: print using the popup (opened synchronously from button click)
 const executeMobilePrint = () => {
-  if (mobilePopup) {
-    handlePrintAll(mobilePopup)
-    mobilePopup = null
-  }
+  handlePrintAll()
   mobilePrintReady.value = false
 }
 
