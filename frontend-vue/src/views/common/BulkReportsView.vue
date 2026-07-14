@@ -1600,8 +1600,8 @@ td {
     break-after: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    /* Zoom 0.95 safely guarantees it fits, while we expand paddings slightly to still fill it */
-    zoom: 0.95 !important;
+    /* Zoom 0.90 per user request to guarantee it fits entirely on one page */
+    zoom: 0.90 !important;
   }
 
   .print-card:last-child {
