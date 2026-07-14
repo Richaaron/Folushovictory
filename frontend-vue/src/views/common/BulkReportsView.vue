@@ -313,6 +313,7 @@ const handleExportPDF = async () => {
   }
 
   exportingPDF.value = true
+  generating.value = true
   error.value = ''
 
   // On desktop, open popup immediately (synchronously) before any async work
@@ -322,45 +323,46 @@ const handleExportPDF = async () => {
     if (!popup) {
       error.value = 'Please allow popups for this site to export the PDF.'
       exportingPDF.value = false
+      generating.value = false
       return
     }
     popup.document.write('<html><body style="font-family:sans-serif;padding:2rem;text-align:center;"><h2>Generating Reports...</h2><p>Please wait, loading PDF...</p></body></html>')
   }
 
   try {
-    // Generate reports if not already loaded
-    if (!reports.value.length) {
-      const res = await api.post(`/api/results/class/${classId}/bulk-reports`, {
-        session: session.value,
-        term: term.value,
-        studentIds
-      })
-      reports.value = (res.data.reports || []).map((report: any) => ({
-        ...report,
+    // Always re-fetch reports fresh
+    const res = await api.post(`/api/results/class/${classId}/bulk-reports`, {
+      session: session.value,
+      term: term.value,
+      studentIds
+    })
+    reports.value = (res.data.reports || []).map((report: any) => ({
+      ...report,
+      feeStatus: {
+        ...(report.feeStatus || {}),
+        owesFees: Boolean(owingOverrides.value[report.student?.studentId])
+      },
+      student: {
+        ...report.student,
         feeStatus: {
-          ...(report.feeStatus || {}),
+          ...(report.student?.feeStatus || {}),
           owesFees: Boolean(owingOverrides.value[report.student?.studentId])
-        },
-        student: {
-          ...report.student,
-          feeStatus: {
-            ...(report.student?.feeStatus || {}),
-            owesFees: Boolean(owingOverrides.value[report.student?.studentId])
-          }
         }
-      }))
-    }
+      }
+    }))
+
+    generating.value = false
 
     // Wait for Vue to render the DOM with the reports
     await nextTick()
 
-    // Poll until the print-area-section element exists in the DOM (max 10 seconds)
+    // Poll until the print-area-section element exists in the DOM (max 5 seconds)
     const waitForElement = () => new Promise<HTMLElement | null>((resolve) => {
       let attempts = 0
       const check = () => {
         const el = document.getElementById('print-area-section')
         if (el) return resolve(el)
-        if (attempts++ > 100) return resolve(null) // timeout after ~10s
+        if (attempts++ > 50) return resolve(null) // timeout after ~5s
         setTimeout(check, 100)
       }
       check()
@@ -375,7 +377,7 @@ const handleExportPDF = async () => {
     }
 
     // Extra delay to let images settle
-    await new Promise(r => setTimeout(r, 800))
+    await new Promise(r => setTimeout(r, 500))
 
     if (isMobile()) {
       // Mobile: show the "Print Ready" overlay so user can trigger print synchronously
@@ -386,7 +388,8 @@ const handleExportPDF = async () => {
     exportingPDF.value = false
   } catch (err: any) {
     if (popup) popup.close()
-    error.value = err.response?.data?.error || 'Failed to export PDF.'
+    generating.value = false
+    error.value = err.response?.data?.error || 'Failed to export PDF. Please try again.'
     exportingPDF.value = false
   }
 }
@@ -485,14 +488,14 @@ onMounted(fetchStudents)
       </div>
     </div>
 
-    <div v-else-if="error" class="no-print rounded-2xl border border-red-700/50 bg-red-900/20 p-6 text-red-300">
+    <div v-if="error" class="no-print rounded-2xl border border-red-700/50 bg-red-900/20 p-6 text-red-300">
       <div class="flex items-center gap-3">
         <AlertCircle class="h-5 w-5" />
         <p class="text-sm font-bold">{{ error }}</p>
       </div>
     </div>
 
-    <template v-else>
+    <template v-if="!generating && !error">
       <div v-if="notice" class="no-print rounded-2xl border border-emerald-700/50 bg-emerald-900/20 p-5 text-emerald-200">
         <div class="flex items-center gap-3">
           <Mail class="h-5 w-5" />
