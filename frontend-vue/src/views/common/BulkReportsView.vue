@@ -307,6 +307,9 @@ const notifyParents = async () => {
 
 const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
 
+// Store popup reference globally for mobile
+let mobilePopup: Window | null = null
+
 const handleExportPDF = async () => {
   const studentIds = Array.from(selectedIds.value)
   if (!studentIds.length) {
@@ -318,17 +321,19 @@ const handleExportPDF = async () => {
   generating.value = true
   error.value = ''
 
-  // On desktop, open popup immediately (synchronously) before any async work
-  let popup: Window | null = null
-  if (!isMobile()) {
-    popup = window.open('', '_blank', 'width=900,height=700')
-    if (!popup) {
-      error.value = 'Please allow popups for this site to export the PDF.'
-      exportingPDF.value = false
-      generating.value = false
-      return
-    }
-    popup.document.write('<html><body style="font-family:sans-serif;padding:2rem;text-align:center;"><h2>Generating Reports...</h2><p>Please wait, loading PDF...</p></body></html>')
+  // Open popup for both desktop AND mobile (synchronously to avoid popup blocking)
+  let popup: Window | null = window.open('', '_blank', 'width=900,height=700')
+  if (!popup) {
+    error.value = 'Please allow popups for this site to export the PDF.'
+    exportingPDF.value = false
+    generating.value = false
+    return
+  }
+  popup.document.write('<html><body style="font-family:sans-serif;padding:2rem;text-align:center;"><h2>Generating Reports...</h2><p>Please wait, loading PDF...</p></body></html>')
+
+  // If mobile, store popup ref and show overlay
+  if (isMobile()) {
+    mobilePopup = popup
   }
 
   try {
@@ -355,34 +360,12 @@ const handleExportPDF = async () => {
 
     generating.value = false
 
-    // Wait for Vue to render the DOM with the reports
+    // Wait for Vue to render the report cards in the DOM
     await nextTick()
-
-    // Poll until the print-area-section element exists in the DOM (max 5 seconds)
-    const waitForElement = () => new Promise<HTMLElement | null>((resolve) => {
-      let attempts = 0
-      const check = () => {
-        const el = document.getElementById('print-area-section')
-        if (el) return resolve(el)
-        if (attempts++ > 50) return resolve(null) // timeout after ~5s
-        setTimeout(check, 100)
-      }
-      check()
-    })
-
-    const el = await waitForElement()
-    if (!el) {
-      if (popup) popup.close()
-      error.value = 'Could not render report cards. Please try again.'
-      exportingPDF.value = false
-      return
-    }
-
-    // Extra delay to let images settle
-    await new Promise(r => setTimeout(r, 500))
+    // Give Vue extra time to paint all report cards (especially large classes)
+    await new Promise(r => setTimeout(r, 1500))
 
     if (isMobile()) {
-      // Mobile: show the "Print Ready" overlay so user can trigger print synchronously
       mobilePrintReady.value = true
     } else {
       handlePrintAll(popup!)
@@ -396,14 +379,13 @@ const handleExportPDF = async () => {
   }
 }
 
-// Mobile: print directly in current window from the overlay button
+// Mobile: print using the popup
 const executeMobilePrint = () => {
-  // Directly trigger print in the synchronous context of the button click
-  window.print()
-  // Hide overlay after printing (some browsers block script execution while dialog is open)
-  setTimeout(() => {
-    mobilePrintReady.value = false
-  }, 1000)
+  if (mobilePopup) {
+    handlePrintAll(mobilePopup)
+    mobilePopup = null
+  }
+  mobilePrintReady.value = false
 }
 
 onMounted(fetchStudents)
