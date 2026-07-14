@@ -390,80 +390,11 @@ const handleExportPDF = async () => {
   }
 }
 
-const handlePrintMobile = () => {
-  try {
-    const clone = document.getElementById('print-area-section')
-    if (!clone) { error.value = 'Could not find print content.'; return }
-
-    const allStyleSheets = Array.from(document.styleSheets)
-    let allCss = ''
-    for (const sheet of allStyleSheets) {
-      try {
-        const rules = Array.from(sheet.cssRules || [])
-        allCss += rules.map(r => r.cssText).join('\n')
-      } catch {}
-    }
-
-    const styles = `
-      @page { size: A4 portrait; margin: 5mm; }
-      body { background: white; margin: 0; padding: 0; }
-      .no-print { display: none !important; }
-      .print-area { display: block; width: 200mm; margin: 0 auto; }
-      .print-card {
-        display: block; width: 200mm; margin: 0 auto; padding: 0;
-        page-break-after: always; break-after: page;
-        page-break-inside: avoid; break-inside: avoid;
-        zoom: 0.95;
-      }
-      .print-card:last-child { page-break-after: auto; break-after: auto; }
-      .school-contact, .report-footer { display: none !important; }
-      @media print {
-        @page { size: A4 portrait; margin: 5mm; }
-        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        .school-contact, .report-footer { display: none !important; }
-        .print-card { zoom: 0.95 !important; }
-        .result-section th { padding: 18px 10px !important; font-size: 11px !important; }
-        .result-section td { padding: 18px 10px !important; font-size: 14px !important; }
-        .remarks-section { margin-top: 25px !important; gap: 20px !important; }
-        .remark-box { padding: 24px 20px !important; }
-        .remark-box p { font-size: 13px !important; line-height: 1.6 !important; }
-      }
-    `
-
-    const filename = `Bulk_Reports_${session.value}_${term.value}.pdf`
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${filename}</title>
-  <style>${allCss}\n${styles}</style>
-</head>
-<body>
-  <div class="print-area">${clone.innerHTML}</div>
-  <script>
-    window.onload = function() {
-      setTimeout(function() { window.print(); }, 800);
-      window.onafterprint = function() { window.close(); };
-    };
-  <\/script>
-</body>
-</html>`
-
-    const blob = new Blob([html], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    // Use location.href to avoid popup blocker on mobile
-    const a = document.createElement('a')
-    a.href = url
-    a.target = '_blank'
-    a.rel = 'noopener'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    setTimeout(() => URL.revokeObjectURL(url), 60000)
-  } catch (err: any) {
-    error.value = 'Failed to prepare PDF on mobile: ' + err.message
-  }
+// Mobile: print directly in current window (most reliable — no popup needed)
+const handlePrintMobile = async () => {
+  // The current page already has all the CSS to hide .no-print and show .print-area
+  // So we just trigger window.print() directly
+  window.print()
 }
 
 onMounted(fetchStudents)
@@ -1608,12 +1539,22 @@ td {
 
   .no-print { display: none !important; }
 
-  .print-area {
-    width: 100% !important;
+  @page { size: A4 portrait; margin: 5mm; }
+
+  /* Reset outer wrapper for clean print */
+  .bulk-report-page {
     max-width: none !important;
+    width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
+    background: white !important;
+    gap: 0 !important;
   }
+
+  .print-area {
+    display: block !important;
+  }
+
 
   /* ---- ONE PAGE PER STUDENT ---- */
   .report-card, .print-card {
