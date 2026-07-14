@@ -55,7 +55,7 @@ export async function setGradingScale(scale) {
 
 export async function getTermMeta({ session, term }) {
   try {
-    return await SafeDatabase.getById("termMeta", `${session}_${term}`);
+    return await SafeDatabase.getById("config", `termMeta_${session}_${term}`);
   } catch (error) {
     if (error.statusCode === 404) return null;
     throw error;
@@ -63,7 +63,7 @@ export async function getTermMeta({ session, term }) {
 }
 
 export async function setTermMeta({ session, term, resumptionDate }) {
-  return SafeDatabase.upsert("termMeta", `${session}_${term}`, {
+  return SafeDatabase.upsert("config", `termMeta_${session}_${term}`, {
     session,
     term,
     resumptionDate

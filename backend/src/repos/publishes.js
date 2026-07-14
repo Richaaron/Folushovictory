@@ -25,7 +25,7 @@ export async function publishResults({ classId, session, term, publishedBy }) {
     classId,
     session,
     term,
-    status: "PUBLISHED",
+    published: true,
     publishedBy
   });
 }

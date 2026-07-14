@@ -145,6 +145,8 @@ export class DatabaseErrorLogger {
       console.warn("[DB Error - Transient]", logEntry);
     } else if (errorType === FirestoreErrorTypes.VALIDATION) {
       console.warn("[DB Error - Validation]", logEntry);
+    } else if (errorType === FirestoreErrorTypes.NOT_FOUND) {
+      console.info("[DB Error - Not Found]", logEntry);
     } else {
       console.error("[DB Error - Serious]", logEntry);
     }
