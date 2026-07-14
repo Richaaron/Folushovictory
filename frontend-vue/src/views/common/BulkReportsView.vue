@@ -1437,10 +1437,16 @@ td {
    MOBILE RESPONSIVE STYLES (≤ 640px)
    ============================================= */
 @media (max-width: 640px) {
-  /* Comic Sans for better mobile readability */
+  /* Use readable system font stack for mobile */
   .report-card,
   .report-card *:not(svg):not(path) {
-    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+    font-style: normal !important;
+  }
+
+  /* Ensure remarks aren't italic on mobile */
+  .remark-box p {
+    font-style: normal !important;
   }
 
   /* Report card full-width, no side shadow */
