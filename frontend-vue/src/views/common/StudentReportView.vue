@@ -1145,7 +1145,7 @@ td {
   .table-frame table th,
   .table-frame table td {
     font-size: 13px !important;
-    padding: 16px 10px !important;
+    padding: 12px 10px !important;
     line-height: 1.2 !important;
     vertical-align: middle !important;
   }
@@ -1165,12 +1165,12 @@ td {
   }
 
   /* 2) Remarks font size and padding */
-  .remarks-section { gap: 20px !important; margin-top: 25px !important; }
-  .remark-box { padding: 20px !important; min-height: 80px !important; }
+  .remarks-section { gap: 16px !important; margin-top: 20px !important; }
+  .remark-box { padding: 14px !important; min-height: 80px !important; }
   .remark-box p {
     font-size: 13px !important;
     margin: 6px 0 !important;
-    line-height: 1.6 !important;
+    line-height: 1.4 !important;
   }
 
   /* 3) Enlarge signature areas slightly */
@@ -1268,19 +1268,19 @@ td {
   .student-band { gap: 8px !important; padding: 8px 12px 0 !important; }
 
   .table-frame thead th {
-    padding-top: 18px !important;
-    padding-bottom: 18px !important;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
     font-size: 12px !important;
     font-weight: 800 !important;
     color: #000 !important;
   }
 
   .table-frame td {
-    padding: 16px 10px !important;
+    padding: 12px 10px !important;
     font-size: 14px !important;
     font-weight: 900 !important;
     color: #000 !important;
-    line-height: 1.4 !important;
+    line-height: 1.3 !important;
   }
 
   /* Final fallback: reduce page margin if still overflowing */
