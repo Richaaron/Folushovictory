@@ -61,19 +61,47 @@ const levelColor = (level: string) => {
   if (normalized === 'SSS') return 'text-purple-400 border-purple-900 bg-purple-950/30'
   return 'text-slate-400 border-slate-700 bg-slate-800/50'
 }
+const selectAll = () => {
+  const ids = new Set([...props.modelValue, ...filteredSubjects.value.map(s => s.id)])
+  emit('update:modelValue', Array.from(ids))
+}
+
+const deselectAll = () => {
+  const filteredIds = new Set(filteredSubjects.value.map(s => s.id))
+  const remaining = props.modelValue.filter(id => !filteredIds.has(id))
+  emit('update:modelValue', remaining)
+}
 </script>
 
 <template>
   <div class="space-y-3">
-    <!-- Search bar -->
-    <div class="relative">
-      <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Search subjects..."
-        class="w-full pl-9 pr-4 py-2.5 bg-slate-900/60 border border-slate-700/60 rounded-xl text-sm text-white placeholder-slate-500 outline-none focus:border-royal-purple/50 transition-colors"
-      />
+    <!-- Search bar & Batch actions -->
+    <div class="flex flex-col sm:flex-row gap-2">
+      <div class="relative flex-grow">
+        <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Search subjects..."
+          class="w-full pl-9 pr-4 py-2.5 bg-slate-900/60 border border-slate-700/60 rounded-xl text-sm text-white placeholder-slate-500 outline-none focus:border-royal-purple/50 transition-colors"
+        />
+      </div>
+      <div class="flex gap-2">
+        <button
+          type="button"
+          @click="selectAll"
+          class="px-3 py-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex-1 sm:flex-none"
+        >
+          Select All
+        </button>
+        <button
+          type="button"
+          @click="deselectAll"
+          class="px-3 py-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex-1 sm:flex-none"
+        >
+          Clear
+        </button>
+      </div>
     </div>
 
     <!-- Count badge -->

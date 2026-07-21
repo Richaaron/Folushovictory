@@ -167,9 +167,18 @@ const handleDelete = async (id: string) => {
 }
 
 const openEditModal = (student: any) => {
+  const level = getClassLevel(student.classId)
+  const levelSubjectIds = allSubjects.value
+    .filter((s: any) => !level || String(s.level || '').toUpperCase().includes(level))
+    .map((s: any) => s.id)
+    
+  const initialSubjects = (Array.isArray(student.subjectIds) && student.subjectIds.length > 0)
+    ? [...student.subjectIds]
+    : levelSubjectIds
+
   editingStudent.value = { 
     ...student,
-    subjectIds: Array.isArray(student.subjectIds) ? [...student.subjectIds] : []
+    subjectIds: initialSubjects
   }
   showEditModal.value = true
 }

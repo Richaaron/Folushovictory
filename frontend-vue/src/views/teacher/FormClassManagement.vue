@@ -83,8 +83,25 @@ const newStudent = ref({
   gender: 'Male',
   parentName: '',
   parentEmail: '',
-  stream: ''
+  stream: '',
+  subjectIds: [] as string[]
 })
+
+const openAddStudentModal = () => {
+  const levelSubjectIds = allSubjects.value
+    .filter((s: any) => !classLevel.value || String(s.level || '').toUpperCase().includes(classLevel.value))
+    .map((s: any) => s.id)
+  newStudent.value = {
+    firstName: '',
+    lastName: '',
+    gender: 'Male',
+    parentName: '',
+    parentEmail: '',
+    stream: '',
+    subjectIds: levelSubjectIds
+  }
+  showAddModal.value = true
+}
 
 const fetchStudents = async () => {
   loading.value = true
@@ -129,7 +146,8 @@ const handleAddStudent = async () => {
       gender: 'Male',
       parentName: '',
       parentEmail: '',
-      stream: ''
+      stream: '',
+      subjectIds: []
     }
     await fetchStudents()
   } catch (err: any) {
@@ -141,6 +159,13 @@ const handleAddStudent = async () => {
 
 const openEditModal = (student: any) => {
   editingStudent.value = student
+  const levelSubjectIds = allSubjects.value
+    .filter((s: any) => !classLevel.value || String(s.level || '').toUpperCase().includes(classLevel.value))
+    .map((s: any) => s.id)
+  const initialSubjects = (Array.isArray(student.subjectIds) && student.subjectIds.length > 0)
+    ? [...student.subjectIds]
+    : levelSubjectIds
+
   editedStudent.value = {
     firstName: student.firstName || '',
     lastName: student.lastName || '',
@@ -148,7 +173,7 @@ const openEditModal = (student: any) => {
     parentName: student.parentName || '',
     parentEmail: student.parentEmail || '',
     stream: student.stream || '',
-    subjectIds: Array.isArray(student.subjectIds) ? [...student.subjectIds] : []
+    subjectIds: initialSubjects
   }
   showEditModal.value = true
 }
@@ -296,7 +321,7 @@ onMounted(async () => {
         </button>
         <button 
           v-if="canAddStudents"
-          @click="showAddModal = true"
+          @click="openAddStudentModal"
           class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95"
         >
           <UserPlus class="w-4 h-4" />
@@ -490,6 +515,15 @@ onMounted(async () => {
                   <option value="Commercial">Commercial</option>
                 </select>
               </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subjects Assigned</label>
+              <StudentSubjectPicker
+                v-model="newStudent.subjectIds"
+                :subjects="allSubjects"
+                :classLevel="classLevel"
+              />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
