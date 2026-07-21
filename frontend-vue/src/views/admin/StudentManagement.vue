@@ -101,14 +101,6 @@ const fetchSubjects = async () => {
   }
 }
 
-const normalizeLevel = (value: string) => {
-  const normalized = String(value || '').trim().toUpperCase()
-  if (['PRY', 'NUR', 'PRIMARY'].includes(normalized) || normalized.startsWith('PRE')) return 'Primary'
-  if (normalized.startsWith('JSS') || normalized.includes('JUNIOR SECONDARY') || normalized.startsWith('JR')) return 'JSS'
-  if (normalized.startsWith('SSS') || normalized.includes('SENIOR SECONDARY') || normalized.startsWith('SR')) return 'SSS'
-  return normalized
-}
-
 const getClassLevel = (classId: string) => {
   const cls = classes.value.find((c: any) => c.id === classId)
   if (!cls) return ''
