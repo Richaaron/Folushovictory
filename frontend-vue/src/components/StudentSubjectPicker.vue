@@ -115,7 +115,7 @@ const deselectAll = () => {
     </div>
 
     <!-- Subject grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-xl bg-slate-900/30 border border-slate-700/30 p-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto custom-modal-scrollbar pr-1.5 rounded-xl bg-slate-900/40 border border-slate-700/50 p-3">
       <div v-if="filteredSubjects.length === 0" class="col-span-2 py-8 text-center text-slate-500 text-sm font-bold">
         No subjects found.
       </div>
