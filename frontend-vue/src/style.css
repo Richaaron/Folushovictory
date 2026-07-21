@@ -829,8 +829,12 @@ body {
 }
 
 /* ── Custom Visible Scrollbar for Modals ── */
+.custom-modal-scrollbar {
+  -webkit-overflow-scrolling: touch;
+}
 .custom-modal-scrollbar::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 .custom-modal-scrollbar::-webkit-scrollbar-track {
   background: rgba(15, 23, 42, 0.5);
@@ -843,6 +847,12 @@ body {
 }
 .custom-modal-scrollbar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(to bottom, #8b5cf6, #e8d08a);
+}
+@media (max-width: 640px) {
+  .custom-modal-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
 }
 
 /* ── Utility Animations ── */

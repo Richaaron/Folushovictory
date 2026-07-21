@@ -426,7 +426,7 @@ onMounted(async () => {
     <transition name="fade">
       <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-start justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="absolute inset-0 bg-[#1B2A4A]/80 backdrop-blur-sm" @click="showEditModal = false"></div>
-        <div ref="editModalRoot" class="parchment-card p-6 sm:p-8 w-full sm:max-w-xl shadow-2xl relative z-10 max-h-[90vh] overflow-y-auto mt-10 sm:mt-16">
+        <div ref="editModalRoot" class="parchment-card p-6 sm:p-8 w-full sm:max-w-xl shadow-2xl relative z-10 my-auto max-h-[85vh] overflow-y-auto custom-modal-scrollbar">
           <h2 class="academic-heading text-xl text-[#FAFAF7] mb-6 flex items-center gap-3">
             <Edit2 class="w-5 h-5 text-[#C9A84C]" /> Edit Student Info
           </h2>
@@ -489,7 +489,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div class="pt-4 flex gap-3">
+            <div class="sticky bottom-0 bg-[#1B2A4A]/95 backdrop-blur-md pt-4 -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 px-6 pb-6 sm:px-8 sm:pb-8 border-t border-[#C9A84C]/15 flex gap-3 z-30">
               <button @click="showEditModal = false" class="chalkboard-btn flex-1">Cancel</button>
               <button @click="handleUpdateStudent" class="chalkboard-btn chalkboard-btn-gold flex-[2]">Save Changes</button>
             </div>
