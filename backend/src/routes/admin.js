@@ -8,7 +8,7 @@ import { createUser, deleteUser, getUserByUsername, updateUser } from "../repos/
 import { createStudent, createStudentWithParent, listStudentsByClass, countStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
 import { createClass, listClasses, updateClass, getClassById, revokeFormTeacherStatus } from "../repos/classes.js";
 import { validateTeacherPayload, validateStudentPayload, validateStudentUpdatePayload } from "../validation.js";
-import { createSubject, listSubjects, getSubjectById } from "../repos/subjects.js";
+import { createSubject, listSubjects, getSubjectById, deleteSubject } from "../repos/subjects.js";
 import { createAssignment, deleteAssignmentsByTeacher } from "../repos/assignments.js";
 import { upsertNumericScore, listScoresForStudent } from "../repos/scores.js";
 import { getGradingScale, setGradingScale, setTermMeta, getSchoolSettings, setSchoolSettings } from "../repos/config.js";
@@ -1056,6 +1056,15 @@ adminRouter.post(
       track: track ? String(track) : null // 'General', 'Science', 'Art', 'Commercial' for SSS
     });
     return res.status(201).json(created);
+  })
+);
+
+adminRouter.delete(
+  "/subjects/:id",
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    await deleteSubject(id);
+    return res.json({ success: true });
   })
 );
 

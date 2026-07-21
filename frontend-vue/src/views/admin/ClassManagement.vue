@@ -7,14 +7,17 @@ import {
   School,
   Loader2,
   Search,
-  Sparkles
+  Sparkles,
+  BookOpen
 } from 'lucide-vue-next'
 import api from '../../services/api'
+import SubjectManagementModal from '../../components/SubjectManagementModal.vue'
 
 const classes = ref<any[]>([])
 const loading = ref(true)
 const searchQuery = ref('')
 const showAddModal = ref(false)
+const showSubjectModal = ref(false)
 const newClass = ref({ name: '', level: 'JSS', track: '' })
 const showStudentsModal = ref(false)
 const studentsInClass = ref<any[]>([])
@@ -119,13 +122,22 @@ onMounted(fetchClasses)
           <p class="text-sm text-[#F5F0E8]/50">A refined dashboard for managing classrooms, tracking enrollment, and checking teacher coverage.</p>
         </div>
 
-        <button
-          @click="showAddModal = true"
-          class="chalkboard-btn chalkboard-btn-gold"
-        >
-          <Plus class="w-4 h-4" />
-          <span>New Class</span>
-        </button>
+        <div class="flex flex-wrap items-center gap-3 mt-4 lg:mt-0">
+          <button
+            @click="showSubjectModal = true"
+            class="chalkboard-btn"
+          >
+            <BookOpen class="w-4 h-4" />
+            <span>Manage Subjects</span>
+          </button>
+          <button
+            @click="showAddModal = true"
+            class="chalkboard-btn chalkboard-btn-gold"
+          >
+            <Plus class="w-4 h-4" />
+            <span>New Class</span>
+          </button>
+        </div>
       </div>
 
       <div class="grid gap-4 mt-8 sm:grid-cols-2 xl:grid-cols-4">
@@ -345,5 +357,13 @@ onMounted(fetchClasses)
         </div>
       </div>
     </transition>
+
+    <!-- Subject Management Modal -->
+    <SubjectManagementModal 
+      :show="showSubjectModal" 
+      apiEndpoint="/api/admin/subjects" 
+      @close="showSubjectModal = false" 
+      @update="fetchClasses"
+    />
   </div>
 </template>

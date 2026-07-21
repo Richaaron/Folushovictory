@@ -4,7 +4,7 @@ import { authRequired, requireRole } from "../middleware/auth.js";
 import { asyncHandler } from "../http.js";
 import { listAssignmentsByTeacher, getAssignmentByTriplet } from "../repos/assignments.js";
 import { listClassesByFormTeacher, getClassById } from "../repos/classes.js";
-import { listSubjects, getSubjectById } from "../repos/subjects.js";
+import { listSubjects, getSubjectById, createSubject, deleteSubject } from "../repos/subjects.js";
 import { listStudentsByClass, getStudentById, createStudentWithParent, updateStudent, deleteStudent } from "../repos/students.js";
 import { validateStudentUpdatePayload, validateStudentPayload } from "../validation.js";
 import { isPublished } from "../repos/publishes.js";
@@ -676,6 +676,62 @@ teacherRouter.delete(
       resourceId: studentId
     }).catch((error) => console.error("Activity log failed:", error));
 
+    return res.json({ success: true });
+  })
+);
+
+teacherRouter.get(
+  "/subjects",
+  asyncHandler(async (req, res) => {
+    // Both subject teachers and form masters might need this to list subjects
+    const subjects = await listSubjects();
+    return res.json({ subjects });
+  })
+);
+
+teacherRouter.post(
+  "/subjects",
+  asyncHandler(async (req, res) => {
+    const formClasses = await listClassesByFormTeacher(req.user.username);
+    if (formClasses.length === 0) {
+      return res.status(403).json({ error: "Only form masters can manage subjects" });
+    }
+    const { name, level, track } = req.body || {};
+    if (!name || !level) return res.status(400).json({ error: "Missing name or level" });
+    const created = await createSubject({ 
+      name: String(name),
+      level: String(level),
+      track: track ? String(track) : null
+    });
+    void logActivity({
+      actor: req.user.username,
+      role: req.user.role,
+      action: "Created subject",
+      details: { name, level },
+      resourceType: "subject",
+      resourceId: created.id
+    }).catch(console.error);
+    return res.status(201).json(created);
+  })
+);
+
+teacherRouter.delete(
+  "/subjects/:id",
+  asyncHandler(async (req, res) => {
+    const formClasses = await listClassesByFormTeacher(req.user.username);
+    if (formClasses.length === 0) {
+      return res.status(403).json({ error: "Only form masters can manage subjects" });
+    }
+    const { id } = req.params;
+    await deleteSubject(id);
+    void logActivity({
+      actor: req.user.username,
+      role: req.user.role,
+      action: "Deleted subject",
+      details: { subjectId: id },
+      resourceType: "subject",
+      resourceId: id
+    }).catch(console.error);
     return res.json({ success: true });
   })
 );

@@ -14,6 +14,7 @@ import {
   FileText
 } from 'lucide-vue-next'
 import api from '../../services/api'
+import StudentSubjectPicker from '../../components/StudentSubjectPicker.vue'
 
 const router = useRouter()
 const students = ref<any[]>([])
@@ -108,12 +109,15 @@ const normalizeLevel = (value: string) => {
   return normalized
 }
 
-const optionalSubjects = computed(() => {
-  return allSubjects.value.filter((s: any) => 
-    normalizeLevel(s.level) === 'SSS' && 
-    !['Mathematics', 'English Language', 'Marketing', 'Citizenship and Heritage studies', 'Economics', 'Biology', 'Chemistry', 'Physics', 'Government', 'Literature in English', 'Financial Accounting', 'Commerce'].includes(s.name)
-  )
-})
+const getClassLevel = (classId: string) => {
+  const cls = classes.value.find((c: any) => c.id === classId)
+  if (!cls) return ''
+  const name = String(cls.name || '').toUpperCase()
+  if (name.includes('SSS')) return 'SSS'
+  if (name.includes('JSS')) return 'JSS'
+  if (name.includes('PRY') || name.includes('PRIMARY') || name.includes('NUR')) return 'Primary'
+  return ''
+}
 
 const newStudent = ref({
   firstName: '',
@@ -397,14 +401,13 @@ onMounted(async () => {
               </select>
             </div>
 
-            <div v-if="newStudent.classId && classes.find(c => c.id === newStudent.classId)?.name?.includes('SSS') && optionalSubjects.length" class="space-y-2">
-              <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Optional Subjects (Extra)</label>
-              <div class="grid grid-cols-2 gap-2 bg-[#1B2A4A]/60 p-4 rounded-xl border border-[#C9A84C]/10">
-                <label v-for="sub in optionalSubjects" :key="sub.id" class="flex items-center gap-2 cursor-pointer p-1">
-                  <input type="checkbox" :value="sub.id" v-model="newStudent.subjectIds" class="rounded accent-[#C9A84C]" />
-                  <span class="text-xs font-semibold text-[#F5F0E8]/70">{{ sub.name }}</span>
-                </label>
-              </div>
+            <div v-if="newStudent.classId" class="space-y-2">
+              <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Subjects Assigned</label>
+              <StudentSubjectPicker
+                v-model="newStudent.subjectIds"
+                :subjects="allSubjects"
+                :classLevel="getClassLevel(newStudent.classId)"
+              />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -474,14 +477,13 @@ onMounted(async () => {
               </select>
             </div>
 
-            <div v-if="editingStudent.classId && classes.find(c => c.id === editingStudent.classId)?.name?.includes('SSS') && optionalSubjects.length" class="space-y-2">
-              <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Optional Subjects (Extra)</label>
-              <div class="grid grid-cols-2 gap-2 bg-[#1B2A4A]/60 p-4 rounded-xl border border-[#C9A84C]/10">
-                <label v-for="sub in optionalSubjects" :key="sub.id" class="flex items-center gap-2 cursor-pointer p-1">
-                  <input type="checkbox" :value="sub.id" v-model="editingStudent.subjectIds" class="rounded accent-[#C9A84C]" />
-                  <span class="text-xs font-semibold text-[#F5F0E8]/70">{{ sub.name }}</span>
-                </label>
-              </div>
+            <div class="space-y-2">
+              <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Subjects Assigned</label>
+              <StudentSubjectPicker
+                v-model="editingStudent.subjectIds"
+                :subjects="allSubjects"
+                :classLevel="getClassLevel(editingStudent.classId)"
+              />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">

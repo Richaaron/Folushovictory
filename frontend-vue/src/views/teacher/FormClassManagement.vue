@@ -14,9 +14,12 @@ import {
   BarChart3,
   UserPlus,
   Edit2,
-  Trash2
+  Trash2,
+  BookOpen
 } from 'lucide-vue-next'
 import api from '../../services/api'
+import SubjectManagementModal from '../../components/SubjectManagementModal.vue'
+import StudentSubjectPicker from '../../components/StudentSubjectPicker.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -39,6 +42,7 @@ const canAddStudents = ref(false)
 const currentClass = ref<any>(null)
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+const showSubjectModal = ref(false)
 const editingStudent = ref<any>(null)
 const editedStudent = ref({
   firstName: '',
@@ -46,7 +50,27 @@ const editedStudent = ref({
   gender: 'Male',
   parentName: '',
   parentEmail: '',
-  stream: ''
+  stream: '',
+  subjectIds: [] as string[]
+})
+
+const allSubjects = ref<any[]>([])
+
+const fetchSubjects = async () => {
+  try {
+    const { data } = await api.get('/api/teacher/subjects')
+    allSubjects.value = data.subjects || []
+  } catch (err) {
+    console.error('Error fetching subjects:', err)
+  }
+}
+
+const classLevel = computed(() => {
+  const name = String(currentClass.value?.name || '').toUpperCase()
+  if (name.includes('SSS')) return 'SSS'
+  if (name.includes('JSS')) return 'JSS'
+  if (name.includes('PRY') || name.includes('PRIMARY') || name.includes('NUR')) return 'Primary'
+  return ''
 })
 
 const isSSS = computed(() => {
@@ -123,7 +147,8 @@ const openEditModal = (student: any) => {
     gender: student.gender || 'Male',
     parentName: student.parentName || '',
     parentEmail: student.parentEmail || '',
-    stream: student.stream || ''
+    stream: student.stream || '',
+    subjectIds: Array.isArray(student.subjectIds) ? [...student.subjectIds] : []
   }
   showEditModal.value = true
 }
@@ -142,7 +167,8 @@ const handleUpdateStudent = async () => {
   try {
     await api.put(`/api/teacher/students/${editingStudent.value.studentId}`, {
       ...editedStudent.value,
-      classId
+      classId,
+      subjectIds: editedStudent.value.subjectIds
     })
     showEditModal.value = false
     editingStudent.value = null
@@ -221,7 +247,9 @@ const releaseResult = async (studentId: string, released: boolean) => {
   }
 }
 
-onMounted(fetchStudents)
+onMounted(async () => {
+  await Promise.all([fetchStudents(), fetchSubjects()])
+})
 </script>
 
 <template>
@@ -273,6 +301,13 @@ onMounted(fetchStudents)
         >
           <UserPlus class="w-4 h-4" />
           Add Student
+        </button>
+        <button 
+          @click="showSubjectModal = true"
+          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple"
+        >
+          <BookOpen class="w-4 h-4" />
+          Subjects
         </button>
         <button 
           @click="saveAllRemarks"
@@ -515,6 +550,16 @@ onMounted(fetchStudents)
               </div>
             </div>
 
+            <!-- Subject Picker -->
+            <div class="space-y-2">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subjects Assigned</label>
+              <StudentSubjectPicker
+                v-model="editedStudent.subjectIds"
+                :subjects="allSubjects"
+                :classLevel="classLevel"
+              />
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div class="space-y-2">
                 <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
@@ -534,5 +579,12 @@ onMounted(fetchStudents)
         </div>
       </div>
     </transition>
+
+    <!-- Subject Management Modal -->
+    <SubjectManagementModal 
+      :show="showSubjectModal" 
+      apiEndpoint="/api/teacher/subjects" 
+      @close="showSubjectModal = false" 
+    />
   </div>
 </template>
