@@ -159,13 +159,6 @@ const handleAddStudent = async () => {
 
 const openEditModal = (student: any) => {
   editingStudent.value = student
-  const levelSubjectIds = allSubjects.value
-    .filter((s: any) => !classLevel.value || String(s.level || '').toUpperCase().includes(classLevel.value))
-    .map((s: any) => s.id)
-  const initialSubjects = (Array.isArray(student.subjectIds) && student.subjectIds.length > 0)
-    ? [...student.subjectIds]
-    : levelSubjectIds
-
   editedStudent.value = {
     firstName: student.firstName || '',
     lastName: student.lastName || '',
@@ -173,7 +166,7 @@ const openEditModal = (student: any) => {
     parentName: student.parentName || '',
     parentEmail: student.parentEmail || '',
     stream: student.stream || '',
-    subjectIds: initialSubjects
+    subjectIds: Array.isArray(student.subjectIds) ? [...student.subjectIds] : []
   }
   showEditModal.value = true
 }
