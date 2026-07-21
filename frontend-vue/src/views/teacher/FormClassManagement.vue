@@ -476,7 +476,7 @@ onMounted(async () => {
     <transition name="fade">
       <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAddModal = false"></div>
-        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 my-auto max-h-[85vh] overflow-y-auto">
+        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 my-auto max-h-[85vh] overflow-y-auto custom-modal-scrollbar">
           <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8">Register New <span class="text-royal-purple">Student</span></h2>
           
           <div class="space-y-4 sm:space-y-6">
@@ -543,7 +543,7 @@ onMounted(async () => {
     <transition name="fade">
       <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showEditModal = false"></div>
-        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 my-auto max-h-[85vh] overflow-y-auto">
+        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 my-auto max-h-[85vh] overflow-y-auto custom-modal-scrollbar">
           <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8">Edit <span class="text-royal-purple">Student</span></h2>
 
           <div class="space-y-4 sm:space-y-6">
@@ -598,7 +598,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div class="pt-4 sm:pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+            <div class="sticky bottom-0 bg-[#0F172A]/95 backdrop-blur-md pt-4 -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 px-6 pb-6 sm:px-10 sm:pb-10 border-t border-slate-700/50 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-30">
               <button @click="showEditModal = false; editingStudent = null" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl bg-slate-900/60 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white hover:bg-slate-800 transition-colors min-h-[44px]">Cancel</button>
               <button @click="handleUpdateStudent" class="flex-grow py-3 sm:py-4 rounded-lg sm:rounded-2xl purple-gradient text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 min-h-[44px]">Save Changes</button>
             </div>
