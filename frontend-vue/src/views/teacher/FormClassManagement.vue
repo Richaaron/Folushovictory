@@ -474,9 +474,9 @@ onMounted(async () => {
 
     <!-- Add Student Modal -->
     <transition name="fade">
-      <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
+      <div v-if="showAddModal" class="fixed inset-0 z-[100] flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showAddModal = false"></div>
-        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 max-h-[90vh] overflow-y-auto">
+        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 my-auto max-h-[85vh] overflow-y-auto">
           <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8">Register New <span class="text-royal-purple">Student</span></h2>
           
           <div class="space-y-4 sm:space-y-6">
@@ -541,9 +541,9 @@ onMounted(async () => {
 
     <!-- Edit Student Modal -->
     <transition name="fade">
-      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
+      <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showEditModal = false"></div>
-        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 max-h-[90vh] overflow-y-auto">
+        <div class="glass-card rounded-2xl sm:rounded-[2.5rem] w-full sm:max-w-xl p-6 sm:p-10 shadow-2xl relative z-10 fade-in border border-white/10 dark:border-slate-800/50 my-auto max-h-[85vh] overflow-y-auto">
           <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-6 sm:mb-8">Edit <span class="text-royal-purple">Student</span></h2>
 
           <div class="space-y-4 sm:space-y-6">
