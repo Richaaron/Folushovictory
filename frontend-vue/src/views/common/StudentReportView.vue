@@ -10,7 +10,8 @@ import {
   TrendingUp,
   Star,
   Calendar,
-  Users
+  Users,
+  Printer
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -23,6 +24,10 @@ const data = ref<any>(null)
 const loading = ref(true)
 const error = ref('')
 const previewMode = computed(() => String(route.query.preview || '').toLowerCase() === 'true')
+
+const printReport = () => {
+  window.print()
+}
 
 const fetchData = async () => {
   loading.value = true
@@ -105,6 +110,13 @@ onMounted(fetchData)
         <ArrowLeft class="h-5 w-5" /> Back
       </button>
 
+      <button
+        v-if="data"
+        @click="printReport"
+        class="flex items-center gap-2 rounded-xl bg-[#1B2A4A] px-4 py-2 text-xs font-black uppercase tracking-widest text-[#C9A84C] border border-[#C9A84C]/30 hover:bg-[#C9A84C]/15 transition-all shadow-md"
+      >
+        <Printer class="h-4 w-4" /> Save PDF / Print
+      </button>
     </div>
 
     <!-- Loading State -->

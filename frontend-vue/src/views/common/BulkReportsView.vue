@@ -139,16 +139,12 @@ const getFormTeacherName = (report: any) => report.formTeacher?.displayName || `
 
 
 const handlePrintAll = (existingPopup?: Window | null) => {
-  const popup = existingPopup || window.open('', '_blank', 'width=900,height=700')
-  if (!popup) {
-    alert('Please allow popups for this site to download the PDF.')
-    return
-  }
+  const popup = existingPopup && !existingPopup.closed ? existingPopup : null
   
   try {
     const el = document.getElementById('print-area-section')
     if (!el) {
-      popup.document.write('<h2>Error: Document not ready.</h2>')
+      if (popup) popup.document.write('<h2>Error: Document not ready.</h2>')
       return
     }
 
@@ -239,7 +235,7 @@ const handlePrintAll = (existingPopup?: Window | null) => {
       .result-section { margin-top: 25px !important; }
       .result-section th { padding: 18px 10px !important; font-size: 11px !important; }
       .result-section td { padding: 18px 10px !important; font-size: 14px !important; }
-      .remarks-section { margin-top: 25px !important; gap: 20px !important; }
+      .remarks-section { margin-top: 25px !important; }
       .remark-box { padding: 24px 20px !important; }
       .remark-box p { font-size: 13px !important; line-height: 1.6 !important; }
       .signature-area { margin-top: 20px !important; }
@@ -258,23 +254,30 @@ const handlePrintAll = (existingPopup?: Window | null) => {
     ${clone.innerHTML}
   </div>
   <script>
-    // Wait for full render before printing (window.onload fires too early for large documents)
     setTimeout(function() {
       window.focus();
       window.print();
       window.onafterprint = function() { window.close(); };
-    }, 1500);
+    }, 1000);
   <\/script>
 </body>
 </html>`
 
-    popup.document.open()
-    popup.document.write(html)
-    popup.document.close()
+    if (popup) {
+      popup.document.open()
+      popup.document.write(html)
+      popup.document.close()
+    } else {
+      printViaIframe(html)
+    }
   } catch (err: any) {
-    popup.document.open()
-    popup.document.write('<html><body style="font-family:sans-serif;padding:2rem;color:red;"><h2>Error</h2><p>' + err.message + '</p><pre>' + err.stack + '</pre></body></html>')
-    popup.document.close()
+    if (popup) {
+      popup.document.open()
+      popup.document.write('<html><body style="font-family:sans-serif;padding:2rem;color:red;"><h2>Error</h2><p>' + err.message + '</p></body></html>')
+      popup.document.close()
+    } else {
+      printViaIframe('<html><body><h2 style="color:red">Error: ' + err.message + '</h2></body></html>')
+    }
   }
 }
 
@@ -307,7 +310,32 @@ const notifyParents = async () => {
 
 // ── PDF Export ──────────────────────────────────────────────────────────────
 
-const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
+// ── PDF Export ──────────────────────────────────────────────────────────────
+
+const printViaIframe = (html: string) => {
+  let iframe = document.getElementById('pdf-print-iframe') as HTMLIFrameElement
+  if (!iframe) {
+    iframe = document.createElement('iframe')
+    iframe.id = 'pdf-print-iframe'
+    iframe.style.position = 'fixed'
+    iframe.style.right = '0'
+    iframe.style.bottom = '0'
+    iframe.style.width = '0'
+    iframe.style.height = '0'
+    iframe.style.border = '0'
+    document.body.appendChild(iframe)
+  }
+  const doc = iframe.contentWindow?.document || iframe.contentDocument
+  if (doc) {
+    doc.open()
+    doc.write(html)
+    doc.close()
+    setTimeout(() => {
+      iframe.contentWindow?.focus()
+      iframe.contentWindow?.print()
+    }, 1000)
+  }
+}
 
 const handleExportPDF = async () => {
   console.log('handleExportPDF called')
@@ -317,19 +345,39 @@ const handleExportPDF = async () => {
     return
   }
 
+  // Pre-open popup synchronously to prevent browser popup blockers from blocking it
+  let preOpenedPopup: Window | null = null;
+  try {
+    preOpenedPopup = window.open('', '_blank', 'width=900,height=700')
+    if (preOpenedPopup) {
+      preOpenedPopup.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>Preparing Reports PDF...</title></head>
+        <body style="font-family:sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#0f172a; color:#f8fafc; margin:0;">
+          <div style="text-align:center; padding: 20px;">
+            <div style="font-size: 24px; font-weight: bold; color: #c9a84c; margin-bottom: 12px;">Folusho Victory Schools</div>
+            <div style="font-size: 16px; color: #e2e8f0; margin-bottom: 8px;">Generating PDF Academic Reports...</div>
+            <div style="font-size: 13px; color: #94a3b8;">Please wait while report cards are compiled and rendered.</div>
+          </div>
+        </body>
+        </html>
+      `)
+    }
+  } catch (e) {
+    console.warn('Pre-open popup blocked or unavailable:', e)
+  }
+
   exportingPDF.value = true
   generating.value = true
   error.value = ''
 
-  console.log('Starting API request')
   try {
-    // Always re-fetch reports fresh
     const res = await api.post(`/api/results/class/${classId}/bulk-reports`, {
       session: session.value,
       term: term.value,
       studentIds
     })
-    console.log('API response received:', res.data)
 
     reports.value = (res.data.reports || []).map((report: any) => ({
       ...report,
@@ -345,45 +393,26 @@ const handleExportPDF = async () => {
         }
       }
     }))
-    console.log('Reports set, count:', reports.value.length)
 
     generating.value = false
 
-    console.log('Reports value after fetch:', reports.value)
-    console.log('selectedIds:', selectedIds.value)
-    console.log('printableReports:', printableReports.value)
-
-    console.log('Waiting for nextTick')
-    // Wait for Vue to render the report cards in the DOM
     await nextTick()
-    console.log('nextTick done, waiting 1.5s')
-    // Give Vue extra time to paint all report cards (especially large classes)
-    await new Promise(r => setTimeout(r, 1500))
-    console.log('1.5s done')
+    await new Promise(r => setTimeout(r, 1200))
 
-    const printAreaEl = document.getElementById('print-area-section')
-    console.log('printAreaEl:', printAreaEl)
-    if (printAreaEl) {
-      console.log('printAreaEl.innerHTML:', printAreaEl.innerHTML)
-    }
-
-    if (isMobile()) {
-      console.log('Mobile detected, showing mobilePrintReady')
-      mobilePrintReady.value = true
-    } else {
-      console.log('Desktop detected, calling handlePrintAll')
-      handlePrintAll()
-    }
+    handlePrintAll(preOpenedPopup)
     exportingPDF.value = false
   } catch (err: any) {
     console.error('Error in handleExportPDF:', err)
+    if (preOpenedPopup && !preOpenedPopup.closed) {
+      preOpenedPopup.close()
+    }
     generating.value = false
     error.value = err.response?.data?.error || err.message || 'Failed to export PDF. Please try again.'
     exportingPDF.value = false
   }
 }
 
-// Mobile: print using the popup (opened synchronously from button click)
+// Mobile/Fallback: print using popup or iframe
 const executeMobilePrint = () => {
   handlePrintAll()
   mobilePrintReady.value = false
@@ -549,10 +578,6 @@ onMounted(fetchStudents)
       </div>
 
       <div v-if="reports.length" id="print-area-section" class="print-area space-y-8">
-        <!-- DEBUG: Temporarily show this on mobile too -->
-        <div v-if="isMobile()" class="no-print bg-yellow-100 p-4 mb-4 text-black">
-          DEBUG: Reports are here! Count: {{ reports.length }}, printable: {{ printableReports.length }}
-        </div>
         <article v-for="report in printableReports" :key="report.student.studentId" class="report-card print-card">
           <!-- Background Watermark Logo -->
           <div class="watermark-logo">
