@@ -4,7 +4,9 @@ import {
   Lock,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Eye,
+  EyeOff
 } from 'lucide-vue-next'
 import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
@@ -18,6 +20,11 @@ const isTeacher = computed(() => ['TEACHER', 'FORM_TEACHER', 'FORM_MASTER'].incl
 const savingPassword = ref(false)
 const passwordSuccess = ref(false)
 const passwordError = ref('')
+
+const showOld = ref(false)
+const showNew = ref(false)
+const showConfirm = ref(false)
+
 const passwordForm = ref({
   oldPassword: '',
   newPassword: '',
@@ -91,24 +98,77 @@ const handleChangePassword = async () => {
       <form @submit.prevent="handleChangePassword" class="space-y-8">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div class="space-y-2">
-            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-[#C9A84C]/60">Current Password</label>
-            <input v-model="passwordForm.oldPassword" type="password" required class="academic-input" />
+            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-[#C9A84C]/70">Current Password</label>
+            <div class="relative">
+              <input
+                v-model="passwordForm.oldPassword"
+                :type="showOld ? 'text' : 'password'"
+                required
+                placeholder="Enter current password"
+                class="w-full px-4 py-3 bg-slate-900 text-white placeholder-slate-500 border border-slate-700/80 rounded-xl focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/20 outline-none text-sm transition-all pr-12"
+              />
+              <button
+                type="button"
+                @click="showOld = !showOld"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                aria-label="Toggle password visibility"
+              >
+                <Eye v-if="!showOld" class="w-4 h-4" />
+                <EyeOff v-else class="w-4 h-4 text-[#C9A84C]" />
+              </button>
+            </div>
           </div>
+
           <div class="space-y-2">
-            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-[#C9A84C]/60">New Password</label>
-            <input v-model="passwordForm.newPassword" type="password" required class="academic-input" />
+            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-[#C9A84C]/70">New Password</label>
+            <div class="relative">
+              <input
+                v-model="passwordForm.newPassword"
+                :type="showNew ? 'text' : 'password'"
+                required
+                placeholder="Enter new password (min 6 chars)"
+                class="w-full px-4 py-3 bg-slate-900 text-white placeholder-slate-500 border border-slate-700/80 rounded-xl focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/20 outline-none text-sm transition-all pr-12"
+              />
+              <button
+                type="button"
+                @click="showNew = !showNew"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                aria-label="Toggle password visibility"
+              >
+                <Eye v-if="!showNew" class="w-4 h-4" />
+                <EyeOff v-else class="w-4 h-4 text-[#C9A84C]" />
+              </button>
+            </div>
           </div>
         </div>
 
         <div class="grid grid-cols-1 items-end gap-6 md:grid-cols-2">
           <div class="space-y-2">
-            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-[#C9A84C]/60">Confirm New Password</label>
-            <input v-model="passwordForm.confirmPassword" type="password" required class="academic-input" />
+            <label class="ml-1 text-[10px] font-black uppercase tracking-widest text-[#C9A84C]/70">Confirm New Password</label>
+            <div class="relative">
+              <input
+                v-model="passwordForm.confirmPassword"
+                :type="showConfirm ? 'text' : 'password'"
+                required
+                placeholder="Confirm new password"
+                class="w-full px-4 py-3 bg-slate-900 text-white placeholder-slate-500 border border-slate-700/80 rounded-xl focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/20 outline-none text-sm transition-all pr-12"
+              />
+              <button
+                type="button"
+                @click="showConfirm = !showConfirm"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                aria-label="Toggle password visibility"
+              >
+                <Eye v-if="!showConfirm" class="w-4 h-4" />
+                <EyeOff v-else class="w-4 h-4 text-[#C9A84C]" />
+              </button>
+            </div>
           </div>
+
           <button
             type="submit"
             :disabled="savingPassword"
-            class="chalkboard-btn chalkboard-btn-gold"
+            class="chalkboard-btn chalkboard-btn-gold h-[46px]"
           >
             <component :is="savingPassword ? Loader2 : Lock" :class="{ 'animate-spin': savingPassword }" class="w-4 h-4" />
             {{ savingPassword ? 'Updating...' : 'Update Password' }}
