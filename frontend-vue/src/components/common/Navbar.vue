@@ -45,6 +45,20 @@ watch(() => router.currentRoute.value.path, () => {
         </div>
       </router-link>
 
+      <!-- Desktop Navigation Menu -->
+      <nav v-if="menuItems && menuItems.length" class="hidden lg:flex items-center gap-1.5 bg-[#1B2A4A]/40 p-1.5 rounded-2xl border border-[#C9A84C]/15">
+        <router-link
+          v-for="item in menuItems"
+          :key="item.name"
+          :to="item.route"
+          class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200"
+          :class="[$route.path === item.route ? 'bg-[#C9A84C]/15 text-[#C9A84C] border border-[#C9A84C]/30 shadow-sm' : 'text-[#F5F0E8]/60 hover:text-[#F5F0E8] hover:bg-[#1B2A4A]/60']"
+        >
+          <component :is="item.icon" class="w-4 h-4" />
+          <span>{{ item.name }}</span>
+        </router-link>
+      </nav>
+
       <div class="flex items-center gap-2 sm:gap-3">
         <div v-if="username" class="hidden md:flex items-center gap-3 pl-3 border-l border-[#C9A84C]/15">
           <div class="text-right">

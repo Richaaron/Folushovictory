@@ -8,7 +8,8 @@ import {
   TrendingUp,
   Clock,
   Award,
-  Loader2
+  Loader2,
+  Lock
 } from 'lucide-vue-next'
 import { useAuthStore } from '../../stores/authStore'
 import api from '../../services/api'
@@ -96,9 +97,16 @@ const cardImages = [
               <p class="mt-3 max-w-xl text-sm text-slate-400">{{ roleDescription }}</p>
             </div>
           </div>
-          <div class="flex flex-wrap gap-4">
+          <div class="flex flex-wrap items-center gap-3">
             <span v-if="formClasses.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-slate-900/70 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-purple border border-slate-700/60">Form Teacher</span>
             <span v-if="assignments.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-slate-900/70 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-gold border border-slate-700/60">Subject Teacher</span>
+            <router-link
+              to="/teacher/settings"
+              class="inline-flex items-center gap-2 rounded-2xl bg-[#1B2A4A]/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#C9A84C] border border-[#C9A84C]/20 hover:bg-[#C9A84C]/15 transition-all shadow-sm"
+            >
+              <Lock class="w-3.5 h-3.5" />
+              <span>Settings & Password</span>
+            </router-link>
           </div>
         </div>
       </div>

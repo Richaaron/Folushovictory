@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import {
   Lock,
   Loader2,
@@ -12,8 +12,8 @@ import SchoolSettingsPanel from '../components/admin/SchoolSettingsPanel.vue'
 import TeacherSettingsPanel from '../components/teacher/TeacherSettingsPanel.vue'
 
 const authStore = useAuthStore()
-const isAdmin = authStore.userRole === 'ADMIN'
-const isTeacher = authStore.userRole === 'TEACHER'
+const isAdmin = computed(() => String(authStore.userRole || '').toUpperCase() === 'ADMIN')
+const isTeacher = computed(() => ['TEACHER', 'FORM_TEACHER', 'FORM_MASTER'].includes(String(authStore.userRole || '').toUpperCase()))
 
 const savingPassword = ref(false)
 const passwordSuccess = ref(false)
