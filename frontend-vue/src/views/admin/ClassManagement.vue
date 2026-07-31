@@ -8,13 +8,15 @@ import {
   Loader2,
   Search,
   Sparkles,
-  BookOpen
+  BookOpen,
+  TrendingUp
 } from 'lucide-vue-next'
 import api from '../../services/api'
 import SubjectManagementModal from '../../components/SubjectManagementModal.vue'
 
 const classes = ref<any[]>([])
 const loading = ref(true)
+const promoting = ref(false)
 const searchQuery = ref('')
 const showAddModal = ref(false)
 const showSubjectModal = ref(false)
@@ -26,6 +28,23 @@ const studentsLoading = ref(false)
 const studentsError = ref('')
 const showConfigModal = ref(false)
 const editingClass = ref<any>(null)
+
+const handlePromoteStudents = async () => {
+  if (!confirm('⚡ Are you sure you want to promote ALL students to their next respective class? (e.g. Primary 1 -> Primary 2, JSS 1 -> JSS 2, SSS 1 -> SSS 2, etc.)')) {
+    return
+  }
+  promoting.value = true
+  try {
+    const { data } = await api.post('/api/admin/students/promote')
+    alert(`🎉 Successfully promoted ${data.count} students to their next classes!`)
+    await fetchClasses()
+  } catch (err: any) {
+    console.error('Error promoting students:', err)
+    alert(`❌ Failed to promote students: ${err.response?.data?.error || err.message}`)
+  } finally {
+    promoting.value = false
+  }
+}
 
 const filteredClasses = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
@@ -123,6 +142,15 @@ onMounted(fetchClasses)
         </div>
 
         <div class="flex flex-wrap items-center gap-3 mt-4 lg:mt-0">
+          <button
+            @click="handlePromoteStudents"
+            :disabled="promoting"
+            class="chalkboard-btn text-emerald-400 border-emerald-500/30 hover:bg-emerald-950/40"
+          >
+            <Loader2 v-if="promoting" class="w-4 h-4 animate-spin" />
+            <TrendingUp v-else class="w-4 h-4" />
+            <span>{{ promoting ? 'Promoting...' : 'Promote All Students' }}</span>
+          </button>
           <button
             @click="showSubjectModal = true"
             class="chalkboard-btn"

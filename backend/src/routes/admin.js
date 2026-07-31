@@ -861,6 +861,66 @@ adminRouter.delete(
   })
 );
 
+adminRouter.post(
+  "/students/promote",
+  asyncHandler(async (req, res) => {
+    const { data: classes } = await SafeDatabase.query("classes", [], { pageSize: 1000 });
+    const { data: students } = await SafeDatabase.query("students", [], { pageSize: 1000 });
+
+    const classByName = {};
+    classes.forEach(c => {
+      classByName[c.name.trim().toUpperCase()] = c;
+    });
+
+    const promotionMapByName = {
+      "PRE-NURSERY": "NURSERY 1",
+      "NURSERY 1": "NURSERY 2",
+      "NURSERY 2": "PRIMARY 1",
+      "PRIMARY 1": "PRIMARY 2",
+      "PRIMARY 2": "PRIMARY 3",
+      "PRIMARY 3": "PRIMARY 4",
+      "PRIMARY 4": "PRIMARY 5",
+      "PRIMARY 5": "PRIMARY 6",
+      "PRIMARY 6": "JSS 1",
+      "JSS 1": "JSS 2",
+      "JSS 2": "JSS 3",
+      "JSS 3": "SSS 1",
+      "SSS 1": "SSS 2",
+      "SSS 2": "SSS 3"
+    };
+
+    const nextClassIdMap = {};
+    for (const [currentName, nextName] of Object.entries(promotionMapByName)) {
+      const currentClass = classByName[currentName];
+      const nextClass = classByName[nextName];
+      if (currentClass && nextClass) {
+        nextClassIdMap[currentClass.id] = nextClass.id;
+      }
+    }
+
+    const operations = [];
+    for (const s of students) {
+      const nextClassId = nextClassIdMap[s.classId];
+      if (nextClassId) {
+        operations.push({
+          type: "update",
+          collectionName: "students",
+          docId: String(s.studentId || s.id).toLowerCase().trim(),
+          data: { classId: nextClassId }
+        });
+      }
+    }
+
+    const CHUNK_SIZE = 50;
+    for (let i = 0; i < operations.length; i += CHUNK_SIZE) {
+      const chunk = operations.slice(i, i + CHUNK_SIZE);
+      await SafeDatabase.batchWrite(chunk);
+    }
+
+    return res.json({ success: true, count: operations.length });
+  })
+);
+
 // GET scores for a specific student
 adminRouter.get(
   "/students/:studentId/scores",
