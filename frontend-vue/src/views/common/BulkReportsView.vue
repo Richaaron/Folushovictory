@@ -220,7 +220,7 @@ const handlePrintAll = (existingPopup?: Window | null) => {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         /* Scale down to force fit on one A4 page */
-        zoom: 0.80 !important;
+        zoom: 0.85 !important;
         transform: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
@@ -1592,7 +1592,7 @@ td {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     font-family: 'Comic Sans MS', 'Comic Neue', cursive !important;
-    font-size: 14px !important;
+    font-size: 16px !important;
   }
 
   .no-print { display: none !important; }
@@ -1631,7 +1631,7 @@ td {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     /* Aggressively shrink to guarantee everything fits on one A4 page */
-    zoom: 0.80 !important;
+    zoom: 0.85 !important;
   }
 
   .print-card:last-child {
@@ -1735,8 +1735,8 @@ td {
     border-radius: 8px !important;
   }
 
-  .info-card span { font-size: 8px !important; font-family: 'Comic Sans MS', 'Comic Neue', cursive !important; }
-  .info-card strong { font-size: 14px !important; margin-top: 2px !important; font-family: 'Comic Sans MS', 'Comic Neue', cursive !important; }
+  .info-card span { font-size: 9px !important; font-family: 'Comic Sans MS', 'Comic Neue', cursive !important; }
+  .info-card strong { font-size: 16px !important; margin-top: 2px !important; font-family: 'Comic Sans MS', 'Comic Neue', cursive !important; }
 
   /* ---- PERFORMANCE STATS ---- */
   .performance-summary {
@@ -1771,7 +1771,7 @@ td {
 
   .table-frame table th {
     padding: 7px 6px !important;
-    font-size: 14px !important;
+    font-size: 16px !important;
     font-weight: 800 !important;
     color: #000 !important;
     font-family: 'Comic Sans MS', 'Comic Neue', cursive !important;
@@ -1779,7 +1779,7 @@ td {
 
   .table-frame table td {
     padding: 6px 6px !important;
-    font-size: 14px !important;
+    font-size: 16px !important;
     font-weight: 900 !important;
     color: #000 !important;
     line-height: 1.3 !important;
@@ -1806,7 +1806,7 @@ td {
   }
 
   .remark-box p {
-    font-size: 14px !important;
+    font-size: 16px !important;
     margin: 2px 0 4px !important;
     line-height: 1.4 !important;
     font-family: 'Comic Sans MS', 'Comic Neue', cursive !important;
