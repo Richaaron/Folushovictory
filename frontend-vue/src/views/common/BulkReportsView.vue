@@ -17,12 +17,13 @@ import {
   Users
 } from 'lucide-vue-next'
 import api from '../../services/api'
+import { generateSessionOptions, getCurrentSession } from '../../utils/sessions'
 
 const route = useRoute()
 const router = useRouter()
 
 const classId = route.params.classId as string
-const session = ref((route.query.session as string) || '2026/2027')
+const session = ref((route.query.session as string) || getCurrentSession())
 const term = ref((route.query.term as string) || '2nd')
 
 const classInfo = ref<any>(null)
@@ -406,10 +407,7 @@ onMounted(fetchStudents)
 
       <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
         <select v-model="session" class="w-full sm:w-auto rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
-          <option>2026/2027</option>
-          <option>2025/2026</option>
-          <option>2024/2025</option>
-          <option>2023/2024</option>
+          <option v-for="s in generateSessionOptions().reverse()" :key="s" :value="s">{{ s }}</option>
         </select>
         <select v-model="term" class="w-full sm:w-auto rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
           <option value="1st">First Term</option>

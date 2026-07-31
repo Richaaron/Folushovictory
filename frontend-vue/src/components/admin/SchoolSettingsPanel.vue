@@ -13,6 +13,7 @@ import {
   FileSignature
 } from 'lucide-vue-next'
 import api from '../../services/api'
+import { generateSessionOptions, getCurrentSession } from '../../utils/sessions'
 
 const settings = ref<any>(null)
 const loading = ref(true)
@@ -28,6 +29,7 @@ const email = ref('')
 const website = ref('')
 const principalName = ref('')
 const currentSession = ref('')
+const sessionOptions = generateSessionOptions()
 const currentTerm = ref('Third')
 const resultEntryDeadline = ref('')
 
@@ -52,7 +54,7 @@ const fetchSettings = async () => {
     email.value = resp.data.email || ''
     website.value = resp.data.website || ''
     principalName.value = resp.data.principalName || ''
-    currentSession.value = resp.data.currentSession || ''
+    currentSession.value = resp.data.currentSession || getCurrentSession()
     currentTerm.value = resp.data.currentTerm || 'Third'
     resultEntryDeadline.value = resp.data.resultEntryDeadline || ''
     logoPreview.value = resp.data.logoUrl || ''
@@ -271,10 +273,7 @@ onMounted(fetchSettings)
                 Current Session <span class="text-[#B45A74]">*</span>
               </label>
               <select v-model="currentSession" class="academic-select" required>
-                <option>2023/2024</option>
-                <option>2024/2025</option>
-                <option>2025/2026</option>
-                <option>2026/2027</option>
+                <option v-for="s in sessionOptions" :key="s" :value="s">{{ s }}</option>
               </select>
             </div>
 

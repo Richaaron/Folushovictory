@@ -11,6 +11,7 @@ import {
 } from 'lucide-vue-next'
 import api from '../../services/api'
 import PerformanceCharts from '../../components/analytics/PerformanceCharts.vue'
+import { generateSessionOptions, getCurrentSession } from '../../utils/sessions'
 
 const route = useRoute()
 const classes = ref<any[]>([])
@@ -20,7 +21,7 @@ const selectedTerm = ref('')
 const broadsheet = ref<any>(null)
 const loading = ref(false)
 const error = ref('')
-const sessionOptions = ref(['2026/2027', '2025/2026'])
+const sessionOptions = ref(generateSessionOptions().reverse())
 
 const fixedClassId = computed(() => String(route.params.classId || route.query.classId || ''))
 const fixedClassName = computed(() => String(route.query.className || 'Selected Class'))
@@ -37,14 +38,14 @@ const normalizeTerm = (value: any) => {
 const fetchSchoolSettings = async () => {
   try {
     const { data } = await api.get('/api/config/school')
-    selectedSession.value = String(route.query.session || data.currentSession || '2025/2026')
+    selectedSession.value = String(route.query.session || data.currentSession || getCurrentSession())
     selectedTerm.value = normalizeTerm(route.query.term || data.currentTerm) || '3rd'
     if (selectedSession.value && !sessionOptions.value.includes(selectedSession.value)) {
       sessionOptions.value = [selectedSession.value, ...sessionOptions.value]
     }
   } catch (err) {
     console.error('Error fetching school settings:', err)
-    selectedSession.value = '2025/2026'
+    selectedSession.value = getCurrentSession()
     selectedTerm.value = '3rd'
   }
 }

@@ -9,6 +9,7 @@ import {
   CheckCircle2
 } from 'lucide-vue-next'
 import api from '../../services/api'
+import { getCurrentSession } from '../../utils/sessions'
 
 const route = useRoute()
 const router = useRouter()
@@ -85,7 +86,7 @@ const discardDraft = () => {
   draftData.value = null
 }
 
-const session = ref('2023/2024')
+const session = ref(getCurrentSession())
 const term = ref('First')
 
 // --- Deadline / countdown ---
