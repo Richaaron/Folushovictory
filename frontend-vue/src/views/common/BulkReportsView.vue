@@ -1591,6 +1591,8 @@ td {
     background: white !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    font-family: 'Comic Sans MS', 'Comic Neue', cursive !important;
+    font-size: 14px !important;
   }
 
   .no-print { display: none !important; }
@@ -1733,8 +1735,8 @@ td {
     border-radius: 8px !important;
   }
 
-  .info-card span { font-size: 8px !important; }
-  .info-card strong { font-size: 13px !important; margin-top: 2px !important; }
+  .info-card span { font-size: 8px !important; font-family: 'Comic Sans MS', 'Comic Neue', cursive !important; }
+  .info-card strong { font-size: 14px !important; margin-top: 2px !important; font-family: 'Comic Sans MS', 'Comic Neue', cursive !important; }
 
   /* ---- PERFORMANCE STATS ---- */
   .performance-summary {
@@ -1769,17 +1771,19 @@ td {
 
   .table-frame table th {
     padding: 7px 6px !important;
-    font-size: 11px !important;
+    font-size: 14px !important;
     font-weight: 800 !important;
     color: #000 !important;
+    font-family: 'Comic Sans MS', 'Comic Neue', cursive !important;
   }
 
   .table-frame table td {
     padding: 6px 6px !important;
-    font-size: 12px !important;
+    font-size: 14px !important;
     font-weight: 900 !important;
     color: #000 !important;
-    line-height: 1.2 !important;
+    line-height: 1.3 !important;
+    font-family: 'Comic Sans MS', 'Comic Neue', cursive !important;
   }
 
   .grade-badge {
@@ -1802,9 +1806,10 @@ td {
   }
 
   .remark-box p {
-    font-size: 11px !important;
+    font-size: 14px !important;
     margin: 2px 0 4px !important;
-    line-height: 1.3 !important;
+    line-height: 1.4 !important;
+    font-family: 'Comic Sans MS', 'Comic Neue', cursive !important;
   }
 
   .remark-box span { font-size: 11px !important; }
