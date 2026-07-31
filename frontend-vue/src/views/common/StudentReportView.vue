@@ -202,6 +202,14 @@ onMounted(fetchData)
           <span>Gender</span>
           <strong>{{ data.student.gender || 'N/A' }}</strong>
         </div>
+        <div class="info-card">
+          <span>Academic Session</span>
+          <strong>{{ data.session || 'N/A' }}</strong>
+        </div>
+        <div class="info-card">
+          <span>Term</span>
+          <strong>{{ data.term ? data.term + ' Term' : 'N/A' }}</strong>
+        </div>
       </section>
 
       <!-- Performance Summary -->

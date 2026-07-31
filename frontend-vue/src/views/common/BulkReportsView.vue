@@ -624,6 +624,14 @@ onMounted(fetchStudents)
               <strong>{{ report.student.gender || 'N/A' }}</strong>
             </div>
             <div class="info-card">
+              <span>Academic Session</span>
+              <strong>{{ report.session || 'N/A' }}</strong>
+            </div>
+            <div class="info-card">
+              <span>Term</span>
+              <strong>{{ report.term ? report.term + ' Term' : 'N/A' }}</strong>
+            </div>
+            <div class="info-card">
               <span>Status</span>
               <strong>Fees Cleared</strong>
             </div>
