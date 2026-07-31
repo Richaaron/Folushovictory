@@ -220,7 +220,7 @@ const handlePrintAll = (existingPopup?: Window | null) => {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         /* Scale down to force fit on one A4 page */
-        zoom: 0.76 !important;
+        zoom: 0.80 !important;
         transform: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
@@ -1629,7 +1629,7 @@ td {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     /* Aggressively shrink to guarantee everything fits on one A4 page */
-    zoom: 0.76 !important;
+    zoom: 0.80 !important;
   }
 
   .print-card:last-child {
