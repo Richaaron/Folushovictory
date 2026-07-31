@@ -220,7 +220,7 @@ const handlePrintAll = (existingPopup?: Window | null) => {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         /* Scale down to force fit on one A4 page */
-        zoom: 0.90 !important;
+        zoom: 0.76 !important;
         transform: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
@@ -1628,8 +1628,8 @@ td {
     break-after: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    /* Zoom 0.90 per user request to guarantee it fits entirely on one page */
-    zoom: 0.90 !important;
+    /* Aggressively shrink to guarantee everything fits on one A4 page */
+    zoom: 0.76 !important;
   }
 
   .print-card:last-child {
@@ -1663,17 +1663,17 @@ td {
 
   /* ---- HEADER ---- */
   .report-header {
-    padding: 12px 24px !important;
-    gap: 12px !important;
-    grid-template-columns: 1fr 160px !important;
+    padding: 6px 16px !important;
+    gap: 8px !important;
+    grid-template-columns: 1fr 140px !important;
   }
 
   .brand-panel { gap: 14px !important; }
 
   .logo-mark {
-    width: 80px !important;
-    height: 80px !important;
-    border-radius: 12px !important;
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 8px !important;
     background: transparent !important;
     backdrop-filter: none !important;
     box-shadow: none !important;
@@ -1717,47 +1717,47 @@ td {
     border-radius: 10px !important;
   }
 
-  .term-panel strong { font-size: 20px !important; margin: 4px 0 !important; }
-  .term-panel small { font-size: 13px !important; }
-  .term-panel span { font-size: 9px !important; }
+  .term-panel strong { font-size: 16px !important; margin: 2px 0 !important; }
+  .term-panel small { font-size: 11px !important; }
+  .term-panel span { font-size: 8px !important; }
 
   /* ---- STUDENT INFO BAND ---- */
   .student-band {
-    padding: 10px 24px 0 !important;
-    gap: 8px !important;
+    padding: 6px 16px 0 !important;
+    gap: 6px !important;
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
 
   .info-card {
-    padding: 12px 14px !important;
-    border-radius: 10px !important;
+    padding: 8px 10px !important;
+    border-radius: 8px !important;
   }
 
-  .info-card span { font-size: 9px !important; }
-  .info-card strong { font-size: 15px !important; margin-top: 4px !important; }
+  .info-card span { font-size: 8px !important; }
+  .info-card strong { font-size: 13px !important; margin-top: 2px !important; }
 
   /* ---- PERFORMANCE STATS ---- */
   .performance-summary {
-    padding: 10px 24px 0 !important;
-    gap: 8px !important;
+    padding: 6px 16px 0 !important;
+    gap: 6px !important;
   }
 
   .stat-card {
-    padding: 12px 14px !important;
-    border-radius: 10px !important;
+    padding: 8px 10px !important;
+    border-radius: 8px !important;
   }
 
-  .stat-card span { font-size: 9px !important; }
-  .stat-card strong { font-size: 26px !important; margin-top: 4px !important; }
+  .stat-card span { font-size: 8px !important; }
+  .stat-card strong { font-size: 20px !important; margin-top: 2px !important; }
 
   /* ---- SECTION TITLE ---- */
   .result-section {
-    padding: 10px 24px 0 !important;
+    padding: 6px 16px 0 !important;
   }
 
-  .section-title { margin-bottom: 10px !important; }
-  .section-title strong { font-size: 14px !important; }
-  .section-title span { font-size: 10px !important; }
+  .section-title { margin-bottom: 6px !important; }
+  .section-title strong { font-size: 12px !important; }
+  .section-title span { font-size: 9px !important; }
 
   /* ---- TABLE ---- */
   .table-frame {
@@ -1768,18 +1768,18 @@ td {
   }
 
   .table-frame table th {
-    padding: 12px 8px !important;
-    font-size: 13px !important;
+    padding: 7px 6px !important;
+    font-size: 11px !important;
     font-weight: 800 !important;
     color: #000 !important;
   }
 
   .table-frame table td {
-    padding: 10px 8px !important;
-    font-size: 14px !important;
+    padding: 6px 6px !important;
+    font-size: 12px !important;
     font-weight: 900 !important;
     color: #000 !important;
-    line-height: 1.3 !important;
+    line-height: 1.2 !important;
   }
 
   .grade-badge {
@@ -1789,35 +1789,35 @@ td {
 
   /* ---- REMARKS ---- */
   .remarks-section {
-    padding: 14px 24px 10px !important;
+    padding: 8px 16px 6px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    gap: 14px !important;
+    gap: 10px !important;
   }
 
   .remark-box {
-    min-height: 85px !important;
-    padding: 14px 16px !important;
-    border-radius: 8px !important;
+    min-height: 60px !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
   }
 
   .remark-box p {
-    font-size: 13px !important;
-    margin: 4px 0 6px !important;
-    line-height: 1.4 !important;
+    font-size: 11px !important;
+    margin: 2px 0 4px !important;
+    line-height: 1.3 !important;
   }
 
   .remark-box span { font-size: 11px !important; }
 
   .signature-line,
   .signature-image {
-    height: 42px !important;
-    margin-top: 4px !important;
+    height: 32px !important;
+    margin-top: 2px !important;
   }
 
-  .teacher-name { font-size: 12px !important; }
-  .signature-area small { font-size: 9px !important; }
+  .teacher-name { font-size: 10px !important; }
+  .signature-area small { font-size: 8px !important; }
 
-  @page { size: A4 portrait; margin: 8mm !important; }
+  @page { size: A4 portrait; margin: 4mm !important; }
 }
 </style>
