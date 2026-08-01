@@ -1,6 +1,7 @@
 import { SafeDatabase } from "../firestore-utils/index.js";
 import { getClassById } from "./classes.js";
 import { listScoresForClass } from "./scores.js";
+import { getSchoolSettings } from "./config.js";
 
 function normalizeClassRef(value) {
   return String(value || "").trim().toLowerCase();
@@ -172,42 +173,49 @@ export async function deleteStudent(studentId) {
  * Returns all students who belong to a class for a given session+term.
  *
  * Strategy:
- * - Always include CURRENT students in the class (classId match).
- * - For HISTORICAL sessions: also include students whose score records show
- *   they were in this class for that session, OR whose classHistory map
- *   explicitly records them as being in this class during that session.
- *   This covers promoted students who no longer live in classId.
+ * - If session matches CURRENT active school session (or is unassigned): return current class roster.
+ * - If session is a PAST historical session: return ONLY students who had scores recorded in that class during that session.
  */
 export async function listStudentsForSessionClass(classId, session, term) {
-  const currentStudents = await listStudentsByClass(classId).catch(() => []);
-  if (!session) return currentStudents;
+  const [currentStudents, schoolSettings] = await Promise.all([
+    listStudentsByClass(classId).catch(() => []),
+    getSchoolSettings().catch(() => ({}))
+  ]);
 
-  const currentIds = new Set(currentStudents.map((s) => s.studentId));
+  const activeSession = String(schoolSettings?.currentSession || "").trim();
+  const reqSession = String(session || "").trim();
 
-  // Query score records for this session and classId to find historical (promoted) students
+  // For current active session (or empty session), return current class roster
+  if (!reqSession || !activeSession || reqSession === activeSession) {
+    return currentStudents;
+  }
+
+  // For a past/historical session, query scores to find students who were in this class during that past session
   const { data: scores } = await SafeDatabase.query(
     "scores",
-    [["session", "==", String(session)], ["classId", "==", String(classId)]],
+    [["session", "==", reqSession], ["classId", "==", String(classId)]],
     { pageSize: 1000 }
   ).catch(() => ({ data: [] }));
 
-  const scoreStudentIds = [...new Set((scores || []).map((s) => s.studentId))].filter(id => id && !currentIds.has(id));
+  const scoreStudentIds = [...new Set((scores || []).map((s) => s.studentId))].filter(Boolean);
 
-  if (!scoreStudentIds.length) return currentStudents;
+  if (scoreStudentIds.length > 0) {
+    const historicalStudents = (
+      await Promise.all(
+        scoreStudentIds.map((id) => getStudentById(id).catch(() => null))
+      )
+    ).filter(Boolean);
 
-  const historicalStudents = (
-    await Promise.all(
-      scoreStudentIds.map((id) => getStudentById(id).catch(() => null))
-    )
-  ).filter(Boolean);
+    historicalStudents.sort((a, b) => {
+      const last = String(a.lastName || "").localeCompare(String(b.lastName || ""), undefined, { sensitivity: "base" });
+      if (last !== 0) return last;
+      return String(a.firstName || "").localeCompare(String(b.firstName || ""), undefined, { sensitivity: "base" });
+    });
+    return historicalStudents;
+  }
 
-  const all = [...currentStudents, ...historicalStudents];
-  all.sort((a, b) => {
-    const last = String(a.lastName || "").localeCompare(String(b.lastName || ""), undefined, { sensitivity: "base" });
-    if (last !== 0) return last;
-    return String(a.firstName || "").localeCompare(String(b.firstName || ""), undefined, { sensitivity: "base" });
-  });
-  return all;
+  // Fallback if no score records exist for that past session yet
+  return currentStudents;
 }
 
 
