@@ -190,14 +190,24 @@ export async function listStudentsForSessionClass(classId, session, term) {
     return currentStudents;
   }
 
-  // For a past/historical session, query scores to find students who were in this class during that past session
-  const { data: scores } = await SafeDatabase.query(
+  // For a past/historical session, query scores to find students who were in this class
+  let { data: scores } = await SafeDatabase.query(
     "scores",
     [["session", "==", reqSession], ["classId", "==", String(classId)]],
     { pageSize: 1000 }
   ).catch(() => ({ data: [] }));
 
-  const scoreStudentIds = [...new Set((scores || []).map((s) => s.studentId))].filter(Boolean);
+  let scoreStudentIds = [...new Set((scores || []).map((s) => s.studentId))].filter(Boolean);
+
+  // If no scores found for that exact past session name, query any score records for this classId
+  if (!scoreStudentIds.length) {
+    const { data: anyScores } = await SafeDatabase.query(
+      "scores",
+      [["classId", "==", String(classId)]],
+      { pageSize: 1000 }
+    ).catch(() => ({ data: [] }));
+    scoreStudentIds = [...new Set((anyScores || []).map((s) => s.studentId))].filter(Boolean);
+  }
 
   if (scoreStudentIds.length > 0) {
     const historicalStudents = (
@@ -214,7 +224,7 @@ export async function listStudentsForSessionClass(classId, session, term) {
     return historicalStudents;
   }
 
-  // Fallback if no score records exist for that past session yet
+  // Fallback if no score records exist for this class in past sessions
   return currentStudents;
 }
 
