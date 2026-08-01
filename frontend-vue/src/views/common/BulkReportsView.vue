@@ -53,7 +53,9 @@ const fetchStudents = async () => {
   loading.value = true
   error.value = ''
   try {
-    const { data } = await api.get(`/api/results/class/${classId}/report-students`)
+    const { data } = await api.get(`/api/results/class/${classId}/report-students`, {
+      params: { session: session.value, term: term.value }
+    })
     classInfo.value = data.class
     students.value = data.students || []
     selectedIds.value = new Set(students.value.map((student) => student.studentId))

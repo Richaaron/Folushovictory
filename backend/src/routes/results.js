@@ -20,6 +20,37 @@ export const resultsRouter = express.Router();
 
 resultsRouter.use(authRequired);
 
+/**
+ * Returns all students who belong to a class for a given session+term.
+ * Includes BOTH current students and historical (promoted) students who
+ * had scores recorded for that class+session+term combination.
+ */
+async function listStudentsForSessionClass(classId, session, term) {
+  const [currentStudents, scores] = await Promise.all([
+    listStudentsByClass(classId).catch(() => []),
+    listScoresForClass({ session: String(session), term: String(term), classId }).catch(() => [])
+  ]);
+
+  const currentIds = new Set(currentStudents.map((s) => s.studentId));
+  const scoreStudentIds = [...new Set(scores.map((s) => s.studentId))].filter((id) => !currentIds.has(id));
+
+  // Fetch student records for promoted students found in score records
+  const historicalStudents = (
+    await Promise.all(
+      scoreStudentIds.map((id) => getStudentById(id).catch(() => null))
+    )
+  ).filter(Boolean);
+
+  // Merge: current + historical, sorted alphabetically by last name then first name
+  const all = [...currentStudents, ...historicalStudents];
+  all.sort((a, b) => {
+    const last = String(a.lastName || "").localeCompare(String(b.lastName || ""), undefined, { sensitivity: "base" });
+    if (last !== 0) return last;
+    return String(a.firstName || "").localeCompare(String(b.firstName || ""), undefined, { sensitivity: "base" });
+  });
+  return all;
+}
+
 async function subjectsForClass(cls) {
   if (Array.isArray(cls.subjectIds) && cls.subjectIds.length) {
     const subjectIds = cls.subjectIds.map((id) => String(id || "").trim()).filter(Boolean);
@@ -325,7 +356,7 @@ resultsRouter.get(
     }
 
     const [students, subjects, scores, scale, publish, school] = await Promise.all([
-      optionalResult("Broadsheet students load", () => listStudentsByClass(classId), []),
+      optionalResult("Broadsheet students load", () => listStudentsForSessionClass(classId, session, term), []),
       optionalResult("Broadsheet subjects load", () => subjectsForClass(cls), []),
       optionalResult("Broadsheet scores load", () => listScoresForClass({ session: String(session), term: String(term), classId }), []),
       optionalResult("Broadsheet grading scale load", () => getGradingScale(), null),
@@ -358,7 +389,7 @@ resultsRouter.get(
     if (!cls) return res.status(404).json({ error: "Class not found" });
     if (!(await canAccessClassReports(req, cls))) return res.status(403).json({ error: "Forbidden" });
 
-    const students = await listStudentsByClass(classId);
+    const students = await listStudentsForSessionClass(cls.id, req.query.session || "", req.query.term || "");
     return res.json({
       class: { id: cls.id, name: cls.name, level: cls.level, track: cls.track || null, assessmentType: cls.assessmentType },
       students: students.map((student) => ({
@@ -386,12 +417,20 @@ resultsRouter.post(
     if (!(await canAccessClassReports(req, cls))) return res.status(403).json({ error: "Forbidden" });
 
     const selectedIds = [...new Set(studentIds.map((id) => String(id).trim()).filter(Boolean))];
+    // Fetch ALL students who had scores for this session+term in this class (includes promoted students)
     const studentsInClass = await optionalResult(
       "Bulk reports class students load",
-      () => listStudentsByClass(classId),
+      () => listStudentsForSessionClass(classId, session, term),
       []
     );
-    const selectedStudents = studentsInClass.filter((student) => selectedIds.includes(student.studentId));
+    // Also fetch any selectedIds that might not be in current or historical roster (extra safety)
+    const foundIds = new Set(studentsInClass.map((s) => s.studentId));
+    const missingIds = selectedIds.filter((id) => !foundIds.has(id));
+    const extraStudents = (
+      await Promise.all(missingIds.map((id) => getStudentById(id).catch(() => null)))
+    ).filter(Boolean);
+    const allStudents = [...studentsInClass, ...extraStudents];
+    const selectedStudents = allStudents.filter((student) => selectedIds.includes(student.studentId));
 
     const reportResults = [];
     const BATCH_SIZE = 5;
