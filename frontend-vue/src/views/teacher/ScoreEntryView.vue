@@ -6,7 +6,9 @@ import {
   Save, 
   Loader2, 
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Download,
+  Printer
 } from 'lucide-vue-next'
 import api from '../../services/api'
 import { getCurrentSession, generateSessionOptions } from '../../utils/sessions'
@@ -386,6 +388,80 @@ onUnmounted(() => {
   window.removeEventListener('online', updateOnlineStatus)
   window.removeEventListener('offline', updateOnlineStatus)
 })
+
+const exportScoreSheetExcel = () => {
+  if (!students.value.length) {
+    alert('No students found to export.')
+    return
+  }
+
+  const safePart = (str: string) => String(str || '').trim().replace(/[^a-zA-Z0-9_-]/g, '_')
+  const escapeXml = (str: string) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+  let rowsHtml = ''
+  students.value.forEach((s, idx) => {
+    const name = `${s.lastName || ''} ${s.firstName || ''}`.trim()
+    rowsHtml += `
+      <tr>
+        <td style="border: 1px solid #64748b; padding: 8px; text-align: center;">${idx + 1}</td>
+        <td style="border: 1px solid #64748b; padding: 8px; text-align: center;">${escapeXml(s.studentId)}</td>
+        <td style="border: 1px solid #64748b; padding: 8px; text-align: left; font-weight: bold;">${escapeXml(name)}</td>
+        <td style="border: 1px solid #64748b; padding: 8px; text-align: center;">${escapeXml(s.gender || '')}</td>
+        <td style="border: 1px solid #64748b; padding: 8px; text-align: center;">${s.ca1 !== '' && s.ca1 !== undefined ? s.ca1 : ''}</td>
+        <td style="border: 1px solid #64748b; padding: 8px; text-align: center;">${s.ca2 !== '' && s.ca2 !== undefined ? s.ca2 : ''}</td>
+        <td style="border: 1px solid #64748b; padding: 8px; text-align: center;">${s.exam !== '' && s.exam !== undefined ? s.exam : ''}</td>
+        <td style="border: 1px solid #64748b; padding: 8px; text-align: center;"></td>
+        <td style="border: 1px solid #64748b; padding: 8px; text-align: center;"></td>
+      </tr>
+    `
+  })
+
+  const workbook = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="utf-8">
+        <style>
+          table { border-collapse: collapse; font-family: 'Comic Sans MS', Arial, sans-serif; font-size: 12px; }
+          th { border: 1px solid #475569; padding: 10px; background: #0f172a; color: #ffffff; font-weight: bold; }
+          .header-title { font-size: 20px; font-weight: bold; text-align: center; color: #0f172a; padding: 12px; }
+          .meta-info { font-size: 13px; font-weight: bold; text-align: center; background: #f1f5f9; padding: 8px; }
+        </style>
+      </head>
+      <body>
+        <table>
+          <tr><td class="header-title" colspan="9">FOLUSHO VICTORY SCHOOLS</td></tr>
+          <tr><td class="meta-info" colspan="9">OFFICIAL SUBJECT SCORE SHEET | Class: ${escapeXml(className)} | Subject: ${escapeXml(subjectName)} | Session: ${escapeXml(session.value)} | Term: ${escapeXml(term.value)} Term</td></tr>
+          <tr>
+            <th style="width: 40px;">S/N</th>
+            <th style="width: 120px;">Student ID</th>
+            <th style="width: 240px; text-align: left;">Student Name</th>
+            <th style="width: 80px;">Gender</th>
+            <th style="width: 90px;">1st CA (20)</th>
+            <th style="width: 90px;">2nd CA (20)</th>
+            <th style="width: 90px;">Exam (60)</th>
+            <th style="width: 90px;">Total (100)</th>
+            <th style="width: 160px;">Remarks</th>
+          </tr>
+          ${rowsHtml}
+        </table>
+      </body>
+    </html>
+  `
+
+  const blob = new Blob([workbook], { type: 'application/vnd.ms-excel;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `ScoreSheet_${safePart(className)}_${safePart(subjectName)}_${safePart(session.value)}_${safePart(term.value)}.xls`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
+const printScoreSheet = () => {
+  window.print()
+}
 </script>
 
 <template>
@@ -402,8 +478,8 @@ onUnmounted(() => {
         </div>
       </div>
       
-      <div class="flex items-center gap-4">
-        <div class="flex gap-2 flex-wrap">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex gap-2 flex-wrap no-print">
           <select v-model="session" class="px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
             <option v-for="s in sessionOptions" :key="s" :value="s">{{ s }}</option>
           </select>
@@ -413,10 +489,30 @@ onUnmounted(() => {
             <option>Third</option>
           </select>
         </div>
+
+        <!-- Download & Print Buttons -->
+        <button
+          @click="exportScoreSheetExcel"
+          title="Download printable Excel score sheet"
+          class="no-print flex items-center gap-2 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-5 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple hover:border-royal-purple"
+        >
+          <Download class="w-4 h-4" />
+          <span>Excel Sheet</span>
+        </button>
+
+        <button
+          @click="printScoreSheet"
+          title="Print or save score sheet as PDF"
+          class="no-print flex items-center gap-2 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-5 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple hover:border-royal-purple"
+        >
+          <Printer class="w-4 h-4" />
+          <span>Print / PDF</span>
+        </button>
+
         <button 
           @click="handleSave"
           :disabled="saving || deadlinePassed"
-          class="flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50"
+          class="no-print flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50"
         >
           <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
           <Save v-else class="w-4 h-4" /> 
@@ -600,5 +696,35 @@ input[type=number] {
   box-shadow: 0 0 0 8px rgba(212,175,55,0.08);
   transition: box-shadow 0.35s ease-in-out;
   border-radius: 0.5rem;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body, html {
+    background: white !important;
+    color: black !important;
+  }
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 13px !important;
+    color: black !important;
+  }
+  th, td {
+    border: 1px solid #000 !important;
+    padding: 8px !important;
+    color: black !important;
+    background: white !important;
+  }
+  input {
+    border: none !important;
+    background: transparent !important;
+    color: black !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    box-shadow: none !important;
+  }
 }
 </style>
