@@ -180,35 +180,26 @@ export async function deleteStudent(studentId) {
  */
 export async function listStudentsForSessionClass(classId, session, term) {
   const currentStudents = await listStudentsByClass(classId).catch(() => []);
+  if (!session) return currentStudents;
+
   const currentIds = new Set(currentStudents.map((s) => s.studentId));
 
-  // Only do expensive historical lookup when a specific past session is requested
-  if (!session) {
-    return currentStudents;
-  }
+  // Query score records for this session and classId to find historical (promoted) students
+  const { data: scores } = await SafeDatabase.query(
+    "scores",
+    [["session", "==", String(session)], ["classId", "==", String(classId)]],
+    { pageSize: 1000 }
+  ).catch(() => ({ data: [] }));
 
-  // Fetch scores for that session+classId to find promoted students
-  const [scoresResult, allStudentsResult] = await Promise.all([
-    SafeDatabase.query(
-      "scores",
-      [["session", "==", String(session)], ["classId", "==", String(classId)]],
-      { pageSize: 1000 }
-    ).catch(() => ({ data: [] })),
-    SafeDatabase.query("students", [], { pageSize: 1000 }).catch(() => ({ data: [] }))
-  ]);
+  const scoreStudentIds = [...new Set((scores || []).map((s) => s.studentId))].filter(id => id && !currentIds.has(id));
 
-  const scores = scoresResult.data || [];
-  const allStudents = allStudentsResult.data || [];
-  const scoreStudentIds = new Set(scores.map((s) => s.studentId));
+  if (!scoreStudentIds.length) return currentStudents;
 
-  const historicalStudents = allStudents.filter((s) => {
-    if (currentIds.has(s.studentId)) return false;
-    // Include if they have a score record for this class+session
-    if (scoreStudentIds.has(s.studentId)) return true;
-    // Include if classHistory explicitly records them in this class during this session
-    if (s.classHistory && String(s.classHistory[session] || "") === String(classId)) return true;
-    return false;
-  });
+  const historicalStudents = (
+    await Promise.all(
+      scoreStudentIds.map((id) => getStudentById(id).catch(() => null))
+    )
+  ).filter(Boolean);
 
   const all = [...currentStudents, ...historicalStudents];
   all.sort((a, b) => {

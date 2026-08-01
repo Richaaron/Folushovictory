@@ -939,9 +939,7 @@ adminRouter.post(
           collectionName: "students",
           docId: String(s.studentId || s.id).toLowerCase().trim(),
           data: {
-            classId: nextClassId,
-            previousClassId: currentClassId,
-            classHistory
+            classId: nextClassId
           }
         });
       }
