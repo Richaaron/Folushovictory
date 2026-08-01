@@ -929,11 +929,6 @@ adminRouter.post(
       const currentClassId = s.classId;
       const nextClassId = nextClassIdMap[currentClassId];
       if (nextClassId && nextClassId !== currentClassId) {
-        const classHistory = { ...(s.classHistory || {}) };
-        if (currentSession) {
-          classHistory[currentSession] = currentClassId;
-        }
-
         operations.push({
           type: "update",
           collectionName: "students",
