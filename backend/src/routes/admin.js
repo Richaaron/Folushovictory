@@ -899,7 +899,7 @@ adminRouter.post(
       "PRIMARY 2": "PRIMARY 3",
       "PRIMARY 3": "PRIMARY 4",
       "PRIMARY 4": "PRIMARY 5",
-      "PRIMARY 5": "PRIMARY 6",
+      "PRIMARY 5": "JSS 1",
       "PRIMARY 6": "JSS 1",
       "JSS 1": "JSS 2",
       "JSS 2": "JSS 3",
