@@ -11,7 +11,7 @@ import {
   Printer
 } from 'lucide-vue-next'
 import api from '../../services/api'
-import { getCurrentSession, generateSessionOptions } from '../../utils/sessions'
+
 
 const route = useRoute()
 const router = useRouter()
@@ -88,9 +88,9 @@ const discardDraft = () => {
   draftData.value = null
 }
 
-const session = ref((route.query.session as string) || getCurrentSession())
-const term = ref((route.query.term as string) || 'First')
-const sessionOptions = ref(generateSessionOptions().reverse())
+// Session/term are always the current active school session — locked for subject teachers
+const session = ref('')
+const term = ref('')
 
 // --- Deadline / countdown ---
 const resultEntryDeadline = ref<string>('')
@@ -189,8 +189,9 @@ const fetchStudents = async () => {
       ca2: '',
       exam: ''
     }))
-    if (!route.query.session && schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
-    if (!route.query.term && schoolResp.data?.currentTerm) term.value = schoolResp.data.currentTerm
+    // Always lock to the current active session — subject teachers cannot enter scores for past sessions
+    if (schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
+    if (schoolResp.data?.currentTerm) term.value = schoolResp.data.currentTerm
     if (schoolResp.data?.resultEntryDeadline) {
       resultEntryDeadline.value = schoolResp.data.resultEntryDeadline
     }
@@ -373,10 +374,6 @@ const handleSave = async () => {
   }
 }
 
-// Re-fetch scores when session or term changes
-watch([session, term], () => {
-  fetchStudents()
-})
 
 onMounted(() => {
   fetchStudents()
@@ -480,16 +477,10 @@ const printScoreSheet = () => {
 
       <!-- Controls row -->
       <div class="flex flex-wrap items-center gap-2 no-print">
-        <!-- Session -->
-        <select v-model="session" class="flex-1 min-w-[110px] px-3 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-[10px] font-black uppercase tracking-widest outline-none shadow-sm">
-          <option v-for="s in sessionOptions" :key="s" :value="s">{{ s }}</option>
-        </select>
-        <!-- Term -->
-        <select v-model="term" class="flex-1 min-w-[80px] px-3 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-[10px] font-black uppercase tracking-widest outline-none shadow-sm">
-          <option>First</option>
-          <option>Second</option>
-          <option>Third</option>
-        </select>
+        <!-- Active session/term badge (read-only) -->
+        <div v-if="session" class="flex items-center gap-1.5 px-3 py-2.5 bg-slate-900/60 rounded-xl text-[10px] font-black uppercase tracking-widest text-royal-purple border border-royal-purple/30">
+          {{ session }} &bull; {{ term }} Term
+        </div>
 
         <!-- Excel download -->
         <button @click="exportScoreSheetExcel" title="Download Excel score sheet"
@@ -505,9 +496,9 @@ const printScoreSheet = () => {
           <span class="hidden sm:inline">Print</span>
         </button>
 
-        <!-- Publish -->
+        <!-- Publish (hidden on mobile — sticky bar handles it) -->
         <button @click="handleSave" :disabled="saving || deadlinePassed"
-          class="flex items-center gap-2 rounded-xl purple-gradient px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50">
+          class="hidden sm:flex items-center gap-2 rounded-xl purple-gradient px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50">
           <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
           <Save v-else class="w-4 h-4" />
           <span>{{ saving ? 'Saving…' : 'Publish' }}</span>
