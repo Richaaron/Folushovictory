@@ -866,11 +866,30 @@ adminRouter.post(
   asyncHandler(async (req, res) => {
     const { data: classes } = await SafeDatabase.query("classes", [], { pageSize: 1000 });
     const { data: students } = await SafeDatabase.query("students", [], { pageSize: 1000 });
+    const schoolSettings = await getSchoolSettings().catch(() => ({}));
+    const currentSession = String(schoolSettings?.currentSession || "").trim();
 
-    const classByName = {};
-    classes.forEach(c => {
-      classByName[c.name.trim().toUpperCase()] = c;
-    });
+    function getCoreGrade(name) {
+      const upper = String(name || "").trim().toUpperCase();
+      if (!upper) return "";
+
+      if (/\b(PRE-?NURSERY|PLAYGROUP|PRE\s*NURSERY)\b/i.test(upper)) return "PRE-NURSERY";
+      if (/\b(NURSERY\s*1|NUR\s*1)\b/i.test(upper)) return "NURSERY 1";
+      if (/\b(NURSERY\s*2|NUR\s*2)\b/i.test(upper)) return "NURSERY 2";
+      if (/\b(PRIMARY\s*1|PRY\s*1)\b/i.test(upper)) return "PRIMARY 1";
+      if (/\b(PRIMARY\s*2|PRY\s*2)\b/i.test(upper)) return "PRIMARY 2";
+      if (/\b(PRIMARY\s*3|PRY\s*3)\b/i.test(upper)) return "PRIMARY 3";
+      if (/\b(PRIMARY\s*4|PRY\s*4)\b/i.test(upper)) return "PRIMARY 4";
+      if (/\b(PRIMARY\s*5|PRY\s*5)\b/i.test(upper)) return "PRIMARY 5";
+      if (/\b(PRIMARY\s*6|PRY\s*6)\b/i.test(upper)) return "PRIMARY 6";
+      if (/\b(JSS\s*1|JS\s*1)\b/i.test(upper)) return "JSS 1";
+      if (/\b(JSS\s*2|JS\s*2)\b/i.test(upper)) return "JSS 2";
+      if (/\b(JSS\s*3|JS\s*3)\b/i.test(upper)) return "JSS 3";
+      if (/\b(SSS\s*1|SS\s*1)\b/i.test(upper)) return "SSS 1";
+      if (/\b(SSS\s*2|SS\s*2)\b/i.test(upper)) return "SSS 2";
+      if (/\b(SSS\s*3|SS\s*3)\b/i.test(upper)) return "SSS 3";
+      return upper;
+    }
 
     const promotionMapByName = {
       "PRE-NURSERY": "NURSERY 1",
@@ -889,24 +908,41 @@ adminRouter.post(
       "SSS 2": "SSS 3"
     };
 
+    // Map each class by its core grade
+    const classesByGrade = {};
+    classes.forEach(c => {
+      const core = getCoreGrade(c.name);
+      if (core) classesByGrade[core] = c;
+    });
+
     const nextClassIdMap = {};
-    for (const [currentName, nextName] of Object.entries(promotionMapByName)) {
-      const currentClass = classByName[currentName];
-      const nextClass = classByName[nextName];
-      if (currentClass && nextClass) {
-        nextClassIdMap[currentClass.id] = nextClass.id;
+    classes.forEach(c => {
+      const currentCore = getCoreGrade(c.name);
+      const nextCore = promotionMapByName[currentCore];
+      if (nextCore && classesByGrade[nextCore]) {
+        nextClassIdMap[c.id] = classesByGrade[nextCore].id;
       }
-    }
+    });
 
     const operations = [];
     for (const s of students) {
-      const nextClassId = nextClassIdMap[s.classId];
-      if (nextClassId) {
+      const currentClassId = s.classId;
+      const nextClassId = nextClassIdMap[currentClassId];
+      if (nextClassId && nextClassId !== currentClassId) {
+        const classHistory = { ...(s.classHistory || {}) };
+        if (currentSession) {
+          classHistory[currentSession] = currentClassId;
+        }
+
         operations.push({
           type: "update",
           collectionName: "students",
           docId: String(s.studentId || s.id).toLowerCase().trim(),
-          data: { classId: nextClassId }
+          data: {
+            classId: nextClassId,
+            previousClassId: currentClassId,
+            classHistory
+          }
         });
       }
     }

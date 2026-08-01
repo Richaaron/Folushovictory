@@ -171,25 +171,30 @@ export async function deleteStudent(studentId) {
 /**
  * Returns all students who belong to a class for a given session+term.
  * Includes BOTH current students and historical (promoted) students who
- * had scores recorded for that class+session+term combination.
+ * had scores recorded for that class+session combination, or whose
+ * classHistory/previousClassId matches the class.
  */
 export async function listStudentsForSessionClass(classId, session, term) {
-  const [currentStudents, scores] = await Promise.all([
+  const [currentStudents, scoresResult, allStudentsResult] = await Promise.all([
     listStudentsByClass(classId).catch(() => []),
-    session && term ? listScoresForClass({ session: String(session), term: String(term), classId }).catch(() => []) : []
+    session ? SafeDatabase.query("scores", [["session", "==", String(session)], ["classId", "==", String(classId)]], { pageSize: 1000 }).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+    SafeDatabase.query("students", [], { pageSize: 1000 }).catch(() => ({ data: [] }))
   ]);
 
+  const scores = scoresResult.data || [];
+  const allStudents = allStudentsResult.data || [];
+
   const currentIds = new Set(currentStudents.map((s) => s.studentId));
-  const scoreStudentIds = [...new Set(scores.map((s) => s.studentId))].filter((id) => !currentIds.has(id));
+  const scoreStudentIds = new Set(scores.map((s) => s.studentId));
 
-  // Fetch student records for promoted students found in score records
-  const historicalStudents = (
-    await Promise.all(
-      scoreStudentIds.map((id) => getStudentById(id).catch(() => null))
-    )
-  ).filter(Boolean);
+  const historicalStudents = allStudents.filter((s) => {
+    if (currentIds.has(s.studentId)) return false;
+    if (scoreStudentIds.has(s.studentId)) return true;
+    if (String(s.previousClassId || "") === String(classId)) return true;
+    if (s.classHistory && session && String(s.classHistory[session] || "") === String(classId)) return true;
+    return false;
+  });
 
-  // Merge: current + historical, sorted alphabetically by last name then first name
   const all = [...currentStudents, ...historicalStudents];
   all.sort((a, b) => {
     const last = String(a.lastName || "").localeCompare(String(b.lastName || ""), undefined, { sensitivity: "base" });
