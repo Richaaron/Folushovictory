@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { 
   ArrowLeft, 
@@ -109,17 +109,19 @@ const fetchStudents = async () => {
   loading.value = true
   try {
     const [studentsResp, schoolResp] = await Promise.all([
-      api.get(`/api/teacher/classes/${classId}/students`),
+      api.get(`/api/teacher/classes/${classId}/students`, {
+        params: { session: session.value, term: term.value }
+      }),
       api.get('/api/config/school')
     ])
     students.value = studentsResp.data.students.map((s: any) => ({
       ...s,
-      remark: ''
+      remark: s.remark || ''
     }))
     canAddStudents.value = !!studentsResp.data.canAddStudents
     currentClass.value = studentsResp.data.class
-    if (schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
-    if (schoolResp.data?.currentTerm) term.value = schoolResp.data.currentTerm
+    if (!route.query.session && schoolResp.data?.currentSession && !session.value) session.value = schoolResp.data.currentSession
+    if (!route.query.term && schoolResp.data?.currentTerm && !term.value) term.value = schoolResp.data.currentTerm
   } catch (err) {
     error.value = 'Failed to load class students'
   } finally {
@@ -266,6 +268,10 @@ const releaseResult = async (studentId: string, released: boolean) => {
     releaseError.value = err.response?.data?.error || err.message || 'Failed to update release status.'
   }
 }
+
+watch([session, term], () => {
+  fetchStudents()
+})
 
 onMounted(async () => {
   await Promise.all([fetchStudents(), fetchSubjects()])

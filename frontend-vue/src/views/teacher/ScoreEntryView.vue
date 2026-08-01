@@ -134,7 +134,9 @@ const fetchStudents = async () => {
   loading.value = true
   try {
     const [studentsResp, schoolResp] = await Promise.all([
-      api.get(`/api/teacher/classes/${classId}/students`),
+      api.get(`/api/teacher/classes/${classId}/students`, {
+        params: { session: session.value, term: term.value }
+      }),
       api.get('/api/config/school')
     ])
     const cls = studentsResp.data.class || {}

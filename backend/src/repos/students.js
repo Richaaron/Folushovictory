@@ -1,5 +1,6 @@
 import { SafeDatabase } from "../firestore-utils/index.js";
 import { getClassById } from "./classes.js";
+import { listScoresForClass } from "./scores.js";
 
 function normalizeClassRef(value) {
   return String(value || "").trim().toLowerCase();
@@ -166,3 +167,35 @@ export async function deleteStudent(studentId) {
 
   return SafeDatabase.deleteWithValidation("students", normalizedStudentId);
 }
+
+/**
+ * Returns all students who belong to a class for a given session+term.
+ * Includes BOTH current students and historical (promoted) students who
+ * had scores recorded for that class+session+term combination.
+ */
+export async function listStudentsForSessionClass(classId, session, term) {
+  const [currentStudents, scores] = await Promise.all([
+    listStudentsByClass(classId).catch(() => []),
+    session && term ? listScoresForClass({ session: String(session), term: String(term), classId }).catch(() => []) : []
+  ]);
+
+  const currentIds = new Set(currentStudents.map((s) => s.studentId));
+  const scoreStudentIds = [...new Set(scores.map((s) => s.studentId))].filter((id) => !currentIds.has(id));
+
+  // Fetch student records for promoted students found in score records
+  const historicalStudents = (
+    await Promise.all(
+      scoreStudentIds.map((id) => getStudentById(id).catch(() => null))
+    )
+  ).filter(Boolean);
+
+  // Merge: current + historical, sorted alphabetically by last name then first name
+  const all = [...currentStudents, ...historicalStudents];
+  all.sort((a, b) => {
+    const last = String(a.lastName || "").localeCompare(String(b.lastName || ""), undefined, { sensitivity: "base" });
+    if (last !== 0) return last;
+    return String(a.firstName || "").localeCompare(String(b.firstName || ""), undefined, { sensitivity: "base" });
+  });
+  return all;
+}
+

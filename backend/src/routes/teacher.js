@@ -5,7 +5,7 @@ import { asyncHandler } from "../http.js";
 import { listAssignmentsByTeacher, getAssignmentByTriplet } from "../repos/assignments.js";
 import { listClassesByFormTeacher, getClassById } from "../repos/classes.js";
 import { listSubjects, getSubjectById, createSubject, deleteSubject } from "../repos/subjects.js";
-import { listStudentsByClass, getStudentById, createStudentWithParent, updateStudent, deleteStudent } from "../repos/students.js";
+import { listStudentsByClass, listStudentsForSessionClass, getStudentById, createStudentWithParent, updateStudent, deleteStudent } from "../repos/students.js";
 import { validateStudentUpdatePayload, validateStudentPayload } from "../validation.js";
 import { isPublished } from "../repos/publishes.js";
 import { upsertNumericScore, upsertTraitScore } from "../repos/scores.js";
@@ -250,7 +250,7 @@ teacherRouter.get(
     const session = querySession || String(schoolSettings?.currentSession || "").trim();
     const term = queryTerm || String(schoolSettings?.currentTerm || "").trim();
 
-    const students = await listStudentsByClass(classId);
+    const students = await listStudentsForSessionClass(classId, session, term);
     const studentIds = students.map((student) => String(student.studentId || "")).filter(Boolean);
 
     const [remarks, releaseStatuses] = await Promise.all([

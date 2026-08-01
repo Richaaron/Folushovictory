@@ -3,7 +3,7 @@ import { Roles } from "../constants.js";
 import { authRequired } from "../middleware/auth.js";
 import { asyncHandler } from "../http.js";
 import { getClassById } from "../repos/classes.js";
-import { listStudentsByClass, getStudentById } from "../repos/students.js";
+import { listStudentsByClass, listStudentsForSessionClass, getStudentById } from "../repos/students.js";
 import { listScoresForClass, listScoresForStudent } from "../repos/scores.js";
 import { getGradingScale, getTermMeta, getSchoolSettings } from "../repos/config.js";
 import { gradeForTotal, numericBroadsheet, traitSheet } from "../compute.js";
@@ -19,37 +19,6 @@ import { isReligiousStudiesAlias, mergeCanonicalSubjects, normalizeLevel, RELIGI
 export const resultsRouter = express.Router();
 
 resultsRouter.use(authRequired);
-
-/**
- * Returns all students who belong to a class for a given session+term.
- * Includes BOTH current students and historical (promoted) students who
- * had scores recorded for that class+session+term combination.
- */
-async function listStudentsForSessionClass(classId, session, term) {
-  const [currentStudents, scores] = await Promise.all([
-    listStudentsByClass(classId).catch(() => []),
-    listScoresForClass({ session: String(session), term: String(term), classId }).catch(() => [])
-  ]);
-
-  const currentIds = new Set(currentStudents.map((s) => s.studentId));
-  const scoreStudentIds = [...new Set(scores.map((s) => s.studentId))].filter((id) => !currentIds.has(id));
-
-  // Fetch student records for promoted students found in score records
-  const historicalStudents = (
-    await Promise.all(
-      scoreStudentIds.map((id) => getStudentById(id).catch(() => null))
-    )
-  ).filter(Boolean);
-
-  // Merge: current + historical, sorted alphabetically by last name then first name
-  const all = [...currentStudents, ...historicalStudents];
-  all.sort((a, b) => {
-    const last = String(a.lastName || "").localeCompare(String(b.lastName || ""), undefined, { sensitivity: "base" });
-    if (last !== 0) return last;
-    return String(a.firstName || "").localeCompare(String(b.firstName || ""), undefined, { sensitivity: "base" });
-  });
-  return all;
-}
 
 async function subjectsForClass(cls) {
   if (Array.isArray(cls.subjectIds) && cls.subjectIds.length) {
