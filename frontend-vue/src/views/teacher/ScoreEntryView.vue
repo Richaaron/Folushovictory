@@ -465,61 +465,56 @@ const printScoreSheet = () => {
 </script>
 
 <template>
-  <div class="space-y-8 fade-in">
+  <div class="space-y-6 fade-in pb-2">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-      <div class="flex items-center gap-4">
-        <button @click="router.back()" class="h-12 w-12 rounded-2xl bg-slate-900/60 border border-slate-700/60 shadow-sm flex items-center justify-center text-slate-200 hover:text-royal-purple transition-all">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-3">
+        <button @click="router.back()" class="h-11 w-11 shrink-0 rounded-2xl bg-slate-900/60 border border-slate-700/60 shadow-sm flex items-center justify-center text-slate-200 hover:text-royal-purple transition-all">
           <ArrowLeft class="w-5 h-5" />
         </button>
-        <div>
-          <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{{ subjectName }}</h1>
-          <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">{{ className }} • Score Entry</p>
+        <div class="min-w-0">
+          <h1 class="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">{{ subjectName }}</h1>
+          <p class="text-[10px] sm:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">{{ className }} • Score Entry</p>
         </div>
       </div>
-      
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="flex gap-2 flex-wrap no-print">
-          <select v-model="session" class="px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
-            <option v-for="s in sessionOptions" :key="s" :value="s">{{ s }}</option>
-          </select>
-          <select v-model="term" class="px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
-            <option>First</option>
-            <option>Second</option>
-            <option>Third</option>
-          </select>
-        </div>
 
-        <!-- Download & Print Buttons -->
-        <button
-          @click="exportScoreSheetExcel"
-          title="Download printable Excel score sheet"
-          class="no-print flex items-center gap-2 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-5 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple hover:border-royal-purple"
-        >
+      <!-- Controls row -->
+      <div class="flex flex-wrap items-center gap-2 no-print">
+        <!-- Session -->
+        <select v-model="session" class="flex-1 min-w-[110px] px-3 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-[10px] font-black uppercase tracking-widest outline-none shadow-sm">
+          <option v-for="s in sessionOptions" :key="s" :value="s">{{ s }}</option>
+        </select>
+        <!-- Term -->
+        <select v-model="term" class="flex-1 min-w-[80px] px-3 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-[10px] font-black uppercase tracking-widest outline-none shadow-sm">
+          <option>First</option>
+          <option>Second</option>
+          <option>Third</option>
+        </select>
+
+        <!-- Excel download -->
+        <button @click="exportScoreSheetExcel" title="Download Excel score sheet"
+          class="flex items-center gap-1.5 rounded-xl bg-slate-900/60 border border-slate-700/60 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:text-royal-purple hover:border-royal-purple">
           <Download class="w-4 h-4" />
-          <span>Excel Sheet</span>
+          <span class="hidden sm:inline">Excel</span>
         </button>
 
-        <button
-          @click="printScoreSheet"
-          title="Print or save score sheet as PDF"
-          class="no-print flex items-center gap-2 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-5 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple hover:border-royal-purple"
-        >
+        <!-- Print -->
+        <button @click="printScoreSheet" title="Print / PDF"
+          class="flex items-center gap-1.5 rounded-xl bg-slate-900/60 border border-slate-700/60 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:text-royal-purple hover:border-royal-purple">
           <Printer class="w-4 h-4" />
-          <span>Print / PDF</span>
+          <span class="hidden sm:inline">Print</span>
         </button>
 
-        <button 
-          @click="handleSave"
-          :disabled="saving || deadlinePassed"
-          class="no-print flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50"
-        >
+        <!-- Publish -->
+        <button @click="handleSave" :disabled="saving || deadlinePassed"
+          class="flex items-center gap-2 rounded-xl purple-gradient px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50">
           <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-          <Save v-else class="w-4 h-4" /> 
-          {{ saving ? 'Saving...' : 'Publish Scores' }}
+          <Save v-else class="w-4 h-4" />
+          <span>{{ saving ? 'Saving…' : 'Publish' }}</span>
         </button>
       </div>
     </div>
+
 
     <!-- Deadline Banner -->
     <div v-if="resultEntryDeadline" class="rounded-2xl border overflow-hidden"
@@ -603,8 +598,8 @@ const printScoreSheet = () => {
       </div>
     </div>
 
-    <!-- Score Table -->
-    <div class="glass-card overflow-hidden">
+    <!-- Score Table — desktop (sm+) -->
+    <div class="glass-card overflow-hidden hidden sm:block">
       <div v-if="loading" class="p-20 flex items-center justify-center">
         <Loader2 class="w-10 h-10 text-royal-purple animate-spin" />
       </div>
@@ -612,63 +607,41 @@ const printScoreSheet = () => {
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-900/60">
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student Name</th>
-              <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">1st CA (20)</th>
-              <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">2nd CA (20)</th>
-              <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-32">Exam (60)</th>
-              <th class="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24 bg-slate-900/30">Total</th>
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24">Pos.</th>
+              <th class="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student Name</th>
+              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">1st CA (20)</th>
+              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">2nd CA (20)</th>
+              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">Exam (60)</th>
+              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24 bg-slate-900/30">Total</th>
+              <th class="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-20">Pos.</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-700/40">
             <tr v-for="st in students" :key="st.studentId" class="hover:bg-slate-900/20 transition-colors">
-              <td class="px-8 py-6">
+              <td class="px-6 py-5">
                 <p class="text-sm font-black text-white">{{ st.lastName }} {{ st.firstName }}</p>
-                <p class="text-[10px] font-bold text-slate-200 uppercase tracking-widest">{{ st.studentId }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
               </td>
-              <td class="px-4 py-6">
-                <input 
-                  :value="st.ca1"
-                  type="number" 
-                  min="0"
-                  max="20"
-                  :disabled="deadlinePassed"
+              <td class="px-3 py-5">
+                <input :value="st.ca1" type="number" min="0" max="20" :disabled="deadlinePassed"
                   @input="st.ca1 = clampCA(($event.target as HTMLInputElement).value)"
-                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" 
-                  placeholder="0"
-                />
+                  class="w-full px-3 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" placeholder="0" />
               </td>
-              <td class="px-4 py-6">
-                <input 
-                  :value="st.ca2"
-                  type="number" 
-                  min="0"
-                  max="20"
-                  :disabled="deadlinePassed"
+              <td class="px-3 py-5">
+                <input :value="st.ca2" type="number" min="0" max="20" :disabled="deadlinePassed"
                   @input="st.ca2 = clampCA(($event.target as HTMLInputElement).value)"
-                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" 
-                  placeholder="0"
-                />
+                  class="w-full px-3 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" placeholder="0" />
               </td>
-              <td class="px-4 py-6">
-                <input 
-                  :value="st.exam"
-                  type="number" 
-                  min="0"
-                  max="60"
-                  :disabled="deadlinePassed"
+              <td class="px-3 py-5">
+                <input :value="st.exam" type="number" min="0" max="60" :disabled="deadlinePassed"
                   @input="st.exam = clampExam(($event.target as HTMLInputElement).value)"
-                  class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" 
-                  placeholder="0"
-                />
+                  class="w-full px-3 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" placeholder="0" />
               </td>
-              <td class="px-4 py-6 text-center bg-slate-900/30">
-                <span
-                  class="text-sm font-black"
-                  :class="[ computeTotal(st) >= 40 ? 'text-emerald-500' : 'text-red-500', totalFlash.has(st.studentId) ? 'flash-total' : '' ]"
-                >{{ computeTotal(st) }}</span>
+              <td class="px-3 py-5 text-center bg-slate-900/30">
+                <span class="text-sm font-black" :class="[computeTotal(st) >= 40 ? 'text-emerald-500' : 'text-red-500', totalFlash.has(st.studentId) ? 'flash-total' : '']">
+                  {{ computeTotal(st) }}
+                </span>
               </td>
-              <td class="px-8 py-6 text-center">
+              <td class="px-6 py-5 text-center">
                 <span class="px-3 py-1 rounded-lg bg-slate-900/60 text-[10px] font-black text-slate-300">
                   {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
                 </span>
@@ -678,6 +651,76 @@ const printScoreSheet = () => {
         </table>
       </div>
     </div>
+
+    <!-- Score Cards — mobile only (below sm) -->
+    <div class="sm:hidden space-y-3">
+      <div v-if="loading" class="p-16 flex items-center justify-center">
+        <Loader2 class="w-10 h-10 text-royal-purple animate-spin" />
+      </div>
+      <template v-else>
+        <div v-for="st in students" :key="st.studentId"
+          class="glass-card p-4 rounded-2xl border border-slate-700/50">
+          <!-- Student info -->
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-sm font-black text-white">{{ st.lastName }} {{ st.firstName }}</p>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="text-center">
+                <span class="text-lg font-black" :class="computeTotal(st) >= 40 ? 'text-emerald-400' : 'text-red-400'">
+                  {{ computeTotal(st) }}
+                </span>
+                <p class="text-[9px] font-bold text-slate-500 uppercase">Total</p>
+              </div>
+              <div class="w-8 h-8 rounded-lg bg-slate-900/60 flex items-center justify-center">
+                <span class="text-[10px] font-black text-slate-300">
+                  {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <!-- Score inputs -->
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">1st CA /20</label>
+              <input :value="st.ca1" type="number" min="0" max="20" :disabled="deadlinePassed"
+                @input="st.ca1 = clampCA(($event.target as HTMLInputElement).value)"
+                class="w-full px-2 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40" placeholder="0" />
+            </div>
+            <div>
+              <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">2nd CA /20</label>
+              <input :value="st.ca2" type="number" min="0" max="20" :disabled="deadlinePassed"
+                @input="st.ca2 = clampCA(($event.target as HTMLInputElement).value)"
+                class="w-full px-2 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40" placeholder="0" />
+            </div>
+            <div>
+              <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Exam /60</label>
+              <input :value="st.exam" type="number" min="0" max="60" :disabled="deadlinePassed"
+                @input="st.exam = clampExam(($event.target as HTMLInputElement).value)"
+                class="w-full px-2 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40" placeholder="0" />
+            </div>
+          </div>
+        </div>
+        <!-- Empty state -->
+        <div v-if="students.length === 0" class="glass-card p-10 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
+          No students found for this class.
+        </div>
+      </template>
+    </div>
+
+    <!-- Mobile sticky publish button -->
+    <div class="sm:hidden fixed bottom-0 inset-x-0 p-4 bg-slate-950/95 border-t border-slate-800 no-print z-40">
+      <button @click="handleSave" :disabled="saving || deadlinePassed"
+        class="w-full flex items-center justify-center gap-3 rounded-2xl purple-gradient py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-900/30 transition active:scale-95 disabled:opacity-50">
+        <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
+        <Save v-else class="w-4 h-4" />
+        {{ saving ? 'Saving…' : 'Publish Scores' }}
+      </button>
+    </div>
+
+    <!-- Bottom padding for mobile sticky bar -->
+    <div class="sm:hidden h-20"></div>
   </div>
 </template>
 
