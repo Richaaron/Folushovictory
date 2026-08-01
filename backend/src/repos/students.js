@@ -170,28 +170,43 @@ export async function deleteStudent(studentId) {
 
 /**
  * Returns all students who belong to a class for a given session+term.
- * Includes BOTH current students and historical (promoted) students who
- * had scores recorded for that class+session combination, or whose
- * classHistory/previousClassId matches the class.
+ *
+ * Strategy:
+ * - Always include CURRENT students in the class (classId match).
+ * - For HISTORICAL sessions: also include students whose score records show
+ *   they were in this class for that session, OR whose classHistory map
+ *   explicitly records them as being in this class during that session.
+ *   This covers promoted students who no longer live in classId.
  */
 export async function listStudentsForSessionClass(classId, session, term) {
-  const [currentStudents, scoresResult, allStudentsResult] = await Promise.all([
-    listStudentsByClass(classId).catch(() => []),
-    session ? SafeDatabase.query("scores", [["session", "==", String(session)], ["classId", "==", String(classId)]], { pageSize: 1000 }).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+  const currentStudents = await listStudentsByClass(classId).catch(() => []);
+  const currentIds = new Set(currentStudents.map((s) => s.studentId));
+
+  // Only do expensive historical lookup when a specific past session is requested
+  if (!session) {
+    return currentStudents;
+  }
+
+  // Fetch scores for that session+classId to find promoted students
+  const [scoresResult, allStudentsResult] = await Promise.all([
+    SafeDatabase.query(
+      "scores",
+      [["session", "==", String(session)], ["classId", "==", String(classId)]],
+      { pageSize: 1000 }
+    ).catch(() => ({ data: [] })),
     SafeDatabase.query("students", [], { pageSize: 1000 }).catch(() => ({ data: [] }))
   ]);
 
   const scores = scoresResult.data || [];
   const allStudents = allStudentsResult.data || [];
-
-  const currentIds = new Set(currentStudents.map((s) => s.studentId));
   const scoreStudentIds = new Set(scores.map((s) => s.studentId));
 
   const historicalStudents = allStudents.filter((s) => {
     if (currentIds.has(s.studentId)) return false;
+    // Include if they have a score record for this class+session
     if (scoreStudentIds.has(s.studentId)) return true;
-    if (String(s.previousClassId || "") === String(classId)) return true;
-    if (s.classHistory && session && String(s.classHistory[session] || "") === String(classId)) return true;
+    // Include if classHistory explicitly records them in this class during this session
+    if (s.classHistory && String(s.classHistory[session] || "") === String(classId)) return true;
     return false;
   });
 
@@ -203,4 +218,5 @@ export async function listStudentsForSessionClass(classId, session, term) {
   });
   return all;
 }
+
 
