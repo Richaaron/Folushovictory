@@ -9,7 +9,7 @@ import {
   CheckCircle2
 } from 'lucide-vue-next'
 import api from '../../services/api'
-import { getCurrentSession } from '../../utils/sessions'
+import { getCurrentSession, generateSessionOptions } from '../../utils/sessions'
 
 const route = useRoute()
 const router = useRouter()
@@ -86,8 +86,9 @@ const discardDraft = () => {
   draftData.value = null
 }
 
-const session = ref(getCurrentSession())
-const term = ref('First')
+const session = ref((route.query.session as string) || getCurrentSession())
+const term = ref((route.query.term as string) || 'First')
+const sessionOptions = ref(generateSessionOptions().reverse())
 
 // --- Deadline / countdown ---
 const resultEntryDeadline = ref<string>('')
@@ -184,8 +185,8 @@ const fetchStudents = async () => {
       ca2: '',
       exam: ''
     }))
-    if (schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
-    if (schoolResp.data?.currentTerm) term.value = schoolResp.data.currentTerm
+    if (!route.query.session && schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
+    if (!route.query.term && schoolResp.data?.currentTerm) term.value = schoolResp.data.currentTerm
     if (schoolResp.data?.resultEntryDeadline) {
       resultEntryDeadline.value = schoolResp.data.resultEntryDeadline
     }
@@ -368,6 +369,11 @@ const handleSave = async () => {
   }
 }
 
+// Re-fetch scores when session or term changes
+watch([session, term], () => {
+  fetchStudents()
+})
+
 onMounted(() => {
   fetchStudents()
   window.addEventListener('online', updateOnlineStatus)
@@ -395,7 +401,10 @@ onUnmounted(() => {
       </div>
       
       <div class="flex items-center gap-4">
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
+          <select v-model="session" class="px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
+            <option v-for="s in sessionOptions" :key="s" :value="s">{{ s }}</option>
+          </select>
           <select v-model="term" class="px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
             <option>First</option>
             <option>Second</option>

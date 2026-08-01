@@ -20,6 +20,8 @@ const router = useRouter()
 const assignments = ref<any[]>([])
 const formClasses = ref<any[]>([])
 const loading = ref(true)
+const currentSession = ref('')
+const currentTerm = ref('First')
 
 const roleDescription = computed(() => {
   const isForm = formClasses.value.length > 0
@@ -57,8 +59,8 @@ const fetchData = async () => {
     formClasses.value = formResp.data.classes || []
     
     if (schoolResp.data) {
-      // Optional: Use schoolResp.data.currentSession and schoolResp.data.currentTerm
-      // for UI display if needed.
+      currentSession.value = schoolResp.data.currentSession || ''
+      currentTerm.value = schoolResp.data.currentTerm || 'First'
     }
   } catch (err) {
     console.error('Error fetching teacher data:', err)
@@ -175,7 +177,9 @@ const cardImages = [
                     subjectId: item.subjectId,
                     className: item.className,
                     subjectName: item.subjectName,
-                    isPrimary: item.isPrimary ? 'true' : 'false'
+                    isPrimary: item.isPrimary ? 'true' : 'false',
+                    session: currentSession,
+                    term: currentTerm
                   }
                 })"
                 class="mt-8 w-full py-4 rounded-2xl bg-slate-900/60 border border-slate-700/60 text-[10px] font-black uppercase tracking-widest text-white hover:bg-royal-purple hover:text-white transition-all flex items-center justify-center gap-2"

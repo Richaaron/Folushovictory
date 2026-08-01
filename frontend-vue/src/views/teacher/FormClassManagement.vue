@@ -20,6 +20,7 @@ import {
 import api from '../../services/api'
 import SubjectManagementModal from '../../components/SubjectManagementModal.vue'
 import StudentSubjectPicker from '../../components/StudentSubjectPicker.vue'
+import { generateSessionOptions } from '../../utils/sessions'
 
 const route = useRoute()
 const router = useRouter()
@@ -37,6 +38,7 @@ const releaseError = ref('')
 
 const session = ref('2023/2024')
 const term = ref('First')
+const sessionOptions = ref(generateSessionOptions().reverse())
 
 const canAddStudents = ref(false)
 const currentClass = ref<any>(null)
@@ -293,6 +295,10 @@ onMounted(async () => {
       </div>
       
       <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-4 w-full md:w-auto">
+        <!-- Session + Term Selectors -->
+        <select v-model="session" class="w-full sm:w-auto px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
+          <option v-for="s in sessionOptions" :key="s" :value="s">{{ s }}</option>
+        </select>
         <select v-model="term" class="w-full sm:w-auto px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
           <option>First</option>
           <option>Second</option>
