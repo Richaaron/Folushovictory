@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, nextTick } from 'vue'
+import { computed, onMounted, ref, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   AlertCircle,
@@ -419,6 +419,11 @@ const executeMobilePrint = () => {
   handlePrintAll()
   mobilePrintReady.value = false
 }
+
+watch([session, term], () => {
+  reports.value = []
+  fetchStudents()
+})
 
 onMounted(fetchStudents)
 </script>

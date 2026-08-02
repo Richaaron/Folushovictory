@@ -183,12 +183,13 @@ async function resolveReportTermParams(session, term) {
 }
 
 async function buildStudentReport({ student, cls, session, term }) {
+  const targetClassId = String(cls.id);
   const [subjects, scale, remarks, meta, publish, school, release] = await Promise.all([
     optionalResult(`Report subjects load for ${student.studentId}`, () => subjectsForClass(cls), []),
     optionalResult(`Report grading scale load for ${student.studentId}`, () => getGradingScale(), null),
     optionalResult(`Report remarks load for ${student.studentId}`, () => getRemarks({ session, term, studentId: student.studentId }), null),
     optionalResult(`Report term metadata load for ${student.studentId}`, () => getTermMeta({ session, term }), null),
-    optionalResult(`Report publish status load for ${student.studentId}`, () => getPublish({ classId: student.classId, session, term }), null),
+    optionalResult(`Report publish status load for ${student.studentId}`, () => getPublish({ classId: targetClassId, session, term }), null),
     optionalResult(`Report school settings load for ${student.studentId}`, () => getSchoolSettings(), {}),
     optionalResult(`Report release status load for ${student.studentId}`, () => getReleaseStatus({ session, term, studentId: student.studentId }), { released: false })
   ]);
@@ -206,6 +207,13 @@ async function buildStudentReport({ student, cls, session, term }) {
   let cumulative = null;
   let totalStudents = 0;
 
+  const studentsInClass = await optionalResult(
+    `Class students load for report ${student.studentId}`,
+    () => listStudentsForSessionClass(targetClassId, session, term),
+    [student]
+  );
+  totalStudents = studentsInClass.length;
+
   if (String(cls.assessmentType).toUpperCase() === "TRAIT") {
     const scores = await optionalResult(
       `Trait scores load for ${student.studentId}`,
@@ -214,25 +222,13 @@ async function buildStudentReport({ student, cls, session, term }) {
     );
     const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
     row = traitSheet({ students: [student], subjects, scoresByKey }).students[0];
-    const studentsInClass = await optionalResult(
-      `Class students load for report ${student.studentId}`,
-      () => listStudentsByClass(student.classId),
-      [student]
-    );
-    totalStudents = studentsInClass.length;
   } else {
     const scores = await optionalResult(
       `Numeric scores load for ${student.studentId}`,
-      () => listScoresForClass({ session, term, classId: student.classId }),
+      () => listScoresForClass({ session, term, classId: targetClassId }),
       []
     );
     const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-    const studentsInClass = await optionalResult(
-      `Class students load for report ${student.studentId}`,
-      () => listStudentsByClass(student.classId),
-      [student]
-    );
-    totalStudents = studentsInClass.length;
     const sheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey, scale, level: cls.level });
     row = sheet.students.find((s) => s.studentId === student.studentId);
 
@@ -247,7 +243,7 @@ async function buildStudentReport({ student, cls, session, term }) {
       const prevResults = await Promise.all(termsToFetch.map(async (previousTerm) => {
         const pScores = await optionalResult(
           `Previous term ${previousTerm} scores load for ${student.studentId}`,
-          () => listScoresForClass({ session, term: previousTerm, classId: student.classId }),
+          () => listScoresForClass({ session, term: previousTerm, classId: targetClassId }),
           []
         );
         const pScoresByKey = new Map(pScores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
