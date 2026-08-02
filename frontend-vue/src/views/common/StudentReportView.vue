@@ -1304,7 +1304,7 @@ td {
   }
 
   /* Final fallback: reduce page margin if still overflowing */
-  @page { size: A4; margin: 8mm !important; }
-  .print-card { zoom: 0.90 !important; }
+  @page { size: A4; margin: 4mm !important; }
+  .print-card { zoom: 1.0 !important; }
 }
 </style>

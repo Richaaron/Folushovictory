@@ -1604,7 +1604,7 @@ td {
 
   .no-print { display: none !important; }
 
-  @page { size: A4 portrait; margin: 5mm; }
+  @page { size: A4 portrait; margin: 4mm; }
 
   /* Reset outer wrapper for clean print */
   .bulk-report-page {
@@ -1637,8 +1637,8 @@ td {
     break-after: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    /* Aggressively shrink to guarantee everything fits on one A4 page */
-    zoom: 0.85 !important;
+    /* Full-size to fill A4 page for maximum readability */
+    zoom: 1.0 !important;
   }
 
   .print-card:last-child {
