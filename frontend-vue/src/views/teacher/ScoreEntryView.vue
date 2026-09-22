@@ -5,8 +5,6 @@ import {
   ArrowLeft, 
   Save, 
   Loader2, 
-  AlertCircle,
-  CheckCircle2,
   Download,
   Printer
 } from 'lucide-vue-next'
@@ -643,7 +641,6 @@ const printScoreSheet = () => {
                     {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
                   </span>
                 </td>
-              </template>
             </tr>
           </tbody>
         </table>
