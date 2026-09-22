@@ -308,6 +308,16 @@ teacherRouter.post(
     // the IRS teacher and CRS teacher in the same class.
     const saveSubjectId = String(subjectId);
 
+    const cls = await getClassById(classId);
+    const isNursery = cls && normalizeLevel(cls.level) === "Nursery";
+
+    // For Nursery subjects, fetch the subject to check its maxScore (50 or 100)
+    let subjectMaxScore = 100;
+    if (isNursery) {
+      const subjectDoc = await getSubjectById(String(subjectId));
+      subjectMaxScore = Number(subjectDoc?.maxScore) === 50 ? 50 : 100;
+    }
+
     const writes = scores.map(async (s) => {
       const studentId = String(s.studentId || "");
       const ca1 = Number(s.ca1 || 0);
@@ -315,10 +325,17 @@ teacherRouter.post(
       const exam = Number(s.exam || 0);
       if (!studentId) throw Object.assign(new Error("Missing studentId"), { statusCode: 400 });
       
-      if (ca1 > 20 || ca2 > 20) throw Object.assign(new Error("CA score cannot exceed 20"), { statusCode: 400 });
-      if (exam > 60) throw Object.assign(new Error("Exam score cannot exceed 60"), { statusCode: 400 });
+      if (isNursery) {
+        if (ca1 > 0 || ca2 > 0) throw Object.assign(new Error("Nursery classes do not have CA scores"), { statusCode: 400 });
+        if (exam > subjectMaxScore) throw Object.assign(new Error(`Exam score cannot exceed ${subjectMaxScore}`), { statusCode: 400 });
+      } else {
+        if (ca1 > 20 || ca2 > 20) throw Object.assign(new Error("CA score cannot exceed 20"), { statusCode: 400 });
+        if (exam > 60) throw Object.assign(new Error("Exam score cannot exceed 60"), { statusCode: 400 });
+      }
+
       const total = ca1 + ca2 + exam;
-      if (total > 100) throw Object.assign(new Error("Total score cannot exceed 100"), { statusCode: 400 });
+      if (total > subjectMaxScore && isNursery) throw Object.assign(new Error(`Total score cannot exceed ${subjectMaxScore}`), { statusCode: 400 });
+      if (total > 100 && !isNursery) throw Object.assign(new Error("Total score cannot exceed 100"), { statusCode: 400 });
 
       await upsertNumericScore({
         session: String(session),

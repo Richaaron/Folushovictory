@@ -40,7 +40,8 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
   const subjectIds = subjects.map((s) => s.id);
   const normalizeLevel = (value) => {
     const normalized = String(value || '').trim().toUpperCase()
-    if (['PRY', 'NUR', 'PRIMARY'].includes(normalized) || normalized.startsWith('PRE')) return 'Primary'
+    if (['NUR', 'PRE NURSERY', 'NURSERY 1', 'NURSERY 2'].includes(normalized) || normalized.includes('NURSERY')) return 'Nursery'
+    if (['PRY', 'PRIMARY'].includes(normalized)) return 'Primary'
     if (normalized.startsWith('JSS') || normalized.includes('JUNIOR SECONDARY') || normalized.startsWith('JR')) return 'JSS'
     if (normalized.startsWith('SSS') || normalized.includes('SENIOR SECONDARY') || normalized.startsWith('SR')) return 'SSS'
     return normalized
@@ -48,6 +49,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
 
   const l = normalizeLevel(level);
   const isSSS = l === 'SSS';
+  const isNursery = l === 'Nursery';
   const isSecondary = l === 'JSS' || l === 'SSS';
 
   // Step 1: Compute basic rows with totals and averages
@@ -83,6 +85,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
 
     const perSubject = studentSubjects.map((sub) => {
       const subjectId = sub.id;
+      const subjectMaxScore = Number(sub.maxScore) === 50 ? 50 : 100;
       const scoreSubjectIds = [subjectId, ...(sub.aliasIds || [])].filter(Boolean);
       const allScores = scoreSubjectIds.map((id) => scoresByKey.get(`${st.id}_${id}`)).filter(Boolean);
       // Pick the score object that has a non-zero total, otherwise fallback to the first one
@@ -91,11 +94,20 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
       const ca2 = Number(sc?.ca2 || 0);
       const ca = Number(sc?.ca || (ca1 + ca2));
       const exam = Number(sc?.exam || 0);
-      const total = ca + exam;
+      const total = Math.min(ca + exam, subjectMaxScore);
       const g = gradeForTotal(total, scale);
 
       let automatedComment = "";
-      if (!isSecondary && total > 0) {
+      if (isNursery && total > 0) {
+        // Scale thresholds to the subject's maxScore
+        const pct = (total / subjectMaxScore) * 100;
+        if (pct >= 80) automatedComment = "Outstanding! Keep up the excellent work.";
+        else if (pct >= 70) automatedComment = "Very good effort. Continue to do great!";
+        else if (pct >= 60) automatedComment = "Good performance. Keep trying harder.";
+        else if (pct >= 50) automatedComment = "Fair effort. Needs more practice and attention.";
+        else if (pct >= 40) automatedComment = "Needs improvement. Encourage more engagement.";
+        else automatedComment = "Requires close attention and support.";
+      } else if (!isSecondary && !isNursery && total > 0) {
         if (total >= 80) automatedComment = "Outstanding performance, keep it up!";
         else if (total >= 70) automatedComment = "Excellent result, very impressive.";
         else if (total >= 60) automatedComment = "Very good performance, good job.";
@@ -107,6 +119,7 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
       return {
         subjectId,
         subjectName: sub.name,
+        maxScore: subjectMaxScore,
         ca1,
         ca2,
         ca,
@@ -116,8 +129,10 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
         remark: isSecondary ? g.remark : automatedComment
       };
     });
+    // For average: normalise each subject score to a percentage of its maxScore, then average
     const sum = perSubject.reduce((acc, p) => acc + p.total, 0);
-    const average = studentSubjects.length ? Number((sum / studentSubjects.length).toFixed(2)) : 0;
+    const normalisedSum = perSubject.reduce((acc, p) => acc + (p.total / p.maxScore) * 100, 0);
+    const average = studentSubjects.length ? Number((normalisedSum / studentSubjects.length).toFixed(2)) : 0;
     
     const scores = {};
     perSubject.forEach(ps => {
@@ -135,8 +150,8 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
     };
   });
 
-  // Step 2: Compute Position in Subject for JSS, SSS, and Primary levels
-  const hasSubjectPositions = isSecondary || l === 'Primary';
+  // Step 2: Compute Position in Subject for JSS, SSS, Primary and Nursery levels
+  const hasSubjectPositions = isSecondary || l === 'Primary' || isNursery;
   if (hasSubjectPositions) {
     subjectIds.forEach(subId => {
       const subjectScores = rows.map(r => {

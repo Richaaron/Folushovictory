@@ -285,8 +285,9 @@ onMounted(fetchClasses)
               <div>
                 <label class="text-xs font-bold text-[#C9A84C]/70 block mb-2 uppercase tracking-wider">Level</label>
                 <select v-model="newClass.level" class="academic-select">
-                  <option>NUR</option>
-                  <option>PRY</option>
+                  <option>Pre Nursery</option>
+                  <option>Nursery 1</option>
+                  <option>Nursery 2</option>
                   <option>PRIMARY</option>
                   <option>JSS</option>
                   <option>SSS</option>

@@ -18,8 +18,10 @@ const error = ref('')
 const newSubject = ref({
   name: '',
   level: 'JSS',
-  track: ''
+  track: '',
+  maxScore: 100
 })
+
 
 const fetchSubjects = async () => {
   loading.value = true
@@ -48,6 +50,7 @@ const handleAddSubject = async () => {
     await api.post(props.apiEndpoint, newSubject.value)
     newSubject.value.name = ''
     newSubject.value.track = ''
+    newSubject.value.maxScore = 100
     await fetchSubjects()
     emit('update')
   } catch (err: any) {
@@ -100,9 +103,19 @@ const close = () => {
           <div class="md:w-32 space-y-2">
             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Level</label>
             <select v-model="newSubject.level" class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none">
+              <option value="Pre Nursery">Pre Nursery</option>
+              <option value="Nursery 1">Nursery 1</option>
+              <option value="Nursery 2">Nursery 2</option>
               <option value="Primary">Primary</option>
               <option value="JSS">JSS</option>
               <option value="SSS">SSS</option>
+            </select>
+          </div>
+          <div class="md:w-32 space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Max Score</label>
+            <select v-model="newSubject.maxScore" class="w-full px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none">
+              <option :value="100">100</option>
+              <option :value="50">50</option>
             </select>
           </div>
           <div v-if="newSubject.level === 'SSS'" class="md:w-40 space-y-2">
@@ -144,6 +157,10 @@ const close = () => {
                   </span>
                   <span v-if="subject.track && subject.track !== 'General'" class="text-[9px] font-black uppercase tracking-widest text-slate-400 px-2 py-0.5 rounded border border-slate-700 bg-slate-800/50">
                     {{ subject.track }}
+                  </span>
+                  <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border"
+                    :class="subject.maxScore === 50 ? 'text-amber-400 border-amber-900 bg-amber-950/30' : 'text-slate-400 border-slate-700 bg-slate-800/50'">
+                    /{{ subject.maxScore || 100 }}
                   </span>
                 </div>
               </div>

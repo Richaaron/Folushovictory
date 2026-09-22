@@ -77,13 +77,41 @@ async function subjectsForClass(cls) {
   return mergeCanonicalSubjects(filtered.map((s) => ({ id: s.id, name: s.name, track: s.track || null, level: s.level || null })));
 }
 
-function generatedPerformanceRemarks(result) {
+function generatedPerformanceRemarks(result, level) {
   const average = Number(result?.average);
+  const isNursery = normalizeLevel(level || '') === 'Nursery';
 
   if (!Number.isFinite(average) || average <= 0) {
     return {
       teacherRemark: "Performance remark will be available when the student's scores have been completed.",
       principalRemark: "Academic performance is awaiting complete score entry and verification."
+    };
+  }
+
+  if (isNursery) {
+    if (average >= 80) return {
+      teacherRemark: "An outstanding performance! This child is doing wonderfully and shows excellent understanding.",
+      principalRemark: "A brilliant result. This young learner is highly commended for excellent academic performance."
+    };
+    if (average >= 70) return {
+      teacherRemark: "A very good performance. This child is making great progress and should keep up the great work!",
+      principalRemark: "A commendable result. The child is encouraged to keep up the great effort."
+    };
+    if (average >= 60) return {
+      teacherRemark: "A good performance. This child is doing well and can improve even further with consistent effort.",
+      principalRemark: "A good result. More consistent practice and engagement will help this child excel."
+    };
+    if (average >= 50) return {
+      teacherRemark: "A fair performance. This child needs more attention, practice, and encouragement at home.",
+      principalRemark: "A satisfactory result. The child is advised to spend more time practicing and learning."
+    };
+    if (average >= 40) return {
+      teacherRemark: "Below expectation. More dedicated engagement, guided practice, and parental support is encouraged.",
+      principalRemark: "The child requires closer guidance and support to improve academic performance."
+    };
+    return {
+      teacherRemark: "This child needs urgent support. Please work closely with the teacher to provide extra help and encouragement.",
+      principalRemark: "Urgent academic support is required. The child will benefit greatly from close guidance and parental involvement."
     };
   }
 
@@ -214,62 +242,52 @@ async function buildStudentReport({ student, cls, session, term }) {
   );
   totalStudents = studentsInClass.length;
 
-  if (String(cls.assessmentType).toUpperCase() === "TRAIT") {
-    const scores = await optionalResult(
-      `Trait scores load for ${student.studentId}`,
-      () => listScoresForStudent({ session, term, studentId: student.studentId }),
-      []
-    );
-    const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-    row = traitSheet({ students: [student], subjects, scoresByKey }).students[0];
-  } else {
-    const scores = await optionalResult(
-      `Numeric scores load for ${student.studentId}`,
-      () => listScoresForClass({ session, term, classId: targetClassId }),
-      []
-    );
-    const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-    const sheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey, scale, level: cls.level });
-    row = sheet.students.find((s) => s.studentId === student.studentId);
+  const scores = await optionalResult(
+    `Numeric scores load for ${student.studentId}`,
+    () => listScoresForClass({ session, term, classId: targetClassId }),
+    []
+  );
+  const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
+  const sheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey, scale, level: cls.level });
+  row = sheet.students.find((s) => s.studentId === student.studentId);
 
-    if (row) {
-      const overall = gradeForTotal(Number(row.average || 0), scale);
-      row.overallGrade = overall.letter || "";
-      row.overallGradeRemark = overall.remark || "";
-    }
+  if (row) {
+    const overall = gradeForTotal(Number(row.average || 0), scale);
+    row.overallGrade = overall.letter || "";
+    row.overallGradeRemark = overall.remark || "";
+  }
 
-    if (term === "2nd" || term === "3rd") {
-      const termsToFetch = term === "2nd" ? ["1st"] : ["1st", "2nd"];
-      const prevResults = await Promise.all(termsToFetch.map(async (previousTerm) => {
-        const pScores = await optionalResult(
-          `Previous term ${previousTerm} scores load for ${student.studentId}`,
-          () => listScoresForClass({ session, term: previousTerm, classId: targetClassId }),
-          []
-        );
-        const pScoresByKey = new Map(pScores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-        const pSheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey: pScoresByKey, scale, level: cls.level });
-        return { term: previousTerm, result: pSheet.students.find((s) => s.studentId === student.studentId) };
-      }));
+  if (term === "2nd" || term === "3rd") {
+    const termsToFetch = term === "2nd" ? ["1st"] : ["1st", "2nd"];
+    const prevResults = await Promise.all(termsToFetch.map(async (previousTerm) => {
+      const pScores = await optionalResult(
+        `Previous term ${previousTerm} scores load for ${student.studentId}`,
+        () => listScoresForClass({ session, term: previousTerm, classId: targetClassId }),
+        []
+      );
+      const pScoresByKey = new Map(pScores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
+      const pSheet = numericBroadsheet({ students: studentsInClass, subjects, scoresByKey: pScoresByKey, scale, level: cls.level });
+      return { term: previousTerm, result: pSheet.students.find((s) => s.studentId === student.studentId) };
+    }));
 
-      cumulative = {
-        previousTerms: prevResults.filter((r) => !!r.result).map((r) => ({
-          term: r.term,
-          total: r.result.total,
-          average: r.result.average
-        }))
-      };
+    cumulative = {
+      previousTerms: prevResults.filter((r) => !!r.result).map((r) => ({
+        term: r.term,
+        total: r.result.total,
+        average: r.result.average
+      }))
+    };
 
-      if (cumulative.previousTerms.length > 0 && row) {
-        const allTotals = [...cumulative.previousTerms.filter((r) => r.total !== undefined).map((r) => r.total), row.total];
-        if (allTotals.length > 0) {
-          cumulative.sessionTotal = allTotals.reduce((a, b) => a + b, 0);
-          cumulative.sessionAverage = (cumulative.sessionTotal / allTotals.length).toFixed(2);
-        }
+    if (cumulative.previousTerms.length > 0 && row) {
+      const allTotals = [...cumulative.previousTerms.filter((r) => r.total !== undefined).map((r) => r.total), row.total];
+      if (allTotals.length > 0) {
+        cumulative.sessionTotal = allTotals.reduce((a, b) => a + b, 0);
+        cumulative.sessionAverage = (cumulative.sessionTotal / allTotals.length).toFixed(2);
       }
     }
   }
 
-  const autoRemarks = generatedPerformanceRemarks(row);
+  const autoRemarks = generatedPerformanceRemarks(row, cls.level);
   const feeStatus = feeStatusForStudent(student);
 
   return {
@@ -330,10 +348,7 @@ resultsRouter.get(
     ]);
 
     const scoresByKey = new Map(scores.map((s) => [`${s.studentId}_${s.subjectId}`, s]));
-    const sheet =
-      String(cls.assessmentType).toUpperCase() === "TRAIT"
-        ? traitSheet({ students, subjects, scoresByKey })
-        : numericBroadsheet({ students, subjects, scoresByKey, scale, level: cls.level });
+    const sheet = numericBroadsheet({ students, subjects, scoresByKey, scale, level: cls.level });
 
     return res.json({
       school,

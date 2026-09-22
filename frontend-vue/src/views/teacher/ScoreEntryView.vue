@@ -28,6 +28,9 @@ const error = ref('')
 const success = ref(false)
 const savedCount = ref(0)  // number of non-zero scores confirmed saved
 
+const isNurseryClass = ref(false)
+const subjectMaxScore = ref(100) // per-subject max (50 or 100), only relevant for Nursery
+
 // --- Offline & Drafts ---
 const isOffline = ref(!navigator.onLine)
 const draftAvailable = ref(false)
@@ -44,8 +47,8 @@ const saveDraftLocally = () => {
     timestamp: Date.now(),
     scores: students.value.map(s => ({
       studentId: s.studentId,
-      ca1: clampCA(s.ca1),
-      ca2: clampCA(s.ca2),
+      ca1: isNurseryClass.value ? 0 : clampCA(s.ca1),
+      ca2: isNurseryClass.value ? 0 : clampCA(s.ca2),
       exam: clampExam(s.exam)
     }))
   }
@@ -143,6 +146,7 @@ const fetchStudents = async () => {
     ])
     const cls = studentsResp.data.class || {}
     const classLevel = (cls.level || '').toUpperCase()
+    isNurseryClass.value = ['NURSERY 1', 'NURSERY 2', 'PRE NURSERY'].includes(classLevel) || classLevel.includes('NURSERY')
     
     let filteredStudents = studentsResp.data.students || []
     
@@ -187,7 +191,8 @@ const fetchStudents = async () => {
       ...s,
       ca1: '',
       ca2: '',
-      exam: ''
+      exam: '',
+      rating: ''
     }))
     // Always lock to the current active session — subject teachers cannot enter scores for past sessions
     if (schoolResp.data?.currentSession) session.value = schoolResp.data.currentSession
@@ -212,16 +217,17 @@ const fetchStudents = async () => {
         const broadsheetSubjects: any[] = data.subjects || []
         const canonicalSubjectId = (() => {
           if (!broadsheetSubjects.length) return subjectId
-          // Try to find a subject in the broadsheet that lists our subjectId as an alias
           const matched = broadsheetSubjects.find((sub: any) =>
             sub.id === subjectId || (Array.isArray(sub.aliasIds) && sub.aliasIds.includes(subjectId))
           )
+          if (matched && isNurseryClass.value) {
+            subjectMaxScore.value = Number(matched.maxScore) === 50 ? 50 : 100
+          }
           return matched?.id || subjectId
         })()
 
         students.value = students.value.map((s: any) => {
           const studentScore = data.students.find((ds: any) => ds.studentId === s.studentId)
-          // Look up by canonical ID first, then by raw subjectId
           const scoreObj = studentScore?.scores?.[canonicalSubjectId] || studentScore?.scores?.[subjectId]
           return {
             ...s,
@@ -246,7 +252,7 @@ const fetchStudents = async () => {
 }
 
 const clampCA = (val: any) => Math.min(20, Math.max(0, Number(val || 0)))
-const clampExam = (val: any) => Math.min(60, Math.max(0, Number(val || 0)))
+const clampExam = (val: any) => Math.min(isNurseryClass.value ? subjectMaxScore.value : 60, Math.max(0, Number(val || 0)))
 
 const computeTotal = (st: any) => {
   const c1 = clampCA(st.ca1)
@@ -334,8 +340,8 @@ const handleSave = async () => {
   
   const scores = students.value.map(s => ({
     studentId: s.studentId,
-    ca1: clampCA(s.ca1),
-    ca2: clampCA(s.ca2),
+    ca1: isNurseryClass.value ? 0 : clampCA(s.ca1),
+    ca2: isNurseryClass.value ? 0 : clampCA(s.ca2),
     exam: clampExam(s.exam)
   }))
   savedCount.value = scores.filter(s => s.ca1 > 0 || s.ca2 > 0 || s.exam > 0).length
@@ -599,9 +605,9 @@ const printScoreSheet = () => {
           <thead>
             <tr class="bg-slate-900/60">
               <th class="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student Name</th>
-              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">1st CA (20)</th>
-              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">2nd CA (20)</th>
-              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">Exam (60)</th>
+              <th v-if="!isNurseryClass" class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">1st CA (20)</th>
+              <th v-if="!isNurseryClass" class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">2nd CA (20)</th>
+              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">Exam ({{ isNurseryClass ? subjectMaxScore : '60' }})</th>
               <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24 bg-slate-900/30">Total</th>
               <th class="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-20">Pos.</th>
             </tr>
@@ -612,31 +618,32 @@ const printScoreSheet = () => {
                 <p class="text-sm font-black text-white">{{ st.lastName }} {{ st.firstName }}</p>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
               </td>
-              <td class="px-3 py-5">
+              <td v-if="!isNurseryClass" class="px-3 py-5">
                 <input :value="st.ca1" type="number" min="0" max="20" :disabled="deadlinePassed"
                   @input="st.ca1 = clampCA(($event.target as HTMLInputElement).value)"
                   class="w-full px-3 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" placeholder="0" />
               </td>
-              <td class="px-3 py-5">
+              <td v-if="!isNurseryClass" class="px-3 py-5">
                 <input :value="st.ca2" type="number" min="0" max="20" :disabled="deadlinePassed"
                   @input="st.ca2 = clampCA(($event.target as HTMLInputElement).value)"
                   class="w-full px-3 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" placeholder="0" />
               </td>
               <td class="px-3 py-5">
-                <input :value="st.exam" type="number" min="0" max="60" :disabled="deadlinePassed"
+                <input :value="st.exam" type="number" min="0" :max="isNurseryClass ? subjectMaxScore : 60" :disabled="deadlinePassed"
                   @input="st.exam = clampExam(($event.target as HTMLInputElement).value)"
                   class="w-full px-3 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" placeholder="0" />
               </td>
-              <td class="px-3 py-5 text-center bg-slate-900/30">
-                <span class="text-sm font-black" :class="[computeTotal(st) >= 40 ? 'text-emerald-500' : 'text-red-500', totalFlash.has(st.studentId) ? 'flash-total' : '']">
-                  {{ computeTotal(st) }}
-                </span>
-              </td>
-              <td class="px-6 py-5 text-center">
-                <span class="px-3 py-1 rounded-lg bg-slate-900/60 text-[10px] font-black text-slate-300">
-                  {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
-                </span>
-              </td>
+                <td class="px-3 py-5 text-center bg-slate-900/30">
+                  <span class="text-sm font-black" :class="[computeTotal(st) >= 40 ? 'text-emerald-500' : 'text-red-500', totalFlash.has(st.studentId) ? 'flash-total' : '']">
+                    {{ computeTotal(st) }}
+                  </span>
+                </td>
+                <td class="px-6 py-5 text-center">
+                  <span class="px-3 py-1 rounded-lg bg-slate-900/60 text-[10px] font-black text-slate-300">
+                    {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
+                  </span>
+                </td>
+              </template>
             </tr>
           </tbody>
         </table>
@@ -671,23 +678,22 @@ const printScoreSheet = () => {
               </div>
             </div>
           </div>
-          <!-- Score inputs -->
           <div class="grid grid-cols-3 gap-2">
-            <div>
+            <div v-if="!isNurseryClass">
               <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">1st CA /20</label>
               <input :value="st.ca1" type="number" min="0" max="20" :disabled="deadlinePassed"
                 @input="st.ca1 = clampCA(($event.target as HTMLInputElement).value)"
                 class="w-full px-2 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40" placeholder="0" />
             </div>
-            <div>
+            <div v-if="!isNurseryClass">
               <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">2nd CA /20</label>
               <input :value="st.ca2" type="number" min="0" max="20" :disabled="deadlinePassed"
                 @input="st.ca2 = clampCA(($event.target as HTMLInputElement).value)"
                 class="w-full px-2 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40" placeholder="0" />
             </div>
-            <div>
-              <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Exam /60</label>
-              <input :value="st.exam" type="number" min="0" max="60" :disabled="deadlinePassed"
+            <div :class="{'col-span-3': isNurseryClass}">
+              <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Exam /{{ isNurseryClass ? subjectMaxScore : '60' }}</label>
+              <input :value="st.exam" type="number" min="0" :max="isNurseryClass ? subjectMaxScore : 60" :disabled="deadlinePassed"
                 @input="st.exam = clampExam(($event.target as HTMLInputElement).value)"
                 class="w-full px-2 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40" placeholder="0" />
             </div>
