@@ -8,6 +8,7 @@ import { withErrorHandling } from "./error-recovery.js";
 export function getIdColumnName(collectionName) {
   if (collectionName === "students") return "studentId";
   if (collectionName === "users") return "username";
+  if (collectionName === "registrationCodes") return "code";
   if (collectionName === "config" || collectionName === "counters") return "key";
   return "id";
 }

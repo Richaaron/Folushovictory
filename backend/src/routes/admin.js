@@ -176,7 +176,7 @@ adminRouter.post(
     const payload = validateTeacherPayload(req.body || {});
 
     // Generate a sequential human-friendly registration code
-    const code = await generateSimpleRegistrationCode(SafeDatabase.db);
+    const code = await generateSimpleRegistrationCode();
 
     // Create registration code record with optional email and formClass assignment
     const codeRecord = await createRegistrationCode({
@@ -544,7 +544,7 @@ adminRouter.post(
     }
 
     // Generate code using database counter for sequential numbering
-    const code = await generateSimpleRegistrationCode(SafeDatabase.db);
+    const code = await generateSimpleRegistrationCode();
     
     // Calculate expiry date
     let expiresAt = null;
@@ -1445,4 +1445,3 @@ adminRouter.post(
     return res.json(result);
   })
 );
-

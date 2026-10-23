@@ -172,35 +172,15 @@ const handleAddTeacher = async () => {
 
   creating.value = true
   try {
-    const { data: teacher } = await api.post('/api/admin/teachers', {
+    const { data } = await api.post('/api/admin/registration-codes', {
       displayName: newTeacher.value.displayName,
       email: trimmedEmail || null,
-      formClassId: newTeacher.value.formClassId || null
+      formClassId: newTeacher.value.formClassId || null,
+      subjectIds: newTeacher.value.assignedSubjectIds
     })
-    
-    const followUpRequests = []
-    if ((newTeacher.value.roleType === 'Form Teacher' || newTeacher.value.roleType === 'Dual Role') && newTeacher.value.formClassId) {
-      followUpRequests.push(api.put(`/api/admin/classes/${newTeacher.value.formClassId}/subjects`, {
-        formTeacherUsername: teacher.username
-      }))
-    }
-
-    // Subject assignments
-    if (newTeacher.value.assignedSubjectIds.length > 0) {
-      // For Primary/Nursery Dual Role, restrict to formClassId if selected
-      const classIds = (newTeacher.value.department === 'Primary/Nursery' && newTeacher.value.formClassId)
-        ? [newTeacher.value.formClassId]
-        : []
-
-      followUpRequests.push(api.post('/api/admin/assignments', {
-        teacherUsername: teacher.username,
-        subjectIds: newTeacher.value.assignedSubjectIds,
-        classIds
-      }))
-    }
-
-    if (followUpRequests.length > 0) {
-      await Promise.all(followUpRequests)
+    const registrationCode = data.code?.code
+    if (!registrationCode) {
+      throw new Error('The server did not return a registration code.')
     }
 
     showAddModal.value = false
@@ -214,27 +194,15 @@ const handleAddTeacher = async () => {
       selectedClassIds: [],
       assignedSubjectIds: [] 
     }
-    await fetchTeachers()
-
-    let message = `Staff Account Created Successfully!\n\nUsername: ${teacher.username}\nPassword: ${teacher.password}\n\nPlease copy the password now. It will not be shown again.`
-    
-    if (teacher.warning) {
-      message += `\n\n${teacher.warning}`
-      if (teacher.email) message += `\nEmail Address: ${teacher.email}`
-    } else if (teacher.emailQueued) {
-      message += `\n\n📬 Welcome email is queued for delivery and should arrive shortly.`
-    } else if (teacher.emailSent) {
-      message += `\n\n✅ Welcome email sent to: ${teacher.email}`
-    }
-
-    if (teacher.emailError) {
-      message += `\n\nError details: ${teacher.emailError}`
-    }
-    
-    alert(message)
+    alert(
+      `Teacher registration invitation created.\n\n` +
+      `Registration code: ${registrationCode}\n` +
+      `Registration page: /register/teacher?code=${encodeURIComponent(registrationCode)}\n\n` +
+      `Share the code or link with the teacher so they can finish creating their account.`
+    )
   } catch (err: any) {
     console.error('Error adding teacher:', err)
-    const errorMsg = err.response?.data?.error || 'Unable to create faculty profile right now. Please try again.'
+    const errorMsg = err.response?.data?.error || err.message || 'Unable to create faculty profile right now. Please try again.'
     alert(`❌ Enrollment Failed: ${errorMsg}`)
   } finally {
     creating.value = false
@@ -557,7 +525,7 @@ onMounted(fetchTeachers)
             <div v-if="creating" class="rounded-[1.5rem] bg-slate-900/60 border border-slate-700/60 p-4 text-slate-200 text-sm font-bold tracking-tight">
               <div class="flex items-center gap-3">
                 <Loader2 class="w-4 h-4 animate-spin" aria-hidden="true" />
-                <span>Creating faculty profile and sending credentials. This may take a few seconds.</span>
+                <span>Generating a teacher registration invitation. This may take a few seconds.</span>
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">

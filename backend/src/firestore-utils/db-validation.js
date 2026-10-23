@@ -76,6 +76,30 @@ export const ValidationSchemas = {
     }
   },
 
+  registrationCode: {
+    required: ["code", "displayName"],
+    types: {
+      code: "string",
+      displayName: "string",
+      email: "string",
+      formClassId: "string",
+      status: "string",
+      used: "boolean",
+      usedBy: "string",
+      createdAt: "string",
+      expiresAt: "string",
+      usedAt: "string"
+    },
+    maxLengths: {
+      code: 20,
+      displayName: 150,
+      email: 254,
+      formClassId: 50,
+      status: 20,
+      usedBy: 100
+    }
+  },
+
   score: {
     required: ["session", "term", "classId", "studentId", "subjectId"],
     types: {
@@ -251,6 +275,7 @@ export function buildDuplicateCheckRules(type) {
     class: ["name"],
     user: ["username"],
     subject: ["name"],
+    registrationCode: ["code"],
     assignment: []
   };
   return rules[type] || [];

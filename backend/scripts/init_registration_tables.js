@@ -50,13 +50,18 @@ CREATE TABLE IF NOT EXISTS public.registrationCodes (
   used boolean DEFAULT false,
   usedBy text,
   usedAt timestamptz,
-  status text DEFAULT 'ACTIVE'
+  status text DEFAULT 'ACTIVE',
+  "updatedAt" timestamptz DEFAULT now()
 );
 `;
 
     console.log('Creating tables...');
     await client.query(createIds);
     await client.query(createRegistrationCodes);
+    await client.query(`
+      ALTER TABLE public.registrationCodes
+      ADD COLUMN IF NOT EXISTS "updatedAt" timestamptz DEFAULT now();
+    `);
 
     console.log('Tables created or already exist.');
     await client.end();

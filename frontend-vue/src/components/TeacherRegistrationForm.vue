@@ -175,19 +175,21 @@
 
 <script>
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import api from '@/services/api';
 
 export default {
   name: 'TeacherRegistrationForm',
   setup() {
+    const route = useRoute();
     const router = useRouter();
+    const registrationCode = route.query.code;
     
     const form = ref({
       email: '',
       displayName: '',
       password: '',
-      registrationCode: '',
+      registrationCode: typeof registrationCode === 'string' ? registrationCode.trim() : '',
     });
 
     const fieldErrors = ref({
@@ -206,9 +208,10 @@ export default {
 
     // Validation patterns
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const codePattern = /^TCH-2026-\d{3}$/i;
+    const currentYear = new Date().getFullYear();
+    const codePattern = new RegExp(`^TCH-${currentYear}-\\d{3}$`, 'i');
 
-    // Normalize and validate code input (format: tch-2026-NNN)
+    // Normalize and validate code input (format: tch-YYYY-NNN)
     const formatCodeInput = () => {
       form.value.registrationCode = String(form.value.registrationCode || '').trim().toLowerCase();
     };
@@ -246,7 +249,7 @@ export default {
           if (!form.value.registrationCode) {
             fieldErrors.value.registrationCode = 'Registration code is required';
           } else if (!codePattern.test(form.value.registrationCode)) {
-            fieldErrors.value.registrationCode = 'Code must be in format tch-2026-NNN (e.g., tch-2026-001)';
+            fieldErrors.value.registrationCode = `Code must be in format tch-${currentYear}-NNN (e.g., tch-${currentYear}-001)`;
           }
           break;
       }

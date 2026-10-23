@@ -89,50 +89,31 @@ export function decodeRegistrationCode(code) {
 }
 
 /**
- * Generates a human-readable registration code in format tch-2026-NNN
+ * Generates a human-readable registration code in format tch-YYYY-NNN
  * This code will become the teacher's username upon registration
  * Uses counter-based generation to ensure uniqueness
  */
-export async function generateSimpleRegistrationCode(database) {
-  try {
-    // Attempt Firestore-style counter if a Firestore-like database was provided
-    let counter = null;
-    try {
-      if (database && typeof database.collection === 'function') {
-        const idsRef = database.collection('ids').doc('registrationCodes');
-        const snap = await idsRef.get();
-        counter = 1;
-        if (snap.exists && snap.data().count) {
-          counter = snap.data().count + 1;
-        }
-        // Update counter for next code
-        await idsRef.set({ count: counter }, { merge: true });
-      }
-    } catch (err) {
-      // ignore and fallback to SafeDatabase below
-      counter = null;
-    }
+export async function generateSimpleRegistrationCode() {
+  const year = new Date().getFullYear();
+  const counterId = `registrationCodes_${year}`;
+  const counterExists = await SafeDatabase.exists("counters", counterId);
 
-    // If Firestore-style counter not available, use SafeDatabase (Supabase) counter
-    if (counter === null) {
-      try {
-        // Ensure there is a counters/ids record; use SafeDatabase.increment to atomically increment
-        // This will create the record if it doesn't exist via upsert semantics used elsewhere
-        const newCount = await SafeDatabase.increment('ids', 'registrationCodes', 'count', 1);
-        counter = Number(newCount || 1);
-      } catch (err) {
-        console.error('Error generating registration code:', err);
-        throw new Error('Failed to generate registration code');
-      }
-    }
-    
-    // Format: tch-2026-NNN (e.g., tch-2026-001)
-    const paddedNumber = String(counter).padStart(3, '0');
-    return `tch-2026-${paddedNumber}`;
-  } catch (error) {
-    console.error('Error generating registration code:', error);
-    throw new Error('Failed to generate registration code');
+  if (!counterExists) {
+    const { data: existingCodes } = await SafeDatabase.query(
+      "registrationCodes",
+      [],
+      { pageSize: 1000 }
+    );
+    const latestNumber = existingCodes.reduce((latest, record) => {
+      const match = new RegExp(`^tch-${year}-(\\d{3})$`, "i").exec(record.code || "");
+      return match ? Math.max(latest, Number(match[1])) : latest;
+    }, 0);
+
+    await SafeDatabase.upsert("counters", counterId, { value: latestNumber });
   }
+
+  const counter = await SafeDatabase.increment("counters", counterId, "value", 1);
+  return `tch-${year}-${String(counter).padStart(3, "0")}`;
 }
 
 /**
@@ -141,7 +122,7 @@ export async function generateSimpleRegistrationCode(database) {
  * @returns {boolean} True if code matches format
  */
 export function isValidCodeFormat(code) {
-  // Format: tch-2026-NNN (e.g., tch-2026-001, TCH-2026-042)
-  const codeRegex = /^tch-2026-\d{3}$/i;
+  // Format: tch-YYYY-NNN (e.g., tch-2026-001)
+  const codeRegex = new RegExp(`^tch-${new Date().getFullYear()}-\\d{3}$`, "i");
   return codeRegex.test(String(code).trim());
 }

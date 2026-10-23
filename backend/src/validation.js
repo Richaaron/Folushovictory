@@ -101,11 +101,12 @@ export function validateTeacherRegistration(body) {
     throw new ValidationError("Password must be at least 6 characters long");
   }
 
-  // Validate registration code format: tch-2026-NNN
+  // Validate registration code format: tch-YYYY-NNN
   const normalizedCode = String(registrationCode).trim().toLowerCase();
-  const codeRegex = /^tch-2026-\d{3}$/;
+  const currentYear = new Date().getFullYear();
+  const codeRegex = new RegExp(`^tch-${currentYear}-\\d{3}$`);
   if (!codeRegex.test(normalizedCode)) {
-    throw new ValidationError("Invalid registration code format. Expected format: tch-2026-NNN (e.g., tch-2026-001)");
+    throw new ValidationError(`Invalid registration code format. Expected format: tch-${currentYear}-NNN (e.g., tch-${currentYear}-001)`);
   }
 
   return {

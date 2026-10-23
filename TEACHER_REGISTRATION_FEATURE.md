@@ -1,11 +1,11 @@
 # Teacher Self-Registration Feature
 
 ## Overview
-Teachers can now create their own accounts directly through the application without requiring admin intervention. They can register with their email and password, and the system will automatically generate a unique username and send them a welcome email.
+An administrator creates a registration invitation with a one-time code. Teachers use that code with their email, name, and password to create their account.
 
 ## Features
 
-✅ **Self-Registration**: Teachers register with email and password  
+✅ **Code-Based Registration**: Teachers register with an administrator-provided code
 ✅ **Auto-Generated Usernames**: Usernames follow format `tch-YYYY-NNN` (e.g., `tch-2026-001`)  
 ✅ **Automatic Welcome Email**: Teachers receive login credentials via email  
 ✅ **Activity Logging**: Registration activities are logged for audit trail  
@@ -16,23 +16,27 @@ Teachers can now create their own accounts directly through the application with
 
 ### Registration Flow
 
-1. **Teacher Registration**
-   - Teacher navigates to registration page
-   - Enters: Full Name, Email, Password (min 6 characters)
-   - System validates input
-   - Generates unique username: `tch-2026-001` format
+1. **Invitation**
+   - An administrator creates a registration code and shares it with the teacher
+   - The code can be used to open the registration page with the code prefilled
 
-2. **Account Creation**
+2. **Teacher Registration**
+   - Teacher navigates to the registration page
+   - Enters: Full Name, Email, Password (min 6 characters), and registration code
+   - System validates input
+   - The registration code becomes the teacher's username
+
+3. **Account Creation**
    - User record created in database
    - Password securely hashed
    - Account marked as TEACHER role
 
-3. **Welcome Email**
+4. **Welcome Email**
    - Automatic email sent with login credentials
    - Includes username and portal link
    - Professional branded template
 
-4. **Login**
+5. **Login**
    - Teacher logs in with generated username and their password
    - Activity logged for audit trail
 
@@ -45,7 +49,8 @@ Teachers can now create their own accounts directly through the application with
 {
   "email": "teacher@school.com",
   "password": "SecurePass123",
-  "displayName": "John Smith"
+  "displayName": "John Smith",
+  "registrationCode": "tch-2026-001"
 }
 ```
 
@@ -53,6 +58,7 @@ Teachers can now create their own accounts directly through the application with
 - `email` (string): Valid email address, must be unique
 - `password` (string): Minimum 6 characters
 - `displayName` (string): Teacher's full name
+- `registrationCode` (string): Active code provided by the school administrator
 
 **Success Response (201):**
 ```json
@@ -155,16 +161,12 @@ Teachers receive a professional welcome email containing:
 
 ## Admin Considerations
 
-### Admin Can Still Create Teachers
-The existing admin endpoint `/api/admin/teachers` remains available for:
-- Bulk teacher creation
-- Creating teacher accounts for staff not tech-savvy
-- Pre-assigned classes on creation
-- Generated random passwords
+### Admin Creates Registration Invitations
+The admin portal creates a registration invitation with a code and optional email, subject, and class allocations. The teacher uses the code to finish account setup at `/register/teacher`.
 
 ### Both Methods Coexist
 - **Self-Registration** (`/api/auth/register/teacher`): Teacher-driven, email/password method
-- **Admin Creation** (`/api/admin/teachers`): Admin-driven, auto-generated credentials
+- **Admin Invitation** (`/api/admin/registration-codes`): Admin-driven, code-based account setup
 
 ## Audit & Logging
 
