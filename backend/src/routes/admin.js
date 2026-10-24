@@ -285,7 +285,8 @@ adminRouter.post(
       });
       emailSent = true;
     } catch (error) {
-      emailError = "The account was created, but the login email could not be sent. Use the resend credentials action to try again.";
+      const deliveryError = error instanceof Error ? error.message : String(error);
+      emailError = `Email delivery failed: ${deliveryError}. You can copy the temporary password below or use Resend Credentials to retry.`;
       console.error(`Failed to email teacher credentials to ${email}:`, error);
     }
 
@@ -309,6 +310,7 @@ adminRouter.post(
         email,
         emailSent,
         emailError,
+        ...(!emailSent ? { temporaryPassword } : {}),
         subjectsAssigned: subjectIds.length,
         formClassAssigned: !!formClassId
       }

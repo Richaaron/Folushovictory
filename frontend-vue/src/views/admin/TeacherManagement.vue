@@ -8,7 +8,9 @@ import {
   Loader2,
   X,
   Mail,
-  Lock
+  Lock,
+  Copy,
+  Check
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -21,6 +23,15 @@ const searchQuery = ref('')
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const editingTeacher = ref<any>(null)
+const credentialNotice = ref<{
+  displayName: string
+  email: string
+  username: string
+  temporaryPassword: string
+  emailError: string
+} | null>(null)
+const copiedCredential = ref('')
+const credentialCopyError = ref('')
 const newTeacher = ref({ 
   displayName: '', 
   email: '',
@@ -162,6 +173,20 @@ const isValidEmailAddress = (value: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
+const copyCredential = async (value: string, field: string) => {
+  credentialCopyError.value = ''
+  try {
+    await navigator.clipboard.writeText(value)
+    copiedCredential.value = field
+    window.setTimeout(() => {
+      if (copiedCredential.value === field) copiedCredential.value = ''
+    }, 2000)
+  } catch (err) {
+    console.error('Unable to copy teacher credentials:', err)
+    credentialCopyError.value = 'Copy is unavailable in this browser. Select the text above and copy it manually.'
+  }
+}
+
 const handleAddTeacher = async () => {
   if (!newTeacher.value.displayName) return
   const trimmedEmail = newTeacher.value.email ? newTeacher.value.email.trim() : ''
@@ -187,9 +212,6 @@ const handleAddTeacher = async () => {
       throw new Error('The server did not return the teacher login details.')
     }
     const emailSent = teacher.emailSent
-    const emailStatus = emailSent
-      ? `The login details were emailed to ${trimmedEmail}.`
-      : `The account was created, but the email to ${trimmedEmail} could not be sent. ${teacher.emailError || 'Use Resend Credentials to retry.'}`
 
     showAddModal.value = false
     newTeacher.value = { 
@@ -202,11 +224,23 @@ const handleAddTeacher = async () => {
       selectedClassIds: [],
       assignedSubjectIds: [] 
     }
-    alert(
-      `Teacher account created.\n\n` +
-      `Teacher code: ${teacher.username}\n` +
-      `${emailStatus}`
-    )
+    if (!emailSent) {
+      if (teacher.temporaryPassword) {
+        credentialNotice.value = {
+          displayName: teacher.displayName,
+          email: teacher.email,
+          username: teacher.username,
+          temporaryPassword: teacher.temporaryPassword,
+          emailError: teacher.emailError || 'The login email could not be delivered.'
+        }
+        copiedCredential.value = ''
+        credentialCopyError.value = ''
+      } else {
+        alert(`Teacher account created, but the login email to ${trimmedEmail} could not be sent. Use Resend Credentials to generate and deliver a new password.`)
+      }
+    } else {
+      alert(`Teacher account created.\n\nTeacher code: ${teacher.username}\nThe login details were emailed to ${trimmedEmail}.`)
+    }
     await fetchTeachers()
   } catch (err: any) {
     console.error('Error adding teacher:', err)
@@ -229,7 +263,15 @@ const handleResendCredentials = async (teacher: any) => {
     const errorMsg = err.response?.data?.error || 'Failed to resend credentials.'
     const password = err.response?.data?.password
     if (password) {
-      alert(`⚠️ ${errorMsg}\n\nHowever, a new password was generated: ${password}\nPlease provide it to the teacher manually.`)
+      credentialNotice.value = {
+        displayName: teacher.displayName,
+        email: teacher.email,
+        username: teacher.username,
+        temporaryPassword: password,
+        emailError: errorMsg
+      }
+      copiedCredential.value = ''
+      credentialCopyError.value = ''
     } else {
       alert(`❌ ${errorMsg}`)
     }
@@ -757,6 +799,90 @@ onMounted(fetchTeachers)
         </div>
       </div>
     </transition>
+
+    <div
+      v-if="credentialNotice"
+      class="fixed inset-0 z-[120] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="teacher-credentials-title"
+    >
+      <button
+        class="absolute inset-0 bg-[#1B2A4A]/85 backdrop-blur-xl"
+        aria-label="Close credentials dialog"
+        @click="credentialNotice = null"
+      ></button>
+      <section class="relative w-full max-w-xl rounded-3xl border border-[#C9A84C]/25 bg-[#0B1220] p-6 shadow-2xl sm:p-8">
+        <button
+          class="absolute right-4 top-4 rounded-lg p-2 text-slate-400 transition hover:text-white"
+          aria-label="Close credentials dialog"
+          @click="credentialNotice = null"
+        >
+          <X class="h-5 w-5" />
+        </button>
+        <div class="mb-6 pr-8">
+          <p class="text-[9px] font-black uppercase tracking-[0.3em] text-amber-300">Email delivery failed</p>
+          <h2 id="teacher-credentials-title" class="mt-2 text-xl font-black text-white">Copy the teacher’s temporary login</h2>
+          <p class="mt-2 text-sm text-slate-300">
+            {{ credentialNotice.displayName }} · {{ credentialNotice.email }}
+          </p>
+          <p class="mt-3 rounded-xl border border-amber-400/20 bg-amber-950/30 p-3 text-xs leading-relaxed text-amber-100">
+            {{ credentialNotice.emailError }}
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <label class="block">
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Teacher code</span>
+            <span class="flex gap-2">
+              <input
+                :value="credentialNotice.username"
+                readonly
+                class="min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 font-mono text-white"
+              />
+              <button
+                class="flex items-center gap-2 rounded-xl border border-slate-700 px-4 text-xs font-bold text-white transition hover:border-amber-300"
+                @click="copyCredential(credentialNotice.username, 'username')"
+              >
+                <Check v-if="copiedCredential === 'username'" class="h-4 w-4" />
+                <Copy v-else class="h-4 w-4" />
+                {{ copiedCredential === 'username' ? 'Copied' : 'Copy' }}
+              </button>
+            </span>
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Temporary password</span>
+            <span class="flex gap-2">
+              <input
+                :value="credentialNotice.temporaryPassword"
+                readonly
+                class="min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 font-mono text-white"
+              />
+              <button
+                class="flex items-center gap-2 rounded-xl border border-slate-700 px-4 text-xs font-bold text-white transition hover:border-amber-300"
+                @click="copyCredential(credentialNotice.temporaryPassword, 'password')"
+              >
+                <Check v-if="copiedCredential === 'password'" class="h-4 w-4" />
+                <Copy v-else class="h-4 w-4" />
+                {{ copiedCredential === 'password' ? 'Copied' : 'Copy' }}
+              </button>
+            </span>
+          </label>
+          <p v-if="credentialCopyError" class="text-xs text-amber-200">{{ credentialCopyError }}</p>
+          <p class="text-xs leading-relaxed text-slate-400">
+            Share these details privately. The teacher should sign in and change the temporary password immediately.
+            This password is shown only now; use <strong class="text-slate-200">Resend Credentials</strong> to generate another if needed.
+          </p>
+        </div>
+
+        <button
+          class="mt-6 w-full rounded-xl bg-amber-400 px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-amber-300"
+          @click="credentialNotice = null"
+        >
+          Done
+        </button>
+      </section>
+    </div>
   </div>
 </template>
 <style scoped>

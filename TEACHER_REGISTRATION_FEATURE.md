@@ -22,7 +22,7 @@ An administrator can create a teacher account directly from the Staff Faculty pa
 
 1. An administrator selects **Enroll New Faculty**, enters the teacher's name and email, and assigns their class/subjects
 2. The system creates the teacher account and assigns a teacher code and temporary password
-3. The login details are emailed automatically; if email delivery fails, the administrator can use **Resend Credentials**
+3. The login details are emailed automatically; if email delivery fails, the administrator gets a copyable temporary password and can use **Resend Credentials** to retry
 4. The teacher signs in with the teacher code and temporary password, then changes the password
 
 ### Existing Invitation Registration
@@ -253,7 +253,7 @@ All teacher registrations are logged with:
 Ensure these environment variables are set:
 ```
 RESEND_API_KEY=your_resend_api_key
-RESEND_FROM_EMAIL=noreply@folushovictory.com
+RESEND_FROM_EMAIL=noreply@folushovictory.online
 FRONTEND_ORIGIN=https://folushovictory.netlify.app
 ```
 

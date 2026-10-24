@@ -1,10 +1,8 @@
 import { Resend } from "resend";
 import { SafeDatabase } from "../firestore-utils/index.js";
-import dotenv from "dotenv";
+import { config } from "../config.js";
 
-dotenv.config();
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(config.resendApiKey);
 
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
   "&": "&amp;",
@@ -22,34 +20,38 @@ export const sendEmail = async ({ to, subject, html }) => {
     type: "EMAIL",
     status: "PENDING"
   };
+  const recordLog = async (status, details = {}) => {
+    try {
+      await SafeDatabase.upsert("logs", logId, { ...logData, status, ...details });
+    } catch (error) {
+      console.error(`Email was not recorded in the database (${status}, log ${logId}):`, error);
+    }
+  };
 
-  if (!process.env.RESEND_API_KEY) {
+  if (!config.resendApiKey) {
     const error = "Resend is not fully configured. Set RESEND_API_KEY environment variable.";
-    await SafeDatabase.upsert("logs", logId, { ...logData, status: "FAILED", error });
+    await recordLog("FAILED", { error });
     throw new Error(error);
   }
 
   try {
     const emailResponse = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "noreply@folushovictory.com",
+      from: config.resendFromEmail,
       to,
       subject,
       html,
     });
 
     if (emailResponse.error) {
-      const error = emailResponse.error.message || "Failed to send email";
-      console.error("Error sending email:", error);
-      await SafeDatabase.upsert("logs", logId, { ...logData, status: "FAILED", error });
-      throw new Error(error);
+      throw new Error(emailResponse.error.message || "Failed to send email");
     }
 
     console.log("Message sent: %s", emailResponse.data.id);
-    await SafeDatabase.upsert("logs", logId, { ...logData, status: "SENT", messageId: emailResponse.data.id });
+    await recordLog("SENT", { messageId: emailResponse.data.id });
     return emailResponse.data;
   } catch (error) {
     console.error("Error sending email:", error);
-    await SafeDatabase.upsert("logs", logId, { ...logData, status: "FAILED", error: error?.message || String(error) });
+    await recordLog("FAILED", { error: error?.message || String(error) });
     throw error;
   }
 };

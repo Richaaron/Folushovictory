@@ -14,7 +14,7 @@ export const config = {
   firebaseServiceAccountJson: process.env.FIREBASE_SERVICE_ACCOUNT_JSON || "",
   frontendOrigin: process.env.FRONTEND_ORIGIN || "http://localhost:5000",
   resendApiKey: process.env.RESEND_API_KEY || "",
-  resendFromEmail: process.env.RESEND_FROM_EMAIL || "noreply@folushovictory.com",
+  resendFromEmail: process.env.RESEND_FROM_EMAIL || "noreply@folushovictory.online",
   supabaseUrl: process.env.SUPABASE_URL || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 };

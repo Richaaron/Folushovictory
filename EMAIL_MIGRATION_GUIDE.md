@@ -28,10 +28,15 @@ SMTP_SECURE=true
 
 # NEW (Resend)
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
-RESEND_FROM_EMAIL=noreply@folushovictory.com  # Optional, defaults to noreply@folushovictory.com
+RESEND_FROM_EMAIL=noreply@folushovictory.online  # Must use an address on a domain verified in Resend
 ```
 
 ## Setup Instructions
+
+For an existing Supabase database, run
+[`backend/scripts/add_email_logs_updated_at.sql`](./backend/scripts/add_email_logs_updated_at.sql)
+in the SQL Editor so email delivery logs can be recorded. Email sending now remains
+successful if this non-critical audit-log write fails.
 
 1. **Install dependencies:**
    ```bash
@@ -53,7 +58,7 @@ RESEND_FROM_EMAIL=noreply@folushovictory.com  # Optional, defaults to noreply@fo
 4. **Update .env:**
    ```env
    RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
-   RESEND_FROM_EMAIL=noreply@yourdomain.com
+   RESEND_FROM_EMAIL=noreply@folushovictory.online
    ```
 
 5. **Test the migration:**
@@ -79,7 +84,7 @@ RESEND_FROM_EMAIL=noreply@folushovictory.com  # Optional, defaults to noreply@fo
 ```json
 {
   "id": "email_123456789",
-  "from": "noreply@folushovictory.com",
+  "from": "noreply@folushovictory.online",
   "created_at": "2024-01-15T10:30:00Z"
 }
 ```
