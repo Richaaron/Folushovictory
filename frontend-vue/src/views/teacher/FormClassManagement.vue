@@ -40,6 +40,8 @@ const session = ref(String(route.query.session || ''))
 const term = ref(String(route.query.term || ''))
 const sessionOptions = ref(generateSessionOptions().reverse())
 const academicSettingsLoaded = ref(false)
+const activeSchoolSession = ref('')
+const isCurrentSession = computed(() => session.value === activeSchoolSession.value)
 
 const canAddStudents = ref(false)
 const currentClass = ref<any>(null)
@@ -131,7 +133,8 @@ const initializeAcademicPeriod = async () => {
     const { data } = await api.get('/api/config/school')
     const currentSession = String(data?.currentSession || '').trim()
     const currentTerm = String(data?.currentTerm || '').trim()
-    session.value = String(route.query.session || currentSession || getCurrentSession())
+    activeSchoolSession.value = currentSession || getCurrentSession()
+    session.value = String(route.query.session || activeSchoolSession.value)
     term.value = String(route.query.term || currentTerm || 'First')
     if (session.value && !sessionOptions.value.includes(session.value)) {
       sessionOptions.value = [session.value, ...sessionOptions.value]
@@ -342,7 +345,7 @@ onMounted(async () => {
           Broadsheet
         </button>
         <button 
-          v-if="canAddStudents"
+          v-if="canAddStudents && isCurrentSession"
           @click="openAddStudentModal"
           class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95"
         >
@@ -447,6 +450,7 @@ onMounted(async () => {
               <td class="px-8 py-6 text-center">
                 <div class="flex items-center justify-center gap-3">
                   <button 
+                    v-if="isCurrentSession"
                     @click="openEditModal(st)"
                     class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:text-royal-purple transition-all flex items-center justify-center"
                     title="Edit Student"
@@ -461,6 +465,7 @@ onMounted(async () => {
                     <FileText class="w-4 h-4" />
                   </button>
                   <button 
+                    v-if="isCurrentSession"
                     @click="handleDeleteStudent(st.studentId)"
                     class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:text-red-500 hover:border-red-500/50 transition-all flex items-center justify-center"
                     title="Delete Student"

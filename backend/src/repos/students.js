@@ -198,17 +198,24 @@ export async function deleteStudent(studentId) {
   return SafeDatabase.deleteWithValidation("students", normalizedStudentId);
 }
 
+function getPreviousAcademicSession(session) {
+  const match = String(session || "").trim().match(/^(\d{4})\/(\d{4})$/);
+  if (!match) return "";
+  return `${Number(match[1]) - 1}/${Number(match[2]) - 1}`;
+}
+
 /**
  * Returns all students who belong to a class for a given session+term.
  *
  * Strategy:
  * - If session matches CURRENT active school session (or is unassigned): return current class roster.
- * - If session is a PAST historical session: return ONLY students who had scores recorded in that class during that session.
+ * - For a PAST historical session: return students who had scores recorded in that class during that session.
  */
 export async function listStudentsForSessionClass(classId, session, term) {
-  const [currentStudents, schoolSettings] = await Promise.all([
+  const [currentStudents, schoolSettings, requestedClass] = await Promise.all([
     listStudentsByClass(classId).catch(() => []),
-    getSchoolSettings().catch(() => ({}))
+    getSchoolSettings(),
+    getClassById(String(classId || "").trim()).catch(() => null)
   ]);
 
   const activeSession = String(schoolSettings?.currentSession || "").trim();
@@ -219,24 +226,14 @@ export async function listStudentsForSessionClass(classId, session, term) {
     return currentStudents;
   }
 
-  // For a past/historical session, query scores to find students who were in this class
-  let { data: scores } = await SafeDatabase.query(
+  // For a past/historical session, query scores to find students who were in this class.
+  const { data: scores } = await SafeDatabase.query(
     "scores",
     [["session", "==", reqSession], ["classId", "==", String(classId)]],
     { pageSize: 1000 }
-  ).catch(() => ({ data: [] }));
+  );
 
-  let scoreStudentIds = [...new Set((scores || []).map((s) => s.studentId))].filter(Boolean);
-
-  // If no scores found for that exact past session name, query any score records for this classId
-  if (!scoreStudentIds.length) {
-    const { data: anyScores } = await SafeDatabase.query(
-      "scores",
-      [["classId", "==", String(classId)]],
-      { pageSize: 1000 }
-    ).catch(() => ({ data: [] }));
-    scoreStudentIds = [...new Set((anyScores || []).map((s) => s.studentId))].filter(Boolean);
-  }
+  const scoreStudentIds = [...new Set((scores || []).map((s) => s.studentId))].filter(Boolean);
 
   if (scoreStudentIds.length > 0) {
     const historicalStudents = (
@@ -253,7 +250,14 @@ export async function listStudentsForSessionClass(classId, session, term) {
     return historicalStudents;
   }
 
-  // Fallback if no score records exist for this class in past sessions
-  return currentStudents;
-}
+  if (
+    /\bJSS\s*3\b/i.test(String(requestedClass?.name || "")) &&
+    reqSession === getPreviousAcademicSession(activeSession)
+  ) {
+    const { data: classes } = await SafeDatabase.query("classes", [], { pageSize: 1000 });
+    const promotedClass = classes.find((cls) => /\bSSS\s*1\b/i.test(String(cls.name || "")));
+    if (promotedClass) return listStudentsByClass(promotedClass.id);
+  }
 
+  return [];
+}
