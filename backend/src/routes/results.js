@@ -547,8 +547,10 @@ resultsRouter.get(
     const student = await getStudentById(studentId);
     if (!student) return res.status(404).json({ error: "Student not found" });
 
-    if (req.user.role === Roles.PARENT) {
-      if (!req.user.studentId || req.user.studentId !== studentId) return res.status(403).json({ error: "Forbidden" });
+    if (req.user.role === Roles.PARENT || req.user.role === Roles.STUDENT) {
+      if (!req.user.studentId || String(req.user.studentId).toLowerCase() !== String(studentId).toLowerCase()) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
     }
 
     const cls = await getClassById(student.classId);

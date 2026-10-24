@@ -93,6 +93,11 @@ const router = createRouter({
           component: () => import('../views/teacher/TeacherDashboard.vue')
         },
         {
+          path: 'activities',
+          name: 'teacher-activities',
+          component: () => import('../views/teacher/LearningActivitiesView.vue')
+        },
+        {
           path: 'scores/:id',
           name: 'teacher-scores',
           component: () => import('../views/teacher/ScoreEntryView.vue')
@@ -131,6 +136,17 @@ const router = createRouter({
           path: 'settings',
           name: 'parent-settings',
           component: () => import('../views/SettingsView.vue')
+        }
+      ]
+    },
+    {
+      path: '/student',
+      component: () => import('../layouts/StudentLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'student-dashboard',
+          component: () => import('../views/student/StudentDashboard.vue')
         }
       ]
     }

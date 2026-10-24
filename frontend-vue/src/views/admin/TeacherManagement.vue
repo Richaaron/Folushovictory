@@ -166,7 +166,7 @@ const handleAddTeacher = async () => {
   if (!newTeacher.value.displayName) return
   const trimmedEmail = newTeacher.value.email ? newTeacher.value.email.trim() : ''
   if (!trimmedEmail) {
-    alert("Enter the teacher's email address so the invitation can be sent.")
+    alert("Enter the teacher's email address so the login details can be sent.")
     return
   }
   if (trimmedEmail && !isValidEmailAddress(trimmedEmail)) {
@@ -176,20 +176,20 @@ const handleAddTeacher = async () => {
 
   creating.value = true
   try {
-    const { data } = await api.post('/api/admin/registration-codes', {
+    const { data } = await api.post('/api/admin/teachers', {
       displayName: newTeacher.value.displayName,
       email: trimmedEmail,
       formClassId: newTeacher.value.formClassId || null,
       subjectIds: newTeacher.value.assignedSubjectIds
     })
-    const registrationCode = data.code?.code
-    if (!registrationCode) {
-      throw new Error('The server did not return a registration code.')
+    const teacher = data.teacher
+    if (!teacher?.username) {
+      throw new Error('The server did not return the teacher login details.')
     }
-    const emailSent = data.code.emailSent
+    const emailSent = teacher.emailSent
     const emailStatus = emailSent
-      ? `The registration link and code were emailed to ${trimmedEmail}.`
-      : `The email to ${trimmedEmail} could not be sent. ${data.code.emailError || 'Share the code manually or retry sending it.'}`
+      ? `The login details were emailed to ${trimmedEmail}.`
+      : `The account was created, but the email to ${trimmedEmail} could not be sent. ${teacher.emailError || 'Use Resend Credentials to retry.'}`
 
     showAddModal.value = false
     newTeacher.value = { 
@@ -203,11 +203,11 @@ const handleAddTeacher = async () => {
       assignedSubjectIds: [] 
     }
     alert(
-      `Teacher registration invitation created.\n\n` +
-      `Registration code: ${registrationCode}\n` +
-      `Registration page: /register/teacher?code=${encodeURIComponent(registrationCode)}&email=${encodeURIComponent(trimmedEmail)}\n\n` +
+      `Teacher account created.\n\n` +
+      `Teacher code: ${teacher.username}\n` +
       `${emailStatus}`
     )
+    await fetchTeachers()
   } catch (err: any) {
     console.error('Error adding teacher:', err)
     const errorMsg = err.response?.data?.error || err.message || 'Unable to create faculty profile right now. Please try again.'
@@ -223,7 +223,7 @@ const handleResendCredentials = async (teacher: any) => {
   creating.value = true // Show loading state
   try {
     const { data } = await api.post(`/api/admin/teachers/${teacher.username}/resend-credentials`)
-    alert(`✅ New Credentials Generated!\n\nUsername: ${teacher.username}\nPassword: ${data.password}\n\n${data.message}\n\nPlease copy the new password now.`)
+    alert(`✅ ${data.message}`)
   } catch (err: any) {
     console.error('Error resending credentials:', err)
     const errorMsg = err.response?.data?.error || 'Failed to resend credentials.'
@@ -533,7 +533,7 @@ onMounted(fetchTeachers)
             <div v-if="creating" class="rounded-[1.5rem] bg-slate-900/60 border border-slate-700/60 p-4 text-slate-200 text-sm font-bold tracking-tight">
               <div class="flex items-center gap-3">
                 <Loader2 class="w-4 h-4 animate-spin" aria-hidden="true" />
-                <span>Generating a teacher registration invitation. This may take a few seconds.</span>
+                <span>Creating the teacher account and emailing login details. This may take a few seconds.</span>
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">

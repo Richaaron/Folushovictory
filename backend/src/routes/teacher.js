@@ -1,4 +1,5 @@
 import express from "express";
+import { randomUUID } from "crypto";
 import { Roles, TraitRatings } from "../constants.js";
 import { authRequired, requireRole } from "../middleware/auth.js";
 import { asyncHandler } from "../http.js";
@@ -207,6 +208,157 @@ teacherRouter.get(
       })
     );
     return res.json({ assignments: enriched });
+  })
+);
+
+teacherRouter.get(
+  "/activities",
+  asyncHandler(async (req, res) => {
+    const { data: activities } = await SafeDatabase.query(
+      "learningActivities",
+      [["teacherUsername", "==", req.user.username]],
+      { pageSize: 1000, orderBy: "createdAt", orderDirection: "desc" }
+    );
+    const enriched = await Promise.all(activities.map(async (activity) => {
+      const [cls, subject, { data: submissions }] = await Promise.all([
+        getClassById(activity.classId),
+        getSubjectById(activity.subjectId),
+        SafeDatabase.query("activitySubmissions", [["activityId", "==", activity.id]], { pageSize: 1000 })
+      ]);
+      const students = await Promise.all(submissions.map(async (submission) => {
+        const student = await getStudentById(submission.studentId);
+        return {
+          studentId: submission.studentId,
+          studentName: student ? `${student.firstName} ${student.lastName}` : submission.studentId,
+          response: submission.response,
+          status: submission.status,
+          score: submission.score ?? null,
+          feedback: submission.feedback || "",
+          submittedAt: submission.submittedAt || null
+        };
+      }));
+      return {
+        ...activity,
+        className: cls?.name || activity.classId,
+        subjectName: subject?.name || activity.subjectId,
+        submissions: students
+      };
+    }));
+    return res.json({ activities: enriched });
+  })
+);
+
+teacherRouter.post(
+  "/activities",
+  asyncHandler(async (req, res) => {
+    const body = req.body || {};
+    const type = String(body.type || "").toUpperCase();
+    const title = typeof body.title === "string" ? body.title.trim() : "";
+    const description = typeof body.description === "string" ? body.description.trim() : "";
+    const classId = String(body.classId || "").trim();
+    const subjectId = String(body.subjectId || "").trim();
+    const maxScore = Number(body.maxScore);
+    if (!["ASSIGNMENT", "TEST"].includes(type)) {
+      return res.status(400).json({ error: "Activity type must be ASSIGNMENT or TEST." });
+    }
+    if (!title || title.length > 150 || description.length > 10000 || !classId || !subjectId) {
+      return res.status(400).json({ error: "A title, class, subject, and valid description are required." });
+    }
+    if (!Number.isFinite(maxScore) || maxScore < 1 || maxScore > 1000) {
+      return res.status(400).json({ error: "Maximum score must be between 1 and 1000." });
+    }
+    let dueAt = null;
+    if (body.dueAt) {
+      const dueDate = new Date(body.dueAt);
+      if (Number.isNaN(dueDate.getTime())) return res.status(400).json({ error: "Invalid activity deadline." });
+      dueAt = dueDate.toISOString();
+    }
+
+    const [cls, subject, assignment, formClasses] = await Promise.all([
+      getClassById(classId),
+      getSubjectById(subjectId),
+      getAssignmentByTriplet({ teacherUsername: req.user.username, classId, subjectId }),
+      listClassesByFormTeacher(req.user.username)
+    ]);
+    const formClassAllowsSubject = formClasses.some((formClass) =>
+      formClass.id === classId &&
+      ["Primary", "Nursery"].includes(normalizeLevel(formClass.level)) &&
+      normalizeLevel(subject?.level) === "Primary"
+    );
+    if (!cls || !subject) return res.status(404).json({ error: "Selected class or subject was not found." });
+    if (!assignment && !formClassAllowsSubject) {
+      return res.status(403).json({ error: "You are not assigned to teach this subject in the selected class." });
+    }
+
+    let questions = [];
+    if (type === "TEST") {
+      if (!Array.isArray(body.questions) || body.questions.length < 1 || body.questions.length > 50) {
+        return res.status(400).json({ error: "A test must contain between 1 and 50 questions." });
+      }
+      questions = body.questions.map((question, index) => {
+        const prompt = typeof question.prompt === "string" ? question.prompt.trim() : "";
+        const options = Array.isArray(question.options)
+          ? question.options.map((option) => String(option).trim()).filter(Boolean)
+          : [];
+        const correctAnswer = typeof question.correctAnswer === "string" ? question.correctAnswer.trim() : "";
+        if (!prompt || prompt.length > 1000 || options.length < 2 || options.length > 6 || !options.includes(correctAnswer)) {
+          const error = new Error(`Question ${index + 1} needs a prompt, 2-6 options, and a correct option.`);
+          error.statusCode = 400;
+          throw error;
+        }
+        return { id: `q${index + 1}`, prompt, options, correctAnswer };
+      });
+    }
+
+    const activity = await SafeDatabase.createWithValidation(
+      "learningActivities",
+      {
+        title,
+        type,
+        description,
+        classId,
+        subjectId,
+        teacherUsername: req.user.username,
+        dueAt,
+        maxScore,
+        questions,
+        published: true
+      },
+      "learningActivity",
+      { docId: randomUUID() }
+    );
+    return res.status(201).json({ activity: { ...activity, className: cls.name, subjectName: subject.name } });
+  })
+);
+
+teacherRouter.post(
+  "/activities/:activityId/submissions/:studentId/grade",
+  asyncHandler(async (req, res) => {
+    const activity = await SafeDatabase.getById("learningActivities", req.params.activityId);
+    if (activity.teacherUsername !== req.user.username) {
+      return res.status(404).json({ error: "Learning activity not found." });
+    }
+    if (activity.type !== "ASSIGNMENT") {
+      return res.status(400).json({ error: "Online tests are graded automatically." });
+    }
+    const score = Number(req.body?.score);
+    const feedback = typeof req.body?.feedback === "string" ? req.body.feedback.trim() : "";
+    if (!Number.isFinite(score) || score < 0 || score > Number(activity.maxScore) || feedback.length > 5000) {
+      return res.status(400).json({ error: `Score must be between 0 and ${activity.maxScore}; feedback must not exceed 5,000 characters.` });
+    }
+    const { data: submissions } = await SafeDatabase.query(
+      "activitySubmissions",
+      [["activityId", "==", activity.id], ["studentId", "==", req.params.studentId]],
+      { pageSize: 1 }
+    );
+    if (!submissions.length) return res.status(404).json({ error: "Student submission not found." });
+    const saved = await SafeDatabase.updateWithValidation(
+      "activitySubmissions",
+      submissions[0].id,
+      { score, feedback, status: "GRADED", gradedAt: new Date().toISOString() },
+      "activitySubmission"
+    );
+    return res.json({ success: true, submission: saved });
   })
 );
 

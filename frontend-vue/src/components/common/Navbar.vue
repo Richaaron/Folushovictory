@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { Menu, X, LogOut } from 'lucide-vue-next'
 
 const props = defineProps<{
-  portal: 'Admin' | 'Teacher' | 'Parent'
+  portal: 'Admin' | 'Teacher' | 'Parent' | 'Student'
   username?: string
   menuItems?: Array<{ name: string; icon: any; route: string }>
   onToggleSidebar?: () => void

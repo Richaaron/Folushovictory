@@ -140,6 +140,41 @@ export const sendTeacherRegistrationInvitationEmail = async ({
   });
 };
 
+export const sendTeacherCredentialsEmail = async ({
+  teacherEmail,
+  teacherName,
+  username,
+  temporaryPassword
+}) => {
+  const frontend = process.env.FRONTEND_ORIGIN || "https://folushovictory.netlify.app";
+  const loginLink = `${frontend}/login/teacher`;
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+      <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
+      </div>
+      <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+        <h2 style="margin-top: 0; color: #5D3FD3;">Welcome, ${escapeHtml(teacherName)}!</h2>
+        <p>Your teacher portal account has been created by the school administrator. Use these temporary login details to sign in:</p>
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
+          <p style="margin: 0 0 10px; font-size: 16px;"><strong>Teacher code:</strong> <span style="color: #0B6E4F;">${escapeHtml(username)}</span></p>
+          <p style="margin: 0; font-size: 16px;"><strong>Temporary password:</strong> <span style="color: #0B6E4F;">${escapeHtml(temporaryPassword)}</span></p>
+        </div>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${loginLink}" style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">Open Teacher Portal</a>
+        </div>
+        <p>Please sign in and change your temporary password. Do not share these login details with anyone.</p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to: teacherEmail,
+    subject: "FVS: Your Teacher Portal Login Details",
+    html
+  });
+};
+
 export const sendTeacherWelcomeEmail = async ({ teacherEmail, teacherName, username, subjectCount = 0, hasFormClass = false, registrationCode = null }) => {
   const frontend = process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app';
   const registrationLink = registrationCode

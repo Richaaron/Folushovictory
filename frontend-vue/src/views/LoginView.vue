@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Lock, User, Loader2, AlertCircle, Eye, EyeOff, ShieldCheck, BookOpen, Users } from 'lucide-vue-next'
+import { Lock, User, Loader2, AlertCircle, Eye, EyeOff, ShieldCheck, BookOpen, Users, GraduationCap } from 'lucide-vue-next'
 
 import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
@@ -10,8 +10,8 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
-type PortalKey = 'admin' | 'teacher' | 'parent'
-const portalKeys = ['admin', 'teacher', 'parent'] as const
+type PortalKey = 'admin' | 'teacher' | 'parent' | 'student'
+const portalKeys = ['admin', 'teacher', 'parent', 'student'] as const
 
 const validPortal = (value?: string | string[] | null): value is PortalKey => {
   if (Array.isArray(value)) {
@@ -87,6 +87,18 @@ const portalConfig: Record<PortalKey, {
     gateway: 'Parent Access Gateway',
     icon: Users,
     gradient: 'from-cyan-500 to-green-500'
+  },
+  student: {
+    title: 'Student',
+    label: 'Student',
+    emoji: '🎓',
+    accentText: 'text-emerald-400',
+    accentLine: 'from-emerald-500 to-cyan-500',
+    button: 'neon-btn neon-btn-cyan',
+    shadow: 'shadow-emerald-500/30',
+    gateway: 'Student Learning Portal',
+    icon: GraduationCap,
+    gradient: 'from-emerald-500 to-cyan-500'
   }
 }
 
@@ -205,22 +217,6 @@ const handleLogin = async () => {
             <p class="text-sm text-gray-400">{{ portalGateway }}</p>
           </div>
 
-          <div v-if="portal === 'teacher'" class="mb-6 grid grid-cols-2 gap-2 rounded-xl border border-gray-700 bg-gray-900/40 p-1">
-            <button
-              type="button"
-              aria-current="page"
-              class="rounded-lg bg-blue-500/20 px-3 py-2.5 text-sm font-semibold text-cyan-200"
-            >
-              Existing User
-            </button>
-            <router-link
-              to="/register/teacher"
-              class="rounded-lg px-3 py-2.5 text-center text-sm font-semibold text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
-            >
-              New User
-            </router-link>
-          </div>
-
           <!-- Error Message -->
           <div
             v-if="error"
@@ -239,7 +235,7 @@ const handleLogin = async () => {
             <!-- Username / Email -->
             <div>
               <label class="mb-2 block text-sm font-medium text-gray-300">
-                {{ portal === 'teacher' ? 'Email or Teacher Code' : 'Email or Username' }}
+                {{ portal === 'student' ? 'Admission Number' : portal === 'teacher' ? 'Email or Teacher Code' : 'Email or Username' }}
               </label>
               <div class="relative">
                 <User class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -248,7 +244,7 @@ const handleLogin = async () => {
                   type="text"
                   required
                   class="modern-input pl-12"
-                  :placeholder="portal === 'teacher' ? 'Enter your email or teacher code' : 'Enter your email or username'"
+                  :placeholder="portal === 'student' ? 'Enter your admission number' : portal === 'teacher' ? 'Enter your email or teacher code' : 'Enter your email or username'"
                 />
               </div>
             </div>
@@ -256,18 +252,22 @@ const handleLogin = async () => {
             <!-- Password -->
             <div>
               <label class="mb-2 block text-sm font-medium text-gray-300">
-                Password
+                {{ portal === 'student' ? '8-digit PIN' : 'Password' }}
               </label>
               <div class="relative">
                 <Lock class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <input
                   v-model="password"
-                  :type="passwordVisible ? 'text' : 'password'"
+                  :type="portal === 'student' || passwordVisible ? 'text' : 'password'"
+                  :inputmode="portal === 'student' ? 'numeric' : undefined"
+                  :maxlength="portal === 'student' ? 8 : undefined"
+                  :pattern="portal === 'student' ? '[0-9]{8}' : undefined"
                   required
                   class="modern-input pl-12 pr-12"
-                  placeholder="Enter your password"
+                  :placeholder="portal === 'student' ? 'Enter your 8-digit PIN' : 'Enter your password'"
                 />
                 <button
+                  v-if="portal !== 'student'"
                   type="button"
                   @click="passwordVisible = !passwordVisible"
                   class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
@@ -292,9 +292,9 @@ const handleLogin = async () => {
 
           <!-- Footer -->
           <div class="mt-6 text-center space-y-3">
-            <a href="/forgot-password" class="text-sm text-gray-400 hover:text-purple-400 transition-colors">
-              Forgot your password?
-            </a>
+            <router-link :to="`/forgot-password/${portal}`" class="text-sm text-gray-400 hover:text-purple-400 transition-colors">
+              {{ portal === 'student' ? 'Forgot your PIN?' : 'Forgot your password?' }}
+            </router-link>
           </div>
         </div>
 

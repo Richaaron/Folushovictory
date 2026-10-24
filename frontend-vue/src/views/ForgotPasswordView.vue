@@ -2,13 +2,13 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-type PortalKey = 'admin' | 'teacher' | 'parent'
+type PortalKey = 'admin' | 'teacher' | 'parent' | 'student'
 
 const route = useRoute()
 const portal = computed<PortalKey>(() => {
   const raw = Array.isArray(route.params.portal) ? route.params.portal[0] : route.params.portal
   const normalized = String(raw || 'admin').toLowerCase()
-  return ['admin', 'teacher', 'parent'].includes(normalized) ? (normalized as PortalKey) : 'admin'
+  return ['admin', 'teacher', 'parent', 'student'].includes(normalized) ? (normalized as PortalKey) : 'admin'
 })
 
 const portalMeta: Record<PortalKey, {
@@ -34,6 +34,12 @@ const portalMeta: Record<PortalKey, {
     emoji: '👪',
     helpText: 'If you forgot your Parent Access Code, contact the school office for a verified recovery path.',
     cta: 'Return to Parent Login'
+  },
+  student: {
+    title: 'Student',
+    emoji: '🎓',
+    helpText: 'Forgot your student PIN? Ask your school administrator to reset it. Your admission number alone cannot be used to access your account.',
+    cta: 'Return to Student Login'
   }
 }
 

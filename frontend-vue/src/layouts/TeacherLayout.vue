@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import Navbar from '../components/common/Navbar.vue'
-import { LayoutDashboard, Settings } from 'lucide-vue-next'
+import { ClipboardList, LayoutDashboard, Settings } from 'lucide-vue-next'
 
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, route: '/teacher' },
+  { name: 'Activities', icon: ClipboardList, route: '/teacher/activities' },
   { name: 'Settings', icon: Settings, route: '/teacher/settings' },
 ]
 </script>

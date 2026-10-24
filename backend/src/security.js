@@ -13,6 +13,10 @@ export function generateRandomPassword(length = 8) {
     .slice(0, length);
 }
 
+export function generateStudentPin() {
+  return crypto.randomInt(10000000, 100000000).toString();
+}
+
 export async function hashPassword(plain) {
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(plain, salt);
@@ -29,4 +33,3 @@ export function signJwt(payload) {
 export function verifyJwt(token) {
   return jwt.verify(token, config.jwtSecret);
 }
-

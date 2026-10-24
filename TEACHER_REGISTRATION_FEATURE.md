@@ -1,11 +1,14 @@
-# Teacher Self-Registration Feature
+# Teacher Accounts and Self-Registration
+
+> Student sign-in and assignments/tests are documented separately in [STUDENT_PORTAL.md](./STUDENT_PORTAL.md).
 
 ## Overview
-An administrator creates a registration invitation with a one-time code. Teachers use that code with their email, name, and password to create their account.
+An administrator can create a teacher account directly from the Staff Faculty page. The platform assigns the teacher code, creates the account, configures class and subject allocations, and emails the login details to the teacher. Teachers can also complete registration from an existing email-bound invitation.
 
 ## Features
 
-✅ **Invitation-Only Registration**: Only teachers with an admin-issued invitation can sign up
+✅ **Direct Admin Enrollment**: Admins can create teacher accounts without requiring the teacher to sign up with an invitation code
+✅ **Automatic Login Email**: Newly created accounts receive a teacher code and temporary password by email
 ✅ **Email-Bound Codes**: New 128-bit random invitation codes are tied to the teacher's email
 ✅ **Teacher-Selected Allocations**: Teachers choose only from their invitation's approved class or subjects
 ✅ **Automatic Welcome Email**: The teacher code and login instructions are emailed after account creation
@@ -15,7 +18,14 @@ An administrator creates a registration invitation with a one-time code. Teacher
 
 ## How It Works
 
-### Registration Flow
+### Admin Enrollment Flow
+
+1. An administrator selects **Enroll New Faculty**, enters the teacher's name and email, and assigns their class/subjects
+2. The system creates the teacher account and assigns a teacher code and temporary password
+3. The login details are emailed automatically; if email delivery fails, the administrator can use **Resend Credentials**
+4. The teacher signs in with the teacher code and temporary password, then changes the password
+
+### Existing Invitation Registration
 
 1. **Invitation**
    - An administrator creates an invitation with the teacher's email and approved allocation options
@@ -34,13 +44,29 @@ An administrator creates a registration invitation with a one-time code. Teacher
 
 4. **Welcome Email**
    - Email sent with the teacher code and portal link
-   - Teacher uses the password they created during registration; passwords are never emailed
+   - Teacher uses the password they created during registration
 
 5. **Login**
    - Teacher logs in with their email or teacher code and the password they created
    - Activity logged for audit trail
 
 ## API Endpoint
+
+### POST `/api/admin/teachers`
+
+Creates the teacher account and emails a generated teacher code and temporary password.
+
+**Request Body:**
+```json
+{
+  "displayName": "John Smith",
+  "email": "teacher@school.com",
+  "formClassId": "class-id",
+  "subjectIds": ["subject-id"]
+}
+```
+
+The teacher must have a form class, one or more subjects, or both. The admin response includes the teacher code and whether the email was sent; the temporary password is not returned.
 
 ### POST `/api/auth/register/teacher`
 
@@ -107,8 +133,9 @@ An administrator creates a registration invitation with a one-time code. Teacher
 - Admins use the admin portal to add other staff
 
 ### Automatic Email Sending
-- The welcome email is sent after account creation; the response reports `emailSent`
-- If email service is down, registration still completes and the teacher code is shown on screen
+- Admin-created accounts receive the teacher code and temporary password; the response reports `emailSent`
+- If email service is down, account creation still completes and the admin can resend credentials
+- Self-registered accounts receive the teacher code by email and use their chosen password
 - Check backend logs for email delivery status
 
 ### Teacher Codes
@@ -163,21 +190,28 @@ Teachers use their email or invitation code with their password to log in:
 
 ## Email Notification
 
-Teachers receive a professional welcome email containing:
+Admin-created teacher accounts receive an email containing:
+- Teacher code
+- Temporary password
+- Link to teacher portal
+- Reminder to change the temporary password after signing in
+
+Self-registered teachers receive a welcome email containing:
 - Welcome message
-- Login username
+- Teacher code
 - Link to teacher portal
 - Tips for getting started
 - Contact information for support
 
 ## Admin Considerations
 
-### Admin Creates Registration Invitations
-The admin portal requires a teacher email and creates an invitation with approved subject and class allocations. The teacher verifies the code with that email and completes account setup at `/register/teacher`.
+### Admin Creates Teacher Accounts
+From Staff Faculty, the administrator enters the teacher's email and class/subject allocations. The system creates the account and emails a teacher code and temporary password. No registration code or separate teacher signup is needed for this flow.
 
 ### Both Methods Coexist
 - **Self-Registration** (`/api/auth/register/teacher`): Teacher-driven, email/password method
-- **Admin Invitation** (`/api/admin/registration-codes`): Admin-driven, code-based account setup
+- **Admin Enrollment** (`/api/admin/teachers`): Admin-driven account creation with automatically emailed login details
+- **Existing Invitations** (`/api/admin/registration-codes`): Legacy invitation flow remains available for already issued invitations
 
 ## Audit & Logging
 
@@ -185,7 +219,7 @@ All teacher registrations are logged with:
 - Teacher username
 - Registration timestamp
 - Email address used
-- Action: "Teacher self-registration"
+- Admin-created accounts and self-registrations use distinct audit actions
 - Activity can be viewed in backend logs
 
 ## Security Considerations
@@ -193,6 +227,7 @@ All teacher registrations are logged with:
 ✅ **Email Validation**: Invalid emails are rejected  
 ✅ **Unique Email**: Prevents duplicate registrations  
 ✅ **Password Hashing**: Passwords never stored in plain text  
+✅ **Temporary Passwords**: Admin-created teacher passwords are randomly generated and only included in the email
 ✅ **Minimum Length**: Passwords must be at least 6 chars (system best practice)  
 ✅ **Activity Logging**: All registrations tracked for audit trail  
 

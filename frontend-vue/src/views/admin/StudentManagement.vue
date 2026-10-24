@@ -11,7 +11,8 @@ import {
   Loader2,
   Trash2,
   Edit2,
-  FileText
+  FileText,
+  KeyRound
 } from 'lucide-vue-next'
 import api from '../../services/api'
 import StudentSubjectPicker from '../../components/StudentSubjectPicker.vue'
@@ -132,7 +133,7 @@ const handleAddStudent = async () => {
     return
   }
   try {
-    await api.post('/api/admin/students', newStudent.value)
+    const { data } = await api.post('/api/admin/students', newStudent.value)
     showAddModal.value = false
     newStudent.value = {
       firstName: '',
@@ -146,10 +147,25 @@ const handleAddStudent = async () => {
     }
     await fetchStudents()
     await fetchStats()
+    alert(
+      `Student enrolled successfully.\n\nAdmission number: ${data.studentId}\nStudent PIN: ${data.studentPin}\n\nShare these details privately with the student.`
+    )
   } catch (err: any) {
     console.error('Error adding student:', err)
     const errorMsg = err.response?.data?.error || err.message || 'Unknown error'
     alert(`❌ Enrollment Failed: ${errorMsg}`)
+  }
+}
+
+const resetStudentPin = async (student: any) => {
+  const studentId = student.studentId || student.id
+  if (!confirm(`Generate a new student PIN for ${student.firstName} ${student.lastName}? Their current PIN will stop working.`)) return
+  try {
+    const { data } = await api.post(`/api/admin/students/${encodeURIComponent(studentId)}/reset-pin`)
+    alert(`New PIN for ${student.firstName} ${student.lastName}:\n\nAdmission number: ${data.studentId}\nStudent PIN: ${data.pin}\n\nShare these details privately with the student.`)
+  } catch (err: any) {
+    const errorMsg = err.response?.data?.error || err.message || 'Unable to reset the student PIN.'
+    alert(`❌ PIN Reset Failed: ${errorMsg}`)
   }
 }
 
@@ -326,7 +342,9 @@ onMounted(async () => {
               </td>
               <td class="align-top text-right">
                 <div class="inline-flex items-center justify-end gap-2">
-
+                  <button @click.stop="resetStudentPin(student)" class="p-2 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all" title="Reset student PIN" :aria-label="`Reset PIN for ${student.firstName} ${student.lastName}`">
+                    <KeyRound class="w-4 h-4" />
+                  </button>
                   <button @click.stop="openEditModal(student)" class="p-2 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/12 text-[#F5F0E8]/50 hover:text-[#C9A84C] hover:border-[#C9A84C]/30 transition-all">
                     <Edit2 class="w-4 h-4" />
                   </button>

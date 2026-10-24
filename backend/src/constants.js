@@ -1,13 +1,15 @@
 export const Roles = Object.freeze({
   ADMIN: "ADMIN",
   TEACHER: "TEACHER",
-  PARENT: "PARENT"
+  PARENT: "PARENT",
+  STUDENT: "STUDENT"
 });
 
 export const Portals = Object.freeze({
   ADMIN: "ADMIN",
   TEACHER: "TEACHER",
-  PARENT: "PARENT"
+  PARENT: "PARENT",
+  STUDENT: "STUDENT"
 });
 
 export const AssessmentTypes = Object.freeze({
@@ -26,4 +28,3 @@ export const TraitRatings = Object.freeze({
   FAIR: "Fair",
   POOR: "Poor"
 });
-

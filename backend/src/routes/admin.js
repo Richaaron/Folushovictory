@@ -3,11 +3,11 @@ import { Roles } from "../constants.js";
 import { authRequired, requireRole } from "../middleware/auth.js";
 import { asyncHandler } from "../http.js";
 import { generateTeacherUsername, generateStudentId, generateParentUsername } from "../ids.js";
-import { generateRandomPassword, hashPassword } from "../security.js";
-import { createUser, deleteUser, getUserByUsername, updateUser } from "../repos/users.js";
+import { generateRandomPassword, generateStudentPin, hashPassword } from "../security.js";
+import { createUser, deleteUser, getUserByEmail, getUserByUsername, updateUser } from "../repos/users.js";
 import { createStudent, createStudentWithParent, listStudentsByClass, countStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
 import { createClass, listClasses, updateClass, getClassById, revokeFormTeacherStatus } from "../repos/classes.js";
-import { validateTeacherPayload, validateStudentPayload, validateStudentUpdatePayload, validateEmail } from "../validation.js";
+import { validateStudentPayload, validateStudentUpdatePayload, validateEmail } from "../validation.js";
 import { createSubject, listSubjects, getSubjectById, deleteSubject } from "../repos/subjects.js";
 import { createAssignment, deleteAssignmentsByTeacher } from "../repos/assignments.js";
 import { upsertNumericScore, listScoresForStudent } from "../repos/scores.js";
@@ -16,7 +16,7 @@ import { setReleaseStatus } from "../repos/releases.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
 // Firebase dependency removed - all database operations use SafeDatabase (Supabase)
-import { sendEmail, sendResultReleasedEmail, sendLoginChangeNotificationEmail, sendTeacherRegistrationInvitationEmail } from "../services/email.js";
+import { sendEmail, sendResultReleasedEmail, sendLoginChangeNotificationEmail, sendTeacherCredentialsEmail, sendTeacherRegistrationInvitationEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 import { performHealthCheck, validateDataIntegrity, getCollectionMetrics, SafeDatabase } from "../firestore-utils/index.js";
 import { getIdColumnName } from "../firestore-utils/db-utils.js";
@@ -172,75 +172,146 @@ adminRouter.get(
 adminRouter.post(
   "/teachers",
   asyncHandler(async (req, res) => {
-    // Admin-created teacher invitations require a recipient email.
-    const payload = validateTeacherPayload(req.body || {});
-    if (!payload.email) {
-      return res.status(400).json({ error: "A teacher email address is required to issue a registration invitation." });
-    }
-    const { data: existingUsers } = await SafeDatabase.query(
-      "users",
-      [["email", "==", payload.email]],
-      { pageSize: 1 }
-    );
-    if (existingUsers.length) {
+    const body = req.body || {};
+    const displayName = typeof body.displayName === "string" ? body.displayName.trim() : "";
+    if (!displayName) return res.status(400).json({ error: "A teacher name is required." });
+    const email = validateEmail(body.email, true);
+    const existingUser = await getUserByEmail(email);
+    if (existingUser) {
       return res.status(409).json({ error: "A teacher account already exists with this email address." });
     }
-    if (!payload.formClassId) {
-      return res.status(400).json({ error: "Assign a form class or create a subject-teacher invitation with subject allocations." });
+
+    if (body.subjectIds !== undefined && !Array.isArray(body.subjectIds)) {
+      return res.status(400).json({ error: "subjectIds must be an array." });
+    }
+    const subjectIds = [...new Set((body.subjectIds || []).map((id) => String(id).trim()).filter(Boolean))];
+    const formClassId = body.formClassId ? String(body.formClassId).trim() : null;
+    if (!formClassId && subjectIds.length === 0) {
+      return res.status(400).json({ error: "Assign a form class or at least one subject before creating the teacher account." });
     }
 
-    // Generate an unguessable code for the email-bound invitation.
-    const code = await generateSimpleRegistrationCode();
+    const formClass = formClassId ? await getClassById(formClassId) : null;
+    if (formClassId && !formClass) {
+      return res.status(400).json({ error: "The selected form class was not found." });
+    }
+    if (formClass?.formTeacherUsername) {
+      return res.status(409).json({ error: "The selected form class already has a form teacher." });
+    }
 
-    // Create the email-bound registration code with its form-class assignment.
-    const codeRecord = await createRegistrationCode({
-      code,
-      displayName: payload.displayName,
-      email: payload.email || null,
-      subjectIds: [],
-      formClassId: payload.formClassId || null,
-      expiresAt: null
+    const selectedSubjects = await Promise.all(subjectIds.map((id) => getSubjectById(id)));
+    if (selectedSubjects.some((subject) => !subject)) {
+      return res.status(400).json({ error: "One or more selected subjects were not found." });
+    }
+
+    const normalizeLevel = (value) => {
+      const normalized = String(value || "").trim().toUpperCase();
+      if (["PRY", "NUR", "PRIMARY"].includes(normalized) || normalized.startsWith("PRE")) return "Primary";
+      if (normalized.startsWith("JSS") || normalized.includes("JUNIOR SECONDARY") || normalized.startsWith("JR")) return "JSS";
+      if (normalized.startsWith("SSS") || normalized.includes("SENIOR SECONDARY") || normalized.startsWith("SR")) return "SSS";
+      return normalized;
+    };
+    const primarySubjects = selectedSubjects.filter((subject) => normalizeLevel(subject.level) === "Primary");
+    if (primarySubjects.length && (!formClass || normalizeLevel(formClass.level) !== "Primary")) {
+      return res.status(400).json({ error: "Primary subjects must be assigned with a primary or nursery class." });
+    }
+
+    const allClasses = await listClasses();
+    const assignments = selectedSubjects.flatMap((subject) => {
+      const subjectLevel = normalizeLevel(subject.level);
+      return allClasses
+        .filter((classRecord) => normalizeLevel(classRecord.level) === subjectLevel)
+        .filter((classRecord) => subjectLevel !== "Primary" || classRecord.id === formClassId)
+        .map((classRecord) => ({
+          classId: classRecord.id,
+          subjectId: subject.id
+        }));
     });
+
+    const username = (await generateTeacherUsername()).toLowerCase();
+    const temporaryPassword = generateRandomPassword(12);
+    const passwordHash = await hashPassword(temporaryPassword);
+    const teacherType = formClassId && subjectIds.length
+      ? "DUAL_ROLE"
+      : formClassId
+        ? "FORM_TEACHER"
+        : "SUBJECT_TEACHER";
+
+    let userCreated = false;
+    try {
+      await createUser({
+        username,
+        email,
+        portal: "TEACHER",
+        role: Roles.TEACHER,
+        displayName,
+        passwordHash,
+        teacherType,
+        formClassId
+      }, { docId: username });
+      userCreated = true;
+
+      if (formClassId) {
+        await updateClass(formClassId, { formTeacherUsername: username });
+      }
+      await Promise.all(assignments.map((assignment) => createAssignment({
+        teacherUsername: username,
+        ...assignment,
+        createdAt: new Date().toISOString()
+      })));
+    } catch (error) {
+      if (userCreated) {
+        const cleanupResults = await Promise.allSettled([
+          deleteAssignmentsByTeacher(username),
+          revokeFormTeacherStatus(username),
+          deleteUser(username)
+        ]);
+        cleanupResults.forEach((result) => {
+          if (result.status === "rejected") {
+            console.error(`Failed to roll back incomplete teacher creation for ${username}:`, result.reason);
+          }
+        });
+      }
+      throw error;
+    }
 
     let emailSent = false;
     let emailError = null;
-    if (codeRecord.email) {
-      try {
-        await sendTeacherRegistrationInvitationEmail({
-          teacherEmail: codeRecord.email,
-          teacherName: codeRecord.displayName,
-          registrationCode: codeRecord.code,
-          hasFormClass: !!codeRecord.formClassId
-        });
-        emailSent = true;
-      } catch (error) {
-        emailSent = false;
-        emailError = "The invitation email could not be sent. Share the code manually or retry sending it.";
-        console.error(`Failed to email registration code ${codeRecord.code}:`, error);
-      }
+    try {
+      await sendTeacherCredentialsEmail({
+        teacherEmail: email,
+        teacherName: displayName,
+        username,
+        temporaryPassword
+      });
+      emailSent = true;
+    } catch (error) {
+      emailError = "The account was created, but the login email could not be sent. Use the resend credentials action to try again.";
+      console.error(`Failed to email teacher credentials to ${email}:`, error);
     }
 
-    // Log activity
     await logActivity({
       actor: req.user.username,
       role: Roles.ADMIN,
-      action: "Generated teacher registration code (admin)",
-      details: { code, displayName: payload.displayName, email: payload.email || null },
-      resourceType: "registrationCode",
-      resourceId: code
+      action: "Created teacher account",
+      details: { username, email, subjectCount: subjectIds.length, formClassId },
+      resourceType: "teacher",
+      resourceId: username
     }).catch((error) => console.error("Activity log failed:", error));
 
     return res.status(201).json({
       success: true,
-      code: codeRecord.code,
-      displayName: codeRecord.displayName,
-      email: codeRecord.email || null,
-      emailSent,
-      emailError,
-      formClassAssigned: !!codeRecord.formClassId,
       message: emailSent
-        ? `Registration code ${codeRecord.code} generated and emailed to ${codeRecord.email}.`
-        : `Registration code ${codeRecord.code} generated, but its email could not be sent.`
+        ? `Teacher account created and login details emailed to ${email}.`
+        : `Teacher account created, but the login email could not be sent to ${email}.`,
+      teacher: {
+        username,
+        displayName,
+        email,
+        emailSent,
+        emailError,
+        subjectsAssigned: subjectIds.length,
+        formClassAssigned: !!formClassId
+      }
     });
   })
 );
@@ -253,57 +324,22 @@ adminRouter.post(
     if (!user) return res.status(404).json({ error: "Teacher not found" });
     if (!user.email) return res.status(400).json({ error: "Teacher has no email address" });
 
-    // Generate new random password
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-    let password = "";
-    for (let i = 0; i < 8; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+    const password = generateRandomPassword(12);
     const passwordHash = await hashPassword(password);
 
     // Update user record with new password
     await updateUser(username, { passwordHash });
 
-    const emailHtml = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-        <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
-        </div>
-        <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
-          <h2 style="margin-top: 0; color: #5D3FD3;">Hello ${user.displayName}!</h2>
-          <p>Your academic staff portal credentials have been reset at your request or by an administrator.</p>
-          
-          <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">
-            <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">New Login Credentials</p>
-            <p style="margin: 10px 0 0; font-size: 16px;"><strong>Username:</strong> <span style="color: #0B6E4F;">${username}</span></p>
-            <p style="margin: 5px 0 0; font-size: 16px;"><strong>Temporary Password:</strong> <span style="color: #0B6E4F;">${password}</span></p>
-          </div>
-
-          <div style="text-align: center; margin: 32px 0;">
-            <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/login/teacher" 
-               style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-               Access Staff Portal
-            </a>
-          </div>
-
-          <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #f1f5f9; pt: 16px;">
-            This is an automated security message. Please do not share your credentials with anyone.
-          </p>
-        </div>
-      </div>
-    `;
-
-    // Wait for email to send so we can report failure immediately
     try {
-      await sendEmail({
-        to: user.email,
-        subject: "FVS: Your Teacher Portal Credentials",
-        html: emailHtml
+      await sendTeacherCredentialsEmail({
+        teacherEmail: user.email,
+        teacherName: user.displayName,
+        username,
+        temporaryPassword: password
       });
       return res.json({ 
         success: true, 
-        message: `✅ New credentials sent to ${user.email}`,
-        password // Also return it so admin can copy it manually
+        message: `New login details sent to ${user.email}.`
       });
     } catch (err) {
       console.error("Failed to resend credentials:", err);
@@ -854,6 +890,9 @@ adminRouter.post(
       parentPassword += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     const parentPasswordHash = await hashPassword(parentPassword);
+    const studentPin = generateStudentPin();
+    const studentPinHash = await hashPassword(studentPin);
+    const studentDisplayName = `${payload.firstName} ${payload.lastName}`.slice(0, 100);
 
     await createStudentWithParent({
       student: {
@@ -876,10 +915,73 @@ adminRouter.post(
         displayName: payload.parentName,
         passwordHash: parentPasswordHash,
         studentId
+      },
+      studentUser: {
+        username: studentId,
+        portal: "STUDENT",
+        role: Roles.STUDENT,
+        displayName: studentDisplayName,
+        passwordHash: studentPinHash,
+        studentId
       }
     });
 
-    return res.status(201).json({ studentId, parentUsername, parentPassword });
+    await logActivity({
+      actor: req.user.username,
+      role: Roles.ADMIN,
+      action: "Enrolled student and created student PIN",
+      details: { studentId, classId: payload.classId },
+      resourceType: "student",
+      resourceId: studentId
+    }).catch((error) => console.error("Activity log failed:", error));
+
+    return res.status(201).json({ studentId, studentPin, parentUsername, parentPassword });
+  })
+);
+
+adminRouter.post(
+  "/students/:studentId/reset-pin",
+  asyncHandler(async (req, res) => {
+    const studentId = String(req.params.studentId || "").trim().toLowerCase();
+    const student = await getStudentById(studentId);
+    if (!student) return res.status(404).json({ error: "Student not found." });
+
+    const pin = generateStudentPin();
+    const passwordHash = await hashPassword(pin);
+    const username = String(student.studentId).toLowerCase();
+    const existingUser = await getUserByUsername(username);
+    if (existingUser && existingUser.role !== Roles.STUDENT) {
+      return res.status(409).json({ error: "The admission number is already used by a non-student account." });
+    }
+
+    if (existingUser) {
+      await updateUser(username, {
+        passwordHash,
+        studentId: student.studentId,
+        displayName: `${student.firstName} ${student.lastName}`.slice(0, 100),
+        portal: "STUDENT"
+      });
+    } else {
+      await createUser({
+        username,
+        portal: "STUDENT",
+        role: Roles.STUDENT,
+        displayName: `${student.firstName} ${student.lastName}`.slice(0, 100),
+        passwordHash,
+        studentId: student.studentId
+      }, { docId: username });
+    }
+
+    await logActivity({
+      actor: req.user.username,
+      role: Roles.ADMIN,
+      action: "Reset student PIN",
+      details: { studentId: student.studentId },
+      resourceType: "student",
+      resourceId: student.studentId
+    }).catch((error) => console.error("Activity log failed:", error));
+
+    return res.json({ success: true, studentId: student.studentId, pin });
   })
 );
 
@@ -911,6 +1013,8 @@ adminRouter.delete(
       await deleteUser(parent.username);
     }
 
+    const studentUser = await getUserByUsername(studentId);
+    if (studentUser?.role === Roles.STUDENT) await deleteUser(studentUser.username);
     await deleteStudent(studentId);
     return res.json({ success: true });
   })

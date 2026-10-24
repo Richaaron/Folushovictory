@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { 
   ArrowLeft, 
@@ -20,7 +20,7 @@ import {
 import api from '../../services/api'
 import SubjectManagementModal from '../../components/SubjectManagementModal.vue'
 import StudentSubjectPicker from '../../components/StudentSubjectPicker.vue'
-import { generateSessionOptions } from '../../utils/sessions'
+import { generateSessionOptions, getCurrentSession } from '../../utils/sessions'
 
 const route = useRoute()
 const router = useRouter()
@@ -36,9 +36,10 @@ const success = ref(false)
 const releaseMessage = ref('')
 const releaseError = ref('')
 
-const session = ref('2023/2024')
-const term = ref('First')
+const session = ref(String(route.query.session || ''))
+const term = ref(String(route.query.term || ''))
 const sessionOptions = ref(generateSessionOptions().reverse())
+const academicSettingsLoaded = ref(false)
 
 const canAddStudents = ref(false)
 const currentClass = ref<any>(null)
@@ -108,23 +109,39 @@ const openAddStudentModal = () => {
 const fetchStudents = async () => {
   loading.value = true
   try {
-    const [studentsResp, schoolResp] = await Promise.all([
-      api.get(`/api/teacher/classes/${classId}/students`, {
-        params: { session: session.value, term: term.value }
-      }),
-      api.get('/api/config/school')
-    ])
+    const studentsResp = await api.get(`/api/teacher/classes/${classId}/students`, {
+      params: { session: session.value, term: term.value }
+    })
     students.value = studentsResp.data.students.map((s: any) => ({
       ...s,
       remark: s.remark || ''
     }))
     canAddStudents.value = !!studentsResp.data.canAddStudents
     currentClass.value = studentsResp.data.class
-    if (!route.query.session && schoolResp.data?.currentSession && !session.value) session.value = schoolResp.data.currentSession
-    if (!route.query.term && schoolResp.data?.currentTerm && !term.value) term.value = schoolResp.data.currentTerm
   } catch (err) {
     error.value = 'Failed to load class students'
   } finally {
+    loading.value = false
+  }
+}
+
+const initializeAcademicPeriod = async () => {
+  loading.value = true
+  try {
+    const { data } = await api.get('/api/config/school')
+    const currentSession = String(data?.currentSession || '').trim()
+    const currentTerm = String(data?.currentTerm || '').trim()
+    session.value = String(route.query.session || currentSession || getCurrentSession())
+    term.value = String(route.query.term || currentTerm || 'First')
+    if (session.value && !sessionOptions.value.includes(session.value)) {
+      sessionOptions.value = [session.value, ...sessionOptions.value]
+    }
+    await nextTick()
+    academicSettingsLoaded.value = true
+    await fetchStudents()
+  } catch (err) {
+    console.error('Error loading current academic period:', err)
+    error.value = 'Failed to load the current school session and term'
     loading.value = false
   }
 }
@@ -270,11 +287,11 @@ const releaseResult = async (studentId: string, released: boolean) => {
 }
 
 watch([session, term], () => {
-  fetchStudents()
+  if (academicSettingsLoaded.value) fetchStudents()
 })
 
 onMounted(async () => {
-  await Promise.all([fetchStudents(), fetchSubjects()])
+  await Promise.all([initializeAcademicPeriod(), fetchSubjects()])
 })
 </script>
 

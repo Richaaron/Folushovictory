@@ -147,6 +147,50 @@ export const ValidationSchemas = {
       classId: 50,
       subjectId: 50
     }
+  },
+
+  learningActivity: {
+    required: ["title", "type", "classId", "subjectId", "teacherUsername"],
+    types: {
+      title: "string",
+      type: "string",
+      description: "string",
+      classId: "string",
+      subjectId: "string",
+      teacherUsername: "string",
+      dueAt: "string",
+      maxScore: "number",
+      questions: "object",
+      published: "boolean"
+    },
+    maxLengths: {
+      title: 150,
+      type: 20,
+      description: 10000,
+      classId: 100,
+      subjectId: 100,
+      teacherUsername: 100
+    }
+  },
+
+  activitySubmission: {
+    required: ["activityId", "studentId", "status"],
+    types: {
+      activityId: "string",
+      studentId: "string",
+      response: "object",
+      score: "number",
+      feedback: "string",
+      status: "string",
+      submittedAt: "string",
+      gradedAt: "string"
+    },
+    maxLengths: {
+      activityId: 100,
+      studentId: 50,
+      feedback: 5000,
+      status: 20
+    }
   }
 };
 

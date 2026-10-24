@@ -50,9 +50,10 @@ export async function createStudent(student) {
   return SafeDatabase.createWithValidation("students", student, "student", { checkDuplicates: true });
 }
 
-export async function createStudentWithParent({ student, parentUser }) {
+export async function createStudentWithParent({ student, parentUser, studentUser }) {
   const normalizedStudentId = String(student.studentId).toLowerCase().trim();
   const normalizedParentUsername = String(parentUser.username).toLowerCase().trim();
+  const normalizedStudentUsername = normalizedStudentId;
 
   const existsStudent = await SafeDatabase.exists("students", normalizedStudentId);
   if (existsStudent) {
@@ -66,16 +67,44 @@ export async function createStudentWithParent({ student, parentUser }) {
     error.statusCode = 409;
     throw error;
   }
+  if (studentUser && await SafeDatabase.exists("users", normalizedStudentUsername)) {
+    const error = new Error(`Student account ${student.studentId} already exists`);
+    error.statusCode = 409;
+    throw error;
+  }
 
-  await SafeDatabase.createWithValidation("students", {
-    ...student,
-    studentId: normalizedStudentId
-  }, "student", { checkDuplicates: false, docId: normalizedStudentId });
+  let studentCreated = false;
+  let parentCreated = false;
+  try {
+    await SafeDatabase.createWithValidation("students", {
+      ...student,
+      studentId: normalizedStudentId
+    }, "student", { checkDuplicates: false, docId: normalizedStudentId });
+    studentCreated = true;
 
-  await SafeDatabase.createWithValidation("users", {
-    ...parentUser,
-    username: normalizedParentUsername
-  }, "user", { checkDuplicates: false, docId: normalizedParentUsername });
+    await SafeDatabase.createWithValidation("users", {
+      ...parentUser,
+      username: normalizedParentUsername
+    }, "user", { checkDuplicates: false, docId: normalizedParentUsername });
+    parentCreated = true;
+
+    if (studentUser) {
+      await SafeDatabase.createWithValidation("users", {
+        ...studentUser,
+        username: normalizedStudentUsername,
+        studentId: normalizedStudentId
+      }, "user", { checkDuplicates: false, docId: normalizedStudentUsername });
+    }
+  } catch (error) {
+    const rollback = [];
+    if (parentCreated) rollback.push(SafeDatabase.deleteWithValidation("users", normalizedParentUsername));
+    if (studentCreated) rollback.push(SafeDatabase.deleteWithValidation("students", normalizedStudentId));
+    const results = await Promise.allSettled(rollback);
+    results.forEach((result) => {
+      if (result.status === "rejected") console.error("Failed to roll back student enrollment:", result.reason);
+    });
+    throw error;
+  }
 
   return { success: true };
 }
@@ -227,5 +256,4 @@ export async function listStudentsForSessionClass(classId, session, term) {
   // Fallback if no score records exist for this class in past sessions
   return currentStudents;
 }
-
 

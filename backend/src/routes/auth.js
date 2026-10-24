@@ -62,19 +62,23 @@ authRouter.post(
     const identifier = String(username).trim();
     let user;
 
-    // Teachers sign in with either their assigned teacher code or email address and password
-    if (portal && String(portal).toUpperCase() === "TEACHER") {
+    const portalUpper = String(portal).toUpperCase();
+    if (portalUpper === "TEACHER") {
       user = await getUserByUsername(identifier);
       if (!user && identifier.includes("@")) {
         user = await getUserByEmail(identifier);
       }
       if (!user) return res.status(401).json({ error: "Invalid credentials" });
-      // Require initial signup for teachers who don't have a password yet
       if (!user.passwordHash || user.passwordHash === "") {
         return res.status(403).json({
           error: "Teacher accounts must complete initial setup before logging in. Use the registration page.",
           code: "NEED_SIGNUP"
         });
+      }
+    } else if (portalUpper === "STUDENT") {
+      user = await getUserByUsername(identifier);
+      if (!user || user.role !== Roles.STUDENT || !user.studentId) {
+        return res.status(401).json({ error: "Invalid admission number or PIN." });
       }
     } else {
       user = await getUserByUsername(identifier);
@@ -85,15 +89,19 @@ authRouter.post(
     }
 
     const ok = await verifyPassword(password, user.passwordHash || "");
-    if (!ok) return res.status(401).json({ error: "Invalid credentials" });
+    if (!ok) {
+      return res.status(401).json({
+        error: portalUpper === "STUDENT" ? "Invalid admission number or PIN." : "Invalid credentials"
+      });
+    }
 
     // Enforce portal-role alignment: a teacher cannot log in as admin, and vice versa
-    const portalUpper = String(portal).toUpperCase();
     const roleUpper = String(user.role || "").toUpperCase();
     const portalRoleMap = {
       ADMIN: "ADMIN",
       TEACHER: "TEACHER",
-      PARENT: "PARENT"
+      PARENT: "PARENT",
+      STUDENT: "STUDENT"
     };
     const expectedRole = portalRoleMap[portalUpper];
     if (expectedRole && roleUpper !== expectedRole) {
@@ -111,11 +119,11 @@ authRouter.post(
       studentId: user.studentId || null
     });
 
-    if (user.role === Roles.TEACHER) {
+    if (user.role === Roles.TEACHER || user.role === Roles.STUDENT) {
       void logActivity({
         actor: user.username,
         role: user.role,
-        action: "Teacher login",
+        action: user.role === Roles.STUDENT ? "Student login" : "Teacher login",
         details: { portal: String(user.portal) },
         resourceType: "login",
         resourceId: user.username

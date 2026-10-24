@@ -7,6 +7,7 @@ import { adminRouter } from "./routes/admin.js";
 import { devAdminRouter } from "./routes/devAdmin.js";
 import { teacherRouter } from "./routes/teacher.js";
 import { parentRouter } from "./routes/parent.js";
+import { studentRouter } from "./routes/student.js";
 import { resultsRouter } from "./routes/results.js";
 import { configRouter } from "./routes/config.js";
 import { errorHandler, notFound } from "./http.js";
@@ -61,6 +62,7 @@ if (process.env.ENABLE_LOCAL_DEV_ROUTES === "true" && process.env.NODE_ENV !== "
 }
 app.use("/api/teacher", teacherRouter);
 app.use("/api/parent", parentRouter);
+app.use("/api/student", studentRouter);
 app.use("/api/results", resultsRouter);
 
 app.use(notFound);
@@ -71,4 +73,3 @@ app.listen(config.port, "0.0.0.0", () => {
 });
 
 // Trigger redeployment to clear cached Firebase SDK quota states after plan upgrade
-

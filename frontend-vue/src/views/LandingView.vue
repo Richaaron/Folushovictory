@@ -35,6 +35,15 @@ const portals = [
     gradient: 'from-cyan-500 to-green-500',
     glow: 'shadow-cyan-500/50',
     delay: '0.3s'
+  },
+  {
+    id: 'student',
+    title: 'Student Portal',
+    description: 'Access class subjects, assignments, and online tests',
+    icon: GraduationCap,
+    gradient: 'from-emerald-500 to-cyan-500',
+    glow: 'shadow-emerald-500/50',
+    delay: '0.45s'
   }
 ]
 
