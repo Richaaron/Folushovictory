@@ -15,6 +15,7 @@ export const config = {
   frontendOrigin: process.env.FRONTEND_ORIGIN || "http://localhost:5000",
   resendApiKey: process.env.RESEND_API_KEY || "",
   resendFromEmail: process.env.RESEND_FROM_EMAIL || "noreply@folushovictory.online",
+  teacherCredentialsAdminEmail: process.env.TEACHER_CREDENTIALS_ADMIN_EMAIL || "richaaron@folushovictory.online",
   supabaseUrl: process.env.SUPABASE_URL || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 };

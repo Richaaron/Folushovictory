@@ -29,6 +29,7 @@ SMTP_SECURE=true
 # NEW (Resend)
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
 RESEND_FROM_EMAIL=noreply@folushovictory.online  # Must use an address on a domain verified in Resend
+TEACHER_CREDENTIALS_ADMIN_EMAIL=richaaron@folushovictory.online
 ```
 
 ## Setup Instructions
@@ -59,6 +60,7 @@ successful if this non-critical audit-log write fails.
    ```env
    RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
    RESEND_FROM_EMAIL=noreply@folushovictory.online
+   TEACHER_CREDENTIALS_ADMIN_EMAIL=richaaron@folushovictory.online
    ```
 
 5. **Test the migration:**

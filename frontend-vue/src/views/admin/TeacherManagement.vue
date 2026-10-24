@@ -212,6 +212,7 @@ const handleAddTeacher = async () => {
       throw new Error('The server did not return the teacher login details.')
     }
     const emailSent = teacher.emailSent
+    const adminEmailSent = teacher.adminEmailSent
 
     showAddModal.value = false
     newTeacher.value = { 
@@ -224,7 +225,7 @@ const handleAddTeacher = async () => {
       selectedClassIds: [],
       assignedSubjectIds: [] 
     }
-    if (!emailSent) {
+    if (!emailSent || !adminEmailSent) {
       if (teacher.temporaryPassword) {
         credentialNotice.value = {
           displayName: teacher.displayName,
@@ -236,10 +237,10 @@ const handleAddTeacher = async () => {
         copiedCredential.value = ''
         credentialCopyError.value = ''
       } else {
-        alert(`Teacher account created, but the login email to ${trimmedEmail} could not be sent. Use Resend Credentials to generate and deliver a new password.`)
+        alert(`Teacher account created, but one or more credential emails could not be sent. Use Resend Credentials to generate and deliver a new password.`)
       }
     } else {
-      alert(`Teacher account created.\n\nTeacher code: ${teacher.username}\nThe login details were emailed to ${trimmedEmail}.`)
+      alert(`Teacher account created.\n\nTeacher code: ${teacher.username}\nLogin details were emailed to ${trimmedEmail} and an admin copy was sent to ${teacher.adminEmail || 'the configured admin email'}.`)
     }
     await fetchTeachers()
   } catch (err: any) {

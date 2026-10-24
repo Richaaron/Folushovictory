@@ -1,4 +1,5 @@
 import express from "express";
+import { config } from "../config.js";
 import { Roles } from "../constants.js";
 import { authRequired, requireRole } from "../middleware/auth.js";
 import { asyncHandler } from "../http.js";
@@ -274,21 +275,38 @@ adminRouter.post(
       throw error;
     }
 
-    let emailSent = false;
-    let emailError = null;
-    try {
-      await sendTeacherCredentialsEmail({
+    const [teacherDelivery, adminDelivery] = await Promise.allSettled([
+      sendTeacherCredentialsEmail({
         teacherEmail: email,
         teacherName: displayName,
         username,
         temporaryPassword
-      });
-      emailSent = true;
-    } catch (error) {
-      const deliveryError = error instanceof Error ? error.message : String(error);
-      emailError = `Email delivery failed: ${deliveryError}. You can copy the temporary password below or use Resend Credentials to retry.`;
+      }),
+      sendTeacherCredentialsEmail({
+        teacherEmail: config.teacherCredentialsAdminEmail,
+        teacherAccountEmail: email,
+        teacherName: displayName,
+        username,
+        temporaryPassword,
+        recipientType: "ADMIN_COPY"
+      })
+    ]);
+    const emailSent = teacherDelivery.status === "fulfilled";
+    const adminEmailSent = adminDelivery.status === "fulfilled";
+    const deliveryErrors = [];
+    if (!emailSent) {
+      const error = teacherDelivery.reason;
+      deliveryErrors.push(`Teacher email failed: ${error instanceof Error ? error.message : String(error)}`);
       console.error(`Failed to email teacher credentials to ${email}:`, error);
     }
+    if (!adminEmailSent) {
+      const error = adminDelivery.reason;
+      deliveryErrors.push(`Admin copy failed: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(`Failed to email teacher credentials copy to ${config.teacherCredentialsAdminEmail}:`, error);
+    }
+    const emailError = deliveryErrors.length
+      ? `${deliveryErrors.join(" ")} You can copy the temporary password below or use Resend Credentials to retry.`
+      : null;
 
     await logActivity({
       actor: req.user.username,
@@ -301,16 +319,18 @@ adminRouter.post(
 
     return res.status(201).json({
       success: true,
-      message: emailSent
-        ? `Teacher account created and login details emailed to ${email}.`
-        : `Teacher account created, but the login email could not be sent to ${email}.`,
+      message: emailSent && adminEmailSent
+        ? `Teacher account created. Login details were emailed to the teacher and an admin copy was sent to ${config.teacherCredentialsAdminEmail}.`
+        : "Teacher account created, but one or more credential emails could not be sent.",
       teacher: {
         username,
         displayName,
         email,
+        adminEmail: config.teacherCredentialsAdminEmail,
         emailSent,
+        adminEmailSent,
         emailError,
-        ...(!emailSent ? { temporaryPassword } : {}),
+        ...(!emailSent || !adminEmailSent ? { temporaryPassword } : {}),
         subjectsAssigned: subjectIds.length,
         formClassAssigned: !!formClassId
       }
@@ -332,24 +352,42 @@ adminRouter.post(
     // Update user record with new password
     await updateUser(username, { passwordHash });
 
-    try {
-      await sendTeacherCredentialsEmail({
+    const [teacherDelivery, adminDelivery] = await Promise.allSettled([
+      sendTeacherCredentialsEmail({
         teacherEmail: user.email,
         teacherName: user.displayName,
         username,
         temporaryPassword: password
-      });
+      }),
+      sendTeacherCredentialsEmail({
+        teacherEmail: config.teacherCredentialsAdminEmail,
+        teacherAccountEmail: user.email,
+        teacherName: user.displayName,
+        username,
+        temporaryPassword: password,
+        recipientType: "ADMIN_COPY"
+      })
+    ]);
+    if (teacherDelivery.status === "fulfilled" && adminDelivery.status === "fulfilled") {
       return res.json({ 
         success: true, 
-        message: `New login details sent to ${user.email}.`
-      });
-    } catch (err) {
-      console.error("Failed to resend credentials:", err);
-      return res.status(500).json({ 
-        error: "Failed to send email. However, the password was reset.",
-        password // Still return it so admin can provide it manually
+        message: `New login details sent to ${user.email} and an admin copy sent to ${config.teacherCredentialsAdminEmail}.`
       });
     }
+
+    const deliveryErrors = [];
+    if (teacherDelivery.status === "rejected") {
+      deliveryErrors.push(`Teacher email failed: ${teacherDelivery.reason instanceof Error ? teacherDelivery.reason.message : String(teacherDelivery.reason)}`);
+      console.error(`Failed to resend credentials to ${user.email}:`, teacherDelivery.reason);
+    }
+    if (adminDelivery.status === "rejected") {
+      deliveryErrors.push(`Admin copy failed: ${adminDelivery.reason instanceof Error ? adminDelivery.reason.message : String(adminDelivery.reason)}`);
+      console.error(`Failed to send credentials copy to ${config.teacherCredentialsAdminEmail}:`, adminDelivery.reason);
+    }
+    return res.status(500).json({
+      error: `${deliveryErrors.join(" ")} The password was reset; use the temporary password below if needed.`,
+      password
+    });
   })
 );
 
