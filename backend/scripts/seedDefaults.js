@@ -116,7 +116,6 @@ const defaultClasses = [
   { name: "PRIMARY 3", level: "PRY" },
   { name: "PRIMARY 4", level: "PRY" },
   { name: "PRIMARY 5", level: "PRY" },
-  { name: "PRIMARY 6", level: "PRY" },
   { name: "JSS 1", level: "JSS" },
   { name: "JSS 2", level: "JSS" },
   { name: "JSS 3", level: "JSS" },
