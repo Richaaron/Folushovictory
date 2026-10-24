@@ -259,7 +259,13 @@ FRONTEND_ORIGIN=https://folushovictory.netlify.app
 
 ## Database Schema
 
-Teacher records in `users` collection contain:
+Before using direct teacher enrollment on an existing Supabase database, run
+[`backend/scripts/add_teacher_profile_fields.sql`](./backend/scripts/add_teacher_profile_fields.sql)
+in the Supabase SQL Editor. It adds the `teacherType` and `formClassId` columns
+written when a teacher account is created. The fresh-install schema already
+includes these fields.
+
+Teacher records in the `users` table contain:
 - `username`: Unique teacher code (new invitations use `tch-YYYY-<32 hex characters>`)
 - `email`: Teacher email address
 - `passwordHash`: Bcrypt hashed password

@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
     portal VARCHAR(50),
     "displayName" VARCHAR(100),
     "studentId" VARCHAR(50),
+    "teacherType" VARCHAR(20),
+    "formClassId" VARCHAR(100),
     "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

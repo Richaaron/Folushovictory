@@ -57,6 +57,7 @@ export const ValidationSchemas = {
       lastName: "string",
       portal: "string",
       studentId: "string",
+      teacherType: "string",
       formClassId: "string",
       signatureUrl: "string",
       passwordHash: "string"
@@ -70,6 +71,7 @@ export const ValidationSchemas = {
       lastName: 100,
       portal: 20,
       studentId: 50,
+      teacherType: 20,
       formClassId: 50,
       signatureUrl: 2048,
       passwordHash: 200
