@@ -91,7 +91,7 @@ export const ValidationSchemas = {
       usedAt: "string"
     },
     maxLengths: {
-      code: 20,
+      code: 50,
       displayName: 150,
       email: 254,
       formClassId: 50,

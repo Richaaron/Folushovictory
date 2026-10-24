@@ -6,6 +6,14 @@ dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  "\"": "&quot;",
+  "'": "&#39;"
+})[character]);
+
 export const sendEmail = async ({ to, subject, html }) => {
   const logId = Math.random().toString(36).substring(2, 15);
   const logData = {
@@ -78,9 +86,65 @@ export const sendResultReleasedEmail = async ({ parentEmail, parentName, student
   });
 };
 
+export const sendTeacherRegistrationInvitationEmail = async ({
+  teacherEmail,
+  teacherName,
+  registrationCode,
+  subjectCount = 0,
+  hasFormClass = false,
+  expiresAt = null
+}) => {
+  const frontend = process.env.FRONTEND_ORIGIN || "https://folushovictory.netlify.app";
+  const registrationLink = `${frontend}/register/teacher?code=${encodeURIComponent(registrationCode)}&email=${encodeURIComponent(teacherEmail)}`;
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+      <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
+      </div>
+      <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+        <h2 style="margin-top: 0; color: #5D3FD3;">Teacher Registration Invitation</h2>
+        <p>Hello <strong>${escapeHtml(teacherName)}</strong>,</p>
+        <p>You have been invited to join the Folusho Victory Schools teacher portal. Your account has been pre-configured with your subject and class allocations.</p>
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0; border-left: 4px solid #5D3FD3;">
+          <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Your Registration Code</p>
+          <p style="margin: 16px 0 0; font-size: 24px; text-align: center; letter-spacing: 2px;"><strong style="color: #0B6E4F; font-family: monospace;">${registrationCode}</strong></p>
+          <p style="margin: 12px 0 0; font-size: 12px; color: #94a3b8;">Use this code when creating your account</p>
+        </div>
+        <div style="background-color: #eff6ff; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
+          <p style="margin: 0; font-size: 14px; color: #1e40af;">
+            <strong>Subject Allocations:</strong> ${subjectCount} subject(s) assigned<br />
+            <strong>Form Class:</strong> ${hasFormClass ? "✓ Form class assigned" : "No form class assigned"}
+          </p>
+        </div>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${registrationLink}" style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
+            Create Your Account
+          </a>
+        </div>
+        <p style="font-size: 13px; color: #64748b; margin-top: 24px;">
+          Enter your full name, email, and password on the registration page. You will set your own password; it is not sent by email.
+        </p>
+        ${expiresAt ? `<p style="font-size: 12px; color: #f97316; margin-top: 16px;">This code expires on: ${new Date(expiresAt).toLocaleDateString()}</p>` : ""}
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0;" />
+        <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 0;">
+          © ${new Date().getFullYear()} Folusho Victory Schools. If you have questions, contact the school administration.
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to: teacherEmail,
+    subject: "Teacher Registration Invitation - FVS Teacher Portal",
+    html
+  });
+};
+
 export const sendTeacherWelcomeEmail = async ({ teacherEmail, teacherName, username, subjectCount = 0, hasFormClass = false, registrationCode = null }) => {
   const frontend = process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app';
-  const registrationLink = registrationCode ? `${frontend}/register/teacher?code=${encodeURIComponent(registrationCode)}` : `${frontend}/login/teacher`;
+  const registrationLink = registrationCode
+    ? `${frontend}/register/teacher?code=${encodeURIComponent(registrationCode)}&email=${encodeURIComponent(teacherEmail)}`
+    : `${frontend}/login/teacher`;
   const buttonText = registrationCode ? 'Complete Registration' : 'Access Staff Portal';
   const registrationNote = registrationCode ? `
         <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0;">

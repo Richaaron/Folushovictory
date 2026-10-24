@@ -96,17 +96,24 @@ export function validateTeacherRegistration(body) {
   const password = requiredString(body.password, "password");
   const displayName = requiredString(body.displayName, "displayName");
   const registrationCode = requiredString(body.registrationCode, "registrationCode");
+  const teacherType = requiredString(body.teacherType, "teacherType").toUpperCase();
+  const formClassId = optionalString(body.formClassId);
+  const subjectIds = Array.isArray(body.subjectIds)
+    ? [...new Set(body.subjectIds.map(id => requiredString(id, "subjectId")))]
+    : [];
 
   if (password.length < 6) {
     throw new ValidationError("Password must be at least 6 characters long");
   }
+  if (!["FORM_TEACHER", "SUBJECT_TEACHER"].includes(teacherType)) {
+    throw new ValidationError("Invalid teacher type");
+  }
 
-  // Validate registration code format: tch-YYYY-NNN
+  // Registration codes are unguessable, email-bound invitation tokens.
   const normalizedCode = String(registrationCode).trim().toLowerCase();
-  const currentYear = new Date().getFullYear();
-  const codeRegex = new RegExp(`^tch-${currentYear}-\\d{3}$`);
+  const codeRegex = /^tch-\d{4}-[a-f0-9]{32}$/i;
   if (!codeRegex.test(normalizedCode)) {
-    throw new ValidationError(`Invalid registration code format. Expected format: tch-${currentYear}-NNN (e.g., tch-${currentYear}-001)`);
+    throw new ValidationError(`Invalid registration code format. Use the code from your invitation email.`);
   }
 
   return {
@@ -114,6 +121,9 @@ export function validateTeacherRegistration(body) {
     password,
     displayName,
     registrationCode: normalizedCode,
+    teacherType,
+    formClassId,
+    subjectIds,
     portal: "TEACHER",
     role: Roles.TEACHER
   };

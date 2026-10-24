@@ -165,6 +165,10 @@ const isValidEmailAddress = (value: string) => {
 const handleAddTeacher = async () => {
   if (!newTeacher.value.displayName) return
   const trimmedEmail = newTeacher.value.email ? newTeacher.value.email.trim() : ''
+  if (!trimmedEmail) {
+    alert("Enter the teacher's email address so the invitation can be sent.")
+    return
+  }
   if (trimmedEmail && !isValidEmailAddress(trimmedEmail)) {
     alert('Please enter a valid email address before enrolling a teacher.')
     return
@@ -174,7 +178,7 @@ const handleAddTeacher = async () => {
   try {
     const { data } = await api.post('/api/admin/registration-codes', {
       displayName: newTeacher.value.displayName,
-      email: trimmedEmail || null,
+      email: trimmedEmail,
       formClassId: newTeacher.value.formClassId || null,
       subjectIds: newTeacher.value.assignedSubjectIds
     })
@@ -182,6 +186,10 @@ const handleAddTeacher = async () => {
     if (!registrationCode) {
       throw new Error('The server did not return a registration code.')
     }
+    const emailSent = data.code.emailSent
+    const emailStatus = emailSent
+      ? `The registration link and code were emailed to ${trimmedEmail}.`
+      : `The email to ${trimmedEmail} could not be sent. ${data.code.emailError || 'Share the code manually or retry sending it.'}`
 
     showAddModal.value = false
     newTeacher.value = { 
@@ -197,8 +205,8 @@ const handleAddTeacher = async () => {
     alert(
       `Teacher registration invitation created.\n\n` +
       `Registration code: ${registrationCode}\n` +
-      `Registration page: /register/teacher?code=${encodeURIComponent(registrationCode)}\n\n` +
-      `Share the code or link with the teacher so they can finish creating their account.`
+      `Registration page: /register/teacher?code=${encodeURIComponent(registrationCode)}&email=${encodeURIComponent(trimmedEmail)}\n\n` +
+      `${emailStatus}`
     )
   } catch (err: any) {
     console.error('Error adding teacher:', err)
@@ -536,7 +544,7 @@ onMounted(fetchTeachers)
               
               <div class="space-y-2">
                 <label for="new-email" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Official Email</label>
-                <input id="new-email" v-model="newTeacher.email" type="email" class="w-full px-8 py-4 md:py-5 bg-slate-900/60 border border-slate-700/70 rounded-[1.5rem] text-sm font-bold text-white focus:bg-slate-950 focus:border-nebula-500/30 outline-none transition-all" placeholder="s.okafor@fvs.edu" />
+                <input id="new-email" v-model="newTeacher.email" type="email" required class="w-full px-8 py-4 md:py-5 bg-slate-900/60 border border-slate-700/70 rounded-[1.5rem] text-sm font-bold text-white focus:bg-slate-950 focus:border-nebula-500/30 outline-none transition-all" placeholder="s.okafor@fvs.edu" />
               </div>
             </div>
 

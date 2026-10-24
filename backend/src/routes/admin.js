@@ -7,7 +7,7 @@ import { generateRandomPassword, hashPassword } from "../security.js";
 import { createUser, deleteUser, getUserByUsername, updateUser } from "../repos/users.js";
 import { createStudent, createStudentWithParent, listStudentsByClass, countStudentsByClass, updateStudent, deleteStudent, getStudentById } from "../repos/students.js";
 import { createClass, listClasses, updateClass, getClassById, revokeFormTeacherStatus } from "../repos/classes.js";
-import { validateTeacherPayload, validateStudentPayload, validateStudentUpdatePayload } from "../validation.js";
+import { validateTeacherPayload, validateStudentPayload, validateStudentUpdatePayload, validateEmail } from "../validation.js";
 import { createSubject, listSubjects, getSubjectById, deleteSubject } from "../repos/subjects.js";
 import { createAssignment, deleteAssignmentsByTeacher } from "../repos/assignments.js";
 import { upsertNumericScore, listScoresForStudent } from "../repos/scores.js";
@@ -16,7 +16,7 @@ import { setReleaseStatus } from "../repos/releases.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
 // Firebase dependency removed - all database operations use SafeDatabase (Supabase)
-import { sendEmail, sendResultReleasedEmail, sendLoginChangeNotificationEmail } from "../services/email.js";
+import { sendEmail, sendResultReleasedEmail, sendLoginChangeNotificationEmail, sendTeacherRegistrationInvitationEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 import { performHealthCheck, validateDataIntegrity, getCollectionMetrics, SafeDatabase } from "../firestore-utils/index.js";
 import { getIdColumnName } from "../firestore-utils/db-utils.js";
@@ -172,13 +172,27 @@ adminRouter.get(
 adminRouter.post(
   "/teachers",
   asyncHandler(async (req, res) => {
-    // Admin-created teacher should only generate a registration code (tch-2026-NNN)
+    // Admin-created teacher invitations require a recipient email.
     const payload = validateTeacherPayload(req.body || {});
+    if (!payload.email) {
+      return res.status(400).json({ error: "A teacher email address is required to issue a registration invitation." });
+    }
+    const { data: existingUsers } = await SafeDatabase.query(
+      "users",
+      [["email", "==", payload.email]],
+      { pageSize: 1 }
+    );
+    if (existingUsers.length) {
+      return res.status(409).json({ error: "A teacher account already exists with this email address." });
+    }
+    if (!payload.formClassId) {
+      return res.status(400).json({ error: "Assign a form class or create a subject-teacher invitation with subject allocations." });
+    }
 
-    // Generate a sequential human-friendly registration code
+    // Generate an unguessable code for the email-bound invitation.
     const code = await generateSimpleRegistrationCode();
 
-    // Create registration code record with optional email and formClass assignment
+    // Create the email-bound registration code with its form-class assignment.
     const codeRecord = await createRegistrationCode({
       code,
       displayName: payload.displayName,
@@ -187,6 +201,24 @@ adminRouter.post(
       formClassId: payload.formClassId || null,
       expiresAt: null
     });
+
+    let emailSent = false;
+    let emailError = null;
+    if (codeRecord.email) {
+      try {
+        await sendTeacherRegistrationInvitationEmail({
+          teacherEmail: codeRecord.email,
+          teacherName: codeRecord.displayName,
+          registrationCode: codeRecord.code,
+          hasFormClass: !!codeRecord.formClassId
+        });
+        emailSent = true;
+      } catch (error) {
+        emailSent = false;
+        emailError = "The invitation email could not be sent. Share the code manually or retry sending it.";
+        console.error(`Failed to email registration code ${codeRecord.code}:`, error);
+      }
+    }
 
     // Log activity
     await logActivity({
@@ -203,8 +235,12 @@ adminRouter.post(
       code: codeRecord.code,
       displayName: codeRecord.displayName,
       email: codeRecord.email || null,
+      emailSent,
+      emailError,
       formClassAssigned: !!codeRecord.formClassId,
-      message: `✅ Registration code ${codeRecord.code} generated. No email sent; teacher will self-register.`
+      message: emailSent
+        ? `Registration code ${codeRecord.code} generated and emailed to ${codeRecord.email}.`
+        : `Registration code ${codeRecord.code} generated, but its email could not be sent.`
     });
   })
 );
@@ -298,7 +334,7 @@ adminRouter.post(
     const codeRecord = codes && codes.length > 0 ? codes[0] : null;
     if (!codeRecord) return res.status(404).json({ error: "No active registration code found for this teacher" });
 
-    const link = `${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/register/teacher?code=${encodeURIComponent(codeRecord.code)}`;
+    const link = `${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/register/teacher?code=${encodeURIComponent(codeRecord.code)}&email=${encodeURIComponent(user.email)}`;
 
     const emailHtml = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
@@ -539,11 +575,50 @@ adminRouter.post(
   asyncHandler(async (req, res) => {
     const { displayName, email, subjectIds, formClassId, expiryDays } = req.body || {};
     
-    if (!displayName) {
+    const normalizedDisplayName = typeof displayName === "string" ? displayName.trim() : "";
+    if (!normalizedDisplayName) {
       return res.status(400).json({ error: "Missing displayName" });
     }
+    const normalizedEmail = validateEmail(email, true);
+    const { data: existingUsers } = await SafeDatabase.query(
+      "users",
+      [["email", "==", normalizedEmail]],
+      { pageSize: 1 }
+    );
+    if (existingUsers.length) {
+      return res.status(409).json({ error: "A teacher account already exists with this email address." });
+    }
+    if (subjectIds !== undefined && !Array.isArray(subjectIds)) {
+      return res.status(400).json({ error: "subjectIds must be an array" });
+    }
+    const normalizedSubjectIds = [...new Set((subjectIds || []).map((id) => String(id).trim()).filter(Boolean))];
+    const normalizedFormClassId = formClassId ? String(formClassId).trim() : null;
+    if (!normalizedFormClassId && normalizedSubjectIds.length === 0) {
+      return res.status(400).json({ error: "Assign a form class or at least one subject before sending an invitation." });
+    }
+    if (normalizedFormClassId && !(await getClassById(normalizedFormClassId))) {
+      return res.status(400).json({ error: "The selected form class was not found." });
+    }
+    const selectedSubjects = await Promise.all(normalizedSubjectIds.map((id) => getSubjectById(id)));
+    if (selectedSubjects.some((subject) => !subject)) {
+      return res.status(400).json({ error: "One or more selected subjects were not found." });
+    }
+    const hasPrimarySubject = selectedSubjects.some((subject) => {
+      const level = String(subject.level || "").trim().toUpperCase();
+      return ["PRY", "NUR", "PRIMARY"].includes(level) || level.startsWith("PRE");
+    });
+    if (hasPrimarySubject && !normalizedFormClassId) {
+      return res.status(400).json({ error: "Assign a primary form class when including primary subjects." });
+    }
+    if (hasPrimarySubject) {
+      const assignedClass = await getClassById(normalizedFormClassId);
+      const level = String(assignedClass.level || "").trim().toUpperCase();
+      if (!(["PRY", "NUR", "PRIMARY"].includes(level) || level.startsWith("PRE"))) {
+        return res.status(400).json({ error: "Primary subjects must be paired with a primary or nursery class." });
+      }
+    }
 
-    // Generate code using database counter for sequential numbering
+    // Generate an unguessable code for the email-bound invitation.
     const code = await generateSimpleRegistrationCode();
     
     // Calculate expiry date
@@ -557,12 +632,32 @@ adminRouter.post(
     // Create code record with subject and form class allocations
     const codeRecord = await createRegistrationCode({
       code,
-      displayName: String(displayName).trim(),
-      email: email ? String(email).trim() : null,
-      subjectIds: Array.isArray(subjectIds) ? subjectIds : [],
-      formClassId: formClassId ? String(formClassId).trim() : null,
+      displayName: normalizedDisplayName,
+      email: normalizedEmail,
+      subjectIds: normalizedSubjectIds,
+      formClassId: normalizedFormClassId,
       expiresAt
     });
+
+    let emailSent = false;
+    let emailError = null;
+    if (codeRecord.email) {
+      try {
+        await sendTeacherRegistrationInvitationEmail({
+          teacherEmail: codeRecord.email,
+          teacherName: codeRecord.displayName,
+          registrationCode: codeRecord.code,
+          subjectCount: (codeRecord.subjectIds || []).length,
+          hasFormClass: !!codeRecord.formClassId,
+          expiresAt: codeRecord.expiresAt
+        });
+        emailSent = true;
+      } catch (error) {
+        emailSent = false;
+        emailError = "The invitation email could not be sent. Share the code manually or retry sending it.";
+        console.error(`Failed to email registration code ${codeRecord.code}:`, error);
+      }
+    }
 
     // Log activity
     await logActivity({
@@ -572,8 +667,8 @@ adminRouter.post(
       details: { 
         code,
         displayName,
-        subjectCount: (subjectIds || []).length,
-        hasFormClass: !!formClassId,
+        subjectCount: normalizedSubjectIds.length,
+        hasFormClass: !!normalizedFormClassId,
         expiryDays
       },
       resourceType: "registrationCode",
@@ -586,12 +681,14 @@ adminRouter.post(
       code: {
         code,
         displayName,
-        email: email || null,
-        subjectsCount: (subjectIds || []).length,
-        formClassAssigned: !!formClassId,
+        email: normalizedEmail,
+        subjectsCount: normalizedSubjectIds.length,
+        formClassAssigned: !!normalizedFormClassId,
         expiresAt,
         createdAt: new Date().toISOString(),
-        status: "ACTIVE"
+        status: "ACTIVE",
+        emailSent,
+        emailError
       }
     });
   })
@@ -701,66 +798,24 @@ adminRouter.post(
       return res.status(400).json({ error: "Code has already been used" });
     }
 
-    const targetEmail = recipientEmail || codeRecord.email;
-    if (!targetEmail) {
-      return res.status(400).json({ error: "No email address found or provided" });
+    const targetEmail = validateEmail(recipientEmail || codeRecord.email, true);
+    if (targetEmail !== (codeRecord.email || "").toLowerCase()) {
+      await SafeDatabase.updateWithValidation(
+        "registrationCodes",
+        codeRecord.code,
+        { email: targetEmail },
+        "registrationCode"
+      );
     }
 
-    const emailHtml = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-        <div style="background-color: #5D3FD3; padding: 24px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
-        </div>
-        <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
-          <h2 style="margin-top: 0; color: #5D3FD3;">Teacher Registration Invitation</h2>
-          <p>Hello <strong>${codeRecord.displayName}</strong>,</p>
-          <p>You have been invited to join the Folusho Victory Schools teacher portal. Your account has been pre-configured with your subject and class allocations.</p>
-          
-          <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 24px 0; border-left: 4px solid #5D3FD3;">
-            <p style="margin: 0; font-size: 14px; color: #64748b; font-weight: bold; text-transform: uppercase;">Your Registration Code</p>
-            <p style="margin: 16px 0 0; font-size: 24px; text-align: center; letter-spacing: 2px;"><strong style="color: #0B6E4F; font-family: monospace;">${codeRecord.code}</strong></p>
-            <p style="margin: 12px 0 0; font-size: 12px; color: #94a3b8;">Use this code when creating your account</p>
-          </div>
-
-          <div style="background-color: #eff6ff; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
-            <p style="margin: 0; font-size: 14px; color: #1e40af;">
-              <strong>Subject Allocations:</strong> ${(codeRecord.subjectIds || []).length} subject(s) assigned<br />
-              <strong>Form Class:</strong> ${codeRecord.formClassId ? "✓ Form class assigned" : "No form class assigned"}
-            </p>
-          </div>
-
-          <div style="text-align: center; margin: 32px 0;">
-            <a href="${process.env.FRONTEND_ORIGIN || 'https://folushovictory.netlify.app'}/register/teacher?code=${encodeURIComponent(codeRecord.code)}" 
-               style="background-color: #D4AF37; color: #000; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-               Create Your Account
-            </a>
-          </div>
-
-          <p style="font-size: 13px; color: #64748b; margin-top: 24px;">
-            <strong>How to register:</strong><br />
-            1. Click the button above to visit the registration page<br />
-            2. Enter your full name, email, and password<br />
-            3. Enter the registration code: <strong style="font-family: monospace;">${codeRecord.code}</strong><br />
-            4. Your subjects and class allocation will be automatically applied
-          </p>
-
-          ${codeRecord.expiresAt ? `<p style="font-size: 12px; color: #f97316; margin-top: 16px;">⏰ <strong>This code expires on:</strong> ${new Date(codeRecord.expiresAt).toLocaleDateString()}</p>` : ""}
-
-          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0;" />
-          
-          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 0;">
-            © ${new Date().getFullYear()} Folusho Victory Schools. All rights reserved.<br />
-            If you have any questions, please contact the school administration.
-          </p>
-        </div>
-      </div>
-    `;
-
     try {
-      await sendEmail({
-        to: targetEmail,
-        subject: "Teacher Registration Invitation - FVS Teacher Portal",
-        html: emailHtml
+      await sendTeacherRegistrationInvitationEmail({
+        teacherEmail: targetEmail,
+        teacherName: codeRecord.displayName,
+        registrationCode: codeRecord.code,
+        subjectCount: (codeRecord.subjectIds || []).length,
+        hasFormClass: !!codeRecord.formClassId,
+        expiresAt: codeRecord.expiresAt
       });
 
       // Log activity

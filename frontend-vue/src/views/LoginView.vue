@@ -205,6 +205,22 @@ const handleLogin = async () => {
             <p class="text-sm text-gray-400">{{ portalGateway }}</p>
           </div>
 
+          <div v-if="portal === 'teacher'" class="mb-6 grid grid-cols-2 gap-2 rounded-xl border border-gray-700 bg-gray-900/40 p-1">
+            <button
+              type="button"
+              aria-current="page"
+              class="rounded-lg bg-blue-500/20 px-3 py-2.5 text-sm font-semibold text-cyan-200"
+            >
+              Existing User
+            </button>
+            <router-link
+              to="/register/teacher"
+              class="rounded-lg px-3 py-2.5 text-center text-sm font-semibold text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
+            >
+              New User
+            </router-link>
+          </div>
+
           <!-- Error Message -->
           <div
             v-if="error"
@@ -232,7 +248,7 @@ const handleLogin = async () => {
                   type="text"
                   required
                   class="modern-input pl-12"
-                  :placeholder="portal === 'teacher' ? 'Enter your email or teacher code (e.g. tch-2026-001)' : 'Enter your email or username'"
+                  :placeholder="portal === 'teacher' ? 'Enter your email or teacher code' : 'Enter your email or username'"
                 />
               </div>
             </div>
@@ -279,11 +295,6 @@ const handleLogin = async () => {
             <a href="/forgot-password" class="text-sm text-gray-400 hover:text-purple-400 transition-colors">
               Forgot your password?
             </a>
-            <div v-if="portal === 'teacher'" class="text-sm">
-              <router-link to="/register/teacher" class="text-cyan-300 hover:text-cyan-100 transition-colors">
-                Don't have an account? Sign up
-              </router-link>
-            </div>
           </div>
         </div>
 

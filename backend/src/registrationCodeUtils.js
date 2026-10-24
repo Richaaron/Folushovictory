@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import { SafeDatabase } from "./firestore-utils/index.js";
 
 /**
  * Registration Code Utility
@@ -89,40 +88,21 @@ export function decodeRegistrationCode(code) {
 }
 
 /**
- * Generates a human-readable registration code in format tch-YYYY-NNN
+ * Generates a hard-to-guess registration code in format tch-YYYY-<32 hex chars>
  * This code will become the teacher's username upon registration
- * Uses counter-based generation to ensure uniqueness
  */
 export async function generateSimpleRegistrationCode() {
   const year = new Date().getFullYear();
-  const counterId = `registrationCodes_${year}`;
-  const counterExists = await SafeDatabase.exists("counters", counterId);
-
-  if (!counterExists) {
-    const { data: existingCodes } = await SafeDatabase.query(
-      "registrationCodes",
-      [],
-      { pageSize: 1000 }
-    );
-    const latestNumber = existingCodes.reduce((latest, record) => {
-      const match = new RegExp(`^tch-${year}-(\\d{3})$`, "i").exec(record.code || "");
-      return match ? Math.max(latest, Number(match[1])) : latest;
-    }, 0);
-
-    await SafeDatabase.upsert("counters", counterId, { value: latestNumber });
-  }
-
-  const counter = await SafeDatabase.increment("counters", counterId, "value", 1);
-  return `tch-${year}-${String(counter).padStart(3, "0")}`;
+  const token = crypto.randomBytes(16).toString("hex");
+  return `tch-${year}-${token}`;
 }
 
 /**
- * Validates code format (tch-2026-NNN where NNN are digits)
+ * Validates unguessable invitation codes.
  * @param {string} code - Code to validate
  * @returns {boolean} True if code matches format
  */
 export function isValidCodeFormat(code) {
-  // Format: tch-YYYY-NNN (e.g., tch-2026-001)
-  const codeRegex = new RegExp(`^tch-${new Date().getFullYear()}-\\d{3}$`, "i");
+  const codeRegex = /^tch-\d{4}-[a-f0-9]{32}$/i;
   return codeRegex.test(String(code).trim());
 }

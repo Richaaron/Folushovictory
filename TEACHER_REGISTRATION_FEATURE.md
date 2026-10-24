@@ -5,9 +5,10 @@ An administrator creates a registration invitation with a one-time code. Teacher
 
 ## Features
 
-✅ **Code-Based Registration**: Teachers register with an administrator-provided code
-✅ **Auto-Generated Usernames**: Usernames follow format `tch-YYYY-NNN` (e.g., `tch-2026-001`)  
-✅ **Automatic Welcome Email**: Teachers receive login credentials via email  
+✅ **Invitation-Only Registration**: Only teachers with an admin-issued invitation can sign up
+✅ **Email-Bound Codes**: New 128-bit random invitation codes are tied to the teacher's email
+✅ **Teacher-Selected Allocations**: Teachers choose only from their invitation's approved class or subjects
+✅ **Automatic Welcome Email**: The teacher code and login instructions are emailed after account creation
 ✅ **Activity Logging**: Registration activities are logged for audit trail  
 ✅ **Email Validation**: Ensures emails are unique and valid format  
 ✅ **Password Security**: Passwords are securely hashed with bcryptjs  
@@ -17,13 +18,13 @@ An administrator creates a registration invitation with a one-time code. Teacher
 ### Registration Flow
 
 1. **Invitation**
-   - An administrator creates a registration code and shares it with the teacher
-   - The code can be used to open the registration page with the code prefilled
+   - An administrator creates an invitation with the teacher's email and approved allocation options
+   - The registration code and link are emailed automatically
+   - If email delivery fails, the administrator can share the displayed code manually or resend it
 
 2. **Teacher Registration**
-   - Teacher navigates to the registration page
-   - Enters: Full Name, Email, Password (min 6 characters), and registration code
-   - System validates input
+   - Teacher opens the invitation and verifies it with their email and registration code
+   - Enters their name, chooses Form Teacher or Subject Teacher, selects an approved class or subjects, and creates a password
    - The registration code becomes the teacher's username
 
 3. **Account Creation**
@@ -32,12 +33,11 @@ An administrator creates a registration invitation with a one-time code. Teacher
    - Account marked as TEACHER role
 
 4. **Welcome Email**
-   - Automatic email sent with login credentials
-   - Includes username and portal link
-   - Professional branded template
+   - Email sent with the teacher code and portal link
+   - Teacher uses the password they created during registration; passwords are never emailed
 
 5. **Login**
-   - Teacher logs in with generated username and their password
+   - Teacher logs in with their email or teacher code and the password they created
    - Activity logged for audit trail
 
 ## API Endpoint
@@ -50,7 +50,10 @@ An administrator creates a registration invitation with a one-time code. Teacher
   "email": "teacher@school.com",
   "password": "SecurePass123",
   "displayName": "John Smith",
-  "registrationCode": "tch-2026-001"
+  "registrationCode": "tch-2026-a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
+  "teacherType": "SUBJECT_TEACHER",
+  "formClassId": null,
+  "subjectIds": ["subject-id"]
 }
 ```
 
@@ -58,19 +61,24 @@ An administrator creates a registration invitation with a one-time code. Teacher
 - `email` (string): Valid email address, must be unique
 - `password` (string): Minimum 6 characters
 - `displayName` (string): Teacher's full name
-- `registrationCode` (string): Active code provided by the school administrator
+- `registrationCode` (string): Active, email-bound code provided by the school administrator
+- `teacherType` (string): `FORM_TEACHER` or `SUBJECT_TEACHER`
+- `formClassId` (string or null): The authorized form class for a form teacher
+- `subjectIds` (string[]): One or more subjects authorized by the invitation
 
 **Success Response (201):**
 ```json
 {
   "success": true,
-  "message": "✅ Account created successfully! A welcome email has been sent to your email address.",
+  "message": "Account created successfully.",
   "user": {
-    "username": "tch-2026-001",
+    "username": "tch-2026-a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
     "email": "teacher@school.com",
     "displayName": "John Smith",
     "role": "TEACHER",
-    "portal": "TEACHER"
+    "portal": "TEACHER",
+    "emailSent": true,
+    "emailError": null
   }
 }
 ```
@@ -99,15 +107,14 @@ An administrator creates a registration invitation with a one-time code. Teacher
 - Admins use the admin portal to add other staff
 
 ### Automatic Email Sending
-- Welcome email is sent asynchronously (doesn't block registration)
-- If email service is down, registration still completes
+- The welcome email is sent after account creation; the response reports `emailSent`
+- If email service is down, registration still completes and the teacher code is shown on screen
 - Check backend logs for email delivery status
 
-### Username Generation
-- Usernames are auto-generated in format: `tch-YYYY-NNN`
-- Example: `tch-2026-001`, `tch-2026-002`, etc.
-- Year portion auto-updates to current year
-- Counter increments for each new teacher
+### Teacher Codes
+- New invitation codes use a random 128-bit token in format `tch-YYYY-<32 hex characters>`
+- The code becomes the teacher's username and is emailed after account creation
+- Previously issued sequential invitations must be replaced with a new invitation before registration
 
 ### Password Security
 - Passwords must be at least 6 characters
@@ -128,7 +135,11 @@ async function registerTeacher() {
     body: JSON.stringify({
       email: 'teacher@school.com',
       password: 'SecurePass123',
-      displayName: 'John Smith'
+      displayName: 'John Smith',
+      registrationCode: 'tch-2026-a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6',
+      teacherType: 'SUBJECT_TEACHER',
+      formClassId: null,
+      subjectIds: ['subject-id']
     })
   });
 
@@ -145,8 +156,8 @@ async function registerTeacher() {
 ```
 
 ### Login After Registration
-Teachers use the generated username with their password to login:
-- **Username**: `tch-2026-001` (from registration response)
+Teachers use their email or invitation code with their password to log in:
+- **Teacher code**: the code from the invitation email or registration response
 - **Password**: The password they created during registration
 - **Portal**: TEACHER
 
@@ -162,7 +173,7 @@ Teachers receive a professional welcome email containing:
 ## Admin Considerations
 
 ### Admin Creates Registration Invitations
-The admin portal creates a registration invitation with a code and optional email, subject, and class allocations. The teacher uses the code to finish account setup at `/register/teacher`.
+The admin portal requires a teacher email and creates an invitation with approved subject and class allocations. The teacher verifies the code with that email and completes account setup at `/register/teacher`.
 
 ### Both Methods Coexist
 - **Self-Registration** (`/api/auth/register/teacher`): Teacher-driven, email/password method
@@ -214,7 +225,7 @@ FRONTEND_ORIGIN=https://folushovictory.netlify.app
 ## Database Schema
 
 Teacher records in `users` collection contain:
-- `username`: Unique teacher ID (tch-YYYY-NNN)
+- `username`: Unique teacher code (new invitations use `tch-YYYY-<32 hex characters>`)
 - `email`: Teacher email address
 - `passwordHash`: Bcrypt hashed password
 - `displayName`: Teacher full name
@@ -229,7 +240,7 @@ Teacher records in `users` collection contain:
 1. Call registration endpoint with test data
 2. Verify user record created in database
 3. Verify welcome email sent (check logs)
-4. Login with generated username and password
+4. Login with the teacher code or email and the password created during registration
 5. Verify activity logged
 
 ### cURL Example
@@ -239,7 +250,11 @@ curl -X POST http://localhost:3000/api/auth/register/teacher \
   -d '{
     "email": "testteacher@school.com",
     "password": "TestPass123",
-    "displayName": "Test Teacher"
+    "displayName": "Test Teacher",
+    "registrationCode": "tch-2026-a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
+    "teacherType": "SUBJECT_TEACHER",
+    "formClassId": null,
+    "subjectIds": ["subject-id"]
   }'
 ```
 

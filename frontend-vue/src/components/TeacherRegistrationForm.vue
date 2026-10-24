@@ -21,8 +21,17 @@
           </div>
         </div>
         <p class="success-note">
-          You can now sign in using your email and password.
+          {{ registrationData.emailSent
+            ? 'Your teacher code has been emailed to you. Sign in with your email or teacher code and the password you just created.'
+            : 'Your account was created, but the login email could not be sent. Use the teacher code below to sign in, and contact the school administrator if needed.' }}
         </p>
+
+        <div class="credentials-box">
+          <div class="credential-item">
+            <label>Teacher Code</label>
+            <p>{{ registrationData.username }}</p>
+          </div>
+        </div>
 
         <div class="allocation-info" v-if="registrationData.subjectsAssigned || registrationData.formClassAssigned">
           <h3>Your Allocations</h3>
@@ -49,15 +58,22 @@
 
       <!-- Form State -->
       <form v-else @submit.prevent="submitRegistration" class="registration-form">
-        <!-- Email Field -->
-        <div class="form-group">
+        <div v-if="invitationError" class="error-box">
+          <div class="error-icon">⚠️</div>
+          <div class="error-content">
+            <h3>Invitation Not Verified</h3>
+            <p>{{ invitationError }}</p>
+          </div>
+        </div>
+
+        <div v-if="!invitation" class="form-group">
           <label for="email">Email Address</label>
           <input
             id="email"
             v-model="form.email"
             type="email"
             placeholder="your.email@school.com"
-            :disabled="isSubmitting"
+            :disabled="isSubmitting || isLoadingInvitation"
             @blur="validateField('email')"
             required
             class="modern-input"
@@ -65,71 +81,114 @@
           <span v-if="fieldErrors.email" class="error-message">{{ fieldErrors.email }}</span>
         </div>
 
-        <!-- Display Name Field -->
-        <div class="form-group">
-          <label for="displayName">Full Name</label>
-          <input
-            id="displayName"
-            v-model="form.displayName"
-            type="text"
-            placeholder="John Smith"
-            :disabled="isSubmitting"
-            @blur="validateField('displayName')"
-            required
-            class="modern-input"
-          />
-          <span v-if="fieldErrors.displayName" class="error-message">{{ fieldErrors.displayName }}</span>
-        </div>
-
-        <!-- Password Field -->
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="password-input-wrapper">
-            <input
-              id="password"
-              v-model="form.password"
-              :type="showPassword ? 'text' : 'password'"
-              placeholder="At least 6 characters"
-              :disabled="isSubmitting"
-              @blur="validateField('password')"
-              required
-              class="modern-input"
-            />
-            <button
-              type="button"
-              class="toggle-password"
-              @click="showPassword = !showPassword"
-              :disabled="isSubmitting"
-              title="Toggle password visibility"
-            >
-              {{ showPassword ? '👁️' : '👁️‍🗨️' }}
-            </button>
-          </div>
-          <span v-if="fieldErrors.password" class="error-message">{{ fieldErrors.password }}</span>
-          <div v-else class="password-hint">Minimum 6 characters</div>
-        </div>
-
-        <!-- Registration Code Field -->
-        <div class="form-group">
+        <div v-if="!invitation" class="form-group">
           <label for="registrationCode">
             Registration Code
             <span class="required-note">(provided by admin)</span>
           </label>
-          <input
-            id="registrationCode"
-            v-model="form.registrationCode"
-            type="text"
-            placeholder="tch-2026-001"
-            :disabled="isSubmitting"
-            @input="formatCodeInput"
-            @blur="validateField('registrationCode')"
-            maxlength="14"
-            required
-            class="modern-input"
-          />
+          <div class="flex gap-2">
+            <input
+              id="registrationCode"
+              v-model="form.registrationCode"
+              type="text"
+              placeholder="Enter the code from your invitation email"
+              :disabled="isSubmitting || isLoadingInvitation"
+              @input="formatCodeInput"
+              @blur="validateField('registrationCode')"
+              maxlength="50"
+              required
+              class="modern-input"
+            />
+            <button type="button" class="neon-btn neon-btn-cyan" :disabled="isLoadingInvitation" @click="loadInvitation">
+              {{ isLoadingInvitation ? 'Checking...' : 'Verify' }}
+            </button>
+          </div>
           <span v-if="fieldErrors.registrationCode" class="error-message">{{ fieldErrors.registrationCode }}</span>
-          <div v-else class="code-hint">Format: tch-2026-NNN (e.g., tch-2026-001)</div>
+          <div v-else class="code-hint">Enter the email address and code from your invitation email.</div>
         </div>
+
+        <template v-if="invitation">
+          <div class="form-group">
+            <label for="displayName">Full Name</label>
+            <input
+              id="displayName"
+              v-model="form.displayName"
+              type="text"
+              placeholder="Your full name"
+              :disabled="isSubmitting"
+              @blur="validateField('displayName')"
+              required
+              class="modern-input"
+            />
+            <span v-if="fieldErrors.displayName" class="error-message">{{ fieldErrors.displayName }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input
+              id="email"
+              v-model="form.email"
+              type="email"
+              placeholder="your.email@school.com"
+              :disabled="isSubmitting || Boolean(invitation.email)"
+              @blur="validateField('email')"
+              required
+              class="modern-input"
+            />
+            <span v-if="fieldErrors.email" class="error-message">{{ fieldErrors.email }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="teacherType">Teacher Role</label>
+            <select id="teacherType" v-model="form.teacherType" :disabled="isSubmitting" required class="modern-input">
+              <option v-if="invitation.formClass && invitation.subjects.length" disabled value="">Choose your role</option>
+              <option v-if="invitation.formClass" value="FORM_TEACHER">Form Teacher</option>
+              <option v-if="invitation.subjects.length" value="SUBJECT_TEACHER">Subject Teacher</option>
+            </select>
+            <p v-if="!invitation.formClass && !invitation.subjects.length" class="error-message">
+              This invitation has no class or subject allocations. Contact the administrator who issued it.
+            </p>
+          </div>
+
+          <div v-if="form.teacherType === 'FORM_TEACHER'" class="form-group">
+            <label for="formClass">Form Class</label>
+            <select id="formClass" v-model="form.formClassId" :disabled="isSubmitting" required class="modern-input">
+              <option :value="invitation.formClass.id">{{ invitation.formClass.name }}</option>
+            </select>
+          </div>
+
+          <div v-if="form.teacherType === 'SUBJECT_TEACHER'" class="form-group">
+            <label>Subjects You Teach</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label v-for="subject in invitation.subjects" :key="subject.id" class="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-700">
+                <input v-model="form.subjectIds" type="checkbox" :value="subject.id" :disabled="isSubmitting" />
+                <span>{{ subject.name }} <small class="text-slate-500">({{ subject.level }})</small></span>
+              </label>
+            </div>
+            <span v-if="!form.subjectIds.length" class="error-message">Select at least one subject.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Create Password</label>
+            <div class="password-input-wrapper">
+              <input
+                id="password"
+                v-model="form.password"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="At least 6 characters"
+                :disabled="isSubmitting"
+                @blur="validateField('password')"
+                required
+                class="modern-input"
+              />
+              <button type="button" class="toggle-password" @click="showPassword = !showPassword" :disabled="isSubmitting" title="Toggle password visibility">
+                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+              </button>
+            </div>
+            <span v-if="fieldErrors.password" class="error-message">{{ fieldErrors.password }}</span>
+            <div v-else class="password-hint">Choose your private password. It will not be emailed.</div>
+          </div>
+        </template>
 
         <!-- Error Message -->
         <div v-if="formError" class="error-box">
@@ -143,19 +202,18 @@
           </div>
         </div>
 
-        <!-- Submit Button -->
         <button
+          v-if="invitation"
           type="submit"
           class="neon-btn neon-btn-cyan w-full btn-submit"
           :disabled="isSubmitting || !isFormValid"
           :class="{ 'btn-loading': isSubmitting }"
         >
-          {{ isSubmitting ? 'Creating Account...' : 'Create Account' }}
+          {{ isSubmitting ? 'Creating Account...' : 'Create Teacher Account' }}
         </button>
 
-        <!-- Login Link -->
         <div class="login-link">
-          Already have an account? 
+          Already have an account?
           <router-link to="/login/teacher">Sign in here</router-link>
         </div>
       </form>
@@ -174,7 +232,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/services/api';
 
@@ -186,10 +244,13 @@ export default {
     const registrationCode = route.query.code;
     
     const form = ref({
-      email: '',
+      email: typeof route.query.email === 'string' ? route.query.email.trim() : '',
       displayName: '',
       password: '',
       registrationCode: typeof registrationCode === 'string' ? registrationCode.trim() : '',
+      teacherType: '',
+      formClassId: '',
+      subjectIds: [],
     });
 
     const fieldErrors = ref({
@@ -205,16 +266,67 @@ export default {
     const formError = ref('');
     const errorDetails = ref('');
     const showPassword = ref(false);
+    const invitation = ref(null);
+    const invitationError = ref('');
+    const isLoadingInvitation = ref(false);
 
     // Validation patterns
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const currentYear = new Date().getFullYear();
-    const codePattern = new RegExp(`^TCH-${currentYear}-\\d{3}$`, 'i');
+    const codePattern = /^TCH-\d{4}-[a-f0-9]{32}$/i;
 
-    // Normalize and validate code input (format: tch-YYYY-NNN)
+    // Normalize and validate code input.
     const formatCodeInput = () => {
       form.value.registrationCode = String(form.value.registrationCode || '').trim().toLowerCase();
+      if (invitation.value?.code.toLowerCase() !== form.value.registrationCode) {
+        invitation.value = null;
+        form.value.teacherType = '';
+        form.value.formClassId = '';
+        form.value.subjectIds = [];
+      }
     };
+
+    const loadInvitation = async () => {
+      formatCodeInput();
+      validateField('email');
+      validateField('registrationCode');
+      invitationError.value = '';
+      formError.value = '';
+      if (fieldErrors.value.email || fieldErrors.value.registrationCode) return;
+
+      isLoadingInvitation.value = true;
+      try {
+        const { data } = await api.get(
+          `/api/auth/teacher-registration/${encodeURIComponent(form.value.registrationCode)}`,
+          { params: { email: form.value.email } }
+        );
+        invitation.value = data;
+        form.value.displayName = form.value.displayName || data.displayName || '';
+        form.value.email = data.email || form.value.email;
+        form.value.teacherType = data.formClass && data.subjects.length
+          ? ''
+          : data.formClass
+            ? 'FORM_TEACHER'
+            : data.subjects.length
+              ? 'SUBJECT_TEACHER'
+              : '';
+        form.value.formClassId = data.formClass?.id || '';
+        form.value.subjectIds = [];
+        if (!data.formClass && !data.subjects.length) {
+          invitationError.value = 'This invitation has no class or subject allocations. Contact the administrator who issued it.';
+        }
+      } catch (error) {
+        invitation.value = null;
+        invitationError.value = error.response?.data?.error || 'Unable to verify this invitation code.';
+      } finally {
+        isLoadingInvitation.value = false;
+      }
+    };
+
+    onMounted(() => {
+      if (form.value.registrationCode && form.value.email) {
+        loadInvitation();
+      }
+    });
 
     // Validate individual fields
     const validateField = (fieldName) => {
@@ -249,7 +361,7 @@ export default {
           if (!form.value.registrationCode) {
             fieldErrors.value.registrationCode = 'Registration code is required';
           } else if (!codePattern.test(form.value.registrationCode)) {
-            fieldErrors.value.registrationCode = `Code must be in format tch-${currentYear}-NNN (e.g., tch-${currentYear}-001)`;
+            fieldErrors.value.registrationCode = 'Enter a valid registration code issued by your administrator.';
           }
           break;
       }
@@ -257,29 +369,32 @@ export default {
 
     // Check if all fields are valid
     const isFormValid = computed(() => {
-      return (
-        form.value.email &&
-        form.value.displayName &&
-        form.value.password &&
-        form.value.registrationCode &&
-        !fieldErrors.value.email &&
-        !fieldErrors.value.displayName &&
-        !fieldErrors.value.password &&
-        !fieldErrors.value.registrationCode
-      );
+      if (!invitation.value || invitationError.value || !form.value.email || !form.value.displayName.trim() || form.value.password.length < 6) return false;
+      if (Object.values(fieldErrors.value).some(Boolean)) return false;
+      if (!emailPattern.test(form.value.email) || !codePattern.test(form.value.registrationCode)) return false;
+      if (form.value.teacherType === 'FORM_TEACHER') {
+        return Boolean(invitation.value.formClass && form.value.formClassId === invitation.value.formClass.id);
+      }
+      const allowedSubjectIds = new Set(invitation.value.subjects.map(subject => subject.id));
+      return form.value.teacherType === 'SUBJECT_TEACHER' &&
+        form.value.subjectIds.length > 0 &&
+        form.value.subjectIds.every(id => allowedSubjectIds.has(id));
     });
 
     // Submit registration
     const submitRegistration = async () => {
       // Validate all fields first
-      Object.keys(form.value).forEach(key => {
-        if (key !== 'registrationCode') {
-          validateField(key);
-        }
-      });
+      validateField('email');
+      validateField('displayName');
+      validateField('password');
       validateField('registrationCode');
 
       if (!isFormValid.value) {
+        if (!invitation.value) {
+          invitationError.value = 'Verify the administrator-issued registration code before continuing.';
+        } else if (form.value.teacherType === 'SUBJECT_TEACHER' && !form.value.subjectIds.length) {
+          formError.value = 'Select at least one subject from your invitation.';
+        }
         return;
       }
 
@@ -293,6 +408,9 @@ export default {
           password: form.value.password,
           displayName: form.value.displayName,
           registrationCode: form.value.registrationCode,
+          teacherType: form.value.teacherType,
+          formClassId: form.value.teacherType === 'FORM_TEACHER' ? form.value.formClassId : null,
+          subjectIds: form.value.teacherType === 'SUBJECT_TEACHER' ? form.value.subjectIds : [],
         });
 
         if (response.data.success) {
@@ -320,6 +438,11 @@ export default {
         } else if (error.response?.data?.code === 'CODE_NOT_FOUND') {
           formError.value = 'Registration code not found.';
           errorDetails.value = 'Please verify the code and try again.';
+        } else if (error.response?.data?.code === 'ALLOCATION_MISMATCH') {
+          formError.value = error.response.data.error;
+          errorDetails.value = 'Choose only the class or subjects assigned to your invitation.';
+        } else if (error.response?.data?.code === 'CLASS_ALREADY_ASSIGNED') {
+          formError.value = error.response.data.error;
         } else {
           formError.value = error.response?.data?.message || 'Registration failed. Please try again.';
           errorDetails.value = error.response?.data?.details || '';
@@ -342,8 +465,12 @@ export default {
       formError,
       errorDetails,
       showPassword,
+      invitation,
+      invitationError,
+      isLoadingInvitation,
       isFormValid,
       formatCodeInput,
+      loadInvitation,
       validateField,
       submitRegistration,
       copyToClipboard,
