@@ -57,6 +57,11 @@ const normalizeLevel = (value: string) => {
   return normalized
 }
 
+const isSecondaryClass = (classItem: any) => {
+  const level = normalizeLevel(classItem.level || classItem.name)
+  return level === 'JSS' || level === 'SSS'
+}
+
 const subjectMatchesId = (subject: any, subjectId: string) => {
   return subject?.id === subjectId || (subject?.aliasIds || []).includes(subjectId)
 }
@@ -353,12 +358,7 @@ const filteredEditClasses = computed(() => {
       return lvl.includes('PRY') || lvl.includes('NUR') || lvl.includes('PRE')
     })
   }
-  const level = editingTeacher.value.secondaryLevel
-  if (level === 'Both') return classes.value.filter(c => {
-    const lvl = String(c.level).toUpperCase()
-    return lvl.includes('JSS') || lvl.includes('SSS') || lvl.includes('SS')
-  })
-  return classes.value.filter(c => String(c.level).toUpperCase().includes(level))
+  return classes.value.filter(isSecondaryClass)
 })
 
 const filteredEditSubjects = computed(() => {
@@ -756,7 +756,7 @@ onMounted(fetchTeachers)
 
               <!-- Class Assignment - Always shown for Primary/Nursery, conditional for Secondary -->
               <div v-if="editingTeacher.department === 'Primary/Nursery' || (editingTeacher.department === 'Secondary' && (editingTeacher.roleType === 'Form Teacher' || editingTeacher.roleType === 'Dual Role'))" class="space-y-3 animate-slide-up">
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Primary Class Governance</label>
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">{{ editingTeacher.department === 'Secondary' ? 'Form Class Governance' : 'Primary Class Governance' }}</label>
                 <select v-model="editingTeacher.formClassId" class="w-full px-8 py-5 bg-slate-900/60 text-white border border-slate-700/60 rounded-[1.5rem] text-xs font-black uppercase tracking-[0.2em] focus:bg-slate-950 focus:border-nebula-500/30 outline-none transition-all cursor-pointer">
                   <option value="">Select Governing Class...</option>
                   <option v-for="cls in filteredEditClasses" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
