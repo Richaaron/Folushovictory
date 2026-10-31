@@ -29,20 +29,20 @@ const menuItems = [
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-[#F7F4EE] text-[#1C1917] relative">
-    <Navbar portal="Admin" username="Admin User" :menuItems="menuItems" :onToggleSidebar="toggleSidebar" />
+  <div class="min-h-screen flex flex-col bg-[#F8FAFC] text-[#1E293B] antialiased">
+    <Navbar portal="Admin" username="Administrator" :menuItems="menuItems" :onToggleSidebar="toggleSidebar" />
 
-    <div class="flex-grow flex p-3 sm:p-5 lg:p-6 gap-5 relative z-10 max-w-7xl mx-auto w-full">
+    <div class="flex-grow flex p-3 sm:p-5 lg:p-6 gap-5 max-w-7xl mx-auto w-full">
       
-      <!-- Collapsible Admin Sidebar -->
+      <!-- Collapsible Admin Sidebar (Desktop only, mobile uses Navbar dropdown) -->
       <aside
-        class="hidden lg:flex flex-col flex-shrink-0 bg-white rounded-2xl border border-[#E5E0D8] shadow-sm overflow-hidden transition-all duration-300"
+        class="hidden lg:flex flex-col flex-shrink-0 bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden transition-all duration-200"
         :class="[sidebarOpen ? 'w-60' : 'w-20']"
       >
         <div class="p-3.5 flex flex-col h-full">
           <button
             @click="toggleSidebar"
-            class="self-end p-2 rounded-xl bg-[#F7F4EE] border border-[#E5E0D8] text-[#4B5563] hover:text-[#1A4D8F] hover:bg-[#EBF2FA] active:scale-95 transition-all mb-4"
+            class="self-end p-2 rounded-xl bg-[#F1F5F9] border border-[#E2E8F0] text-[#475569] hover:text-[#0F172A] hover:bg-[#E2E8F0] active:scale-95 transition-all mb-4"
             aria-label="Toggle Sidebar"
           >
             <ChevronLeft v-if="sidebarOpen" class="w-4 h-4" />
@@ -57,8 +57,8 @@ const menuItems = [
               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150"
               :class="[
                 $route.path === item.route 
-                  ? 'bg-[#1A4D8F] text-white shadow-sm' 
-                  : 'text-[#4B5563] hover:bg-[#F7F4EE] hover:text-[#1C1917]'
+                  ? 'bg-[#1E3A8A] text-white shadow-sm' 
+                  : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
               ]"
             >
               <component :is="item.icon" class="w-4 h-4 flex-shrink-0" />
@@ -66,16 +66,16 @@ const menuItems = [
             </router-link>
           </div>
 
-          <div v-if="sidebarOpen" class="mt-4 pt-3 border-t border-[#E5E0D8]">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] text-center">
-              2025/2026 Academic Session
+          <div v-if="sidebarOpen" class="mt-4 pt-3 border-t border-[#E2E8F0]">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-[#64748B] text-center">
+              Session 2025/2026
             </p>
           </div>
         </div>
       </aside>
 
       <!-- Main Content Area -->
-      <main class="flex-grow overflow-x-hidden min-w-0">
+      <main class="flex-grow overflow-x-hidden min-w-0 w-full">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
             <component :is="Component" />

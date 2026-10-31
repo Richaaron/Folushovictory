@@ -8,7 +8,6 @@ import {
   Users, 
   Award, 
   CheckCircle2, 
-  Sparkles,
   BarChart3,
   CalendarCheck
 } from 'lucide-vue-next'
@@ -24,95 +23,99 @@ const portals = [
     id: 'admin',
     title: 'Admin Portal',
     badge: 'Management',
-    description: 'Institution governance, broadsheets, staff, and student records',
+    description: 'School governance, broadsheets, staff allocations, and student records',
     icon: ShieldCheck,
-    accentBorder: 'border-l-4 border-l-[#1A4D8F]',
-    iconBg: 'bg-[#1A4D8F]/10 text-[#1A4D8F]',
-    hoverBg: 'hover:border-[#1A4D8F]/40'
+    borderLeft: 'border-l-4 border-l-[#1E3A8A]',
+    badgeClass: 'bg-[#EFF6FF] text-[#1E3A8A] border border-[#BFDBFE]',
+    iconClass: 'bg-[#EFF6FF] text-[#1E3A8A]',
   },
   {
     id: 'teacher',
     title: 'Teacher Portal',
     badge: 'Faculty',
-    description: 'Score entry, attendance, form class remarks, and activities',
+    description: 'Continuous assessment score entry, attendance, and form teacher remarks',
     icon: BookOpen,
-    accentBorder: 'border-l-4 border-l-[#2D6A4F]',
-    iconBg: 'bg-[#2D6A4F]/10 text-[#2D6A4F]',
-    hoverBg: 'hover:border-[#2D6A4F]/40'
+    borderLeft: 'border-l-4 border-l-[#059669]',
+    badgeClass: 'bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]',
+    iconClass: 'bg-[#ECFDF5] text-[#059669]',
   },
   {
     id: 'parent',
     title: 'Parent Portal',
     badge: 'Family',
-    description: 'Track academic performance, report cards, and school notices',
+    description: 'Monitor your ward’s terminal report sheets, grades, and academic growth',
     icon: Users,
-    accentBorder: 'border-l-4 border-l-[#E8A838]',
-    iconBg: 'bg-[#E8A838]/15 text-[#C98818]',
-    hoverBg: 'hover:border-[#E8A838]/40'
+    borderLeft: 'border-l-4 border-l-[#D97706]',
+    badgeClass: 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]',
+    iconClass: 'bg-[#FFFBEB] text-[#D97706]',
   },
   {
     id: 'student',
     title: 'Student Portal',
-    badge: 'Learners',
-    description: 'View term report sheets, learning tasks, and academic standing',
+    badge: 'Learner',
+    description: 'Access registered class subjects, online tests, and report card results',
     icon: GraduationCap,
-    accentBorder: 'border-l-4 border-l-[#2B6CB0]',
-    iconBg: 'bg-[#2B6CB0]/10 text-[#2B6CB0]',
-    hoverBg: 'hover:border-[#2B6CB0]/40'
+    borderLeft: 'border-l-4 border-l-[#2563EB]',
+    badgeClass: 'bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE]',
+    iconClass: 'bg-[#EFF6FF] text-[#2563EB]',
   }
 ]
 
 const features = [
   {
     icon: Award,
-    title: 'Academic Excellence',
-    description: 'Curriculum-aligned grading, broadsheets, and automatic position ranking.',
+    title: 'Terminal Result Reports',
+    description: 'Comprehensive report cards with continuous assessment breakdown and position rankings.',
     badge: 'Assessment'
   },
   {
     icon: BarChart3,
-    title: 'Real-time Broadsheets',
-    description: 'Full class result sheets with term averages and instant PDF reports.',
+    title: 'Master Broadsheets',
+    description: 'Instant class-wide broadsheets with cumulative averages and statistical distributions.',
     badge: 'Analytics'
   },
   {
     icon: CalendarCheck,
-    title: 'Holistic Student Records',
-    description: 'Track psychomotor traits, affective domains, attendance, and remarks.',
-    badge: 'Records'
+    title: 'Holistic Domains',
+    description: 'Track affective domains, psychomotor traits, attendance, and form teacher remarks.',
+    badge: 'Pastoral'
   },
   {
     icon: CheckCircle2,
-    title: 'Direct Parent Access',
-    description: 'Parents verify grades and term reports seamlessly with secure PIN access.',
-    badge: 'Community'
+    title: 'Secure Student Login',
+    description: 'Instant result access using unique student admission numbers and secure 8-digit PINs.',
+    badge: 'Security'
   }
 ]
 </script>
 
 <template>
-  <div class="landing-root min-h-screen bg-[#F7F4EE] flex flex-col text-[#1C1917]">
+  <div class="min-h-screen bg-[#F8FAFC] flex flex-col text-[#1E293B] antialiased">
+    
     <!-- ═══════ HEADER ═══════ -->
-    <header class="sticky top-0 z-30 bg-[#FFFFFF]/90 backdrop-blur-md border-b border-[#E5E0D8]">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-white p-1 border border-[#E5E0D8] shadow-sm flex items-center justify-center">
+    <header class="sticky top-0 z-40 bg-white border-b border-[#E2E8F0] shadow-sm">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
+        
+        <!-- School Brand Identity -->
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-white p-1 border border-[#E2E8F0] shadow-sm flex items-center justify-center shrink-0">
             <img src="/logo.png" alt="Folusho Victory Schools" class="h-full w-full object-contain" />
           </div>
-          <div>
-            <span class="text-xs sm:text-sm font-extrabold tracking-wider text-[#1A4D8F] uppercase block leading-tight">
+          <div class="min-w-0">
+            <span class="text-xs sm:text-base font-extrabold tracking-wide text-[#0F172A] block leading-tight truncate">
               FOLUSHO VICTORY SCHOOLS
             </span>
-            <span class="text-[10px] sm:text-xs text-[#6B7280] font-medium block">
+            <span class="text-[11px] sm:text-xs text-[#475569] font-medium block truncate">
               Academic Information & Results Portal
             </span>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <!-- Quick Admin Link -->
+        <div class="flex items-center gap-2 shrink-0">
           <button 
             @click="navigateToLogin('admin')"
-            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#1A4D8F] bg-[#1A4D8F]/10 hover:bg-[#1A4D8F]/15 transition-colors"
+            class="px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1E3A8A] hover:bg-[#172554] transition-all shadow-sm active:scale-95"
           >
             Admin Sign In
           </button>
@@ -120,132 +123,138 @@ const features = [
       </div>
     </header>
 
-    <!-- ═══════ HERO SECTION ═══════ -->
+    <!-- ═══════ MAIN CONTENT ═══════ -->
     <main class="flex-grow">
-      <section class="py-10 sm:py-16 lg:py-20">
+      
+      <!-- HERO SECTION -->
+      <section class="py-8 sm:py-14 lg:py-18">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div class="grid gap-12 lg:grid-cols-12 lg:items-center">
+          <div class="grid gap-8 lg:gap-12 lg:grid-cols-12 lg:items-center">
             
-            <!-- LEFT: Hero Branding -->
-            <div class="lg:col-span-6 space-y-6">
-              <div class="inline-flex items-center gap-2 rounded-full border border-[#E8A838]/40 bg-[#E8A838]/10 px-3.5 py-1.5">
-                <Sparkles class="h-3.5 w-3.5 text-[#C98818]" />
-                <span class="text-xs font-semibold text-[#8C5D07]">
-                  Folusho Victory Academy • Term Results & Portals
+            <!-- LEFT: Hero Copy & Stats -->
+            <div class="lg:col-span-6 space-y-5 sm:space-y-6">
+              
+              <div class="inline-flex items-center gap-2 rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 shadow-sm">
+                <span class="h-2 w-2 rounded-full bg-[#059669]"></span>
+                <span class="text-xs font-bold text-[#0F172A]">
+                  2025/2026 Academic Session • Active
                 </span>
               </div>
 
-              <h1 class="text-3xl sm:text-5xl lg:text-5xl font-extrabold tracking-tight text-[#1C1917] leading-[1.15]">
-                Empowering Students, 
-                <span class="text-[#1A4D8F]">Inspiring Excellence</span> & Supporting Growth.
+              <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0F172A] tracking-tight leading-tight">
+                Inspiring Academic Excellence & Holistic Growth.
               </h1>
 
-              <p class="text-base sm:text-lg text-[#4B5563] leading-relaxed">
-                Welcome to Folusho Victory Schools' unified academic portal. Access term performance, verify reports, manage curriculum activities, and collaborate effortlessly.
+              <p class="text-sm sm:text-base text-[#334155] leading-relaxed">
+                Welcome to Folusho Victory Schools' unified educational portal. Designed for Pre-Nursery, Nursery, Primary, and Secondary students, parents, and educators.
               </p>
 
-              <!-- Stat Badges -->
-              <div class="pt-3 grid grid-cols-3 gap-4 border-t border-[#E5E0D8]">
-                <div class="bg-white p-3 sm:p-4 rounded-xl border border-[#E5E0D8] shadow-sm">
-                  <div class="text-xl sm:text-2xl font-black text-[#1A4D8F]">350+</div>
-                  <div class="text-[11px] sm:text-xs text-[#6B7280] font-medium">Students Enrolled</div>
+              <!-- Stat Counters -->
+              <div class="grid grid-cols-3 gap-3 sm:gap-4 pt-2">
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-[#E2E8F0] shadow-sm text-center">
+                  <div class="text-xl sm:text-2xl font-black text-[#1E3A8A]">350+</div>
+                  <div class="text-[11px] sm:text-xs text-[#475569] font-bold mt-0.5">Students</div>
                 </div>
-                <div class="bg-white p-3 sm:p-4 rounded-xl border border-[#E5E0D8] shadow-sm">
-                  <div class="text-xl sm:text-2xl font-black text-[#2D6A4F]">9+</div>
-                  <div class="text-[11px] sm:text-xs text-[#6B7280] font-medium">Class Levels</div>
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-[#E2E8F0] shadow-sm text-center">
+                  <div class="text-xl sm:text-2xl font-black text-[#059669]">14+</div>
+                  <div class="text-[11px] sm:text-xs text-[#475569] font-bold mt-0.5">Classes</div>
                 </div>
-                <div class="bg-white p-3 sm:p-4 rounded-xl border border-[#E5E0D8] shadow-sm">
-                  <div class="text-xl sm:text-2xl font-black text-[#E8A838]">100%</div>
-                  <div class="text-[11px] sm:text-xs text-[#6B7280] font-medium">Verified Records</div>
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-[#E2E8F0] shadow-sm text-center">
+                  <div class="text-xl sm:text-2xl font-black text-[#D97706]">100%</div>
+                  <div class="text-[11px] sm:text-xs text-[#475569] font-bold mt-0.5">Verified</div>
                 </div>
               </div>
             </div>
 
-            <!-- RIGHT: Portal Cards -->
-            <div class="lg:col-span-6 space-y-3.5">
-              <div class="mb-2">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-[#6B7280]">
-                  Select Your Portal
+            <!-- RIGHT: Portal Selector Cards -->
+            <div class="lg:col-span-6 space-y-3 sm:space-y-3.5">
+              <div class="mb-1">
+                <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#475569]">
+                  Select Your Portal to Continue
                 </h2>
               </div>
 
+              <!-- Portals list -->
               <div 
                 v-for="portal in portals" 
                 :key="portal.id"
                 @click="navigateToLogin(portal.id)"
-                class="bg-white p-4 sm:p-5 rounded-2xl border border-[#E5E0D8] shadow-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md flex items-center justify-between gap-4 group"
-                :class="[portal.accentBorder, portal.hoverBg]"
+                class="bg-white p-4 sm:p-5 rounded-2xl border border-[#E2E8F0] shadow-sm cursor-pointer transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md flex items-center justify-between gap-3 group active:bg-[#F8FAFC]"
+                :class="portal.borderLeft"
               >
-                <div class="flex items-center gap-4">
-                  <div class="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105" :class="portal.iconBg">
-                    <component :is="portal.icon" class="h-6 w-6" />
+                <div class="flex items-center gap-3.5 min-w-0">
+                  <div class="h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0" :class="portal.iconClass">
+                    <component :is="portal.icon" class="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
-                  <div>
+                  <div class="min-w-0">
                     <div class="flex items-center gap-2 mb-0.5">
-                      <h3 class="text-base sm:text-lg font-bold text-[#1C1917] group-hover:text-[#1A4D8F] transition-colors">
+                      <h3 class="text-sm sm:text-base font-extrabold text-[#0F172A] group-hover:text-[#1E3A8A] transition-colors truncate">
                         {{ portal.title }}
                       </h3>
-                      <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md bg-[#F3EFE7] text-[#6B7280]">
+                      <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md shrink-0" :class="portal.badgeClass">
                         {{ portal.badge }}
                       </span>
                     </div>
-                    <p class="text-xs sm:text-sm text-[#4B5563]">
+                    <p class="text-xs text-[#475569] line-clamp-2">
                       {{ portal.description }}
                     </p>
                   </div>
                 </div>
 
-                <div class="h-9 w-9 rounded-full bg-[#F7F4EE] flex items-center justify-center text-[#6B7280] group-hover:bg-[#1A4D8F] group-hover:text-white transition-all shrink-0">
-                  <ArrowRight class="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                <div class="h-9 w-9 rounded-full bg-[#F1F5F9] flex items-center justify-center text-[#475569] group-hover:bg-[#1E3A8A] group-hover:text-white transition-all shrink-0">
+                  <ArrowRight class="h-4 w-4" />
                 </div>
               </div>
+
             </div>
+
           </div>
         </div>
       </section>
 
-      <!-- ═══════ HIGHLIGHTS SECTION ═══════ -->
-      <section class="py-12 bg-white border-y border-[#E5E0D8]">
+      <!-- ═══════ SCHOOL HIGHLIGHTS ═══════ -->
+      <section class="py-10 sm:py-14 bg-white border-y border-[#E2E8F0]">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div class="text-center max-w-2xl mx-auto mb-10">
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-[#1C1917]">
-              Designed for Nigerian Schools & Academic Excellence
+          <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+            <h2 class="text-xl sm:text-3xl font-black text-[#0F172A]">
+              Designed for Complete Transparency & Trust
             </h2>
-            <p class="mt-2 text-sm sm:text-base text-[#6B7280]">
-              Built with precision for Pre-Nursery through Secondary classes, providing reliable assessment and student transparency.
+            <p class="mt-2 text-xs sm:text-sm text-[#475569]">
+              Every assessment score, broadsheet calculation, and terminal grade is processed with institutional accuracy.
             </p>
           </div>
 
-          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             <div 
               v-for="(feature, idx) in features" 
               :key="idx"
-              class="p-5 rounded-2xl bg-[#F7F4EE] border border-[#E5E0D8] space-y-3"
+              class="p-5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-2.5"
             >
-              <div class="h-10 w-10 rounded-xl bg-white border border-[#E5E0D8] flex items-center justify-center text-[#1A4D8F]">
+              <div class="h-10 w-10 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-center text-[#1E3A8A]">
                 <component :is="feature.icon" class="h-5 w-5" />
               </div>
-              <h3 class="text-base font-bold text-[#1C1917]">
+              <h3 class="text-sm sm:text-base font-bold text-[#0F172A]">
                 {{ feature.title }}
               </h3>
-              <p class="text-xs text-[#4B5563] leading-relaxed">
+              <p class="text-xs text-[#475569] leading-relaxed">
                 {{ feature.description }}
               </p>
             </div>
           </div>
         </div>
       </section>
+
     </main>
 
     <!-- ═══════ FOOTER ═══════ -->
-    <footer class="bg-[#F7F4EE] border-t border-[#E5E0D8] py-8">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6B7280]">
+    <footer class="bg-[#F8FAFC] border-t border-[#E2E8F0] py-6 sm:py-8">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#475569]">
         <div class="flex items-center gap-2">
           <img src="/logo.png" alt="Logo" class="h-6 w-6 object-contain" />
-          <span class="font-bold text-[#1C1917]">Folusho Victory Schools</span>
-          <span>© 2026. All rights reserved.</span>
+          <span class="font-extrabold text-[#0F172A]">Folusho Victory Schools</span>
+          <span>• Session 2025/2026</span>
         </div>
-        <div class="flex items-center gap-4 font-medium">
+        <div class="flex items-center gap-3 font-semibold text-[#64748B]">
           <span>Integrity</span>
           <span>•</span>
           <span>Discipline</span>
@@ -254,5 +263,6 @@ const features = [
         </div>
       </div>
     </footer>
+
   </div>
 </template>

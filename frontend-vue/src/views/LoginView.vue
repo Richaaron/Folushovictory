@@ -44,41 +44,46 @@ const portalConfig: Record<PortalKey, {
   title: string;
   roleSubtitle: string;
   icon: any;
-  btnClass: string;
+  btnBg: string;
   activeTabClass: string;
-  iconBg: string;
+  iconColor: string;
+  placeholderUser: string;
 }> = {
   admin: {
     title: 'Admin Portal',
     roleSubtitle: 'Institutional & Academic Governance',
     icon: ShieldCheck,
-    btnClass: 'bg-[#1A4D8F] hover:bg-[#12386A] text-white',
-    activeTabClass: 'bg-[#1A4D8F] text-white shadow-sm',
-    iconBg: 'bg-[#1A4D8F]/10 text-[#1A4D8F]'
+    btnBg: 'bg-[#1E3A8A] hover:bg-[#172554]',
+    activeTabClass: 'bg-[#1E3A8A] text-white font-black shadow-sm',
+    iconColor: 'bg-[#EFF6FF] text-[#1E3A8A]',
+    placeholderUser: 'Enter your admin email or username'
   },
   teacher: {
     title: 'Teacher Portal',
-    roleSubtitle: 'Curriculum & Score Management',
+    roleSubtitle: 'Continuous Assessment & Examination Scores',
     icon: BookOpen,
-    btnClass: 'bg-[#2D6A4F] hover:bg-[#1F4D38] text-white',
-    activeTabClass: 'bg-[#2D6A4F] text-white shadow-sm',
-    iconBg: 'bg-[#2D6A4F]/10 text-[#2D6A4F]'
+    btnBg: 'bg-[#059669] hover:bg-[#047857]',
+    activeTabClass: 'bg-[#059669] text-white font-black shadow-sm',
+    iconColor: 'bg-[#ECFDF5] text-[#059669]',
+    placeholderUser: 'Enter your email or teacher code'
   },
   parent: {
     title: 'Parent Portal',
-    roleSubtitle: 'Ward Academic Performance & Progress',
+    roleSubtitle: 'Ward Academic Performance & Reports',
     icon: Users,
-    btnClass: 'bg-[#C98818] hover:bg-[#9E670B] text-white',
-    activeTabClass: 'bg-[#E8A838] text-white shadow-sm',
-    iconBg: 'bg-[#E8A838]/15 text-[#C98818]'
+    btnBg: 'bg-[#D97706] hover:bg-[#B45309]',
+    activeTabClass: 'bg-[#D97706] text-white font-black shadow-sm',
+    iconColor: 'bg-[#FFFBEB] text-[#D97706]',
+    placeholderUser: 'Enter your parent username'
   },
   student: {
     title: 'Student Portal',
-    roleSubtitle: 'Personal Results & Term Assessment',
+    roleSubtitle: 'Terminal Results & Registered Subjects',
     icon: GraduationCap,
-    btnClass: 'bg-[#2B6CB0] hover:bg-[#1E4E80] text-white',
-    activeTabClass: 'bg-[#2B6CB0] text-white shadow-sm',
-    iconBg: 'bg-[#2B6CB0]/10 text-[#2B6CB0]'
+    btnBg: 'bg-[#2563EB] hover:bg-[#1D4ED8]',
+    activeTabClass: 'bg-[#2563EB] text-white font-black shadow-sm',
+    iconColor: 'bg-[#EFF6FF] text-[#2563EB]',
+    placeholderUser: 'e.g. fvs-2026-0378'
   }
 }
 
@@ -140,107 +145,108 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F7F4EE] flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 text-[#1C1917]">
+  <div class="min-h-screen bg-[#F8FAFC] flex flex-col justify-center py-6 px-4 sm:px-6 lg:px-8 text-[#1E293B] antialiased">
     
     <!-- Top Back Link -->
     <div class="mx-auto w-full max-w-md mb-4 flex items-center justify-between">
-      <router-link to="/" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#1A4D8F] transition-colors">
+      <router-link to="/" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E3A8A] hover:underline transition-colors">
         <ArrowLeft class="w-4 h-4" />
-        Back to Folusho Victory Home
+        Return to Home
       </router-link>
-      <span class="text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF]">
-        Portal Authentication
+      <span class="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+        Secure Authentication
       </span>
     </div>
 
-    <!-- Main Container -->
+    <!-- Login Container -->
     <div class="mx-auto w-full max-w-md">
       
-      <!-- Portal Selector Pills -->
-      <div class="bg-white p-1.5 rounded-2xl border border-[#E5E0D8] shadow-sm mb-5 flex items-center justify-between gap-1">
+      <!-- Responsive Portal Selector Tabs (2x2 on mobile, row on tablet) -->
+      <div class="bg-white p-1.5 rounded-2xl border border-[#E2E8F0] shadow-sm mb-4 grid grid-cols-2 sm:grid-cols-4 gap-1">
         <button
           v-for="key in portalKeys"
           :key="key"
           @click="selectPortal(key)"
-          class="flex-1 py-2 px-2 rounded-xl text-xs font-bold capitalize transition-all duration-200 flex items-center justify-center gap-1.5"
+          class="py-2.5 px-2 rounded-xl text-xs font-bold capitalize transition-all duration-150 flex items-center justify-center gap-1.5"
           :class="[
             portal === key 
               ? portalConfig[key].activeTabClass 
-              : 'text-[#6B7280] hover:bg-[#F7F4EE] hover:text-[#1C1917]'
+              : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
           ]"
         >
-          <component :is="portalConfig[key].icon" class="w-3.5 h-3.5" />
+          <component :is="portalConfig[key].icon" class="w-4 h-4 shrink-0" />
           <span>{{ key }}</span>
         </button>
       </div>
 
-      <!-- Login Card -->
-      <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 sm:p-8 shadow-sm">
+      <!-- Main Login Card -->
+      <div class="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 shadow-sm">
         
-        <!-- Header -->
+        <!-- School Crest & Header -->
         <div class="text-center mb-6">
-          <div class="mx-auto h-14 w-14 rounded-2xl bg-white p-1 border border-[#E5E0D8] shadow-sm flex items-center justify-center mb-3">
+          <div class="mx-auto h-14 w-14 rounded-2xl bg-white p-1 border border-[#E2E8F0] shadow-sm flex items-center justify-center mb-3">
             <img src="/logo.png" alt="Folusho Victory Schools" class="h-full w-full object-contain" />
           </div>
           
-          <h1 class="text-xl sm:text-2xl font-extrabold text-[#1C1917]">
+          <h1 class="text-xl sm:text-2xl font-black text-[#0F172A]">
             {{ currentConfig.title }}
           </h1>
-          <p class="text-xs text-[#6B7280] mt-1">
+          <p class="text-xs text-[#475569] font-medium mt-1">
             {{ currentConfig.roleSubtitle }}
           </p>
         </div>
 
-        <!-- Error Alert -->
+        <!-- Error Message Alert -->
         <div
           v-if="error"
-          class="mb-5 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700"
+          class="mb-4 flex items-start gap-2.5 rounded-xl border border-red-300 bg-red-50 p-3.5 text-xs font-bold text-red-900"
         >
-          <AlertCircle class="h-4 w-4 shrink-0 mt-0.5" />
+          <AlertCircle class="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
           <span>{{ error }}</span>
         </div>
 
-        <!-- Teacher Registration Prompt -->
+        <!-- Teacher Setup Prompt -->
         <div 
           v-if="needSignup && portal === 'teacher'" 
-          class="mb-5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3"
+          class="mb-4 text-xs font-bold text-amber-900 bg-amber-50 border border-amber-300 rounded-xl p-3"
         >
-          It looks like your teacher account needs initial setup. 
-          <router-link to="/register/teacher" class="underline font-bold text-amber-900 ml-1">
-            Complete registration
+          Your teacher invitation code needs registration. 
+          <router-link to="/register/teacher" class="underline font-black text-amber-950 ml-1">
+            Click here to complete registration
           </router-link>
         </div>
 
         <!-- Form -->
         <form @submit.prevent="handleLogin" class="space-y-4">
-          <!-- Identifier -->
+          
+          <!-- Username / Admission Number -->
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-[#4B5563] mb-1.5">
+            <label class="block text-xs font-bold uppercase tracking-wider text-[#0F172A] mb-1.5">
               {{ portal === 'student' ? 'Admission Number' : portal === 'teacher' ? 'Email or Teacher Code' : 'Email or Username' }}
             </label>
             <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#9CA3AF]">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#64748B]">
                 <User class="h-4 w-4" />
               </div>
               <input
                 v-model="username"
                 type="text"
                 required
-                class="w-full pl-10 pr-3 py-2.5 bg-white border border-[#D8D2C4] rounded-xl text-sm text-[#1C1917] focus:outline-none focus:border-[#1A4D8F] focus:ring-2 focus:ring-[#1A4D8F]/10 placeholder:text-[#9CA3AF] transition-all"
-                :placeholder="portal === 'student' ? 'e.g. fvs-2026-0378' : portal === 'teacher' ? 'e.g. teacher@fvs.edu.ng' : 'Enter your username or email'"
+                class="w-full pl-10 pr-3 py-2.5 bg-white border border-[#CBD5E1] rounded-xl text-base text-[#0F172A] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 placeholder:text-[#94A3B8] transition-all"
+                :placeholder="currentConfig.placeholderUser"
               />
             </div>
           </div>
 
-          <!-- Secret / PIN -->
+          <!-- Password / 8-digit PIN -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <label class="block text-xs font-bold uppercase tracking-wider text-[#4B5563]">
+              <label class="block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
                 {{ portal === 'student' ? '8-Digit Student PIN' : 'Password' }}
               </label>
             </div>
             <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#9CA3AF]">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#64748B]">
                 <Lock class="h-4 w-4" />
               </div>
               <input
@@ -250,14 +256,15 @@ const handleLogin = async () => {
                 :maxlength="portal === 'student' ? 8 : undefined"
                 :pattern="portal === 'student' ? '[0-9]{8}' : undefined"
                 required
-                class="w-full pl-10 pr-10 py-2.5 bg-white border border-[#D8D2C4] rounded-xl text-sm text-[#1C1917] focus:outline-none focus:border-[#1A4D8F] focus:ring-2 focus:ring-[#1A4D8F]/10 placeholder:text-[#9CA3AF] transition-all"
-                :placeholder="portal === 'student' ? '8-digit PIN' : 'Enter your password'"
+                class="w-full pl-10 pr-10 py-2.5 bg-white border border-[#CBD5E1] rounded-xl text-base text-[#0F172A] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 placeholder:text-[#94A3B8] transition-all"
+                :placeholder="portal === 'student' ? 'Enter your 8-digit PIN' : 'Enter your password'"
               />
               <button
                 v-if="portal !== 'student'"
                 type="button"
                 @click="passwordVisible = !passwordVisible"
-                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#9CA3AF] hover:text-[#4B5563]"
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#64748B] hover:text-[#0F172A]"
+                tabindex="-1"
               >
                 <Eye v-if="!passwordVisible" class="h-4 w-4" />
                 <EyeOff v-else class="h-4 w-4" />
@@ -265,25 +272,25 @@ const handleLogin = async () => {
             </div>
           </div>
 
-          <!-- Submit -->
+          <!-- Sign In Submit Button (Bold Pure White Text) -->
           <button
             type="submit"
             :disabled="loading"
-            class="w-full py-3 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm active:scale-[0.99] mt-2"
-            :class="[currentConfig.btnClass, loading ? 'opacity-70 cursor-not-allowed' : '']"
+            class="w-full py-3 px-4 rounded-xl text-sm font-extrabold text-white flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 mt-2"
+            :class="[currentConfig.btnBg, loading ? 'opacity-70 cursor-not-allowed' : '']"
           >
-            <Loader2 v-if="loading" class="h-4 w-4 animate-spin" />
-            <span v-else>Sign In to {{ portal.toUpperCase() }}</span>
+            <Loader2 v-if="loading" class="h-4 w-4 animate-spin text-white" />
+            <span v-else class="text-white">Sign In to {{ portal.toUpperCase() }}</span>
           </button>
         </form>
 
         <!-- Help Link -->
-        <div class="mt-5 pt-4 border-t border-[#E5E0D8] text-center">
+        <div class="mt-5 pt-4 border-t border-[#E2E8F0] text-center">
           <router-link 
             :to="`/forgot-password/${portal}`" 
-            class="text-xs font-semibold text-[#6B7280] hover:text-[#1A4D8F] transition-colors"
+            class="text-xs font-bold text-[#1E3A8A] hover:underline transition-colors"
           >
-            {{ portal === 'student' ? 'Forgot your 8-digit PIN?' : 'Need assistance or forgot password?' }}
+            {{ portal === 'student' ? 'Forgot your 8-digit student PIN?' : 'Forgot password or need help signing in?' }}
           </router-link>
         </div>
 
@@ -291,8 +298,8 @@ const handleLogin = async () => {
 
       <!-- Security Notice -->
       <div class="mt-4 text-center">
-        <p class="text-[11px] text-[#8C827A]">
-          Official Portal of Folusho Victory Schools • Secure Session
+        <p class="text-xs font-medium text-[#64748B]">
+          Folusho Victory Schools • Official Academic System
         </p>
       </div>
 

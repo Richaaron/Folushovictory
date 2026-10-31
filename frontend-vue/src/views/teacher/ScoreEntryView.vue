@@ -470,68 +470,68 @@ const printScoreSheet = () => {
     <!-- Header -->
     <div class="flex flex-col gap-4">
       <div class="flex items-center gap-3">
-        <button @click="router.back()" class="h-11 w-11 shrink-0 rounded-2xl bg-slate-900/60 border border-slate-700/60 shadow-sm flex items-center justify-center text-slate-200 hover:text-royal-purple transition-all">
+        <button @click="router.back()" class="h-11 w-11 shrink-0 rounded-2xl bg-white border border-slate-300 shadow-sm flex items-center justify-center text-slate-700 hover:text-blue-900 hover:border-blue-400 transition-all">
           <ArrowLeft class="w-5 h-5" />
         </button>
         <div class="min-w-0">
-          <h1 class="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">{{ subjectName }}</h1>
-          <p class="text-[10px] sm:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">{{ className }} • Score Entry</p>
+          <h1 class="text-xl sm:text-3xl font-black text-slate-900 tracking-tight truncate">{{ subjectName }}</h1>
+          <p class="text-xs sm:text-sm font-extrabold text-slate-600 uppercase tracking-widest mt-0.5">{{ className }} • Score Entry</p>
         </div>
       </div>
 
       <!-- Controls row -->
       <div class="flex flex-wrap items-center gap-2 no-print">
         <!-- Active session/term badge (read-only) -->
-        <div v-if="session" class="flex items-center gap-1.5 px-3 py-2.5 bg-slate-900/60 rounded-xl text-[10px] font-black uppercase tracking-widest text-royal-purple border border-royal-purple/30">
+        <div v-if="session" class="flex items-center gap-1.5 px-3.5 py-2.5 bg-blue-50 rounded-xl text-xs font-black uppercase tracking-wider text-blue-900 border border-blue-200">
           {{ session }} &bull; {{ term }} Term
         </div>
 
         <!-- Excel download -->
         <button @click="exportScoreSheetExcel" title="Download Excel score sheet"
-          class="flex items-center gap-1.5 rounded-xl bg-slate-900/60 border border-slate-700/60 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:text-royal-purple hover:border-royal-purple">
-          <Download class="w-4 h-4" />
+          class="flex items-center gap-1.5 rounded-xl bg-white border border-slate-300 px-3.5 py-2.5 text-xs font-extrabold uppercase tracking-wider text-slate-800 transition hover:bg-slate-50 hover:border-blue-400 hover:text-blue-900 shadow-sm">
+          <Download class="w-4 h-4 text-slate-700" />
           <span class="hidden sm:inline">Excel</span>
         </button>
 
         <!-- Print -->
         <button @click="printScoreSheet" title="Print / PDF"
-          class="flex items-center gap-1.5 rounded-xl bg-slate-900/60 border border-slate-700/60 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:text-royal-purple hover:border-royal-purple">
-          <Printer class="w-4 h-4" />
+          class="flex items-center gap-1.5 rounded-xl bg-white border border-slate-300 px-3.5 py-2.5 text-xs font-extrabold uppercase tracking-wider text-slate-800 transition hover:bg-slate-50 hover:border-blue-400 hover:text-blue-900 shadow-sm">
+          <Printer class="w-4 h-4 text-slate-700" />
           <span class="hidden sm:inline">Print</span>
         </button>
 
         <!-- Publish (hidden on mobile — sticky bar handles it) -->
         <button @click="handleSave" :disabled="saving || deadlinePassed"
-          class="hidden sm:flex items-center gap-2 rounded-xl purple-gradient px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-purple-900/30 transition hover:scale-105 active:scale-95 disabled:opacity-50">
-          <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-          <Save v-else class="w-4 h-4" />
-          <span>{{ saving ? 'Saving…' : 'Publish' }}</span>
+          class="hidden sm:flex items-center gap-2 rounded-xl bg-blue-800 hover:bg-blue-900 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-sm transition active:scale-95 disabled:opacity-50">
+          <Loader2 v-if="saving" class="w-4 h-4 animate-spin text-white" />
+          <Save v-else class="w-4 h-4 text-white" />
+          <span class="text-white">{{ saving ? 'Saving…' : 'Publish Scores' }}</span>
         </button>
       </div>
     </div>
 
 
     <!-- Deadline Banner -->
-    <div v-if="resultEntryDeadline" class="rounded-2xl border overflow-hidden"
+    <div v-if="resultEntryDeadline" class="rounded-2xl border overflow-hidden shadow-sm"
       :class="deadlinePassed
-        ? 'border-red-700/60 bg-red-950/50'
+        ? 'border-red-300 bg-red-50'
         : countdown.days === 0 && countdown.hours === 0 && countdown.minutes < 30
-          ? 'border-amber-600/60 bg-amber-950/40'
-          : 'border-slate-700/60 bg-slate-900/60'"
+          ? 'border-amber-300 bg-amber-50'
+          : 'border-blue-200 bg-blue-50'"
     >
       <div class="flex flex-col sm:flex-row sm:items-center gap-3 px-6 py-4">
         <div class="flex items-center gap-3 flex-1">
           <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl"
-            :class="deadlinePassed ? 'bg-red-700/30' : 'bg-slate-800'"
+            :class="deadlinePassed ? 'bg-red-200' : 'bg-white border border-slate-200'"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" :class="deadlinePassed ? 'text-red-400' : 'text-amber-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" :class="deadlinePassed ? 'text-red-700' : 'text-amber-600'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <div>
-            <p class="text-xs font-black uppercase tracking-widest" :class="deadlinePassed ? 'text-red-400' : 'text-slate-300'">
+            <p class="text-xs font-black uppercase tracking-widest" :class="deadlinePassed ? 'text-red-800' : 'text-blue-950'">
               {{ deadlinePassed ? '🔒 Result Entry Paused' : '⏱ Result Entry Deadline' }}
             </p>
-            <p class="text-xs font-bold mt-0.5"
-              :class="deadlinePassed ? 'text-red-300' : 'text-slate-400'"
+            <p class="text-xs sm:text-sm font-bold mt-0.5"
+              :class="deadlinePassed ? 'text-red-700' : 'text-slate-700'"
             >
               {{ deadlinePassed
                 ? 'The deadline has elapsed. Contact the administrator to re-open result entry.'
@@ -541,36 +541,36 @@ const printScoreSheet = () => {
         </div>
         <div v-if="!deadlinePassed" class="flex items-center gap-2 flex-shrink-0">
           <div v-for="(unit, label) in [['Days', countdown.days], ['Hrs', countdown.hours], ['Min', countdown.minutes], ['Sec', countdown.seconds]]" :key="label"
-            class="flex flex-col items-center w-14 py-2 rounded-xl bg-slate-800/80 border border-slate-700/40"
+            class="flex flex-col items-center w-14 py-2 rounded-xl bg-white border border-blue-200 shadow-sm"
           >
-            <span class="text-lg font-black text-white tabular-nums">{{ String(unit[1]).padStart(2,'0') }}</span>
-            <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">{{ unit[0] }}</span>
+            <span class="text-lg font-black text-blue-900 tabular-nums">{{ String(unit[1]).padStart(2,'0') }}</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">{{ unit[0] }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Draft Banner -->
-    <div v-if="draftAvailable" class="rounded-2xl border border-blue-500/40 bg-blue-900/20 overflow-hidden">
+    <div v-if="draftAvailable" class="rounded-2xl border border-blue-300 bg-blue-50 overflow-hidden shadow-sm">
       <div class="flex flex-col sm:flex-row sm:items-center gap-4 px-6 py-4">
         <div class="flex items-center gap-3 flex-1">
-          <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/20">
-            <Save class="w-5 h-5 text-blue-400" />
+          <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100">
+            <Save class="w-5 h-5 text-blue-800" />
           </div>
           <div>
-            <p class="text-xs font-black uppercase tracking-widest text-blue-300">
+            <p class="text-xs font-black uppercase tracking-widest text-blue-950">
               Unsaved Offline Draft
             </p>
-            <p class="text-xs font-bold mt-0.5 text-blue-200/80">
+            <p class="text-xs sm:text-sm font-bold mt-0.5 text-blue-900">
               You have unsaved changes saved locally from a previous session ({{ new Date(draftData?.timestamp).toLocaleString() }}).
             </p>
           </div>
         </div>
         <div class="flex items-center gap-3 flex-shrink-0">
-          <button @click="discardDraft" class="px-4 py-2 rounded-xl bg-blue-950/50 text-blue-300 text-xs font-bold hover:bg-blue-900/50 transition">
+          <button @click="discardDraft" class="px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-slate-100 transition">
             Discard
           </button>
-          <button @click="restoreDraft" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black shadow-lg shadow-blue-500/20 transition">
+          <button @click="restoreDraft" class="px-4 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-black shadow-sm transition">
             Restore Draft
           </button>
         </div>
@@ -578,69 +578,69 @@ const printScoreSheet = () => {
     </div>
 
     <!-- Feedback -->
-    <div v-if="error" class="p-4 rounded-2xl bg-red-900/20 text-red-300 flex items-center gap-3 border border-red-700/40">
-      <AlertCircle class="w-5 h-5 flex-shrink-0" />
+    <div v-if="error" class="p-4 rounded-2xl bg-red-50 text-red-800 flex items-center gap-3 border border-red-300">
+      <AlertCircle class="w-5 h-5 flex-shrink-0 text-red-600" />
       <div>
-        <p class="text-sm font-black">Save Failed</p>
-        <p class="text-xs font-bold mt-0.5 opacity-80">{{ error }}</p>
+        <p class="text-sm font-black text-red-900">Save Failed</p>
+        <p class="text-xs font-bold mt-0.5 text-red-800">{{ error }}</p>
       </div>
     </div>
-    <div v-if="success" class="p-4 rounded-2xl bg-emerald-900/20 text-emerald-300 flex items-center gap-3 border border-emerald-700/40">
-      <CheckCircle2 class="w-5 h-5 flex-shrink-0" />
+    <div v-if="success" class="p-4 rounded-2xl bg-emerald-50 text-emerald-900 flex items-center gap-3 border border-emerald-300">
+      <CheckCircle2 class="w-5 h-5 flex-shrink-0 text-emerald-700" />
       <div>
-        <p class="text-sm font-black">Scores Saved Successfully!</p>
-        <p class="text-xs font-bold mt-0.5 opacity-80">{{ savedCount }} student{{ savedCount === 1 ? '' : 's' }} with non-zero scores. The table below now reflects the confirmed saved values.</p>
+        <p class="text-sm font-black text-emerald-950">Scores Saved Successfully!</p>
+        <p class="text-xs font-bold mt-0.5 text-emerald-800">{{ savedCount }} student{{ savedCount === 1 ? '' : 's' }} with non-zero scores. The table below now reflects the confirmed saved values.</p>
       </div>
     </div>
 
     <!-- Score Table — desktop (sm+) -->
-    <div class="glass-card overflow-hidden hidden sm:block">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden sm:block">
       <div v-if="loading" class="p-20 flex items-center justify-center">
-        <Loader2 class="w-10 h-10 text-royal-purple animate-spin" />
+        <Loader2 class="w-10 h-10 text-blue-800 animate-spin" />
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-slate-900/60">
-              <th class="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student Name</th>
-              <th v-if="!isNurseryClass" class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">1st CA (20)</th>
-              <th v-if="!isNurseryClass" class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">2nd CA (20)</th>
-              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-28">Exam ({{ isNurseryClass ? subjectMaxScore : '60' }})</th>
-              <th class="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-24 bg-slate-900/30">Total</th>
-              <th class="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center w-20">Pos.</th>
+            <tr class="bg-slate-50 border-b-2 border-slate-200">
+              <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-800">Student Name</th>
+              <th v-if="!isNurseryClass" class="px-3 py-4 text-xs font-black uppercase tracking-wider text-slate-800 text-center w-28">1st CA (20)</th>
+              <th v-if="!isNurseryClass" class="px-3 py-4 text-xs font-black uppercase tracking-wider text-slate-800 text-center w-28">2nd CA (20)</th>
+              <th class="px-3 py-4 text-xs font-black uppercase tracking-wider text-slate-800 text-center w-28">Exam ({{ isNurseryClass ? subjectMaxScore : '60' }})</th>
+              <th class="px-3 py-4 text-xs font-black uppercase tracking-wider text-slate-800 text-center w-24 bg-slate-100">Total</th>
+              <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-800 text-center w-20">Pos.</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-700/40">
-            <tr v-for="st in students" :key="st.studentId" class="hover:bg-slate-900/20 transition-colors">
-              <td class="px-6 py-5">
-                <p class="text-sm font-black text-white">{{ st.lastName }} {{ st.firstName }}</p>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
+          <tbody class="divide-y divide-slate-200">
+            <tr v-for="st in students" :key="st.studentId" class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4">
+                <p class="text-sm font-black text-slate-900">{{ st.lastName }} {{ st.firstName }}</p>
+                <p class="text-xs font-bold text-blue-900 uppercase tracking-wider">{{ st.studentId }}</p>
               </td>
-              <td v-if="!isNurseryClass" class="px-3 py-5">
+              <td v-if="!isNurseryClass" class="px-3 py-4">
                 <input :value="st.ca1" type="number" min="0" max="20" :disabled="deadlinePassed"
                   @input="st.ca1 = clampCA(($event.target as HTMLInputElement).value)"
-                  class="w-full px-3 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" placeholder="0" />
+                  class="w-full px-3 py-2.5 bg-white text-slate-900 border border-slate-300 rounded-xl text-center text-sm font-black focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none disabled:opacity-40 disabled:cursor-not-allowed shadow-inner" placeholder="0" />
               </td>
-              <td v-if="!isNurseryClass" class="px-3 py-5">
+              <td v-if="!isNurseryClass" class="px-3 py-4">
                 <input :value="st.ca2" type="number" min="0" max="20" :disabled="deadlinePassed"
                   @input="st.ca2 = clampCA(($event.target as HTMLInputElement).value)"
-                  class="w-full px-3 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" placeholder="0" />
+                  class="w-full px-3 py-2.5 bg-white text-slate-900 border border-slate-300 rounded-xl text-center text-sm font-black focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none disabled:opacity-40 disabled:cursor-not-allowed shadow-inner" placeholder="0" />
               </td>
-              <td class="px-3 py-5">
+              <td class="px-3 py-4">
                 <input :value="st.exam" type="number" min="0" :max="isNurseryClass ? subjectMaxScore : 60" :disabled="deadlinePassed"
                   @input="st.exam = clampExam(($event.target as HTMLInputElement).value)"
-                  class="w-full px-3 py-3 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40 disabled:cursor-not-allowed" placeholder="0" />
+                  class="w-full px-3 py-2.5 bg-white text-slate-900 border border-slate-300 rounded-xl text-center text-sm font-black focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none disabled:opacity-40 disabled:cursor-not-allowed shadow-inner" placeholder="0" />
               </td>
-                <td class="px-3 py-5 text-center bg-slate-900/30">
-                  <span class="text-sm font-black" :class="[computeTotal(st) >= 40 ? 'text-emerald-500' : 'text-red-500', totalFlash.has(st.studentId) ? 'flash-total' : '']">
-                    {{ computeTotal(st) }}
-                  </span>
-                </td>
-                <td class="px-6 py-5 text-center">
-                  <span class="px-3 py-1 rounded-lg bg-slate-900/60 text-[10px] font-black text-slate-300">
-                    {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
-                  </span>
-                </td>
+              <td class="px-3 py-4 text-center bg-slate-50">
+                <span class="text-sm font-black" :class="[computeTotal(st) >= 40 ? 'text-emerald-700' : 'text-red-700', totalFlash.has(st.studentId) ? 'flash-total' : '']">
+                  {{ computeTotal(st) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <span class="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-black text-slate-800">
+                  {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -650,26 +650,26 @@ const printScoreSheet = () => {
     <!-- Score Cards — mobile only (below sm) -->
     <div class="sm:hidden space-y-3">
       <div v-if="loading" class="p-16 flex items-center justify-center">
-        <Loader2 class="w-10 h-10 text-royal-purple animate-spin" />
+        <Loader2 class="w-10 h-10 text-blue-800 animate-spin" />
       </div>
       <template v-else>
         <div v-for="st in students" :key="st.studentId"
-          class="glass-card p-4 rounded-2xl border border-slate-700/50">
+          class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
           <!-- Student info -->
           <div class="flex items-center justify-between mb-4">
             <div>
-              <p class="text-sm font-black text-white">{{ st.lastName }} {{ st.firstName }}</p>
-              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
+              <p class="text-sm font-black text-slate-900">{{ st.lastName }} {{ st.firstName }}</p>
+              <p class="text-xs font-bold text-blue-900 uppercase tracking-wider">{{ st.studentId }}</p>
             </div>
             <div class="flex items-center gap-2">
               <div class="text-center">
-                <span class="text-lg font-black" :class="computeTotal(st) >= 40 ? 'text-emerald-400' : 'text-red-400'">
+                <span class="text-xl font-black" :class="computeTotal(st) >= 40 ? 'text-emerald-700' : 'text-red-700'">
                   {{ computeTotal(st) }}
                 </span>
-                <p class="text-[9px] font-bold text-slate-500 uppercase">Total</p>
+                <p class="text-[10px] font-black text-slate-600 uppercase">Total</p>
               </div>
-              <div class="w-8 h-8 rounded-lg bg-slate-900/60 flex items-center justify-center">
-                <span class="text-[10px] font-black text-slate-300">
+              <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
+                <span class="text-xs font-black text-slate-800">
                   {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
                 </span>
               </div>
@@ -677,39 +677,39 @@ const printScoreSheet = () => {
           </div>
           <div class="grid grid-cols-3 gap-2">
             <div v-if="!isNurseryClass">
-              <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">1st CA /20</label>
+              <label class="block text-[11px] font-black uppercase tracking-wider text-slate-700 mb-1">1st CA /20</label>
               <input :value="st.ca1" type="number" min="0" max="20" :disabled="deadlinePassed"
                 @input="st.ca1 = clampCA(($event.target as HTMLInputElement).value)"
-                class="w-full px-2 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40" placeholder="0" />
+                class="w-full px-2 py-2.5 bg-white text-slate-900 border border-slate-300 rounded-xl text-center text-sm font-black focus:border-blue-600 outline-none disabled:opacity-40" placeholder="0" />
             </div>
             <div v-if="!isNurseryClass">
-              <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">2nd CA /20</label>
+              <label class="block text-[11px] font-black uppercase tracking-wider text-slate-700 mb-1">2nd CA /20</label>
               <input :value="st.ca2" type="number" min="0" max="20" :disabled="deadlinePassed"
                 @input="st.ca2 = clampCA(($event.target as HTMLInputElement).value)"
-                class="w-full px-2 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40" placeholder="0" />
+                class="w-full px-2 py-2.5 bg-white text-slate-900 border border-slate-300 rounded-xl text-center text-sm font-black focus:border-blue-600 outline-none disabled:opacity-40" placeholder="0" />
             </div>
             <div :class="{'col-span-3': isNurseryClass}">
-              <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Exam /{{ isNurseryClass ? subjectMaxScore : '60' }}</label>
+              <label class="block text-[11px] font-black uppercase tracking-wider text-slate-700 mb-1">Exam /{{ isNurseryClass ? subjectMaxScore : '60' }}</label>
               <input :value="st.exam" type="number" min="0" :max="isNurseryClass ? subjectMaxScore : 60" :disabled="deadlinePassed"
                 @input="st.exam = clampExam(($event.target as HTMLInputElement).value)"
-                class="w-full px-2 py-2.5 bg-slate-900/60 text-white border-none rounded-xl text-center text-sm font-black focus:ring-2 focus:ring-royal-purple outline-none disabled:opacity-40" placeholder="0" />
+                class="w-full px-2 py-2.5 bg-white text-slate-900 border border-slate-300 rounded-xl text-center text-sm font-black focus:border-blue-600 outline-none disabled:opacity-40" placeholder="0" />
             </div>
           </div>
         </div>
         <!-- Empty state -->
-        <div v-if="students.length === 0" class="glass-card p-10 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
+        <div v-if="students.length === 0" class="bg-white p-10 rounded-2xl border border-slate-200 text-center text-slate-600 font-bold uppercase tracking-wider text-xs">
           No students found for this class.
         </div>
       </template>
     </div>
 
     <!-- Mobile sticky publish button -->
-    <div class="sm:hidden fixed bottom-0 inset-x-0 p-4 bg-slate-950/95 border-t border-slate-800 no-print z-40">
+    <div class="sm:hidden fixed bottom-0 inset-x-0 p-4 bg-white/95 backdrop-blur border-t border-slate-200 no-print z-40 shadow-lg">
       <button @click="handleSave" :disabled="saving || deadlinePassed"
-        class="w-full flex items-center justify-center gap-3 rounded-2xl purple-gradient py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-900/30 transition active:scale-95 disabled:opacity-50">
-        <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-        <Save v-else class="w-4 h-4" />
-        {{ saving ? 'Saving…' : 'Publish Scores' }}
+        class="w-full flex items-center justify-center gap-3 rounded-xl bg-blue-800 hover:bg-blue-900 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition active:scale-95 disabled:opacity-50">
+        <Loader2 v-if="saving" class="w-4 h-4 animate-spin text-white" />
+        <Save v-else class="w-4 h-4 text-white" />
+        <span class="text-white">{{ saving ? 'Saving…' : 'Publish Scores' }}</span>
       </button>
     </div>
 

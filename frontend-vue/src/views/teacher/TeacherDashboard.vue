@@ -72,72 +72,72 @@ onMounted(fetchData)
 </script>
 
 <template>
-  <div class="space-y-6 text-[#1C1917]">
+  <div class="space-y-6 text-[#1E293B]">
     
     <!-- Welcome Header Card -->
-    <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div class="flex items-center gap-4">
-          <div class="h-14 w-14 rounded-2xl bg-[#2D6A4F]/10 border border-[#2D6A4F]/20 flex items-center justify-center shrink-0 text-[#2D6A4F]">
-            <Award class="w-7 h-7" />
+    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-4 sm:p-6 shadow-sm">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+        <div class="flex items-center gap-3.5 sm:gap-4">
+          <div class="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-[#ECFDF5] border border-[#A7F3D0] flex items-center justify-center shrink-0 text-[#059669]">
+            <Award class="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
           <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="text-[10px] font-bold uppercase tracking-wider bg-[#2D6A4F]/10 text-[#2D6A4F] px-2 py-0.5 rounded-full">
-                Faculty Hub
+            <div class="flex items-center gap-2 mb-0.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] px-2 py-0.5 rounded-full">
+                Faculty Portal
               </span>
-              <span v-if="currentSession" class="text-[11px] font-semibold text-[#6B7280]">
+              <span v-if="currentSession" class="text-xs font-bold text-[#475569]">
                 {{ currentSession }} • {{ currentTerm }} Term
               </span>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1C1917]">
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-[#0F172A]">
               Welcome, {{ authStore.user?.displayName || 'Educator' }}
             </h1>
-            <p class="text-xs sm:text-sm text-[#4B5563] mt-0.5">
+            <p class="text-xs sm:text-sm text-[#475569] mt-0.5">
               {{ roleDescription }}
             </p>
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5">
-          <span v-if="formClasses.length > 0" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#1A4D8F]/10 text-[#1A4D8F] border border-[#1A4D8F]/20">
+        <div class="flex flex-wrap items-center gap-2">
+          <span v-if="formClasses.length > 0" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#EFF6FF] text-[#1E3A8A] border border-[#BFDBFE]">
             Form Teacher ({{ formClasses.length }})
           </span>
-          <span v-if="assignments.length > 0" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#2D6A4F]/10 text-[#2D6A4F] border border-[#2D6A4F]/20">
+          <span v-if="assignments.length > 0" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
             {{ assignments.length }} Subjects Assigned
           </span>
           <router-link
             to="/teacher/settings"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#F7F4EE] hover:bg-[#EFE9DE] border border-[#E5E0D8] text-[#1C1917] transition-colors"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#CBD5E1] text-[#0F172A] transition-colors"
           >
-            <Lock class="w-3.5 h-3.5 text-[#6B7280]" />
-            <span>Security</span>
+            <Lock class="w-3.5 h-3.5 text-[#64748B]" />
+            <span>Settings</span>
           </router-link>
         </div>
       </div>
 
       <!-- Quick Metrics Row -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-5 border-t border-[#E5E0D8]">
-        <div class="bg-[#F7F4EE] rounded-xl p-4 border border-[#E5E0D8] flex items-center justify-between">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-5 pt-4 border-t border-[#E2E8F0]">
+        <div class="bg-[#F8FAFC] rounded-xl p-4 border border-[#E2E8F0] flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Active Subject Allocations</p>
-            <p class="text-2xl font-black text-[#1A4D8F] mt-1">{{ assignments.length }}</p>
-            <p class="text-[11px] text-[#4B5563] mt-0.5">Subjects ready for continuous assessment</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-[#475569]">Subject Allocations</p>
+            <p class="text-2xl font-black text-[#1E3A8A] mt-0.5">{{ assignments.length }}</p>
+            <p class="text-[11px] text-[#64748B] mt-0.5">Subjects ready for mark entry</p>
           </div>
-          <div class="h-10 w-10 rounded-xl bg-white border border-[#E5E0D8] flex items-center justify-center text-[#1A4D8F]">
+          <div class="h-10 w-10 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-center text-[#1E3A8A]">
             <BookOpen class="w-5 h-5" />
           </div>
         </div>
 
-        <div class="bg-[#F7F4EE] rounded-xl p-4 border border-[#E5E0D8] flex items-center justify-between">
+        <div class="bg-[#F8FAFC] rounded-xl p-4 border border-[#E2E8F0] flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Pastoral Care Students</p>
-            <p class="text-2xl font-black text-[#2D6A4F] mt-1">
+            <p class="text-xs font-bold uppercase tracking-wider text-[#475569]">Pastoral Care Students</p>
+            <p class="text-2xl font-black text-[#059669] mt-0.5">
               {{ formClasses.reduce((acc, c) => acc + (c.studentIds?.length || 0), 0) }}
             </p>
-            <p class="text-[11px] text-[#4B5563] mt-0.5">Learners enrolled in your form classes</p>
+            <p class="text-[11px] text-[#64748B] mt-0.5">Learners enrolled in your form classes</p>
           </div>
-          <div class="h-10 w-10 rounded-xl bg-white border border-[#E5E0D8] flex items-center justify-center text-[#2D6A4F]">
+          <div class="h-10 w-10 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-center text-[#059669]">
             <Users class="w-5 h-5" />
           </div>
         </div>
@@ -145,51 +145,51 @@ onMounted(fetchData)
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-center justify-center min-h-[300px]">
-      <Loader2 class="w-10 h-10 text-[#1A4D8F] animate-spin" />
+    <div v-if="loading" class="flex items-center justify-center min-h-[250px]">
+      <Loader2 class="w-10 h-10 text-[#1E3A8A] animate-spin" />
     </div>
 
     <!-- Main Content Layout -->
-    <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
       
-      <!-- Left Column: Subject Allocations -->
-      <div class="lg:col-span-8 space-y-6">
-        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm">
-          <div class="flex items-center justify-between pb-4 mb-5 border-b border-[#E5E0D8]">
-            <div class="flex items-center gap-3">
-              <div class="h-9 w-9 rounded-xl bg-[#1A4D8F]/10 text-[#1A4D8F] flex items-center justify-center">
+      <!-- Left Column: Subject Allocations (8 cols on desktop) -->
+      <div class="lg:col-span-8 space-y-5">
+        <div class="bg-white rounded-2xl border border-[#E2E8F0] p-4 sm:p-6 shadow-sm">
+          <div class="flex items-center justify-between pb-3.5 mb-4 border-b border-[#E2E8F0]">
+            <div class="flex items-center gap-2.5">
+              <div class="h-9 w-9 rounded-xl bg-[#EFF6FF] text-[#1E3A8A] flex items-center justify-center">
                 <ClipboardCheck class="w-5 h-5" />
               </div>
               <div>
-                <h2 class="text-base font-bold text-[#1C1917]">Score Entry Allocations</h2>
-                <p class="text-[11px] text-[#6B7280]">Select a subject to enter or modify student marks</p>
+                <h2 class="text-sm sm:text-base font-extrabold text-[#0F172A]">Score Entry Allocations</h2>
+                <p class="text-[11px] text-[#475569]">Select a subject to enter Continuous Assessment or Exam scores</p>
               </div>
             </div>
 
-            <span class="text-xs font-bold text-[#2D6A4F] bg-[#2D6A4F]/10 px-2.5 py-1 rounded-full">
-              {{ assignments.length }} Available
+            <span class="text-xs font-bold text-[#059669] bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-0.5 rounded-full">
+              {{ assignments.length }} Ready
             </span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div 
               v-for="item in assignments" 
               :key="item.id"
-              class="bg-[#F7F4EE] rounded-2xl p-5 border border-[#E5E0D8] hover:border-[#1A4D8F]/40 hover:bg-white hover:shadow-md transition-all flex flex-col justify-between group"
+              class="bg-[#F8FAFC] rounded-2xl p-4 sm:p-5 border border-[#E2E8F0] hover:border-[#1E3A8A] hover:bg-white hover:shadow-md transition-all flex flex-col justify-between group"
             >
               <div>
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-[11px] font-bold text-[#1A4D8F] uppercase tracking-wider bg-white px-2 py-0.5 rounded-md border border-[#E5E0D8]">
+                  <span class="text-[11px] font-black text-[#1E3A8A] uppercase tracking-wider bg-white px-2 py-0.5 rounded-md border border-[#E2E8F0]">
                     {{ item.className }}
                   </span>
-                  <span v-if="item.isNursery" class="text-[9px] font-bold bg-[#E8A838]/20 text-[#8C5D07] px-1.5 py-0.5 rounded">
+                  <span v-if="item.isNursery" class="text-[10px] font-bold bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A] px-1.5 py-0.5 rounded">
                     Nursery
                   </span>
-                  <span v-else-if="item.isPrimary" class="text-[9px] font-bold bg-[#2D6A4F]/10 text-[#2D6A4F] px-1.5 py-0.5 rounded">
+                  <span v-else-if="item.isPrimary" class="text-[10px] font-bold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] px-1.5 py-0.5 rounded">
                     Primary
                   </span>
                 </div>
-                <h3 class="text-base font-extrabold text-[#1C1917] group-hover:text-[#1A4D8F] transition-colors leading-snug">
+                <h3 class="text-sm sm:text-base font-extrabold text-[#0F172A] group-hover:text-[#1E3A8A] transition-colors leading-snug">
                   {{ item.subjectName }}
                 </h3>
               </div>
@@ -208,81 +208,81 @@ onMounted(fetchData)
                     term: currentTerm
                   }
                 })"
-                class="mt-4 w-full py-2.5 px-3 rounded-xl bg-white border border-[#E5E0D8] group-hover:bg-[#1A4D8F] group-hover:text-white group-hover:border-transparent text-xs font-bold text-[#1C1917] transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                class="mt-4 w-full py-2.5 px-3 rounded-xl bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
               >
-                <span>Enter Marks</span>
-                <ArrowRight class="w-3.5 h-3.5" />
+                <span class="text-white">Enter Scores</span>
+                <ArrowRight class="w-3.5 h-3.5 text-white" />
               </button>
             </div>
 
-            <div v-if="assignments.length === 0" class="col-span-full py-12 text-center text-[#9CA3AF] bg-[#F7F4EE] rounded-2xl border border-dashed border-[#E5E0D8]">
-              <BookOpen class="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p class="text-sm font-bold">No subject assignments found.</p>
-              <p class="text-xs mt-1">Contact the administrator to allocate subjects to your account.</p>
+            <div v-if="assignments.length === 0" class="col-span-full py-10 text-center text-[#64748B] bg-[#F8FAFC] rounded-2xl border border-dashed border-[#CBD5E1]">
+              <BookOpen class="w-8 h-8 mx-auto mb-2 text-[#94A3B8]" />
+              <p class="text-sm font-bold text-[#0F172A]">No subject assignments found.</p>
+              <p class="text-xs mt-1">Please contact school administration to allocate subjects to your staff account.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Form Classes & Activities -->
-      <div class="lg:col-span-4 space-y-5">
+      <!-- Right Column: Form Classes & Guidelines (4 cols on desktop) -->
+      <div class="lg:col-span-4 space-y-4">
         
         <!-- Form Classes Card -->
-        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-[#E5E0D8]">
-            <div class="flex items-center gap-2.5">
-              <div class="h-8 w-8 rounded-lg bg-[#E8A838]/15 text-[#C98818] flex items-center justify-center">
+        <div class="bg-white rounded-2xl border border-[#E2E8F0] p-4 sm:p-5 shadow-sm space-y-3.5">
+          <div class="flex items-center justify-between pb-2.5 border-b border-[#E2E8F0]">
+            <div class="flex items-center gap-2">
+              <div class="h-8 w-8 rounded-lg bg-[#FFFBEB] text-[#D97706] flex items-center justify-center">
                 <Award class="w-4 h-4" />
               </div>
-              <h3 class="text-sm font-bold text-[#1C1917]">My Form Classes</h3>
+              <h3 class="text-sm font-bold text-[#0F172A]">Form Classes</h3>
             </div>
-            <span class="text-xs font-semibold text-[#6B7280]">{{ formClasses.length }}</span>
+            <span class="text-xs font-bold text-[#475569]">{{ formClasses.length }}</span>
           </div>
 
-          <div class="space-y-2.5">
+          <div class="space-y-2">
             <div 
               v-for="cls in formClasses" 
               :key="cls.id"
               @click="router.push({ name: 'teacher-form-class', params: { classId: cls.id }, query: { className: cls.name } })"
-              class="p-3.5 rounded-xl bg-[#F7F4EE] hover:bg-white hover:shadow-sm border border-[#E5E0D8] hover:border-[#1A4D8F]/30 transition-all cursor-pointer flex items-center justify-between group"
+              class="p-3 rounded-xl bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] hover:border-[#1E3A8A] transition-all cursor-pointer flex items-center justify-between group active:scale-95"
             >
               <div>
-                <p class="text-xs font-bold text-[#1C1917] group-hover:text-[#1A4D8F] transition-colors">
+                <p class="text-xs font-extrabold text-[#0F172A] group-hover:text-[#1E3A8A] transition-colors">
                   {{ cls.name }}
                 </p>
-                <p class="text-[11px] text-[#6B7280]">
+                <p class="text-[11px] font-medium text-[#475569]">
                   {{ cls.studentIds?.length || 0 }} Students Enrolled
                 </p>
               </div>
-              <div class="h-7 w-7 rounded-lg bg-white border border-[#E5E0D8] flex items-center justify-center text-[#6B7280] group-hover:bg-[#1A4D8F] group-hover:text-white transition-all">
+              <div class="h-7 w-7 rounded-lg bg-white border border-[#CBD5E1] flex items-center justify-center text-[#475569] group-hover:bg-[#1E3A8A] group-hover:text-white transition-all">
                 <ArrowRight class="w-3.5 h-3.5" />
               </div>
             </div>
 
-            <div v-if="formClasses.length === 0" class="py-6 text-center text-xs text-[#9CA3AF]">
-              You are currently not assigned as a form teacher for any class.
+            <div v-if="formClasses.length === 0" class="py-6 text-center text-xs text-[#64748B]">
+              You are not currently assigned as a form teacher.
             </div>
           </div>
         </div>
 
-        <!-- Academic Guidelines & Deadlines -->
-        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm space-y-3">
-          <div class="flex items-center gap-2.5 pb-2 border-b border-[#E5E0D8]">
-            <Clock class="w-4 h-4 text-[#1A4D8F]" />
-            <h3 class="text-sm font-bold text-[#1C1917]">Continuous Assessment Guide</h3>
+        <!-- Continuous Assessment Guide -->
+        <div class="bg-white rounded-2xl border border-[#E2E8F0] p-4 sm:p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2 pb-2 border-b border-[#E2E8F0]">
+            <Clock class="w-4 h-4 text-[#1E3A8A]" />
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#0F172A]">Score Breakdown</h3>
           </div>
-          <div class="space-y-2 text-xs text-[#4B5563] leading-relaxed">
+          <div class="space-y-2 text-xs text-[#334155] leading-relaxed">
             <div class="flex items-start gap-2">
-              <span class="h-1.5 w-1.5 rounded-full bg-[#1A4D8F] mt-1.5 shrink-0"></span>
-              <span><strong>CA 1 & 2:</strong> 10 marks each or configured breakdown.</span>
+              <span class="h-1.5 w-1.5 rounded-full bg-[#1E3A8A] mt-1.5 shrink-0"></span>
+              <span><strong>CA 1 & 2:</strong> 10 marks each (or custom class assessment).</span>
             </div>
             <div class="flex items-start gap-2">
-              <span class="h-1.5 w-1.5 rounded-full bg-[#2D6A4F] mt-1.5 shrink-0"></span>
-              <span><strong>Examinations:</strong> 60 marks total.</span>
+              <span class="h-1.5 w-1.5 rounded-full bg-[#059669] mt-1.5 shrink-0"></span>
+              <span><strong>Terminal Examination:</strong> 60 marks total.</span>
             </div>
             <div class="flex items-start gap-2">
-              <span class="h-1.5 w-1.5 rounded-full bg-[#E8A838] mt-1.5 shrink-0"></span>
-              <span>Form teachers must complete attendance and traits before publishing.</span>
+              <span class="h-1.5 w-1.5 rounded-full bg-[#D97706] mt-1.5 shrink-0"></span>
+              <span>Form teachers submit affective traits & remarks before broadsheet lock.</span>
             </div>
           </div>
         </div>

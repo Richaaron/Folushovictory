@@ -9,16 +9,14 @@ const menuItems = [
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-[#F7F4EE] text-[#1C1917] relative">
+  <div class="min-h-screen flex flex-col bg-[#F8FAFC] text-[#1E293B] antialiased">
     <Navbar portal="Parent" username="Parent Account" :menuItems="menuItems" />
-    <main class="flex-grow p-4 sm:p-6 lg:p-8 overflow-x-hidden">
-      <div class="mx-auto max-w-7xl">
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
-      </div>
+    <main class="flex-grow p-3 sm:p-5 lg:p-6 overflow-x-hidden max-w-7xl mx-auto w-full">
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </main>
   </div>
 </template>
