@@ -2,8 +2,8 @@ export const RELIGIOUS_STUDIES_NAME = "Religious Studies";
 
 export function normalizeLevel(level) {
   const normalized = String(level || "").trim().toUpperCase();
-  if (["NUR", "PRE NURSERY", "NURSERY 1", "NURSERY 2"].includes(normalized) || normalized.startsWith("PRE") || normalized.includes("NURSERY")) return "Nursery";
-  if (["PRY", "PRIMARY"].includes(normalized)) return "Primary";
+  if (["NUR", "PRE NURSERY", "NURSERY 1", "NURSERY 2"].includes(normalized) || normalized.startsWith("PRE") || normalized.startsWith("NUR") || normalized.includes("NURSERY")) return "Nursery";
+  if (["PRY", "PRIMARY"].includes(normalized) || normalized.startsWith("PRY") || normalized.startsWith("PRIMARY")) return "Primary";
   if (normalized.startsWith("JSS") || normalized.includes("JUNIOR SECONDARY") || normalized.startsWith("JR")) return "JSS";
   if (normalized.startsWith("SSS") || normalized.includes("SENIOR SECONDARY") || normalized.startsWith("SR")) return "SSS";
   return normalized;

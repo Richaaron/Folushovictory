@@ -68,7 +68,14 @@ async function subjectsForClass(cls) {
   }
   let levelFilter = normalizeLevel(cls.level);
 
-  let filtered = all.filter((s) => normalizeLevel(s.level) === levelFilter);
+  const nurserySubjects = all.filter((s) => normalizeLevel(s.level) === "Nursery");
+  let filtered = all.filter((s) => {
+    const sLevel = normalizeLevel(s.level);
+    if (levelFilter === "Nursery") {
+      return nurserySubjects.length > 0 ? sLevel === "Nursery" : sLevel === "Primary";
+    }
+    return sLevel === levelFilter;
+  });
 
   if (levelFilter === "SSS" && cls.track) {
     filtered = filtered.filter((s) => s.track === "General" || s.track === cls.track);

@@ -162,16 +162,19 @@ teacherRouter.get(
 
     const formClasses = await listClassesByFormTeacher(req.user.username);
     const primaryClasses = formClasses.filter((c) => {
-      const level = String(c.level || '').trim().toUpperCase();
-      return level === 'PRY' || level === 'NUR';
+      const level = normalizeLevel(c.level);
+      return level === 'Primary' || level === 'Nursery';
     });
 
     if (primaryClasses.length > 0) {
       const allSubjects = await listSubjects();
-      const primarySubjects = allSubjects.filter((s) => String(s.level || '').trim().toLowerCase() === 'primary');
+      const nurserySubjects = allSubjects.filter((s) => normalizeLevel(s.level) === 'Nursery');
+      const primarySubjects = allSubjects.filter((s) => normalizeLevel(s.level) === 'Primary');
 
       for (const cls of primaryClasses) {
-        for (const subject of primarySubjects) {
+        const isNur = normalizeLevel(cls.level) === 'Nursery';
+        const targetSubjects = isNur && nurserySubjects.length > 0 ? nurserySubjects : primarySubjects;
+        for (const subject of targetSubjects) {
           const key = `${cls.id}-${subject.id}`;
           if (!uniqueAssignments.has(key)) {
             uniqueAssignments.set(key, {
