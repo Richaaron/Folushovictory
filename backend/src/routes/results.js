@@ -15,6 +15,7 @@ import { getUserByUsername } from "../repos/users.js";
 import { getReleaseStatus } from "../repos/releases.js";
 import { sendResultReleasedEmail } from "../services/email.js";
 import { isReligiousStudiesAlias, mergeCanonicalSubjects, normalizeLevel, RELIGIOUS_STUDIES_NAME } from "../subjectAliases.js";
+import { isSubjectAvailableForClass } from "../subjectEligibility.js";
 
 export const resultsRouter = express.Router();
 
@@ -31,7 +32,9 @@ async function subjectsForClass(cls) {
         return null;
       }
     }));
-    const selectedSubjects = subs.filter(Boolean).map((s) => ({ id: s.id, name: s.name, originalName: s.originalName || s.name, track: s.track || null, level: s.level || null }));
+    const selectedSubjects = subs
+      .filter((subject) => subject && isSubjectAvailableForClass(subject, cls))
+      .map((s) => ({ id: s.id, name: s.name, originalName: s.originalName || s.name, track: s.track || null, level: s.level || null, maxScore: s.maxScore }));
     const needsReligiousLookup = selectedSubjects.some((subject) =>
       subject.name === RELIGIOUS_STUDIES_NAME ||
       isReligiousStudiesAlias(subject.originalName || subject.name)
@@ -50,8 +53,8 @@ async function subjectsForClass(cls) {
             subjectLevel === selectedLevel &&
             subjectTrack === selectedTrack &&
             (subject.name === RELIGIOUS_STUDIES_NAME || isReligiousStudiesAlias(subject.originalName || subject.name));
-          if (relatedReligious && !selectedIds.has(subject.id)) {
-            selectedSubjects.push({ id: subject.id, name: subject.name, originalName: subject.originalName || subject.name, track: subject.track || null, level: subject.level || null });
+          if (relatedReligious && isSubjectAvailableForClass(subject, cls) && !selectedIds.has(subject.id)) {
+            selectedSubjects.push({ id: subject.id, name: subject.name, originalName: subject.originalName || subject.name, track: subject.track || null, level: subject.level || null, maxScore: subject.maxScore });
             selectedIds.add(subject.id);
           }
         });
@@ -81,7 +84,10 @@ async function subjectsForClass(cls) {
     filtered = filtered.filter((s) => s.track === "General" || s.track === cls.track);
   }
 
-  return mergeCanonicalSubjects(filtered.map((s) => ({ id: s.id, name: s.name, track: s.track || null, level: s.level || null })));
+  filtered = filtered.filter((subject) => isSubjectAvailableForClass(subject, cls));
+
+  return mergeCanonicalSubjects(filtered.map((s) => ({ id: s.id, name: s.name, track: s.track || null, level: s.level || null, maxScore: s.maxScore })));
+
 }
 
 function generatedPerformanceRemarks(result, level) {

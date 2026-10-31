@@ -11,6 +11,7 @@ import { getUserByUsername, updateUser } from "../repos/users.js";
 import { hashPassword, verifyPassword } from "../security.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
 import { normalizeLevel } from "../subjectAliases.js";
+import { isSubjectAvailableForClass } from "../subjectEligibility.js";
 
 export const studentRouter = express.Router();
 
@@ -35,12 +36,12 @@ studentRouter.get(
       : allSubjects.filter((subject) => {
           const level = normalizeLevel(cls.level);
           const subjectLevel = normalizeLevel(subject.level);
-        const levelMatches = subjectLevel === level || (level === "Nursery" && subjectLevel === "Primary");
-        return levelMatches && (level === "SSS"
+          const levelMatches = subjectLevel === level || (level === "Nursery" && subjectLevel === "Primary");
+          return levelMatches && (level === "SSS"
             ? !cls.track || !subject.track || subject.track === "General" || subject.track === cls.track
-            : true);
+            : true) && isSubjectAvailableForClass(subject, cls);
         }))
-      .filter(Boolean)
+      .filter((subject) => subject && isSubjectAvailableForClass(subject, cls))
       .map((subject) => ({ id: subject.id, name: subject.name, level: subject.level }));
 
     const [{ data: activities }, { data: submissions }, settings] = await Promise.all([

@@ -14,7 +14,41 @@ const defaultScale = {
   ]
 };
 
+const nurserySubjects = [
+  { name: "Oral English", maxScore: 50 },
+  { name: "Written English", maxScore: 100 },
+  { name: "Nursery Rhymes", maxScore: 50 },
+  { name: "Rote Counting of Numbers", maxScore: 50 },
+  { name: "Recognition of Numbers", maxScore: 50 },
+  { name: "Written of Numbers", maxScore: 100 },
+  { name: "Rote Saying Letters", maxScore: 50 },
+  { name: "Spelling", maxScore: 100 },
+  { name: "Recognition of Letters", maxScore: 50 },
+  { name: "Writing of Letters", maxScore: 100 },
+  { name: "Simple Sums", maxScore: 100 },
+  { name: "Social Studies", maxScore: 100 },
+  { name: "Science Talk", maxScore: 100 },
+  { name: "Health Talk", maxScore: 100 },
+  { name: "Writing", maxScore: 100 },
+  { name: "Drawing", maxScore: 100 },
+  { name: "Craft", maxScore: 50 },
+  { name: "Verbal Reasoning", maxScore: 100 },
+  { name: "Quantitative Reasoning", maxScore: 100 }
+].map((subject) => ({ ...subject, level: "Nursery" }));
+
+function isNurseryReligiousSubjectName(name) {
+  const normalized = String(name || "").trim().toUpperCase().replace(/[().]/g, "");
+  return normalized === "CRK" ||
+    normalized === "IRK" ||
+    normalized.includes("CRK/IRK") ||
+    normalized.includes("IRK/CRK") ||
+    normalized.includes("CHRISTIAN RELIGIOUS KNOWLEDGE") ||
+    normalized.includes("ISLAMIC RELIGIOUS KNOWLEDGE");
+}
+
 const subjects = [
+  ...nurserySubjects,
+
   // PRIMARY (P1-P6)
   { name: "Mathematics", level: "Primary" },
   { name: "English Language", level: "Primary" },
@@ -97,6 +131,9 @@ if (needsReseed) {
       level: sub.level,
       createdAt: new Date().toISOString()
     };
+    if (sub.maxScore) {
+      subjectData.maxScore = sub.maxScore;
+    }
     if (sub.track) {
       subjectData.track = sub.track;
     }
@@ -104,7 +141,50 @@ if (needsReseed) {
   }
   process.stdout.write(`Seeded ${subjects.length} leveled subjects with track information\n`);
 } else {
-  process.stdout.write("Leveled subjects already exist, skipping\n");
+  const existingNurserySubjects = existingSubjects.filter((subject) => {
+    const level = String(subject.level || "").trim().toUpperCase();
+    return level.includes("NURSERY") || level === "NUR";
+  });
+  const subjectsByName = new Map(
+    existingNurserySubjects.map((subject) => [
+      String(subject.name || "").trim().toUpperCase(),
+      subject
+    ])
+  );
+  let addedNurserySubjects = 0;
+  let updatedNurseryScores = 0;
+  let removedNurseryReligiousSubjects = 0;
+
+  for (const subject of nurserySubjects) {
+    const existing = subjectsByName.get(subject.name.toUpperCase()) ||
+      (subject.name === "Written of Numbers" ? subjectsByName.get("WRITTEN NUMBERS") : null);
+    if (!existing) {
+      await SafeDatabase.createWithValidation(
+        "subjects",
+        { ...subject, createdAt: new Date().toISOString() },
+        "subject",
+        { checkDuplicates: false }
+      );
+      addedNurserySubjects += 1;
+    } else if (Number(existing.maxScore) !== subject.maxScore) {
+      await SafeDatabase.updateWithValidation(
+        "subjects",
+        existing.id,
+        { maxScore: subject.maxScore },
+        "subject"
+      );
+      updatedNurseryScores += 1;
+    }
+  }
+  for (const subject of existingNurserySubjects) {
+    if (isNurseryReligiousSubjectName(subject.name)) {
+      await SafeDatabase.deleteWithValidation("subjects", subject.id);
+      removedNurseryReligiousSubjects += 1;
+    }
+  }
+  process.stdout.write(
+    `Nursery subjects synchronized. Added: ${addedNurserySubjects}; scoring maxima updated: ${updatedNurseryScores}; CRK/IRK removed: ${removedNurseryReligiousSubjects}\n`
+  );
 }
 
 const defaultClasses = [

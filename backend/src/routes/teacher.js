@@ -19,6 +19,7 @@ import { getUserByUsername, updateUser, deleteUser } from "../repos/users.js";
 import { sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 import { isReligiousStudiesAlias, normalizeLevel, RELIGIOUS_STUDIES_NAME } from "../subjectAliases.js";
+import { isSubjectAvailableForClass } from "../subjectEligibility.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
 
 export const teacherRouter = express.Router();
@@ -60,6 +61,12 @@ async function resolveScoreSubjectId(subjectId) {
  * variant in the class, both are allowed to enter scores.
  */
 async function canTeacherEnterSubject({ teacherUsername, classId, subjectId, aliasIds = [] }) {
+  const [cls, subject] = await Promise.all([
+    getClassById(classId),
+    getSubjectById(subjectId)
+  ]);
+  if (cls && subject && !isSubjectAvailableForClass(subject, cls)) return false;
+
   // 1. Direct match: teacher assigned to the exact canonical subject in this class
   const direct = await getAssignmentByTriplet({ teacherUsername, classId, subjectId });
   if (direct) return true;
@@ -175,6 +182,8 @@ teacherRouter.get(
         const isNur = normalizeLevel(cls.level) === 'Nursery';
         const targetSubjects = isNur && nurserySubjects.length > 0 ? nurserySubjects : primarySubjects;
         for (const subject of targetSubjects) {
+          if (!isSubjectAvailableForClass(subject, cls)) continue;
+
           const key = `${cls.id}-${subject.id}`;
           if (!uniqueAssignments.has(key)) {
             uniqueAssignments.set(key, {
@@ -197,6 +206,8 @@ teacherRouter.get(
           getSubjectById(a.subjectId)
         ]);
 
+        if (cls && subj && !isSubjectAvailableForClass(subj, cls)) return null;
+
         let finalSubject = subj;
         if (!finalSubject && a.subjectId && a.subjectId.length < 50) {
           // Fallback for legacy name-based IDs (no-op for normal IDs)
@@ -210,7 +221,7 @@ teacherRouter.get(
         };
       })
     );
-    return res.json({ assignments: enriched });
+    return res.json({ assignments: enriched.filter(Boolean) });
   })
 );
 
