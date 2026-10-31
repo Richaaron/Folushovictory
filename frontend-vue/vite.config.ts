@@ -9,15 +9,15 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: {
-        enabled: true
+        enabled: false
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
         name: 'Folusho Victory Schools',
         short_name: 'FVS Portal',
         description: 'School Management Portal',
-        theme_color: '#1B2A4A',
-        background_color: '#ffffff',
+        theme_color: '#1A4D8F',
+        background_color: '#F7F4EE',
         display: 'standalone',
         icons: [
           {
@@ -34,6 +34,9 @@ export default defineConfig({
         ]
       },
       workbox: {
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/api/'),

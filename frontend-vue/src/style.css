@@ -93,26 +93,29 @@ body {
    WARM SCHOOL CARDS
 ═══════════════════════════════════════ */
 .glass-card,
-.parchment-card {
-  background: #FFFFFF;
-  border: 1px solid var(--border-soft);
-  border-radius: 16px;
-  box-shadow: var(--warm-shadow);
+.parchment-card,
+.academic-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border-soft) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--warm-shadow) !important;
+  color: var(--text-primary);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   position: relative;
 }
 
 .glass-card:hover,
-.parchment-card:hover {
-  border-color: #D6CEC2;
-  box-shadow: var(--warm-shadow-hover);
+.parchment-card:hover,
+.academic-card:hover {
+  border-color: #D6CEC2 !important;
+  box-shadow: var(--warm-shadow-hover) !important;
 }
 
 .glass-card-purple,
 .glass-card-blue,
 .glass-card-cyan {
-  background: #FFFFFF;
-  border-color: var(--border-soft);
+  background: #FFFFFF !important;
+  border-color: var(--border-soft) !important;
 }
 
 /* ═══════════════════════════════════════
@@ -126,8 +129,8 @@ body {
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
-  background-color: var(--school-blue);
-  color: #FFFFFF;
+  background-color: var(--school-blue) !important;
+  color: #FFFFFF !important;
   font-weight: 600;
   font-size: 0.875rem;
   border: 1px solid transparent;
@@ -138,7 +141,7 @@ body {
 
 .neon-btn:hover,
 .chalkboard-btn:hover {
-  background-color: var(--school-blue-dark);
+  background-color: var(--school-blue-dark) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(26, 77, 143, 0.3);
 }
@@ -219,41 +222,85 @@ body {
    WARM TABLES
 ═══════════════════════════════════════ */
 .table-glass {
-  background: #FFFFFF;
-  border: 1px solid var(--border-soft);
+  background: #FFFFFF !important;
+  border: 1px solid var(--border-soft) !important;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--warm-shadow);
 }
 
 .table-glass th {
-  background: #F9F6F0;
-  color: var(--text-secondary);
+  background: #F9F6F0 !important;
+  color: var(--text-secondary) !important;
   font-weight: 600;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft) !important;
   padding: 0.875rem 1rem;
 }
 
 .table-glass td {
-  border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
   padding: 0.875rem 1rem;
 }
 
 .table-glass tr:last-child td {
-  border-bottom: none;
+  border-bottom: none !important;
 }
 
 .table-glass tr:hover td {
-  background-color: #FAF8F5;
+  background-color: #FAF8F5 !important;
 }
 
 /* ═══════════════════════════════════════
-   BADGES & CHIPS
+   GLOBAL OVERRIDES FOR LEGACY DARK ARBITRARY CLASSES
 ═══════════════════════════════════════ */
+/* Map dark container backgrounds to warm card backgrounds */
+[class*="bg-[#1B2A4A]"],
+[class*="bg-slate-950"],
+[class*="bg-slate-900"],
+[class*="bg-[#0f172a]"],
+[class*="bg-[#0a0e27]"] {
+  background-color: #FFFFFF !important;
+  color: #1C1917;
+}
+
+/* Map dark card borders to soft warm borders */
+[class*="border-[#C9A84C]"],
+[class*="border-slate-800"],
+[class*="border-slate-700"],
+[class*="border-slate-900"] {
+  border-color: #E5E0D8 !important;
+}
+
+/* Map light text on dark cards to crisp dark readable text */
+[class*="text-[#FAFAF7]"],
+[class*="text-[#F5F0E8]"],
+[class*="text-slate-100"],
+[class*="text-slate-200"],
+[class*="text-slate-300"] {
+  color: #1C1917 !important;
+}
+
+/* Subtitle and muted text */
+[class*="text-slate-400"],
+[class*="text-slate-500"] {
+  color: #6B7280 !important;
+}
+
+/* Accent gold text mapped to school blue / dark gold */
+[class*="text-[#C9A84C]"] {
+  color: #1A4D8F !important;
+}
+
+/* Floating math background symbols hidden */
+.floating-math {
+  display: none !important;
+}
+
+/* Badges & Chips */
 .badge-blue {
   background-color: var(--school-blue-light);
   color: var(--school-blue-dark);
@@ -284,9 +331,7 @@ body {
   font-weight: 600;
 }
 
-/* ═══════════════════════════════════════
-   CLEAN WARM SCROLLBARS
-═══════════════════════════════════════ */
+/* Clean warm scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -306,13 +351,11 @@ body {
   background: #B8B09C;
 }
 
-/* Section divider */
 .section-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--border-soft) 20%, var(--border-soft) 80%, transparent);
 }
 
-/* Utilities */
 .hover-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
