@@ -4,12 +4,12 @@ import { useRouter } from 'vue-router'
 import { 
   BookOpen, 
   ClipboardCheck, 
-  ArrowRight,
-  TrendingUp,
-  Clock,
-  Award,
-  Loader2,
-  Lock
+  ArrowRight, 
+  Clock, 
+  Award, 
+  Loader2, 
+  Lock,
+  Users
 } from 'lucide-vue-next'
 import { useAuthStore } from '../../stores/authStore'
 import api from '../../services/api'
@@ -26,10 +26,10 @@ const currentTerm = ref('First')
 const roleDescription = computed(() => {
   const isForm = formClasses.value.length > 0
   const isSubject = assignments.value.length > 0
-  if (isForm && isSubject) return 'Dual Role Academic Staff • Comprehensive Oversight'
-  if (isForm) return 'Form Teacher • Class Management & Pastoral Care'
-  if (isSubject) return 'Subject Teacher • Academic Excellence Specialist'
-  return 'Academic Staff Portal'
+  if (isForm && isSubject) return 'Form & Subject Teacher • Full Academic & Pastoral Oversight'
+  if (isForm) return 'Form Teacher • Class Management, Pastoral Care & Remarks'
+  if (isSubject) return 'Subject Teacher • Continuous Assessment & Examination Specialist'
+  return 'Faculty Portal'
 })
 
 const fetchData = async () => {
@@ -41,13 +41,12 @@ const fetchData = async () => {
       api.get('/api/config/school')
     ])
     
-    // Enrich assignments with level-specific flags
     const enrichedAssignments = (assignResp.data.assignments || []).map((a: any) => ({
       ...a,
-      isPrimary: (a.level || '').toLowerCase().includes('primary') || (a.className || '').toLowerCase().includes('primary')
+      isPrimary: (a.level || '').toLowerCase().includes('primary') || (a.className || '').toLowerCase().includes('primary'),
+      isNursery: (a.level || '').toLowerCase().includes('nur') || (a.className || '').toLowerCase().includes('nur')
     }))
 
-    // Deduplicate assignments by classId and subjectId
     const uniqueAssignments = new Map()
     for (const a of enrichedAssignments) {
       const key = `${a.classId}-${a.subjectId}`
@@ -70,104 +69,131 @@ const fetchData = async () => {
 }
 
 onMounted(fetchData)
-
-const cardImages = [
-  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=60&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&q=60&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&q=60&auto=format&fit=crop'
-]
 </script>
 
 <template>
-  <div class="space-y-8 fade-in">
-    <!-- Welcome Header -->
-    <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-      <div class="glass-card p-8 sm:p-10 shadow-[0_30px_70px_rgba(0,0,0,0.35)] border border-slate-700/60 bg-slate-950/95 relative overflow-hidden">
-        <div class="absolute -right-16 top-4 h-32 w-32 rounded-full bg-royal-purple/15 blur-3xl" aria-hidden="true"></div>
-        <div class="absolute -left-16 bottom-10 h-32 w-32 rounded-full bg-royal-gold/10 blur-3xl" aria-hidden="true"></div>
-        <div class="flex items-center gap-4 mb-6">
-          <div class="h-2.5 w-16 rounded-full bg-royal-purple/60"></div>
-          <span class="text-[9px] font-black uppercase tracking-[0.35em] text-royal-gold">Teacher Hub</span>
+  <div class="space-y-6 text-[#1C1917]">
+    
+    <!-- Welcome Header Card -->
+    <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <div class="h-14 w-14 rounded-2xl bg-[#2D6A4F]/10 border border-[#2D6A4F]/20 flex items-center justify-center shrink-0 text-[#2D6A4F]">
+            <Award class="w-7 h-7" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-[#2D6A4F]/10 text-[#2D6A4F] px-2 py-0.5 rounded-full">
+                Faculty Hub
+              </span>
+              <span v-if="currentSession" class="text-[11px] font-semibold text-[#6B7280]">
+                {{ currentSession }} • {{ currentTerm }} Term
+              </span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1C1917]">
+              Welcome, {{ authStore.user?.displayName || 'Educator' }}
+            </h1>
+            <p class="text-xs sm:text-sm text-[#4B5563] mt-0.5">
+              {{ roleDescription }}
+            </p>
+          </div>
         </div>
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div class="flex items-center gap-5">
-            <div class="relative h-20 w-20 rounded-[2rem] bg-slate-900/90 border border-royal-gold/15 shadow-lg shadow-royal-purple/10 flex items-center justify-center">
-              <Award class="w-10 h-10 text-royal-gold" />
-            </div>
-            <div>
-              <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight">Welcome, <span class="text-royal-purple">{{ authStore.user?.displayName || 'Academic Staff' }}</span></h1>
-              <p class="mt-3 max-w-xl text-sm text-slate-400">{{ roleDescription }}</p>
-            </div>
-          </div>
-          <div class="flex flex-wrap items-center gap-3">
-            <span v-if="formClasses.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-slate-900/70 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-purple border border-slate-700/60">Form Teacher</span>
-            <span v-if="assignments.length > 0" class="inline-flex items-center gap-2 rounded-2xl bg-slate-900/70 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-royal-gold border border-slate-700/60">Subject Teacher</span>
-            <router-link
-              to="/teacher/settings"
-              class="inline-flex items-center gap-2 rounded-2xl bg-[#1B2A4A]/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-[#C9A84C] border border-[#C9A84C]/20 hover:bg-[#C9A84C]/15 transition-all shadow-sm"
-            >
-              <Lock class="w-3.5 h-3.5" />
-              <span>Settings & Password</span>
-            </router-link>
-          </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <span v-if="formClasses.length > 0" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#1A4D8F]/10 text-[#1A4D8F] border border-[#1A4D8F]/20">
+            Form Teacher ({{ formClasses.length }})
+          </span>
+          <span v-if="assignments.length > 0" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#2D6A4F]/10 text-[#2D6A4F] border border-[#2D6A4F]/20">
+            {{ assignments.length }} Subjects Assigned
+          </span>
+          <router-link
+            to="/teacher/settings"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#F7F4EE] hover:bg-[#EFE9DE] border border-[#E5E0D8] text-[#1C1917] transition-colors"
+          >
+            <Lock class="w-3.5 h-3.5 text-[#6B7280]" />
+            <span>Security</span>
+          </router-link>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="glass-card p-6 border border-slate-700/60 bg-slate-950/95">
-          <p class="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Assignments</p>
-          <p class="mt-3 text-3xl font-black text-white">{{ assignments.length }}</p>
-          <p class="mt-2 text-sm text-slate-400">Subjects you are currently teaching</p>
+      <!-- Quick Metrics Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-5 border-t border-[#E5E0D8]">
+        <div class="bg-[#F7F4EE] rounded-xl p-4 border border-[#E5E0D8] flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Active Subject Allocations</p>
+            <p class="text-2xl font-black text-[#1A4D8F] mt-1">{{ assignments.length }}</p>
+            <p class="text-[11px] text-[#4B5563] mt-0.5">Subjects ready for continuous assessment</p>
+          </div>
+          <div class="h-10 w-10 rounded-xl bg-white border border-[#E5E0D8] flex items-center justify-center text-[#1A4D8F]">
+            <BookOpen class="w-5 h-5" />
+          </div>
         </div>
-        <div class="glass-card p-6 border-royal-gold/15 bg-slate-950/90">
-          <p class="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Total Focus</p>
-          <p class="mt-3 text-3xl font-black text-white">{{ formClasses.reduce((acc, c) => acc + (c.studentIds?.length || 0), 0) }}</p>
-          <p class="mt-2 text-sm text-slate-400">Learners currently under your pastoral care</p>
+
+        <div class="bg-[#F7F4EE] rounded-xl p-4 border border-[#E5E0D8] flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Pastoral Care Students</p>
+            <p class="text-2xl font-black text-[#2D6A4F] mt-1">
+              {{ formClasses.reduce((acc, c) => acc + (c.studentIds?.length || 0), 0) }}
+            </p>
+            <p class="text-[11px] text-[#4B5563] mt-0.5">Learners enrolled in your form classes</p>
+          </div>
+          <div class="h-10 w-10 rounded-xl bg-white border border-[#E5E0D8] flex items-center justify-center text-[#2D6A4F]">
+            <Users class="w-5 h-5" />
+          </div>
         </div>
       </div>
     </div>
 
-    <div v-if="loading" class="flex items-center justify-center min-h-[400px]">
-      <Loader2 class="w-12 h-12 text-royal-purple animate-spin" />
+    <!-- Loading State -->
+    <div v-if="loading" class="flex items-center justify-center min-h-[300px]">
+      <Loader2 class="w-10 h-10 text-[#1A4D8F] animate-spin" />
     </div>
-    <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Main Teaching Section -->
-      <div class="lg:col-span-2 space-y-8">
-        <div class="glass-card p-8 bg-slate-950/95 border border-slate-700/60">
-          <div class="flex items-center justify-between mb-6">
+
+    <!-- Main Content Layout -->
+    <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left Column: Subject Allocations -->
+      <div class="lg:col-span-8 space-y-6">
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm">
+          <div class="flex items-center justify-between pb-4 mb-5 border-b border-[#E5E0D8]">
             <div class="flex items-center gap-3">
-              <div class="h-12 w-12 rounded-3xl bg-slate-900/70 text-royal-purple flex items-center justify-center border border-slate-700/60">
-                <BookOpen class="w-6 h-6" />
+              <div class="h-9 w-9 rounded-xl bg-[#1A4D8F]/10 text-[#1A4D8F] flex items-center justify-center">
+                <ClipboardCheck class="w-5 h-5" />
               </div>
               <div>
-                <h3 class="text-xl font-black text-white tracking-tight">Subject Assignments</h3>
-                <p class="text-[10px] uppercase tracking-[0.3em] text-slate-500">Active Term assignments ready for score entry</p>
+                <h2 class="text-base font-bold text-[#1C1917]">Score Entry Allocations</h2>
+                <p class="text-[11px] text-[#6B7280]">Select a subject to enter or modify student marks</p>
               </div>
             </div>
-            <span class="rounded-full bg-slate-900/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-royal-gold border border-royal-gold/15">Active Term</span>
+
+            <span class="text-xs font-bold text-[#2D6A4F] bg-[#2D6A4F]/10 px-2.5 py-1 rounded-full">
+              {{ assignments.length }} Available
+            </span>
           </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div 
-              v-for="(item, idx) in assignments" 
+              v-for="item in assignments" 
               :key="item.id"
-              class="glass-card rounded-[2rem] p-8 border-royal-purple/10 group hover:border-royal-gold/30 transition-all relative overflow-hidden"
+              class="bg-[#F7F4EE] rounded-2xl p-5 border border-[#E5E0D8] hover:border-[#1A4D8F]/40 hover:bg-white hover:shadow-md transition-all flex flex-col justify-between group"
             >
-              <div class="absolute inset-0 z-0 pointer-events-none">
-                <img :src="cardImages[idx % cardImages.length]" class="w-full h-full object-cover grayscale" style="opacity:0.06" alt="" />
-              </div>
-              <div class="flex justify-between items-start mb-6">
-                <div class="h-12 w-12 rounded-2xl bg-slate-900/70 text-royal-purple flex items-center justify-center border border-slate-700/60">
-                  <ClipboardCheck class="w-6 h-6" />
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] font-bold text-[#1A4D8F] uppercase tracking-wider bg-white px-2 py-0.5 rounded-md border border-[#E5E0D8]">
+                    {{ item.className }}
+                  </span>
+                  <span v-if="item.isNursery" class="text-[9px] font-bold bg-[#E8A838]/20 text-[#8C5D07] px-1.5 py-0.5 rounded">
+                    Nursery
+                  </span>
+                  <span v-else-if="item.isPrimary" class="text-[9px] font-bold bg-[#2D6A4F]/10 text-[#2D6A4F] px-1.5 py-0.5 rounded">
+                    Primary
+                  </span>
                 </div>
+                <h3 class="text-base font-extrabold text-[#1C1917] group-hover:text-[#1A4D8F] transition-colors leading-snug">
+                  {{ item.subjectName }}
+                </h3>
               </div>
-              
-              <h4 class="text-xl font-black text-white line-clamp-1">{{ item.subjectName }}</h4>
-              <p class="text-[10px] font-bold text-slate-200 uppercase tracking-widest mt-1">
-                {{ item.className }} 
-                <span v-if="item.isPrimary" class="ml-2 px-2 py-0.5 bg-slate-900/60 text-blue-300 rounded-md text-[8px]">Primary</span>
-              </p>
-              
+
               <button 
                 @click="router.push({ 
                   name: 'teacher-scores', 
@@ -182,90 +208,87 @@ const cardImages = [
                     term: currentTerm
                   }
                 })"
-                class="mt-8 w-full py-4 rounded-2xl bg-slate-900/60 border border-slate-700/60 text-[10px] font-black uppercase tracking-widest text-white hover:bg-royal-purple hover:text-white transition-all flex items-center justify-center gap-2"
+                class="mt-4 w-full py-2.5 px-3 rounded-xl bg-white border border-[#E5E0D8] group-hover:bg-[#1A4D8F] group-hover:text-white group-hover:border-transparent text-xs font-bold text-[#1C1917] transition-all flex items-center justify-center gap-1.5 shadow-sm"
               >
-                Enter Results <ArrowRight class="w-4 h-4" />
+                <span>Enter Marks</span>
+                <ArrowRight class="w-3.5 h-3.5" />
               </button>
             </div>
-            <div v-if="assignments.length === 0" class="col-span-full py-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs academic-card border-dashed">
-              No subjects assigned for this term.
-            </div>
-          </div>
-        </div>
 
-        <!-- Analytics Placeholder -->
-        <div class="glass-card p-10 bg-slate-950/95 border border-slate-700/60 relative overflow-hidden">
-          <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-royal-purple/10 blur-3xl" aria-hidden="true"></div>
-          <div class="absolute left-0 bottom-0 h-36 w-36 rounded-full bg-royal-gold/10 blur-3xl" aria-hidden="true"></div>
-          <div class="relative z-10">
-            <h3 class="text-xl font-black tracking-tight mb-2 text-white">Performance Analytics</h3>
-            <p class="text-sm text-slate-400 max-w-sm mb-8">Visualize class progress and identify students who may need extra attention.</p>
-            <div class="flex flex-wrap gap-4">
-              <div class="flex flex-col rounded-3xl bg-slate-900/80 p-4">
-                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Average Score</span>
-                <span class="text-2xl font-black text-emerald-400">74.2%</span>
-              </div>
-              <div class="flex flex-col rounded-3xl bg-slate-900/80 p-4">
-                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Pass Rate</span>
-                <span class="text-2xl font-black text-blue-400">92%</span>
-              </div>
+            <div v-if="assignments.length === 0" class="col-span-full py-12 text-center text-[#9CA3AF] bg-[#F7F4EE] rounded-2xl border border-dashed border-[#E5E0D8]">
+              <BookOpen class="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p class="text-sm font-bold">No subject assignments found.</p>
+              <p class="text-xs mt-1">Contact the administrator to allocate subjects to your account.</p>
             </div>
           </div>
-          <TrendingUp class="absolute -right-8 -bottom-8 w-64 h-64 text-white/5" />
         </div>
       </div>
 
-      <!-- Sidebar Actions -->
-      <div class="space-y-6">
-        <div class="glass-card p-8 border border-slate-700/60 bg-slate-950/95">
-          <h3 class="text-lg font-black text-white tracking-tight mb-6 flex items-center gap-2">
-            <Award class="w-5 h-5 text-royal-gold" /> Form Classes
-          </h3>
-          <div class="space-y-4">
-            <div 
-              v-for="(cls, idx) in formClasses" 
-              :key="cls.id" 
-              @click="router.push({ name: 'teacher-form-class', params: { classId: cls.id }, query: { className: cls.name } })"
-              class="glass-card p-5 rounded-[2rem] border border-slate-700/60 bg-slate-950/95 group hover:border-royal-gold/30 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
-            >
-              <div class="absolute inset-0 z-0 pointer-events-none">
-                <img :src="cardImages[idx % cardImages.length]" class="w-full h-full object-cover grayscale" style="opacity:0.06" alt="" />
+      <!-- Right Column: Form Classes & Activities -->
+      <div class="lg:col-span-4 space-y-5">
+        
+        <!-- Form Classes Card -->
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-[#E5E0D8]">
+            <div class="flex items-center gap-2.5">
+              <div class="h-8 w-8 rounded-lg bg-[#E8A838]/15 text-[#C98818] flex items-center justify-center">
+                <Award class="w-4 h-4" />
               </div>
-              <div class="flex items-start justify-between gap-4">
-                <div class="min-w-0">
-                  <p class="text-sm font-black text-white truncate">{{ cls.name }}</p>
-                  <p class="mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ cls.studentIds?.length || 0 }} Students</p>
-                </div>
-                <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-2 text-slate-300 group-hover:text-royal-gold transition-colors">
-                  <ArrowRight class="w-5 h-5" />
-                </div>
+              <h3 class="text-sm font-bold text-[#1C1917]">My Form Classes</h3>
+            </div>
+            <span class="text-xs font-semibold text-[#6B7280]">{{ formClasses.length }}</span>
+          </div>
+
+          <div class="space-y-2.5">
+            <div 
+              v-for="cls in formClasses" 
+              :key="cls.id"
+              @click="router.push({ name: 'teacher-form-class', params: { classId: cls.id }, query: { className: cls.name } })"
+              class="p-3.5 rounded-xl bg-[#F7F4EE] hover:bg-white hover:shadow-sm border border-[#E5E0D8] hover:border-[#1A4D8F]/30 transition-all cursor-pointer flex items-center justify-between group"
+            >
+              <div>
+                <p class="text-xs font-bold text-[#1C1917] group-hover:text-[#1A4D8F] transition-colors">
+                  {{ cls.name }}
+                </p>
+                <p class="text-[11px] text-[#6B7280]">
+                  {{ cls.studentIds?.length || 0 }} Students Enrolled
+                </p>
+              </div>
+              <div class="h-7 w-7 rounded-lg bg-white border border-[#E5E0D8] flex items-center justify-center text-[#6B7280] group-hover:bg-[#1A4D8F] group-hover:text-white transition-all">
+                <ArrowRight class="w-3.5 h-3.5" />
               </div>
             </div>
-            <div v-if="formClasses.length === 0" class="glass-card rounded-[2rem] p-6 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest border border-dashed border-slate-700/50">
-              No form classes assigned.
+
+            <div v-if="formClasses.length === 0" class="py-6 text-center text-xs text-[#9CA3AF]">
+              You are currently not assigned as a form teacher for any class.
             </div>
           </div>
         </div>
 
-        <div class="glass-card p-8 border border-slate-700/60 bg-slate-950/95">
-          <h3 class="text-lg font-black text-white tracking-tight mb-6 flex items-center gap-2">
-            <Clock class="w-5 h-5 text-royal-gold" /> Upcoming Deadlines
-          </h3>
-          <div class="space-y-4">
-            <div class="glass-card p-5 rounded-[2rem] border border-royal-purple/10 bg-slate-950/90 flex items-center gap-4 hover:border-royal-gold/20 transition-all">
-              <div class="h-14 w-14 shrink-0 rounded-3xl bg-red-900/30 text-red-300 flex flex-col items-center justify-center font-black text-[10px] uppercase tracking-[0.18em]">
-                <span>May</span>
-                <span class="text-sm">15</span>
-              </div>
-              <div class="min-w-0">
-                <p class="text-sm font-black text-white truncate">Submit CA 2 Scores</p>
-                <p class="text-[10px] text-slate-400">JSS 3A Mathematics</p>
-              </div>
-              <span class="ml-auto rounded-full bg-slate-900/80 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Due Soon</span>
+        <!-- Academic Guidelines & Deadlines -->
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2.5 pb-2 border-b border-[#E5E0D8]">
+            <Clock class="w-4 h-4 text-[#1A4D8F]" />
+            <h3 class="text-sm font-bold text-[#1C1917]">Continuous Assessment Guide</h3>
+          </div>
+          <div class="space-y-2 text-xs text-[#4B5563] leading-relaxed">
+            <div class="flex items-start gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-[#1A4D8F] mt-1.5 shrink-0"></span>
+              <span><strong>CA 1 & 2:</strong> 10 marks each or configured breakdown.</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-[#2D6A4F] mt-1.5 shrink-0"></span>
+              <span><strong>Examinations:</strong> 60 marks total.</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-[#E8A838] mt-1.5 shrink-0"></span>
+              <span>Form teachers must complete attendance and traits before publishing.</span>
             </div>
           </div>
         </div>
+
       </div>
     </div>
+
   </div>
 </template>

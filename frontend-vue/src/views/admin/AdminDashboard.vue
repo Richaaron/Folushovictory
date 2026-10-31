@@ -10,8 +10,9 @@ import {
   Calendar,
   Bell,
   Trash2,
-  BarChart3,
-  Activity
+  Activity,
+  FileCheck2,
+  Sparkles
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -23,37 +24,66 @@ const recentActivity = ref<Array<{ id: string; type: string; text: string; time:
 
 const activeTermLabel = computed(() => {
   const activeTerm = dashboardData.value?.activeTerm
-  if (!activeTerm) return 'Loading...'
+  if (!activeTerm) return 'Current Academic Term'
   const session = String(activeTerm.session || '').trim()
   let term = String(activeTerm.term || '').trim().toUpperCase()
   if (term && !term.includes('TERM')) {
     term = `${term} TERM`
   }
-  return `${session} ${term}`.trim()
+  return `${session} • ${term}`.trim()
 })
 
 const stats = ref([
-  { name: 'Total Students', key: 'studentsCount', value: '0', icon: GraduationCap, route: '/admin/students' },
-  { name: 'Active Teachers', key: 'teachersCount', value: '0', icon: Users, route: '/admin/teachers' },
-  { name: 'Active Classes', key: 'classesCount', value: '0', icon: BookOpen, route: '/admin/classes' },
-  { name: 'Avg. Performance', key: 'avgPerformance', value: '0%', icon: TrendingUp, route: '/admin/broadsheet' }
+  { 
+    name: 'Total Students', 
+    key: 'studentsCount', 
+    value: '0', 
+    icon: GraduationCap, 
+    route: '/admin/students',
+    color: 'text-[#1A4D8F]',
+    bg: 'bg-[#1A4D8F]/10',
+    border: 'border-l-4 border-l-[#1A4D8F]'
+  },
+  { 
+    name: 'Active Faculty', 
+    key: 'teachersCount', 
+    value: '0', 
+    icon: Users, 
+    route: '/admin/teachers',
+    color: 'text-[#2D6A4F]',
+    bg: 'bg-[#2D6A4F]/10',
+    border: 'border-l-4 border-l-[#2D6A4F]'
+  },
+  { 
+    name: 'Registered Classes', 
+    key: 'classesCount', 
+    value: '0', 
+    icon: BookOpen, 
+    route: '/admin/classes',
+    color: 'text-[#E8A838]',
+    bg: 'bg-[#E8A838]/15',
+    border: 'border-l-4 border-l-[#E8A838]'
+  },
+  { 
+    name: 'Avg. Performance', 
+    key: 'avgPerformance', 
+    value: '0%', 
+    icon: TrendingUp, 
+    route: '/admin/broadsheet',
+    color: 'text-[#8B263E]',
+    bg: 'bg-[#8B263E]/10',
+    border: 'border-l-4 border-l-[#8B263E]'
+  }
 ])
-
-const statImages = [
-  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=60&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=60&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&q=60&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1588072432836-e10032774350?w=1200&q=60&auto=format&fit=crop'
-]
 
 const fetchActivityLogs = async () => {
   try {
-    const { data } = await api.get('/api/admin/activity-logs', { params: { limit: 5 } })
-    recentActivity.value = data.logs.map((log: any) => ({
+    const { data } = await api.get('/api/admin/activity-logs', { params: { limit: 6 } })
+    recentActivity.value = (data.logs || []).map((log: any) => ({
       id: log.id,
-      type: log.role === 'TEACHER' ? 'Teacher Activity' : 'System',
+      type: log.role === 'TEACHER' ? 'Faculty' : 'System',
       text: `${log.actor} — ${log.action}`,
-      time: log.createdAt ? new Date(log.createdAt).toLocaleString() : 'Just now'
+      time: log.createdAt ? new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'
     }))
   } catch (err) {
     console.error('Activity log error:', err)
@@ -61,24 +91,22 @@ const fetchActivityLogs = async () => {
 }
 
 const deleteLog = async (id: string) => {
-  if (!confirm('Are you sure you want to delete this activity log?')) return
+  if (!confirm('Are you sure you want to delete this activity entry?')) return
   try {
     await api.delete(`/api/admin/activity-logs/${id}`)
     recentActivity.value = recentActivity.value.filter(item => item.id !== id)
   } catch (err: any) {
-    console.error(err)
-    alert(`Failed to delete activity log: ${err.response?.data?.error || err.message}`)
+    alert(`Failed to delete log: ${err.response?.data?.error || err.message}`)
   }
 }
 
 const clearAllLogs = async () => {
-  if (!confirm('Are you sure you want to clear ALL activity logs? This action cannot be undone.')) return
+  if (!confirm('Clear all operational activity logs?')) return
   try {
     await api.delete('/api/admin/activity-logs')
     recentActivity.value = []
   } catch (err: any) {
-    console.error(err)
-    alert(`Failed to clear activity logs: ${err.response?.data?.error || err.message}`)
+    alert(`Failed to clear logs: ${err.response?.data?.error || err.message}`)
   }
 }
 
@@ -105,201 +133,213 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="space-y-8 py-4 sm:py-8 fade-in relative">
-    <span class="floating-math" aria-hidden="true">∫</span>
-    <span class="floating-math" aria-hidden="true">∑</span>
-
-    <!-- Header Section -->
-    <div class="flex flex-col lg:flex-row gap-6">
-      <section class="academic-hero flex-1 bg-[#1B2A4A]/50 border border-[#C9A84C]/15">
-        <div class="absolute top-4 right-4 flex items-center gap-2">
-          <span class="h-1.5 w-1.5 rounded-full bg-[#7A9E7E] animate-pulse"></span>
-          <span class="text-[8px] font-black uppercase tracking-[0.25em] text-[#7A9E7E]">Admin Console</span>
+  <div class="space-y-6 text-[#1C1917]">
+    
+    <!-- Welcome Header Banner -->
+    <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#1A4D8F]/10 text-[#1A4D8F] text-[11px] font-bold">
+          <Sparkles class="w-3.5 h-3.5" />
+          <span>Folusho Victory Administrative Center</span>
         </div>
-        <div class="flex items-center gap-3 mb-4">
-          <div class="h-[1px] w-10 bg-gradient-to-r from-[#C9A84C] to-transparent" aria-hidden="true"></div>
-          <span class="text-[8px] font-black uppercase tracking-[0.35em] text-[#C9A84C]/70">Executive Control</span>
-        </div>
-        <h1 class="academic-heading text-3xl lg:text-4xl text-[#FAFAF7]">
-          Admin <span class="gold-text">Insights</span>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1C1917]">
+          School Executive Console
         </h1>
-        <div class="gold-accent"></div>
-        <p class="text-sm text-[#F5F0E8]/60 max-w-2xl leading-relaxed">
-          A refined operational console showcasing real-time school performance, academic rosters, and system activity logs.
+        <p class="text-xs sm:text-sm text-[#6B7280]">
+          Real-time oversight of student enrollment, faculty rosters, broadsheets, and examination reports.
         </p>
-      </section>
+      </div>
 
-      <section class="parchment-card p-6 lg:w-72 flex items-center gap-4">
-        <div class="h-14 w-14 rounded-2xl bg-[#1B2A4A] border border-[#C9A84C]/20 flex items-center justify-center flex-shrink-0">
-          <Calendar class="w-6 h-6 text-[#C9A84C]" />
+      <div class="flex items-center gap-3 bg-[#F7F4EE] px-4 py-3 rounded-xl border border-[#E5E0D8] shrink-0">
+        <div class="h-10 w-10 rounded-xl bg-white border border-[#E5E0D8] flex items-center justify-center text-[#E8A838] shadow-sm">
+          <Calendar class="w-5 h-5" />
         </div>
         <div>
-          <p class="text-[9px] font-black uppercase tracking-[0.3em] text-[#C9A84C]/50">Academic Session</p>
-          <p class="academic-heading text-lg text-[#FAFAF7] mt-1">{{ activeTermLabel }}</p>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] block">Active Session</span>
+          <span class="text-xs sm:text-sm font-extrabold text-[#1C1917] block">{{ activeTermLabel }}</span>
         </div>
-      </section>
+      </div>
     </div>
 
-    <!-- Stats Grid -->
+    <!-- Stat Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <article
+      <div
         v-for="stat in stats"
         :key="stat.name"
         @click="router.push(stat.route)"
-        class="stat-card cursor-pointer relative overflow-hidden"
-        role="button"
-        :aria-label="`View details for ${stat.name}: ${stat.value}`"
-        tabindex="0"
-        @keydown.enter="router.push(stat.route)"
-        @keydown.space.prevent="router.push(stat.route)"
+        class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md flex flex-col justify-between"
+        :class="stat.border"
       >
-        <div class="absolute inset-0 z-0 pointer-events-none">
-          <img :src="statImages[stats.indexOf(stat) % statImages.length]" class="w-full h-full object-cover grayscale" style="opacity:0.08" alt="" />
-        </div>
-        <div class="flex items-start justify-between gap-4">
-          <div class="h-12 w-12 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 flex items-center justify-center relative z-10">
-            <component :is="stat.icon" class="w-5 h-5 text-[#C9A84C]" />
-          </div>
-          <div class="rounded-full bg-[#1B2A4A]/60 px-3 py-1 border border-[#C9A84C]/10 relative z-10">
-            <span class="text-[8px] font-black uppercase tracking-[0.25em] text-[#C9A84C]/50">Live</span>
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+            {{ stat.name }}
+          </span>
+          <div class="h-10 w-10 rounded-xl flex items-center justify-center" :class="[stat.bg, stat.color]">
+            <component :is="stat.icon" class="w-5 h-5" />
           </div>
         </div>
-        <div class="mt-5">
-          <p class="stat-label">{{ stat.name }}</p>
-          <p class="stat-value">{{ stat.value }}</p>
-        </div>
-      </article>
-    </div>
-
-    <!-- Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Activity Logs -->
-      <div class="lg:col-span-2 space-y-6">
-        <section class="parchment-card p-6 lg:p-8">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#C9A84C]/10 pb-5 mb-6">
-            <div class="flex items-center gap-4">
-              <div class="h-12 w-12 rounded-xl bg-[#1B2A4A]/80 border border-[#C9A84C]/20 flex items-center justify-center">
-                <Bell class="w-5 h-5 text-[#C9A84C]" />
-              </div>
-              <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.35em] text-[#C9A84C]/50">System Pulse</p>
-                <h3 class="academic-heading text-xl text-[#FAFAF7] mt-1">Operational Feed</h3>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button @click="fetchActivityLogs" class="chalkboard-btn text-[10px] px-4 py-2">
-                <Activity class="w-3 h-3" />
-                Refresh
-              </button>
-              <button v-if="recentActivity.length" @click="clearAllLogs" class="chalkboard-btn text-[10px] px-4 py-2 bg-transparent border-[#8B3A52]/30 text-[#8B3A52] hover:bg-[#8B3A52]/10">
-                <Trash2 class="w-3 h-3" />
-                Clear
-              </button>
-            </div>
+        <div>
+          <span class="text-3xl font-black text-[#1C1917] tracking-tight">
+            {{ stat.value }}
+          </span>
+          <div class="flex items-center gap-1 text-[11px] font-semibold text-[#1A4D8F] mt-2">
+            <span>Manage section</span>
+            <ArrowUpRight class="w-3.5 h-3.5" />
           </div>
-
-          <div class="space-y-3 max-h-[350px] overflow-y-auto pr-1">
-            <template v-if="recentActivity.length">
-              <div
-                v-for="item in recentActivity"
-                :key="item.id"
-                class="rounded-xl border border-[#C9A84C]/8 bg-[#1B2A4A]/40 p-4 transition-all duration-300 hover:border-[#C9A84C]/25 hover:bg-[#1B2A4A]/60"
-              >
-                <div class="flex items-center justify-between gap-3">
-                  <span class="text-[9px] font-black uppercase tracking-[0.3em] text-[#C9A84C]/60 bg-[#C9A84C]/8 px-2 py-0.5 rounded-md border border-[#C9A84C]/20">{{ item.type }}</span>
-                  <div class="flex items-center gap-3">
-                    <span class="text-[9px] font-bold text-[#F5F0E8]/40">{{ item.time }}</span>
-                    <button
-                      @click="deleteLog(item.id)"
-                      class="p-1.5 rounded-lg border border-[#8B3A52]/20 bg-[#8B3A52]/5 text-[#8B3A52]/50 hover:text-[#B45A74] hover:bg-[#8B3A52]/20 hover:border-[#8B3A52]/30 transition-all duration-300 active:scale-90"
-                      title="Delete"
-                    >
-                      <Trash2 class="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-                <p class="mt-2 text-xs text-[#F5F0E8]/70">{{ item.text }}</p>
-              </div>
-            </template>
-            <template v-else>
-              <div class="rounded-xl border border-[#C9A84C]/8 bg-[#1B2A4A]/30 p-8 text-center">
-                <p class="text-sm font-bold text-[#F5F0E8]/50">No recent activity logs recorded.</p>
-                <p class="mt-2 text-xs text-[#F5F0E8]/35">Activity logs will appear here as actions are performed.</p>
-              </div>
-            </template>
-          </div>
-        </section>
-
-        <!-- Quick Actions -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <section class="parchment-card p-6 relative overflow-hidden group">
-            <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent opacity-40"></div>
-            <h4 class="academic-heading text-sm text-[#C9A84C] mb-2">Release Results</h4>
-            <p class="text-xs text-[#F5F0E8]/50 leading-relaxed mb-5">Publish term scores securely and streamline instant parent access.</p>
-            <router-link to="/admin/broadsheet" class="chalkboard-btn chalkboard-btn-gold text-[10px]">
-              Portal Dashboard <ArrowUpRight class="w-3 h-3" />
-            </router-link>
-          </section>
-
-          <section class="parchment-card p-6 relative overflow-hidden group">
-            <h4 class="academic-heading text-sm text-[#FAFAF7] mb-2">Staffing Engine</h4>
-            <p class="text-xs text-[#F5F0E8]/50 leading-relaxed mb-5">Manage faculty member rosters and optimize class allocations.</p>
-            <router-link to="/admin/teachers" class="chalkboard-btn text-[10px]">
-              <Users class="w-3 h-3" />
-              Directory
-            </router-link>
-          </section>
         </div>
       </div>
+    </div>
 
-      <!-- System Health -->
-      <div class="space-y-6">
-        <section class="parchment-card p-6">
-          <div class="flex items-center gap-3 mb-8">
-            <span class="h-2 w-2 rounded-full bg-[#7A9E7E] animate-pulse"></span>
-            <h3 class="text-sm font-black text-[#FAFAF7] uppercase tracking-[0.3em]">System Health</h3>
-          </div>
-
-          <div class="space-y-6">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.25em] text-[#C9A84C]/50">
-                <span>Compute Load</span>
-                <span class="text-[#7A9E7E]">Nominal</span>
-              </div>
-              <div class="h-2 rounded-full bg-[#1B2A4A]/80 border border-[#C9A84C]/10 overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-[#7A9E7E] to-[#A8C4AB] rounded-full" style="width: 12%"></div>
-              </div>
+    <!-- Main Section: Activity & Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Activity Feed -->
+      <div class="lg:col-span-8 bg-white rounded-2xl border border-[#E5E0D8] p-5 sm:p-6 shadow-sm flex flex-col">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#E5E0D8]">
+          <div class="flex items-center gap-2.5">
+            <div class="h-9 w-9 rounded-xl bg-[#F7F4EE] border border-[#E5E0D8] flex items-center justify-center text-[#1A4D8F]">
+              <Bell class="w-4 h-4" />
             </div>
-
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.25em] text-[#C9A84C]/50">
-                <span>SMTP Uplink</span>
-                <span class="text-[#7A9E7E]">Active</span>
-              </div>
-              <div class="h-2 rounded-full bg-[#1B2A4A]/80 border border-[#C9A84C]/10 overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-[#C9A84C] to-[#E8D08A] rounded-full" style="width: 100%"></div>
-              </div>
-            </div>
-
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.25em] text-[#C9A84C]/50">
-                <span>Storage Pool</span>
-                <span class="text-[#C9A84C]">84% Capacity</span>
-              </div>
-              <div class="h-2 rounded-full bg-[#1B2A4A]/80 border border-[#C9A84C]/10 overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-[#C9A84C] to-[#E8D08A] rounded-full" style="width: 84%"></div>
-              </div>
+            <div>
+              <h2 class="text-base font-bold text-[#1C1917]">System Operational Feed</h2>
+              <p class="text-[11px] text-[#6B7280]">Recent teacher and administrative activities</p>
             </div>
           </div>
 
-          <div class="mt-8 pt-6 border-t border-[#C9A84C]/10">
-            <button class="chalkboard-btn w-full text-[10px] justify-center">
-              <BarChart3 class="w-3 h-3" />
-              System Configuration
+          <div class="flex items-center gap-2">
+            <button 
+              @click="fetchActivityLogs" 
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#4B5563] bg-[#F7F4EE] hover:bg-[#EFE9DE] border border-[#E5E0D8] transition-colors flex items-center gap-1.5"
+            >
+              <Activity class="w-3.5 h-3.5 text-[#1A4D8F]" />
+              Refresh
+            </button>
+            <button 
+              v-if="recentActivity.length" 
+              @click="clearAllLogs" 
+              class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#8B263E] bg-[#8B263E]/5 hover:bg-[#8B263E]/10 border border-[#8B263E]/20 transition-colors"
+            >
+              <Trash2 class="w-3.5 h-3.5" />
             </button>
           </div>
-        </section>
+        </div>
+
+        <!-- Log List -->
+        <div class="space-y-2.5 flex-1">
+          <template v-if="recentActivity.length">
+            <div
+              v-for="item in recentActivity"
+              :key="item.id"
+              class="p-3.5 rounded-xl bg-[#F7F4EE] border border-[#E5E0D8] flex items-center justify-between gap-3 text-xs"
+            >
+              <div class="space-y-0.5 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-white border border-[#E5E0D8] text-[#1A4D8F]">
+                    {{ item.type }}
+                  </span>
+                  <span class="text-[11px] font-medium text-[#6B7280]">{{ item.time }}</span>
+                </div>
+                <p class="font-medium text-[#1C1917] truncate">{{ item.text }}</p>
+              </div>
+
+              <button
+                @click="deleteLog(item.id)"
+                class="p-1 rounded-lg text-[#9CA3AF] hover:text-[#8B263E] transition-colors shrink-0"
+                title="Dismiss log"
+              >
+                <Trash2 class="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </template>
+          <template v-else>
+            <div class="py-12 text-center text-[#9CA3AF]">
+              <p class="text-sm font-semibold">No recent activity recorded.</p>
+              <p class="text-xs mt-1">Actions performed by staff or administrators will appear here.</p>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Quick Operations Sidebar -->
+      <div class="lg:col-span-4 space-y-4">
+        
+        <!-- Result Broadsheet Card -->
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2.5">
+            <div class="h-9 w-9 rounded-xl bg-[#1A4D8F]/10 text-[#1A4D8F] flex items-center justify-center">
+              <FileCheck2 class="w-4 h-4" />
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-[#1C1917]">Term Results</h3>
+              <p class="text-[11px] text-[#6B7280]">Master broadsheet & publishing</p>
+            </div>
+          </div>
+          <p class="text-xs text-[#4B5563] leading-relaxed">
+            Review submitted scores across all Pre-Nursery, Primary, and Secondary classes, and release reports to parents.
+          </p>
+          <router-link
+            to="/admin/broadsheet"
+            class="w-full py-2.5 px-3 rounded-xl bg-[#1A4D8F] text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#12386A] transition-colors"
+          >
+            Open Master Broadsheet
+            <ArrowUpRight class="w-3.5 h-3.5" />
+          </router-link>
+        </div>
+
+        <!-- Faculty Management Card -->
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2.5">
+            <div class="h-9 w-9 rounded-xl bg-[#2D6A4F]/10 text-[#2D6A4F] flex items-center justify-center">
+              <Users class="w-4 h-4" />
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-[#1C1917]">Faculty Roster</h3>
+              <p class="text-[11px] text-[#6B7280]">Teachers & class allocations</p>
+            </div>
+          </div>
+          <p class="text-xs text-[#4B5563] leading-relaxed">
+            Assign form teachers, update subject allocations, and invite new educators with registration codes.
+          </p>
+          <router-link
+            to="/admin/teachers"
+            class="w-full py-2.5 px-3 rounded-xl bg-[#F7F4EE] hover:bg-[#EFE9DE] border border-[#E5E0D8] text-[#1C1917] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+          >
+            Manage Teachers
+            <ArrowUpRight class="w-3.5 h-3.5" />
+          </router-link>
+        </div>
+
+        <!-- System Status Summary -->
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#6B7280]">System Health</h3>
+            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold text-[#2D6A4F] bg-[#2D6A4F]/10 px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#2D6A4F]"></span>
+              Operational
+            </span>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between text-[#4B5563]">
+              <span>Database Sync</span>
+              <span class="font-bold text-[#1C1917]">Active</span>
+            </div>
+            <div class="w-full bg-[#F7F4EE] rounded-full h-1.5">
+              <div class="bg-[#2D6A4F] h-1.5 rounded-full" style="width: 100%"></div>
+            </div>
+
+            <div class="flex justify-between text-[#4B5563] pt-1">
+              <span>Broadsheet Engine</span>
+              <span class="font-bold text-[#1C1917]">Ready</span>
+            </div>
+            <div class="w-full bg-[#F7F4EE] rounded-full h-1.5">
+              <div class="bg-[#1A4D8F] h-1.5 rounded-full" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
+
   </div>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Lock, User, Loader2, AlertCircle, Eye, EyeOff, ShieldCheck, BookOpen, Users, GraduationCap } from 'lucide-vue-next'
+import { Lock, User, Loader2, AlertCircle, Eye, EyeOff, ShieldCheck, BookOpen, Users, GraduationCap, ArrowLeft } from 'lucide-vue-next'
 
 import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
@@ -42,78 +42,51 @@ const needSignup = ref(false)
 
 const portalConfig: Record<PortalKey, {
   title: string;
-  label: string;
-  emoji: string;
-  accentText: string;
-  accentLine: string;
-  button: string;
-  shadow: string;
-  gateway: string;
+  roleSubtitle: string;
   icon: any;
-  gradient: string;
+  btnClass: string;
+  activeTabClass: string;
+  iconBg: string;
 }> = {
   admin: {
-    title: 'Admin',
-    label: 'Administrator',
-    emoji: '🛡️',
-    accentText: 'text-purple-400',
-    accentLine: 'from-purple-500 to-pink-500',
-    button: 'neon-btn',
-    shadow: 'shadow-purple-500/30',
-    gateway: 'Administrative Control Center',
+    title: 'Admin Portal',
+    roleSubtitle: 'Institutional & Academic Governance',
     icon: ShieldCheck,
-    gradient: 'from-purple-500 to-pink-500'
+    btnClass: 'bg-[#1A4D8F] hover:bg-[#12386A] text-white',
+    activeTabClass: 'bg-[#1A4D8F] text-white shadow-sm',
+    iconBg: 'bg-[#1A4D8F]/10 text-[#1A4D8F]'
   },
   teacher: {
-    title: 'Teacher',
-    label: 'Educator',
-    emoji: '📚',
-    accentText: 'text-blue-400',
-    accentLine: 'from-blue-500 to-cyan-500',
-    button: 'neon-btn neon-btn-cyan',
-    shadow: 'shadow-blue-500/30',
-    gateway: 'Educator Portal',
+    title: 'Teacher Portal',
+    roleSubtitle: 'Curriculum & Score Management',
     icon: BookOpen,
-    gradient: 'from-blue-500 to-cyan-500'
+    btnClass: 'bg-[#2D6A4F] hover:bg-[#1F4D38] text-white',
+    activeTabClass: 'bg-[#2D6A4F] text-white shadow-sm',
+    iconBg: 'bg-[#2D6A4F]/10 text-[#2D6A4F]'
   },
   parent: {
-    title: 'Parent',
-    label: 'Guardian',
-    emoji: '👨‍👩‍👧',
-    accentText: 'text-cyan-400',
-    accentLine: 'from-cyan-500 to-green-500',
-    button: 'neon-btn neon-btn-purple',
-    shadow: 'shadow-cyan-500/30',
-    gateway: 'Parent Access Gateway',
+    title: 'Parent Portal',
+    roleSubtitle: 'Ward Academic Performance & Progress',
     icon: Users,
-    gradient: 'from-cyan-500 to-green-500'
+    btnClass: 'bg-[#C98818] hover:bg-[#9E670B] text-white',
+    activeTabClass: 'bg-[#E8A838] text-white shadow-sm',
+    iconBg: 'bg-[#E8A838]/15 text-[#C98818]'
   },
   student: {
-    title: 'Student',
-    label: 'Student',
-    emoji: '🎓',
-    accentText: 'text-emerald-400',
-    accentLine: 'from-emerald-500 to-cyan-500',
-    button: 'neon-btn neon-btn-cyan',
-    shadow: 'shadow-emerald-500/30',
-    gateway: 'Student Learning Portal',
+    title: 'Student Portal',
+    roleSubtitle: 'Personal Results & Term Assessment',
     icon: GraduationCap,
-    gradient: 'from-emerald-500 to-cyan-500'
+    btnClass: 'bg-[#2B6CB0] hover:bg-[#1E4E80] text-white',
+    activeTabClass: 'bg-[#2B6CB0] text-white shadow-sm',
+    iconBg: 'bg-[#2B6CB0]/10 text-[#2B6CB0]'
   }
 }
 
-const portalTitle = computed(() => portalConfig[portal.value].title)
-const portalButtonClass = computed(() => portalConfig[portal.value].button)
-const portalEmoji = computed(() => portalConfig[portal.value].emoji)
-const portalShadowClass = computed(() => portalConfig[portal.value].shadow)
-const portalGateway = computed(() => portalConfig[portal.value].gateway)
-const portalIcon = computed(() => portalConfig[portal.value].icon)
-const portalGradient = computed(() => portalConfig[portal.value].gradient)
-
-const portalOptions = portalKeys
+const currentConfig = computed(() => portalConfig[portal.value])
 
 const selectPortal = (selected: PortalKey) => {
   portal.value = selected
+  error.value = ''
   localStorage.setItem('lastPortal', selected)
   router.replace({ params: { ...route.params, portal: selected } }).catch(() => {})
 }
@@ -159,11 +132,7 @@ const handleLogin = async () => {
   } catch (err: any) {
     const serverCode = err.response?.data?.code
     error.value = err.response?.data?.error || err.response?.data?.message || 'Login failed. Please check your credentials.'
-    if (serverCode === 'NEED_SIGNUP') {
-      needSignup.value = true
-    } else {
-      needSignup.value = false
-    }
+    needSignup.value = serverCode === 'NEED_SIGNUP'
   } finally {
     loading.value = false
   }
@@ -171,155 +140,162 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="login-root relative min-h-screen overflow-hidden">
-    <!-- Background Effects -->
-    <div class="neon-bg-orb" style="width: 400px; height: 400px; background: var(--neon-purple); top: -100px; right: -100px;" aria-hidden="true"></div>
-    <div class="neon-bg-orb" style="width: 350px; height: 350px; background: var(--neon-blue); bottom: -100px; left: -100px; animation-delay: -8s;" aria-hidden="true"></div>
-    <div class="grid-pattern" aria-hidden="true"></div>
+  <div class="min-h-screen bg-[#F7F4EE] flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 text-[#1C1917]">
+    
+    <!-- Top Back Link -->
+    <div class="mx-auto w-full max-w-md mb-4 flex items-center justify-between">
+      <router-link to="/" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#1A4D8F] transition-colors">
+        <ArrowLeft class="w-4 h-4" />
+        Back to Folusho Victory Home
+      </router-link>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF]">
+        Portal Authentication
+      </span>
+    </div>
 
-    <!-- Top Neon Line -->
-    <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 opacity-80" aria-hidden="true"></div>
-
-    <div class="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-12 lg:px-8">
+    <!-- Main Container -->
+    <div class="mx-auto w-full max-w-md">
       
-      <!-- Portal Selector -->
-      <div class="mb-8 flex flex-wrap justify-center gap-2 sm:gap-3 w-full">
+      <!-- Portal Selector Pills -->
+      <div class="bg-white p-1.5 rounded-2xl border border-[#E5E0D8] shadow-sm mb-5 flex items-center justify-between gap-1">
         <button
-          v-for="option in portalOptions"
-          :key="option"
-          @click="selectPortal(option)"
-          class="flex items-center gap-1.5 sm:gap-2 rounded-full border px-3 sm:px-6 py-2 sm:py-3 transition-all text-xs sm:text-sm"
+          v-for="key in portalKeys"
+          :key="key"
+          @click="selectPortal(key)"
+          class="flex-1 py-2 px-2 rounded-xl text-xs font-bold capitalize transition-all duration-200 flex items-center justify-center gap-1.5"
           :class="[
-            portal === option
-              ? 'border-purple-500/50 bg-purple-500/20 text-white shadow-lg shadow-purple-500/30'
-              : 'border-gray-700 bg-gray-800/50 text-gray-400 hover:border-gray-600 hover:bg-gray-800/70'
+            portal === key 
+              ? portalConfig[key].activeTabClass 
+              : 'text-[#6B7280] hover:bg-[#F7F4EE] hover:text-[#1C1917]'
           ]"
         >
-          <component :is="portalConfig[option].icon" class="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-          <span class="font-medium whitespace-nowrap">{{ portalConfig[option].title }}</span>
+          <component :is="portalConfig[key].icon" class="w-3.5 h-3.5" />
+          <span>{{ key }}</span>
         </button>
       </div>
 
       <!-- Login Card -->
-      <div class="w-full max-w-md">
-        <div class="glass-card glass-card-purple p-5 sm:p-8">
-          <!-- Header -->
-          <div class="mb-8 text-center">
-            <div 
-              class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br shadow-lg"
-              :class="[portalGradient, portalShadowClass]"
-            >
-              <component :is="portalIcon" class="h-10 w-10 text-white" />
-            </div>
-            <h1 class="neon-heading mb-2 text-3xl text-white">
-              {{ portalTitle }} Portal {{ portalEmoji }}
-            </h1>
-            <p class="text-sm text-gray-400">{{ portalGateway }}</p>
+      <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 sm:p-8 shadow-sm">
+        
+        <!-- Header -->
+        <div class="text-center mb-6">
+          <div class="mx-auto h-14 w-14 rounded-2xl bg-white p-1 border border-[#E5E0D8] shadow-sm flex items-center justify-center mb-3">
+            <img src="/logo.png" alt="Folusho Victory Schools" class="h-full w-full object-contain" />
           </div>
-
-          <!-- Error Message -->
-          <div
-            v-if="error"
-            class="mb-6 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
-          >
-            <AlertCircle class="h-4 w-4" />
-            {{ error }}
-          </div>
-
-          <div v-if="needSignup && portal === 'teacher'" class="mb-4 text-sm text-amber-200 bg-amber-900/10 border border-amber-700/20 rounded p-3">
-            It looks like your account needs initial setup. <router-link to="/register/teacher" class="underline text-amber-100">Complete registration</router-link>
-          </div>
-
-          <!-- Login Form -->
-          <form @submit.prevent="handleLogin" class="space-y-6">
-            <!-- Username / Email -->
-            <div>
-              <label class="mb-2 block text-sm font-medium text-gray-300">
-                {{ portal === 'student' ? 'Admission Number' : portal === 'teacher' ? 'Email or Teacher Code' : 'Email or Username' }}
-              </label>
-              <div class="relative">
-                <User class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  v-model="username"
-                  type="text"
-                  required
-                  class="modern-input pl-12"
-                  :placeholder="portal === 'student' ? 'Enter your admission number' : portal === 'teacher' ? 'Enter your email or teacher code' : 'Enter your email or username'"
-                />
-              </div>
-            </div>
-
-            <!-- Password -->
-            <div>
-              <label class="mb-2 block text-sm font-medium text-gray-300">
-                {{ portal === 'student' ? '8-digit PIN' : 'Password' }}
-              </label>
-              <div class="relative">
-                <Lock class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  v-model="password"
-                  :type="portal === 'student' || passwordVisible ? 'text' : 'password'"
-                  :inputmode="portal === 'student' ? 'numeric' : undefined"
-                  :maxlength="portal === 'student' ? 8 : undefined"
-                  :pattern="portal === 'student' ? '[0-9]{8}' : undefined"
-                  required
-                  class="modern-input pl-12 pr-12"
-                  :placeholder="portal === 'student' ? 'Enter your 8-digit PIN' : 'Enter your password'"
-                />
-                <button
-                  v-if="portal !== 'student'"
-                  type="button"
-                  @click="passwordVisible = !passwordVisible"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                >
-                  <Eye v-if="!passwordVisible" class="h-5 w-5" />
-                  <EyeOff v-else class="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            <!-- Submit Button -->
-            <button
-              type="submit"
-              :disabled="loading"
-              class="w-full"
-              :class="portalButtonClass"
-            >
-              <Loader2 v-if="loading" class="h-5 w-5 animate-spin" />
-              <span v-else>Sign In</span>
-            </button>
-          </form>
-
-          <!-- Footer -->
-          <div class="mt-6 text-center space-y-3">
-            <router-link :to="`/forgot-password/${portal}`" class="text-sm text-gray-400 hover:text-purple-400 transition-colors">
-              {{ portal === 'student' ? 'Forgot your PIN?' : 'Forgot your password?' }}
-            </router-link>
-          </div>
+          
+          <h1 class="text-xl sm:text-2xl font-extrabold text-[#1C1917]">
+            {{ currentConfig.title }}
+          </h1>
+          <p class="text-xs text-[#6B7280] mt-1">
+            {{ currentConfig.roleSubtitle }}
+          </p>
         </div>
 
-        <!-- Back to Home -->
-        <div class="mt-6 text-center">
-          <router-link to="/" class="text-sm text-gray-400 hover:text-purple-400 transition-colors">
-            ← Back to Home
+        <!-- Error Alert -->
+        <div
+          v-if="error"
+          class="mb-5 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700"
+        >
+          <AlertCircle class="h-4 w-4 shrink-0 mt-0.5" />
+          <span>{{ error }}</span>
+        </div>
+
+        <!-- Teacher Registration Prompt -->
+        <div 
+          v-if="needSignup && portal === 'teacher'" 
+          class="mb-5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3"
+        >
+          It looks like your teacher account needs initial setup. 
+          <router-link to="/register/teacher" class="underline font-bold text-amber-900 ml-1">
+            Complete registration
           </router-link>
         </div>
-      </div>
-    </div>
 
-    <!-- Bottom Neon Line -->
-    <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 opacity-80" aria-hidden="true"></div>
+        <!-- Form -->
+        <form @submit.prevent="handleLogin" class="space-y-4">
+          <!-- Identifier -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-[#4B5563] mb-1.5">
+              {{ portal === 'student' ? 'Admission Number' : portal === 'teacher' ? 'Email or Teacher Code' : 'Email or Username' }}
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#9CA3AF]">
+                <User class="h-4 w-4" />
+              </div>
+              <input
+                v-model="username"
+                type="text"
+                required
+                class="w-full pl-10 pr-3 py-2.5 bg-white border border-[#D8D2C4] rounded-xl text-sm text-[#1C1917] focus:outline-none focus:border-[#1A4D8F] focus:ring-2 focus:ring-[#1A4D8F]/10 placeholder:text-[#9CA3AF] transition-all"
+                :placeholder="portal === 'student' ? 'e.g. fvs-2026-0378' : portal === 'teacher' ? 'e.g. teacher@fvs.edu.ng' : 'Enter your username or email'"
+              />
+            </div>
+          </div>
+
+          <!-- Secret / PIN -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-xs font-bold uppercase tracking-wider text-[#4B5563]">
+                {{ portal === 'student' ? '8-Digit Student PIN' : 'Password' }}
+              </label>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#9CA3AF]">
+                <Lock class="h-4 w-4" />
+              </div>
+              <input
+                v-model="password"
+                :type="portal === 'student' || passwordVisible ? 'text' : 'password'"
+                :inputmode="portal === 'student' ? 'numeric' : undefined"
+                :maxlength="portal === 'student' ? 8 : undefined"
+                :pattern="portal === 'student' ? '[0-9]{8}' : undefined"
+                required
+                class="w-full pl-10 pr-10 py-2.5 bg-white border border-[#D8D2C4] rounded-xl text-sm text-[#1C1917] focus:outline-none focus:border-[#1A4D8F] focus:ring-2 focus:ring-[#1A4D8F]/10 placeholder:text-[#9CA3AF] transition-all"
+                :placeholder="portal === 'student' ? '8-digit PIN' : 'Enter your password'"
+              />
+              <button
+                v-if="portal !== 'student'"
+                type="button"
+                @click="passwordVisible = !passwordVisible"
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#9CA3AF] hover:text-[#4B5563]"
+              >
+                <Eye v-if="!passwordVisible" class="h-4 w-4" />
+                <EyeOff v-else class="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            :disabled="loading"
+            class="w-full py-3 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm active:scale-[0.99] mt-2"
+            :class="[currentConfig.btnClass, loading ? 'opacity-70 cursor-not-allowed' : '']"
+          >
+            <Loader2 v-if="loading" class="h-4 w-4 animate-spin" />
+            <span v-else>Sign In to {{ portal.toUpperCase() }}</span>
+          </button>
+        </form>
+
+        <!-- Help Link -->
+        <div class="mt-5 pt-4 border-t border-[#E5E0D8] text-center">
+          <router-link 
+            :to="`/forgot-password/${portal}`" 
+            class="text-xs font-semibold text-[#6B7280] hover:text-[#1A4D8F] transition-colors"
+          >
+            {{ portal === 'student' ? 'Forgot your 8-digit PIN?' : 'Need assistance or forgot password?' }}
+          </router-link>
+        </div>
+
+      </div>
+
+      <!-- Security Notice -->
+      <div class="mt-4 text-center">
+        <p class="text-[11px] text-[#8C827A]">
+          Official Portal of Folusho Victory Schools • Secure Session
+        </p>
+      </div>
+
+    </div>
   </div>
 </template>
-
-<style scoped>
-.login-root {
-  background: var(--bg-primary);
-  background-image: 
-    linear-gradient(135deg, rgba(10, 14, 39, 0.93), rgba(17, 22, 56, 0.96)),
-    url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&q=80');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-</style>

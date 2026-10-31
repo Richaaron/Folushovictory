@@ -9,9 +9,9 @@ const menuItems = [
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
-    <Navbar portal="Parent" username="Parent User" :menuItems="menuItems" />
-    <main class="flex-grow p-4 sm:p-8 overflow-x-hidden">
+  <div class="min-h-screen flex flex-col bg-[#F7F4EE] text-[#1C1917] relative">
+    <Navbar portal="Parent" username="Parent Account" :menuItems="menuItems" />
+    <main class="flex-grow p-4 sm:p-6 lg:p-8 overflow-x-hidden">
       <div class="mx-auto max-w-7xl">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
@@ -24,6 +24,6 @@ const menuItems = [
 </template>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

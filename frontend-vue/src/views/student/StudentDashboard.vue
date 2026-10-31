@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { BookOpen, ClipboardList, Clock3, GraduationCap, KeyRound, Loader2, Send, Trophy } from 'lucide-vue-next'
+import { BookOpen, ClipboardList, Clock3, GraduationCap, KeyRound, Loader2, Send, Trophy, CheckCircle2 } from 'lucide-vue-next'
 import api from '../../services/api'
 
 const dashboard = ref<any>(null)
@@ -91,130 +91,225 @@ onMounted(fetchDashboard)
 </script>
 
 <template>
-  <div v-if="loading" class="flex min-h-[400px] items-center justify-center">
-    <Loader2 class="h-12 w-12 animate-spin text-emerald-400" />
+  <div v-if="loading" class="flex min-h-[350px] items-center justify-center">
+    <Loader2 class="h-10 w-10 animate-spin text-[#1A4D8F]" />
   </div>
-  <div v-else-if="dashboard" class="space-y-8">
-    <div class="rounded-3xl border border-emerald-400/20 bg-slate-900/90 p-6 sm:p-10 shadow-2xl">
-      <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p class="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.25em] text-emerald-300">
-            <GraduationCap class="h-5 w-5" /> Student Learning Portal
-          </p>
-          <h1 class="text-3xl font-black text-white sm:text-4xl">
-            Welcome, {{ dashboard.student.firstName }} {{ dashboard.student.lastName }}
-          </h1>
-          <p class="mt-3 text-slate-300">
-            Admission number: <strong>{{ dashboard.student.studentId }}</strong>
-            <span class="mx-2">•</span>
-            Class: <strong>{{ dashboard.student.className }}</strong>
-          </p>
-        </div>
-        <div class="flex gap-3">
-          <div class="rounded-2xl border border-slate-700 bg-slate-950/70 px-5 py-4 text-center">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Subjects</p>
-            <p class="mt-1 text-2xl font-black text-white">{{ dashboard.subjects.length }}</p>
+
+  <div v-else-if="dashboard" class="space-y-6 text-[#1C1917]">
+    
+    <!-- Welcome Header -->
+    <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="space-y-1.5">
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#1A4D8F] bg-[#1A4D8F]/10 px-2.5 py-1 rounded-full">
+            <GraduationCap class="h-4 w-4" />
+            <span>Folusho Victory Student Portal</span>
           </div>
-          <div class="rounded-2xl border border-slate-700 bg-slate-950/70 px-5 py-4 text-center">
-            <p class="text-xs uppercase tracking-widest text-slate-400">Activities</p>
-            <p class="mt-1 text-2xl font-black text-white">{{ activities.length }}</p>
+
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1C1917]">
+            Hello, {{ dashboard.student.firstName }} {{ dashboard.student.lastName }}
+          </h1>
+
+          <div class="flex flex-wrap items-center gap-2 text-xs text-[#4B5563] pt-0.5">
+            <span class="font-bold bg-[#F7F4EE] px-2 py-0.5 rounded border border-[#E5E0D8] text-[#1A4D8F]">
+              ID: {{ dashboard.student.studentId }}
+            </span>
+            <span>•</span>
+            <span class="font-semibold text-[#1C1917]">Class: {{ dashboard.student.className }}</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="bg-[#F7F4EE] border border-[#E5E0D8] rounded-xl px-4 py-3 text-center min-w-[90px]">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Subjects</p>
+            <p class="text-xl font-black text-[#1A4D8F] mt-0.5">{{ dashboard.subjects.length }}</p>
+          </div>
+          <div class="bg-[#F7F4EE] border border-[#E5E0D8] rounded-xl px-4 py-3 text-center min-w-[90px]">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Tasks</p>
+            <p class="text-xl font-black text-[#2D6A4F] mt-0.5">{{ activities.length }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div v-if="error" role="alert" class="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-rose-200">
+    <!-- Error Alert -->
+    <div v-if="error" class="rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700">
       {{ error }}
     </div>
 
-    <section class="space-y-4">
-      <div class="flex items-center gap-3">
-        <BookOpen class="h-6 w-6 text-emerald-300" />
-        <h2 class="text-2xl font-black text-white">My Subjects</h2>
+    <!-- My Subjects Section -->
+    <section class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[#E5E0D8]">
+        <div class="flex items-center gap-2.5">
+          <div class="h-8 w-8 rounded-lg bg-[#1A4D8F]/10 text-[#1A4D8F] flex items-center justify-center">
+            <BookOpen class="h-4 w-4" />
+          </div>
+          <h2 class="text-base font-bold text-[#1C1917]">Registered Subjects</h2>
+        </div>
+        <span class="text-xs font-semibold text-[#6B7280]">{{ dashboard.subjects.length }} active subjects</span>
       </div>
-      <div v-if="dashboard.subjects.length" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <article v-for="subject in dashboard.subjects" :key="subject.id" class="rounded-2xl border border-slate-700 bg-slate-900/80 p-5">
-          <h3 class="text-lg font-bold text-white">{{ subject.name }}</h3>
-          <p class="mt-2 text-sm text-slate-400">{{ subject.level }}</p>
+
+      <div v-if="dashboard.subjects.length" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <article 
+          v-for="subject in dashboard.subjects" 
+          :key="subject.id" 
+          class="rounded-xl border border-[#E5E0D8] bg-[#F7F4EE] p-4 flex items-center justify-between hover:bg-white hover:border-[#1A4D8F]/30 transition-all"
+        >
+          <div>
+            <h3 class="text-sm font-bold text-[#1C1917]">{{ subject.name }}</h3>
+            <p class="text-[11px] text-[#6B7280] mt-0.5">{{ subject.level }} Curriculum</p>
+          </div>
+          <CheckCircle2 class="h-4 w-4 text-[#2D6A4F]" />
         </article>
       </div>
-      <p v-else class="rounded-xl border border-slate-700 bg-slate-900/70 p-5 text-slate-300">
-        No subjects are configured for your class yet. Please contact your teacher.
+      <p v-else class="text-xs text-[#9CA3AF] py-6 text-center">
+        No subjects have been configured for your class level yet.
       </p>
     </section>
 
-    <section class="space-y-4">
-      <div class="flex items-center gap-3">
-        <ClipboardList class="h-6 w-6 text-amber-300" />
-        <h2 class="text-2xl font-black text-white">Assignments & Tests</h2>
-      </div>
-      <p v-if="!activities.length" class="rounded-xl border border-slate-700 bg-slate-900/70 p-5 text-slate-300">
-        No assignments or tests have been published for your class yet.
-      </p>
-
-      <article v-for="activity in activities" :key="activity.id" class="space-y-5 rounded-2xl border border-slate-700 bg-slate-900/80 p-5 sm:p-7">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div class="mb-2 flex flex-wrap items-center gap-2">
-              <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-200">{{ activity.type }}</span>
-              <span class="text-sm text-slate-400">{{ activity.subjectName }}</span>
-            </div>
-            <h3 class="text-xl font-black text-white">{{ activity.title }}</h3>
-            <p v-if="activity.description" class="mt-2 whitespace-pre-wrap text-slate-300">{{ activity.description }}</p>
-            <p class="mt-3 flex items-center gap-2 text-sm text-slate-400">
-              <Clock3 class="h-4 w-4" /> {{ formatDueAt(activity.dueAt) }} <span>•</span> {{ activity.maxScore }} marks
-            </p>
+    <!-- Assignments & Tests Section -->
+    <section class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[#E5E0D8]">
+        <div class="flex items-center gap-2.5">
+          <div class="h-8 w-8 rounded-lg bg-[#E8A838]/15 text-[#C98818] flex items-center justify-center">
+            <ClipboardList class="h-4 w-4" />
           </div>
-          <div v-if="activity.submission" class="rounded-xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-sm text-slate-200">
-            <p class="font-bold">{{ activity.submission.status === 'GRADED' ? 'Marked' : 'Submitted' }}</p>
-            <p v-if="activity.submission.score !== null" class="mt-1 flex items-center gap-1 text-emerald-300">
-              <Trophy class="h-4 w-4" /> {{ activity.submission.score }} / {{ activity.maxScore }}
-            </p>
-            <p v-if="activity.submission.feedback" class="mt-1">{{ activity.submission.feedback }}</p>
-          </div>
+          <h2 class="text-base font-bold text-[#1C1917]">Class Assignments & Tests</h2>
         </div>
+        <span class="text-xs font-semibold text-[#6B7280]">{{ activities.length }} items</span>
+      </div>
 
-        <template v-if="!activity.submission && !isPastDue(activity)">
-          <form v-if="activity.type === 'ASSIGNMENT'" class="space-y-3" @submit.prevent="submitAssignment(activity)">
-            <label :for="`assignment-${activity.id}`" class="block text-sm font-semibold text-slate-200">Your answer</label>
-            <textarea :id="`assignment-${activity.id}`" v-model="assignmentResponses[activity.id]" maxlength="10000" rows="5" required class="w-full rounded-xl border border-slate-700 bg-slate-950 p-4 text-white placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none" placeholder="Write your answer here" />
-            <button :disabled="submitting === activity.id" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 font-bold text-white transition hover:bg-emerald-500 disabled:opacity-50">
-              <Loader2 v-if="submitting === activity.id" class="h-4 w-4 animate-spin" />
-              <Send v-else class="h-4 w-4" /> Submit Assignment
-            </button>
-          </form>
+      <p v-if="!activities.length" class="text-xs text-[#9CA3AF] py-8 text-center bg-[#F7F4EE] rounded-xl border border-dashed border-[#E5E0D8]">
+        No assignments or online tests are currently pending for your class.
+      </p>
 
-          <form v-else class="space-y-5" @submit.prevent="submitTest(activity)">
-            <fieldset v-for="(question, index) in activity.questions" :key="question.id" class="rounded-xl border border-slate-700 p-4">
-              <legend class="px-2 font-semibold text-white">{{ Number(index) + 1 }}. {{ question.prompt }}</legend>
-              <label v-for="option in question.options" :key="option" class="mt-3 flex cursor-pointer items-center gap-3 text-slate-200">
-                <input v-model="testAnswers[activity.id][question.id]" type="radio" :name="`${activity.id}-${question.id}`" :value="option" required />
-                <span>{{ option }}</span>
-              </label>
-            </fieldset>
-            <button :disabled="submitting === activity.id" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 font-bold text-white transition hover:bg-emerald-500 disabled:opacity-50">
-              <Loader2 v-if="submitting === activity.id" class="h-4 w-4 animate-spin" />
-              <Send v-else class="h-4 w-4" /> Submit Test
-            </button>
-          </form>
-        </template>
-        <p v-else-if="!activity.submission" class="font-semibold text-amber-300">The deadline has passed.</p>
-      </article>
+      <div v-else class="space-y-4">
+        <article 
+          v-for="activity in activities" 
+          :key="activity.id" 
+          class="rounded-xl border border-[#E5E0D8] bg-[#F7F4EE] p-5 space-y-4"
+        >
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-white border border-[#E5E0D8] text-[#1A4D8F]">
+                  {{ activity.type }}
+                </span>
+                <span class="text-xs font-semibold text-[#4B5563]">{{ activity.subjectName }}</span>
+              </div>
+              <h3 class="text-base font-extrabold text-[#1C1917]">{{ activity.title }}</h3>
+              <p v-if="activity.description" class="text-xs text-[#4B5563] mt-1 whitespace-pre-wrap">{{ activity.description }}</p>
+              <p class="text-[11px] text-[#6B7280] flex items-center gap-1.5 mt-2">
+                <Clock3 class="h-3.5 w-3.5" />
+                <span>{{ formatDueAt(activity.dueAt) }}</span>
+                <span>•</span>
+                <span class="font-bold text-[#1C1917]">{{ activity.maxScore }} marks</span>
+              </p>
+            </div>
+
+            <div v-if="activity.submission" class="bg-white border border-[#E5E0D8] rounded-xl p-3 text-xs shrink-0 min-w-[140px]">
+              <span class="text-[10px] font-bold uppercase text-[#2D6A4F] block">
+                {{ activity.submission.status === 'GRADED' ? 'Marked' : 'Submitted' }}
+              </span>
+              <p v-if="activity.submission.score !== null" class="text-sm font-extrabold text-[#1A4D8F] flex items-center gap-1 mt-0.5">
+                <Trophy class="h-3.5 w-3.5 text-[#E8A838]" />
+                {{ activity.submission.score }} / {{ activity.maxScore }}
+              </p>
+              <p v-if="activity.submission.feedback" class="text-[11px] text-[#4B5563] mt-1">{{ activity.submission.feedback }}</p>
+            </div>
+          </div>
+
+          <!-- Active form if pending submission -->
+          <template v-if="!activity.submission && !isPastDue(activity)">
+            <form v-if="activity.type === 'ASSIGNMENT'" class="space-y-3 pt-2" @submit.prevent="submitAssignment(activity)">
+              <textarea 
+                v-model="assignmentResponses[activity.id]" 
+                maxlength="10000" 
+                rows="4" 
+                required 
+                class="w-full bg-white border border-[#D8D2C4] rounded-xl p-3 text-xs text-[#1C1917] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#1A4D8F]" 
+                placeholder="Type your response here..."
+              />
+              <button 
+                :disabled="submitting === activity.id" 
+                class="px-4 py-2 rounded-xl bg-[#1A4D8F] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-[#12386A] transition-colors"
+              >
+                <Loader2 v-if="submitting === activity.id" class="h-3.5 w-3.5 animate-spin" />
+                <Send v-else class="h-3.5 w-3.5" />
+                <span>Submit Response</span>
+              </button>
+            </form>
+
+            <form v-else class="space-y-4 pt-2" @submit.prevent="submitTest(activity)">
+              <fieldset v-for="(question, index) in activity.questions" :key="question.id" class="bg-white rounded-xl border border-[#E5E0D8] p-3.5">
+                <legend class="text-xs font-bold text-[#1C1917] px-1">{{ Number(index) + 1 }}. {{ question.prompt }}</legend>
+                <div class="mt-2 space-y-1.5 text-xs">
+                  <label v-for="option in question.options" :key="option" class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-[#F7F4EE] cursor-pointer">
+                    <input v-model="testAnswers[activity.id][question.id]" type="radio" :name="`${activity.id}-${question.id}`" :value="option" required class="text-[#1A4D8F]" />
+                    <span>{{ option }}</span>
+                  </label>
+                </div>
+              </fieldset>
+              <button 
+                :disabled="submitting === activity.id" 
+                class="px-4 py-2 rounded-xl bg-[#2D6A4F] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-[#1F4D38] transition-colors"
+              >
+                <Loader2 v-if="submitting === activity.id" class="h-3.5 w-3.5 animate-spin" />
+                <Send v-else class="h-3.5 w-3.5" />
+                <span>Submit Answers</span>
+              </button>
+            </form>
+          </template>
+        </article>
+      </div>
     </section>
 
-    <section class="rounded-2xl border border-slate-700 bg-slate-900/80 p-5 sm:p-7">
-      <h2 class="mb-4 flex items-center gap-2 text-xl font-black text-white"><KeyRound class="h-5 w-5 text-amber-300" /> Change Student PIN</h2>
-      <p class="mb-4 text-sm text-slate-400">Your PIN is 8 digits. Keep it private and ask the school administrator if you forget it.</p>
-      <form class="grid gap-3 sm:grid-cols-[1fr_1fr_auto]" @submit.prevent="changePin">
-        <input v-model="currentPin" type="password" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" required autocomplete="current-password" class="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white" placeholder="Current 8-digit PIN" />
-        <input v-model="newPin" type="password" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" required autocomplete="new-password" class="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white" placeholder="New 8-digit PIN" />
-        <button :disabled="changingPin" class="rounded-xl bg-slate-700 px-5 py-3 font-bold text-white hover:bg-slate-600 disabled:opacity-50">
-          {{ changingPin ? 'Updating…' : 'Change PIN' }}
+    <!-- Change PIN Section -->
+    <section class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm space-y-4">
+      <div class="flex items-center gap-2.5 pb-2 border-b border-[#E5E0D8]">
+        <KeyRound class="h-4 w-4 text-[#E8A838]" />
+        <h2 class="text-sm font-bold text-[#1C1917]">Manage Your 8-Digit Student PIN</h2>
+      </div>
+      <p class="text-xs text-[#6B7280]">
+        Keep your PIN confidential. If you misplace your PIN, request assistance from your form teacher or school administrator.
+      </p>
+
+      <form class="grid gap-3 sm:grid-cols-3 max-w-xl" @submit.prevent="changePin">
+        <input 
+          v-model="currentPin" 
+          type="password" 
+          inputmode="numeric" 
+          pattern="[0-9]{8}" 
+          maxlength="8" 
+          required 
+          class="bg-white border border-[#D8D2C4] rounded-xl px-3.5 py-2 text-xs text-[#1C1917] focus:outline-none focus:border-[#1A4D8F]" 
+          placeholder="Current 8-digit PIN" 
+        />
+        <input 
+          v-model="newPin" 
+          type="password" 
+          inputmode="numeric" 
+          pattern="[0-9]{8}" 
+          maxlength="8" 
+          required 
+          class="bg-white border border-[#D8D2C4] rounded-xl px-3.5 py-2 text-xs text-[#1C1917] focus:outline-none focus:border-[#1A4D8F]" 
+          placeholder="New 8-digit PIN" 
+        />
+        <button 
+          :disabled="changingPin" 
+          class="px-4 py-2 rounded-xl bg-[#1A4D8F] text-white text-xs font-bold hover:bg-[#12386A] transition-colors disabled:opacity-50"
+        >
+          {{ changingPin ? 'Updating...' : 'Update PIN' }}
         </button>
       </form>
-      <p v-if="pinMessage" class="mt-3 text-sm text-emerald-300">{{ pinMessage }}</p>
-      <p v-if="pinError" role="alert" class="mt-3 text-sm text-rose-300">{{ pinError }}</p>
+
+      <p v-if="pinMessage" class="text-xs text-[#2D6A4F] font-bold">{{ pinMessage }}</p>
+      <p v-if="pinError" class="text-xs text-red-600 font-bold">{{ pinError }}</p>
     </section>
+
   </div>
-  <div v-else role="alert" class="rounded-xl border border-rose-500/30 bg-rose-500/10 p-5 text-rose-200">{{ error }}</div>
+
+  <div v-else class="rounded-xl border border-red-200 bg-red-50 p-5 text-xs text-red-700">
+    {{ error || 'Unable to load student profile.' }}
+  </div>
 </template>

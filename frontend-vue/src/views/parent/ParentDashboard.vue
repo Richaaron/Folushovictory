@@ -2,13 +2,13 @@
 import { ref, onMounted } from 'vue'
 import { 
   GraduationCap, 
-  BarChart3, 
   BookOpen, 
   Download, 
-  ArrowUpRight,
-  TrendingUp,
-  FileText,
-  Loader2
+  TrendingUp, 
+  FileText, 
+  Loader2, 
+  Calendar, 
+  Sparkles 
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -21,9 +21,6 @@ const fetchData = async () => {
   try {
     const { data: studentData } = await api.get('/api/parent/student')
     student.value = studentData
-    
-    // Fetch latest report card if session/term are known
-    // For now, we might need a way to get current session/term
   } catch (err) {
     console.error('Error fetching parent dashboard data:', err)
   } finally {
@@ -35,136 +32,185 @@ onMounted(fetchData)
 </script>
 
 <template>
-  <div v-if="loading" class="flex items-center justify-center min-h-[400px]">
-    <Loader2 class="w-12 h-12 text-royal-purple animate-spin" />
+  <div v-if="loading" class="flex items-center justify-center min-h-[350px]">
+    <Loader2 class="w-10 h-10 text-[#E8A838] animate-spin" />
   </div>
-  <div v-else-if="student" class="space-y-8 fade-in">
-    <!-- Student Header Card -->
-    <div class="glass-card relative overflow-hidden p-8 sm:p-12 border-royal-gold/15 bg-slate-950/95 shadow-[0_40px_90px_rgba(0,0,0,0.35)]">
-      <div class="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_top_left,_rgba(124,58,237,0.18),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(212,175,55,0.14),_transparent_30%)]"></div>
-      <div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
-        <div class="h-32 w-32 rounded-full bg-slate-900/90 border border-royal-gold/20 shadow-xl flex items-center justify-center p-1">
-          <div class="h-full w-full rounded-full bg-slate-950 flex items-center justify-center text-royal-gold font-black text-4xl">
-            {{ student.firstName.charAt(0) }}
-          </div>
+
+  <div v-else-if="student" class="space-y-6 text-[#1C1917]">
+    
+    <!-- Student Profile Banner -->
+    <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 sm:p-8 shadow-sm">
+      <div class="flex flex-col md:flex-row items-center gap-6">
+        <div class="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-[#E8A838]/15 border border-[#E8A838]/30 flex items-center justify-center shrink-0">
+          <span class="text-3xl sm:text-4xl font-black text-[#C98818]">
+            {{ student.firstName?.charAt(0) || 'S' }}
+          </span>
         </div>
-        <div class="text-center md:text-left flex-grow">
-          <div class="px-4 py-1 bg-slate-900/70 rounded-full inline-block text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-slate-300 border border-slate-700">
-            {{ student.studentId }}
+
+        <div class="text-center md:text-left flex-grow space-y-1">
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#1A4D8F] bg-[#1A4D8F]/10 px-2.5 py-0.5 rounded-full mb-1">
+            <GraduationCap class="h-3.5 w-3.5" />
+            <span>Ward Academic Records</span>
           </div>
-          <h1 class="text-4xl sm:text-5xl font-black tracking-tight mb-2 text-white">
-            {{ student.firstName }} <span class="text-royal-gold">{{ student.lastName }}</span>
+
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1C1917]">
+            {{ student.firstName }} {{ student.lastName }}
           </h1>
-          <p class="text-lg font-medium text-slate-400 flex items-center justify-center md:justify-start gap-2 uppercase tracking-widest text-sm">
-            <GraduationCap class="w-5 h-5 text-royal-gold" /> Current Class: {{ student.classId }}
-          </p>
+
+          <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs text-[#4B5563] pt-0.5">
+            <span class="font-bold bg-[#F7F4EE] px-2 py-0.5 rounded border border-[#E5E0D8] text-[#1A4D8F]">
+              ID: {{ student.studentId }}
+            </span>
+            <span>•</span>
+            <span class="font-semibold text-[#1C1917]">Class: {{ student.className || student.classId }}</span>
+          </div>
         </div>
-        <div class="grid grid-cols-2 gap-4 w-full md:w-auto">
-          <div class="bg-slate-900/80 rounded-3xl p-6 text-center border border-slate-800">
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Average</p>
-            <p class="text-2xl font-black text-white">--</p>
-          </div>
-          <div class="bg-slate-900/80 rounded-3xl p-6 text-center border border-slate-800">
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Position</p>
-            <p class="text-2xl font-black text-royal-gold">--</p>
-          </div>
+
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+          <button 
+            @click="$router.push({ 
+              name: 'student-report', 
+              params: { studentId: student.studentId },
+              query: { session: '2026/2027', term: '2nd' }
+            })"
+            class="px-5 py-3 rounded-xl bg-[#1A4D8F] hover:bg-[#12386A] text-white text-xs font-bold flex items-center gap-2 transition-all shadow-sm"
+          >
+            <Download class="w-4 h-4" />
+            <span>View Report Sheet</span>
+          </button>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Result Center -->
-      <div class="lg:col-span-2 space-y-8">
-        <div class="glass-card p-8">
-          <div class="flex items-center justify-between mb-8">
-            <h3 class="text-xl font-black text-slate-100 tracking-tight flex items-center gap-3">
-              <FileText class="w-5 h-5 text-gold-soft" /> Report Card Center
-            </h3>
-            <div class="flex gap-2">
-              <select class="bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-[10px] font-black uppercase tracking-widest px-4 py-2 outline-none">
-                <option>2026/2027 SECOND TERM</option>
-              </select>
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left Column: Report Card Center -->
+      <div class="lg:col-span-8 space-y-6">
+        
+        <!-- Report Card Quick View -->
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-[#E5E0D8]">
+            <div class="flex items-center gap-2.5">
+              <div class="h-8 w-8 rounded-lg bg-[#1A4D8F]/10 text-[#1A4D8F] flex items-center justify-center">
+                <FileText class="w-4 h-4" />
+              </div>
+              <div>
+                <h2 class="text-base font-bold text-[#1C1917]">Official Term Report Sheet</h2>
+                <p class="text-[11px] text-[#6B7280]">Verified continuous assessments & examination results</p>
+              </div>
             </div>
+
+            <span class="text-xs font-bold text-[#2D6A4F] bg-[#2D6A4F]/10 px-2.5 py-0.5 rounded-full">
+              Published
+            </span>
           </div>
 
-          <div class="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-8 text-center">
-            <div class="h-20 w-20 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 rounded-full mx-auto flex items-center justify-center mb-6">
-              <TrendingUp class="w-10 h-10" />
+          <div class="bg-[#F7F4EE] rounded-2xl p-6 text-center border border-[#E5E0D8] space-y-4">
+            <div class="h-14 w-14 rounded-full bg-white border border-[#E5E0D8] mx-auto flex items-center justify-center text-[#2D6A4F] shadow-sm">
+              <TrendingUp class="w-7 h-7" />
             </div>
-            <h4 class="text-lg font-black text-slate-800 dark:text-slate-200 mb-2">Result is Available</h4>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-xs mx-auto">The second term academic performance report has been verified and released.</p>
+
+            <div>
+              <h3 class="text-base font-bold text-[#1C1917]">
+                Academic Report Ready
+              </h3>
+              <p class="text-xs text-[#6B7280] max-w-sm mx-auto mt-1">
+                Your ward's terminal performance report, affective ratings, and form teacher's pastoral remarks are available.
+              </p>
+            </div>
+
             <button 
               @click="$router.push({ 
                 name: 'student-report', 
                 params: { studentId: student.studentId },
                 query: { session: '2026/2027', term: '2nd' }
               })"
-              class="purple-gradient text-white px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-purple-200 dark:shadow-purple-900/30 flex items-center justify-center gap-3 mx-auto transition hover:scale-105 active:scale-95"
+              class="px-6 py-2.5 rounded-xl bg-[#1A4D8F] hover:bg-[#12386A] text-white text-xs font-bold inline-flex items-center gap-2 transition-all shadow-sm"
             >
-              <Download class="w-4 h-4" /> View Full Report Card
+              <FileText class="w-4 h-4" />
+              <span>Open Full Student Result</span>
             </button>
           </div>
         </div>
 
-        <div class="glass-card p-8">
-          <h3 class="text-lg font-black text-slate-100 tracking-tight mb-6">Continuous Assessment</h3>
-          <div class="space-y-4">
-            <div v-for="score in recentScores" :key="score.subject" class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800">
-              <div class="flex items-center gap-4">
-                <div class="h-10 w-10 bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center text-royal-purple">
-                  <BookOpen class="w-5 h-5" />
+        <!-- Continuous Assessment Details (if available) -->
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-[#E5E0D8]">
+            <div class="flex items-center gap-2.5">
+              <div class="h-8 w-8 rounded-lg bg-[#E8A838]/15 text-[#C98818] flex items-center justify-center">
+                <BookOpen class="w-4 h-4" />
+              </div>
+              <h2 class="text-base font-bold text-[#1C1917]">Current Term Subject Progress</h2>
+            </div>
+          </div>
+
+          <div v-if="recentScores.length" class="space-y-2">
+            <div 
+              v-for="score in recentScores" 
+              :key="score.subject" 
+              class="flex items-center justify-between p-3.5 rounded-xl bg-[#F7F4EE] border border-[#E5E0D8]"
+            >
+              <div class="flex items-center gap-3">
+                <div class="h-8 w-8 rounded-lg bg-white border border-[#E5E0D8] flex items-center justify-center text-[#1A4D8F]">
+                  <BookOpen class="w-4 h-4" />
                 </div>
                 <div>
-                  <p class="text-sm font-black text-slate-800 dark:text-slate-200">{{ score.subject }}</p>
-                  <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Current Term</p>
+                  <p class="text-xs font-bold text-[#1C1917]">{{ score.subject }}</p>
+                  <p class="text-[10px] text-[#6B7280]">Terminal Grade</p>
                 </div>
               </div>
-              <div class="flex gap-4">
-                <div class="text-center">
-                  <p class="text-[8px] font-black text-slate-400 uppercase">CA 1</p>
-                  <p class="text-sm font-black text-slate-800 dark:text-slate-200">{{ score.ca1 }}</p>
-                </div>
-                <div class="text-center">
-                  <p class="text-[8px] font-black text-slate-400 uppercase">CA 2</p>
-                  <p class="text-sm font-black text-slate-800 dark:text-slate-200">{{ score.ca2 }}</p>
-                </div>
-                <div class="bg-royal-purple text-white px-3 py-2 rounded-xl text-center min-w-[50px]">
-                  <p class="text-[8px] font-black opacity-70 uppercase">Sum</p>
-                  <p class="text-sm font-black">{{ score.total }}</p>
-                </div>
+              <div class="flex items-center gap-3 text-xs font-bold text-[#1C1917]">
+                <span>Total: {{ score.total }}%</span>
               </div>
             </div>
           </div>
+          <div v-else class="text-xs text-[#6B7280] py-6 text-center bg-[#F7F4EE] rounded-xl border border-dashed border-[#E5E0D8]">
+            Continuous assessment marks and exam totals are updated in real-time as faculty enters them.
+          </div>
         </div>
+
       </div>
 
-      <!-- School Notices -->
-      <div class="space-y-6">
-        <div class="glass-card p-8 border-royal-gold/15 bg-slate-950/90">
-          <h3 class="text-lg font-black text-white tracking-tight mb-6">School Notices</h3>
-          <div class="space-y-6">
-            <div class="relative pl-6 border-l-2 border-royal-gold">
-              <p class="text-sm font-bold text-white">PTA Meeting</p>
-              <p class="text-xs text-slate-400 mt-1">Saturday, May 24th @ 10:00 AM</p>
-            </div>
-            <div class="relative pl-6 border-l-2 border-royal-purple">
-              <p class="text-sm font-bold text-white">Inter-house Sports</p>
-              <p class="text-xs text-slate-400 mt-1">Friday, June 2nd</p>
-            </div>
-          </div>
-        </div>
+      <!-- Right Column: Notices & Info -->
+      <div class="lg:col-span-4 space-y-5">
         
-        <div class="glass-card p-8 border-royal-gold/15 bg-slate-950/90">
-          <div class="flex items-center gap-4 mb-4">
-            <BarChart3 class="w-8 h-8 text-royal-purple" />
-            <h4 class="text-lg font-black uppercase tracking-widest text-white">Growth View</h4>
+        <!-- School Notices -->
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2 pb-2 border-b border-[#E5E0D8]">
+            <Calendar class="w-4 h-4 text-[#1A4D8F]" />
+            <h3 class="text-sm font-bold text-[#1C1917]">School Notices & Dates</h3>
           </div>
-          <p class="text-sm font-bold text-slate-400 mb-6">Analyze academic progress across terms and sessions.</p>
-          <button class="bg-royal-purple text-white w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-royal-purple/90 transition">
-            View Analytics <ArrowUpRight class="w-4 h-4" />
-          </button>
+
+          <div class="space-y-3">
+            <div class="p-3 rounded-xl bg-[#F7F4EE] border-l-4 border-l-[#1A4D8F] border border-[#E5E0D8]">
+              <p class="text-xs font-bold text-[#1C1917]">Term Examination Concluded</p>
+              <p class="text-[11px] text-[#6B7280] mt-0.5">All results are being verified by school administration.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#F7F4EE] border-l-4 border-l-[#E8A838] border border-[#E5E0D8]">
+              <p class="text-xs font-bold text-[#1C1917]">Resumption for Next Term</p>
+              <p class="text-[11px] text-[#6B7280] mt-0.5">Please review the school calendar for resumption dates.</p>
+            </div>
+          </div>
         </div>
+
+        <!-- Academic Support -->
+        <div class="bg-white rounded-2xl border border-[#E5E0D8] p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2 pb-2 border-b border-[#E5E0D8]">
+            <Sparkles class="w-4 h-4 text-[#E8A838]" />
+            <h3 class="text-sm font-bold text-[#1C1917]">Parent Inquiry</h3>
+          </div>
+          <p class="text-xs text-[#4B5563] leading-relaxed">
+            For questions regarding result verification, fee settlement, or pastoral remarks, contact the school administrative office.
+          </p>
+        </div>
+
       </div>
     </div>
+
+  </div>
+
+  <div v-else class="rounded-xl border border-red-200 bg-red-50 p-5 text-xs text-red-700">
+    Unable to load student information for this parent account.
   </div>
 </template>

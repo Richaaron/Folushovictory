@@ -10,9 +10,9 @@ const menuItems = [
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col text-[#F5F0E8] relative overflow-hidden bg-slate-950">
-    <Navbar portal="Teacher" username="Staff User" :menuItems="menuItems" />
-    <main class="flex-grow p-4 sm:p-8 overflow-x-hidden">
+  <div class="min-h-screen flex flex-col bg-[#F7F4EE] text-[#1C1917] relative">
+    <Navbar portal="Teacher" username="Faculty Member" :menuItems="menuItems" />
+    <main class="flex-grow p-4 sm:p-6 lg:p-8 overflow-x-hidden">
       <div class="mx-auto max-w-7xl">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
@@ -25,6 +25,6 @@ const menuItems = [
 </template>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

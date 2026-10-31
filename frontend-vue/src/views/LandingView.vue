@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ArrowRight, ShieldCheck, Star, Zap, GraduationCap, BookOpen, Trophy, Users } from 'lucide-vue-next'
+import { 
+  ArrowRight, 
+  ShieldCheck, 
+  GraduationCap, 
+  BookOpen, 
+  Users, 
+  Award, 
+  CheckCircle2, 
+  Sparkles,
+  BarChart3,
+  CalendarCheck
+} from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -12,290 +23,236 @@ const portals = [
   {
     id: 'admin',
     title: 'Admin Portal',
-    description: 'Complete institutional control and oversight',
+    badge: 'Management',
+    description: 'Institution governance, broadsheets, staff, and student records',
     icon: ShieldCheck,
-    gradient: 'from-purple-500 to-pink-500',
-    glow: 'shadow-purple-500/50',
-    delay: '0s'
+    accentBorder: 'border-l-4 border-l-[#1A4D8F]',
+    iconBg: 'bg-[#1A4D8F]/10 text-[#1A4D8F]',
+    hoverBg: 'hover:border-[#1A4D8F]/40'
   },
   {
     id: 'teacher',
     title: 'Teacher Portal',
-    description: 'Manage scores, classes, and student performance',
+    badge: 'Faculty',
+    description: 'Score entry, attendance, form class remarks, and activities',
     icon: BookOpen,
-    gradient: 'from-blue-500 to-cyan-500',
-    glow: 'shadow-blue-500/50',
-    delay: '0.15s'
+    accentBorder: 'border-l-4 border-l-[#2D6A4F]',
+    iconBg: 'bg-[#2D6A4F]/10 text-[#2D6A4F]',
+    hoverBg: 'hover:border-[#2D6A4F]/40'
   },
   {
     id: 'parent',
     title: 'Parent Portal',
-    description: 'Track your child\'s academic progress',
+    badge: 'Family',
+    description: 'Track academic performance, report cards, and school notices',
     icon: Users,
-    gradient: 'from-cyan-500 to-green-500',
-    glow: 'shadow-cyan-500/50',
-    delay: '0.3s'
+    accentBorder: 'border-l-4 border-l-[#E8A838]',
+    iconBg: 'bg-[#E8A838]/15 text-[#C98818]',
+    hoverBg: 'hover:border-[#E8A838]/40'
   },
   {
     id: 'student',
     title: 'Student Portal',
-    description: 'Access class subjects, assignments, and online tests',
+    badge: 'Learners',
+    description: 'View term report sheets, learning tasks, and academic standing',
     icon: GraduationCap,
-    gradient: 'from-emerald-500 to-cyan-500',
-    glow: 'shadow-emerald-500/50',
-    delay: '0.45s'
+    accentBorder: 'border-l-4 border-l-[#2B6CB0]',
+    iconBg: 'bg-[#2B6CB0]/10 text-[#2B6CB0]',
+    hoverBg: 'hover:border-[#2B6CB0]/40'
   }
 ]
 
 const features = [
   {
-    icon: GraduationCap,
+    icon: Award,
     title: 'Academic Excellence',
-    description: 'Comprehensive result management system',
-    color: 'purple'
+    description: 'Curriculum-aligned grading, broadsheets, and automatic position ranking.',
+    badge: 'Assessment'
   },
   {
-    icon: Trophy,
-    title: 'Performance Tracking',
-    description: 'Real-time analytics and insights',
-    color: 'blue'
+    icon: BarChart3,
+    title: 'Real-time Broadsheets',
+    description: 'Full class result sheets with term averages and instant PDF reports.',
+    badge: 'Analytics'
   },
   {
-    icon: Star,
-    title: 'Secure Platform',
-    description: 'Enterprise-grade security',
-    color: 'cyan'
+    icon: CalendarCheck,
+    title: 'Holistic Student Records',
+    description: 'Track psychomotor traits, affective domains, attendance, and remarks.',
+    badge: 'Records'
   },
   {
-    icon: Zap,
-    title: 'Lightning Fast',
-    description: 'Optimized for speed and reliability',
-    color: 'pink'
+    icon: CheckCircle2,
+    title: 'Direct Parent Access',
+    description: 'Parents verify grades and term reports seamlessly with secure PIN access.',
+    badge: 'Community'
   }
 ]
 </script>
 
 <template>
-  <div class="landing-root relative min-h-screen overflow-hidden">
-    <!-- ═══════ ANIMATED BACKGROUND ═══════ -->
-    <div class="neon-bg-orb" style="width: 500px; height: 500px; background: var(--neon-purple); top: -150px; left: -150px;" aria-hidden="true"></div>
-    <div class="neon-bg-orb" style="width: 400px; height: 400px; background: var(--neon-blue); top: 30%; right: -100px; animation-delay: -7s;" aria-hidden="true"></div>
-    <div class="neon-bg-orb" style="width: 350px; height: 350px; background: var(--neon-cyan); bottom: 20%; left: 5%; animation-delay: -14s;" aria-hidden="true"></div>
-    <div class="neon-bg-orb" style="width: 300px; height: 300px; background: var(--neon-pink); bottom: -100px; right: 20%; animation-delay: -10s;" aria-hidden="true"></div>
-    
-    <div class="grid-pattern" aria-hidden="true"></div>
-    <video
-      class="landing-video"
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="metadata"
-      src="/videos/brain-fuse.mp4"
-    />
-
-    <!-- ═══════ HEADER WITH LOGO ═══════ -->
-    <header class="relative z-20 border-b border-white/5 bg-gradient-to-b from-gray-900/60 to-transparent backdrop-blur-sm">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div class="h-10 w-10 sm:h-14 sm:w-14 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center bg-white/10 backdrop-blur-sm shadow-lg border border-white/20">
+  <div class="landing-root min-h-screen bg-[#F7F4EE] flex flex-col text-[#1C1917]">
+    <!-- ═══════ HEADER ═══════ -->
+    <header class="sticky top-0 z-30 bg-[#FFFFFF]/90 backdrop-blur-md border-b border-[#E5E0D8]">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-white p-1 border border-[#E5E0D8] shadow-sm flex items-center justify-center">
             <img src="/logo.png" alt="Folusho Victory Schools" class="h-full w-full object-contain" />
           </div>
-          <div class="flex flex-col min-w-0">
-            <span class="text-[10px] sm:text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 truncate">FOLUSHO VICTORY</span>
-            <span class="text-[9px] sm:text-xs text-gray-400 truncate">School Management Platform</span>
+          <div>
+            <span class="text-xs sm:text-sm font-extrabold tracking-wider text-[#1A4D8F] uppercase block leading-tight">
+              FOLUSHO VICTORY SCHOOLS
+            </span>
+            <span class="text-[10px] sm:text-xs text-[#6B7280] font-medium block">
+              Academic Information & Results Portal
+            </span>
           </div>
         </div>
-        <button 
-          @click="navigateToLogin('admin')"
-          class="neon-btn text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 flex-shrink-0"
-        >
-          Admin Access
-        </button>
+
+        <div class="flex items-center gap-2">
+          <button 
+            @click="navigateToLogin('admin')"
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#1A4D8F] bg-[#1A4D8F]/10 hover:bg-[#1A4D8F]/15 transition-colors"
+          >
+            Admin Sign In
+          </button>
+        </div>
       </div>
     </header>
 
-    <!-- ═══════ FLOATING PARTICLES ═══════ -->
-    <div class="particle" style="left: 10%; animation-delay: 0s;" aria-hidden="true"></div>
-    <div class="particle" style="left: 25%; animation-delay: -3s; background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" aria-hidden="true"></div>
-    <div class="particle" style="left: 40%; animation-delay: -6s; background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan);" aria-hidden="true"></div>
-    <div class="particle" style="left: 55%; animation-delay: -9s;" aria-hidden="true"></div>
-    <div class="particle" style="left: 70%; animation-delay: -12s; background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink);" aria-hidden="true"></div>
-    <div class="particle" style="left: 85%; animation-delay: -15s; background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);" aria-hidden="true"></div>
-
-    <!-- ═══════ HERO SECTION - FULL WIDTH ═══════ -->
-    <section class="hero-section relative">
-      <!-- subtle academic watermark image + translucent logo -->
-      <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-10">
-        <div class="grid gap-8 lg:gap-12 lg:grid-cols-2 lg:items-center">
-          
-          <!-- LEFT: Hero Content -->
-          <div class="space-y-6 sm:space-y-8">
-            <div class="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 sm:px-4 py-1.5 sm:py-2 backdrop-blur-sm">
-              <Star class="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
-              <span class="text-xs sm:text-sm font-medium text-purple-300">Next-Gen School Management</span>
-            </div>
-
-            <h1 class="neon-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl">
-              <span class="block text-white">Transform</span>
-              <span class="block gradient-text">Academic Excellence</span>
-            </h1>
-
-            <p class="neon-body max-w-xl text-base sm:text-lg">
-              A powerful, modern platform for managing student results, tracking performance, and empowering educators with real-time insights.
-            </p>
-
-            <div class="flex flex-wrap gap-3 sm:gap-4">
-              <button 
-                @click="navigateToLogin('admin')"
-                class="neon-btn group text-sm sm:text-base"
-              >
-                Get Started
-                <ArrowRight class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
-              </button>
-              <button class="neon-btn neon-btn-outline text-sm sm:text-base">
-                Learn More
-              </button>
-            </div>
-
-            <!-- Stats -->
-            <div class="flex flex-wrap gap-6 sm:gap-8 pt-2 sm:pt-4">
-              <div>
-                <div class="neon-heading text-2xl sm:text-3xl gradient-text">500+</div>
-                <div class="text-xs sm:text-sm text-gray-400">Students</div>
+    <!-- ═══════ HERO SECTION ═══════ -->
+    <main class="flex-grow">
+      <section class="py-10 sm:py-16 lg:py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="grid gap-12 lg:grid-cols-12 lg:items-center">
+            
+            <!-- LEFT: Hero Branding -->
+            <div class="lg:col-span-6 space-y-6">
+              <div class="inline-flex items-center gap-2 rounded-full border border-[#E8A838]/40 bg-[#E8A838]/10 px-3.5 py-1.5">
+                <Sparkles class="h-3.5 w-3.5 text-[#C98818]" />
+                <span class="text-xs font-semibold text-[#8C5D07]">
+                  Folusho Victory Academy • Term Results & Portals
+                </span>
               </div>
-              <div>
-                <div class="neon-heading text-2xl sm:text-3xl gradient-text">50+</div>
-                <div class="text-xs sm:text-sm text-gray-400">Teachers</div>
-              </div>
-              <div>
-                <div class="neon-heading text-2xl sm:text-3xl gradient-text">99.9%</div>
-                <div class="text-xs sm:text-sm text-gray-400">Uptime</div>
-              </div>
-            </div>
-          </div>
 
-          <!-- RIGHT: Portal Cards -->
-          <div class="space-y-3 sm:space-y-4">
-            <div 
-              v-for="portal in portals" 
-              :key="portal.id"
-              @click="navigateToLogin(portal.id)"
-              class="glass-card cursor-pointer group"
-              :style="{ animationDelay: portal.delay }"
-            >
-              <div class="flex items-start gap-3 sm:gap-4 p-4 sm:p-6">
-                <div 
-                  class="flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br shadow-lg transition-transform group-hover:scale-110"
-                  :class="[portal.gradient, portal.glow]"
-                >
-                  <component :is="portal.icon" class="h-5 w-5 sm:h-7 sm:w-7 text-white" />
+              <h1 class="text-3xl sm:text-5xl lg:text-5xl font-extrabold tracking-tight text-[#1C1917] leading-[1.15]">
+                Empowering Students, 
+                <span class="text-[#1A4D8F]">Inspiring Excellence</span> & Supporting Growth.
+              </h1>
+
+              <p class="text-base sm:text-lg text-[#4B5563] leading-relaxed">
+                Welcome to Folusho Victory Schools' unified academic portal. Access term performance, verify reports, manage curriculum activities, and collaborate effortlessly.
+              </p>
+
+              <!-- Stat Badges -->
+              <div class="pt-3 grid grid-cols-3 gap-4 border-t border-[#E5E0D8]">
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-[#E5E0D8] shadow-sm">
+                  <div class="text-xl sm:text-2xl font-black text-[#1A4D8F]">350+</div>
+                  <div class="text-[11px] sm:text-xs text-[#6B7280] font-medium">Students Enrolled</div>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <h3 class="neon-heading mb-1 sm:mb-2 text-base sm:text-xl text-white group-hover:text-purple-300 transition-colors">
-                    {{ portal.title }}
-                  </h3>
-                  <p class="neon-body text-xs sm:text-sm">
-                    {{ portal.description }}
-                  </p>
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-[#E5E0D8] shadow-sm">
+                  <div class="text-xl sm:text-2xl font-black text-[#2D6A4F]">9+</div>
+                  <div class="text-[11px] sm:text-xs text-[#6B7280] font-medium">Class Levels</div>
                 </div>
-                <ArrowRight class="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 transition-all group-hover:translate-x-2 group-hover:text-purple-400 flex-shrink-0" />
+                <div class="bg-white p-3 sm:p-4 rounded-xl border border-[#E5E0D8] shadow-sm">
+                  <div class="text-xl sm:text-2xl font-black text-[#E8A838]">100%</div>
+                  <div class="text-[11px] sm:text-xs text-[#6B7280] font-medium">Verified Records</div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ═══════ DIVIDER ═══════ -->
-    <div class="section-divider"></div>
+            <!-- RIGHT: Portal Cards -->
+            <div class="lg:col-span-6 space-y-3.5">
+              <div class="mb-2">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-[#6B7280]">
+                  Select Your Portal
+                </h2>
+              </div>
 
-    <!-- ═══════ FEATURES SECTION - FULL WIDTH ═══════ -->
-    <section class="hero-section py-12 sm:py-20">
-      <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-10 sm:mb-16 text-center">
-          <h2 class="neon-heading mb-3 sm:mb-4 text-3xl sm:text-4xl lg:text-5xl text-white">
-            Why Choose <span class="gradient-text">Our Platform</span>
-          </h2>
-          <p class="neon-body mx-auto max-w-2xl text-base sm:text-lg">
-            Built with modern technology for reliability, speed, and an exceptional user experience
-          </p>
-        </div>
-
-        <div class="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4">
-          <div 
-            v-for="(feature, index) in features" 
-            :key="index"
-            class="glass-card group"
-            :style="{ animationDelay: `${index * 0.1}s` }"
-          >
-            <div class="p-4 sm:p-6 text-center">
               <div 
-                class="mx-auto mb-3 sm:mb-4 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-3"
-                :class="[
-                  feature.color === 'purple' ? 'from-purple-500 to-pink-500 shadow-purple-500/50' : '',
-                  feature.color === 'blue' ? 'from-blue-500 to-cyan-500 shadow-blue-500/50' : '',
-                  feature.color === 'cyan' ? 'from-cyan-500 to-green-500 shadow-cyan-500/50' : '',
-                  feature.color === 'pink' ? 'from-pink-500 to-purple-500 shadow-pink-500/50' : ''
-                ]"
+                v-for="portal in portals" 
+                :key="portal.id"
+                @click="navigateToLogin(portal.id)"
+                class="bg-white p-4 sm:p-5 rounded-2xl border border-[#E5E0D8] shadow-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md flex items-center justify-between gap-4 group"
+                :class="[portal.accentBorder, portal.hoverBg]"
               >
-                <component :is="feature.icon" class="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                <div class="flex items-center gap-4">
+                  <div class="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105" :class="portal.iconBg">
+                    <component :is="portal.icon" class="h-6 w-6" />
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 mb-0.5">
+                      <h3 class="text-base sm:text-lg font-bold text-[#1C1917] group-hover:text-[#1A4D8F] transition-colors">
+                        {{ portal.title }}
+                      </h3>
+                      <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md bg-[#F3EFE7] text-[#6B7280]">
+                        {{ portal.badge }}
+                      </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-[#4B5563]">
+                      {{ portal.description }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="h-9 w-9 rounded-full bg-[#F7F4EE] flex items-center justify-center text-[#6B7280] group-hover:bg-[#1A4D8F] group-hover:text-white transition-all shrink-0">
+                  <ArrowRight class="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </div>
               </div>
-              <h3 class="neon-heading mb-1 sm:mb-2 text-sm sm:text-lg text-white">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════ HIGHLIGHTS SECTION ═══════ -->
+      <section class="py-12 bg-white border-y border-[#E5E0D8]">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-2xl mx-auto mb-10">
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-[#1C1917]">
+              Designed for Nigerian Schools & Academic Excellence
+            </h2>
+            <p class="mt-2 text-sm sm:text-base text-[#6B7280]">
+              Built with precision for Pre-Nursery through Secondary classes, providing reliable assessment and student transparency.
+            </p>
+          </div>
+
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div 
+              v-for="(feature, idx) in features" 
+              :key="idx"
+              class="p-5 rounded-2xl bg-[#F7F4EE] border border-[#E5E0D8] space-y-3"
+            >
+              <div class="h-10 w-10 rounded-xl bg-white border border-[#E5E0D8] flex items-center justify-center text-[#1A4D8F]">
+                <component :is="feature.icon" class="h-5 w-5" />
+              </div>
+              <h3 class="text-base font-bold text-[#1C1917]">
                 {{ feature.title }}
               </h3>
-              <p class="neon-body text-xs sm:text-sm">
+              <p class="text-xs text-[#4B5563] leading-relaxed">
                 {{ feature.description }}
               </p>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
 
-    <!-- ═══════ CTA SECTION ═══════ -->
-    <section class="hero-section py-12 sm:py-20">
-      <div class="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <div class="glass-card glass-card-purple p-6 sm:p-12 text-center">
-          <h2 class="neon-heading mb-3 sm:mb-4 text-2xl sm:text-3xl lg:text-4xl text-white">
-            Ready to <span class="gradient-text">Get Started</span>?
-          </h2>
-          <p class="neon-body mx-auto mb-6 sm:mb-8 max-w-xl text-base sm:text-lg">
-            Join hundreds of educators and students already using our platform
-          </p>
-          <button 
-            @click="navigateToLogin('admin')"
-            class="neon-btn neon-btn-purple text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
-          >
-            Access Your Portal
-            <ArrowRight class="h-4 w-4 sm:h-5 sm:w-5" />
-          </button>
+    <!-- ═══════ FOOTER ═══════ -->
+    <footer class="bg-[#F7F4EE] border-t border-[#E5E0D8] py-8">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6B7280]">
+        <div class="flex items-center gap-2">
+          <img src="/logo.png" alt="Logo" class="h-6 w-6 object-contain" />
+          <span class="font-bold text-[#1C1917]">Folusho Victory Schools</span>
+          <span>© 2026. All rights reserved.</span>
+        </div>
+        <div class="flex items-center gap-4 font-medium">
+          <span>Integrity</span>
+          <span>•</span>
+          <span>Discipline</span>
+          <span>•</span>
+          <span>Excellence</span>
         </div>
       </div>
-    </section>
-
-    <!-- ═══════ BOTTOM NEON LINE ═══════ -->
-    <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 opacity-80" aria-hidden="true"></div>
+    </footer>
   </div>
 </template>
-
-<style scoped>
-.landing-root {
-  background: var(--bg-primary);
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  overflow: hidden;
-}
-
-.landing-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.24;
-  z-index: 0;
-  pointer-events: none;
-}
-</style>
