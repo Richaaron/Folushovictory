@@ -154,10 +154,6 @@ const handleAddStudent = async () => {
     alert('❌ Please enter both first name and last name.')
     return
   }
-  if (!newStudent.value.parentName) {
-    alert("❌ Parent/Guardian Name is required to enroll a student.")
-    return
-  }
   try {
     await api.post('/api/teacher/students', {
       ...newStudent.value,
@@ -199,10 +195,6 @@ const handleUpdateStudent = async () => {
   if (!editingStudent.value) return
   if (!editedStudent.value.firstName || !editedStudent.value.lastName) {
     alert('❌ Please enter both first name and last name.')
-    return
-  }
-  if (!editedStudent.value.parentName) {
-    alert("❌ Parent/Guardian Name is required.")
     return
   }
 
@@ -553,15 +545,9 @@ onMounted(async () => {
               />
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div class="space-y-2">
-                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
-                <input v-model="newStudent.parentName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="e.g. Chief Adeleke" />
-              </div>
-              <div class="space-y-2">
-                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email <span class="text-slate-500 lowercase">(Optional)</span></label>
-                <input v-model="newStudent.parentEmail" type="email" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="guardian@example.com" />
-              </div>
+            <div class="space-y-2">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email <span class="text-slate-500 lowercase">(Optional)</span></label>
+              <input v-model="newStudent.parentEmail" type="email" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="guardian@example.com" />
             </div>
 
             <div class="pt-4 sm:pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
@@ -621,15 +607,9 @@ onMounted(async () => {
               />
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div class="space-y-2">
-                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent/Guardian Name</label>
-                <input v-model="editedStudent.parentName" type="text" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="e.g. Chief Adeleke" />
-              </div>
-              <div class="space-y-2">
-                <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email <span class="text-slate-500 lowercase">(Optional)</span></label>
-                <input v-model="editedStudent.parentEmail" type="email" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="guardian@example.com" />
-              </div>
+            <div class="space-y-2">
+              <label class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Parent Email <span class="text-slate-500 lowercase">(Optional)</span></label>
+              <input v-model="editedStudent.parentEmail" type="email" class="w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/60 text-white border-none rounded-lg sm:rounded-2xl text-sm font-medium focus:ring-2 focus:ring-royal-purple outline-none min-h-[44px]" placeholder="guardian@example.com" />
             </div>
 
             <div class="sticky bottom-0 bg-[#0F172A]/95 backdrop-blur-md pt-4 -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 px-6 pb-6 sm:px-10 sm:pb-10 border-t border-slate-700/50 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-30">

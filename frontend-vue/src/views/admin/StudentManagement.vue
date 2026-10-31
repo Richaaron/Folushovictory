@@ -128,10 +128,6 @@ const handleAddStudent = async () => {
     alert('❌ Please enter both first name and last name.')
     return
   }
-  if (!newStudent.value.parentName) {
-    alert("❌ Parent/Guardian Name is required to enroll a student.")
-    return
-  }
   try {
     const { data } = await api.post('/api/admin/students', newStudent.value)
     showAddModal.value = false
@@ -193,10 +189,6 @@ const openEditModal = (student: any) => {
 const handleUpdateStudent = async () => {
   if (!editingStudent.value?.firstName || !editingStudent.value?.lastName) {
     alert('❌ First Name and Last Name are required.')
-    return
-  }
-  if (!editingStudent.value?.parentName) {
-    alert('❌ Parent/Guardian Name is required.')
     return
   }
   try {
@@ -313,7 +305,6 @@ onMounted(async () => {
               <th>ID</th>
               <th>Name</th>
               <th class="hidden sm:table-cell">Gender</th>
-              <th class="hidden md:table-cell">Guardian</th>
               <th class="text-right">Actions</th>
             </tr>
           </thead>
@@ -335,10 +326,6 @@ onMounted(async () => {
               </td>
               <td class="align-top hidden sm:table-cell">
                 <span class="text-[10px] font-black uppercase tracking-[0.25em] text-[#F5F0E8]/50">{{ student.gender }}</span>
-              </td>
-              <td class="align-top hidden md:table-cell">
-                <p class="font-black text-[#F5F0E8]/70 truncate">{{ student.parentName }}</p>
-                <p class="text-[8px] text-[#F5F0E8]/35 uppercase tracking-[0.2em] mt-0.5">Parent</p>
               </td>
               <td class="align-top text-right">
                 <div class="inline-flex items-center justify-end gap-2">
@@ -420,15 +407,9 @@ onMounted(async () => {
               />
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div class="space-y-2">
-                <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Parent/Guardian Name</label>
-                <input v-model="newStudent.parentName" type="text" class="academic-input" placeholder="e.g. Chief Adeleke" />
-              </div>
-              <div class="space-y-2">
-                <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Parent Email <span class="text-[#F5F0E8]/30 lowercase">(Optional)</span></label>
-                <input v-model="newStudent.parentEmail" type="email" class="academic-input" placeholder="guardian@example.com" />
-              </div>
+            <div class="space-y-2">
+              <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Parent Email <span class="text-[#F5F0E8]/30 lowercase">(Optional)</span></label>
+              <input v-model="newStudent.parentEmail" type="email" class="academic-input" placeholder="guardian@example.com" />
             </div>
 
             <div class="pt-4 flex gap-3">
@@ -496,15 +477,9 @@ onMounted(async () => {
               />
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div class="space-y-2">
-                <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Parent Name</label>
-                <input v-model="editingStudent.parentName" type="text" class="academic-input" />
-              </div>
-              <div class="space-y-2">
-                <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Parent Email</label>
-                <input v-model="editingStudent.parentEmail" type="email" class="academic-input" />
-              </div>
+            <div class="space-y-2">
+              <label class="text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 ml-1">Parent Email</label>
+              <input v-model="editingStudent.parentEmail" type="email" class="academic-input" />
             </div>
 
             <div class="sticky bottom-0 bg-[#1B2A4A]/95 backdrop-blur-md pt-4 -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 px-6 pb-6 sm:px-8 sm:pb-8 border-t border-[#C9A84C]/15 flex gap-3 z-30">

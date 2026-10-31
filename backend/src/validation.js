@@ -57,7 +57,7 @@ export function validateStudentPayload(body) {
   const firstName = requiredString(body.firstName, "firstName");
   const lastName = requiredString(body.lastName, "lastName");
   const classId = requiredString(body.classId, "classId");
-  const parentName = requiredString(body.parentName, "parentName");
+  const parentName = optionalString(body.parentName) || "";
   const gender = optionalString(body.gender) || "";
   const stream = optionalString(body.stream) || "";
   const parentEmail = validateEmail(body.parentEmail, false);
@@ -80,7 +80,7 @@ export function validateStudentUpdatePayload(body) {
   if (body.firstName !== undefined) patch.firstName = requiredString(body.firstName, "firstName");
   if (body.lastName !== undefined) patch.lastName = requiredString(body.lastName, "lastName");
   if (body.classId !== undefined) patch.classId = requiredString(body.classId, "classId");
-  if (body.parentName !== undefined) patch.parentName = requiredString(body.parentName, "parentName");
+  if (body.parentName !== undefined) patch.parentName = optionalString(body.parentName) || "";
   if (body.gender !== undefined) patch.gender = optionalString(body.gender) || "";
   if (body.stream !== undefined) patch.stream = optionalString(body.stream) || "";
   if (body.parentEmail !== undefined) patch.parentEmail = validateEmail(body.parentEmail, false);

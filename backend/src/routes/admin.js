@@ -941,7 +941,7 @@ adminRouter.post(
         lastName: payload.lastName,
         gender: payload.gender,
         classId: payload.classId,
-        parentName: payload.parentName,
+        parentName: payload.parentName || "Parent/Guardian",
         parentEmail: payload.parentEmail,
         stream: payload.stream,
         subjectIds: payload.subjectIds || [],
@@ -952,7 +952,7 @@ adminRouter.post(
         email: payload.parentEmail,
         portal: "PARENT",
         role: Roles.PARENT,
-        displayName: payload.parentName,
+        displayName: payload.parentName || `Parent of ${payload.firstName} ${payload.lastName}`.trim(),
         passwordHash: parentPasswordHash,
         studentId
       },
