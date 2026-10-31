@@ -80,6 +80,10 @@ const getPositionSuffix = (pos: number) => {
 const schoolWebsite = computed(() => data.value?.school?.website?.replace(/^https?:\/\//, '') || '')
 const formTeacherName = computed(() => data.value?.formTeacher?.displayName || `${data.value?.class?.name || 'Class'} Form Teacher`)
 const subjectRows = computed(() => data.value?.result?.perSubject || [])
+const isNurseryClass = computed(() => {
+  const classLabel = `${data.value?.class?.level || ''} ${data.value?.class?.name || ''}`.toUpperCase()
+  return classLabel.includes('NURSERY') || classLabel.includes('PRE-NUR')
+})
 const positionBasedClass = computed(() => {
   const classLabel = `${data.value?.class?.level || ''} ${data.value?.class?.name || ''}`.toUpperCase()
   if (classLabel.includes('SSS') || classLabel.includes('PRE-NURSERY') || classLabel.includes('PRE NURSERY') || classLabel.includes('PRE_NURSERY')) {
@@ -255,7 +259,7 @@ onMounted(fetchData)
           <strong>{{ data.term }} Term Results</strong>
         </div>
 
-        <div class="table-frame">
+        <div class="table-frame hidden sm:block">
           <table>
             <thead>
               <tr>
@@ -280,6 +284,37 @@ onMounted(fetchData)
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="space-y-3 sm:hidden">
+          <article
+            v-for="sub in subjectRows"
+            :key="sub.subjectId"
+            class="rounded-xl border border-white/10 bg-slate-950/40 p-3"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <h3 class="min-w-0 text-sm font-bold text-white">{{ sub.subjectName }}</h3>
+              <span class="grade-badge shrink-0" :class="getGradeColor(sub.grade)">{{ sub.grade || '-' }}</span>
+            </div>
+            <dl class="mt-3 grid grid-cols-2 gap-2 text-xs">
+              <div v-if="!isNurseryClass" class="rounded-lg bg-white/5 p-2">
+                <dt class="text-[9px] font-bold uppercase text-gray-400">1st CA</dt>
+                <dd class="mt-1 font-black text-white">{{ sub.ca1 ?? '-' }}</dd>
+              </div>
+              <div v-if="!isNurseryClass" class="rounded-lg bg-white/5 p-2">
+                <dt class="text-[9px] font-bold uppercase text-gray-400">2nd CA</dt>
+                <dd class="mt-1 font-black text-white">{{ sub.ca2 ?? '-' }}</dd>
+              </div>
+              <div class="rounded-lg bg-white/5 p-2">
+                <dt class="text-[9px] font-bold uppercase text-gray-400">Exam</dt>
+                <dd class="mt-1 font-black text-white">{{ sub.exam ?? '-' }} / {{ sub.maxScore || 100 }}</dd>
+              </div>
+              <div class="rounded-lg bg-white/5 p-2">
+                <dt class="text-[9px] font-bold uppercase text-gray-400">Total</dt>
+                <dd class="mt-1 font-black text-white">{{ sub.total ?? '-' }} / {{ sub.maxScore || 100 }}</dd>
+              </div>
+            </dl>
+            <p v-if="sub.remark" class="mt-3 break-words text-xs leading-relaxed text-gray-300">{{ sub.remark }}</p>
+          </article>
         </div>
       </section>
 

@@ -33,6 +33,10 @@ export async function getSubjectByName(name) {
   return data.length > 0 ? canonicalizeSubject(data[0]) : null;
 }
 
+export async function updateSubject(subjectId, data) {
+  return await SafeDatabase.updateWithValidation("subjects", subjectId, data, "subject");
+}
+
 export async function deleteSubject(subjectId) {
   return await SafeDatabase.deleteById("subjects", subjectId);
 }

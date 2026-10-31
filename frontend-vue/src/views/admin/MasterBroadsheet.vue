@@ -92,6 +92,11 @@ const isSSS = computed(() => {
   return classText.toUpperCase().includes('SSS')
 })
 
+const isNursery = computed(() => {
+  const classText = `${broadsheet.value?.class?.level || ''} ${broadsheet.value?.class?.name || ''}`
+  return classText.toUpperCase().includes('NURSERY') || classText.toUpperCase().includes('PRE-NUR')
+})
+
 
 const escapeExcelCell = (value: any) => {
   return String(value ?? '')
@@ -313,7 +318,7 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
         </div>
       </div>
 
-      <div v-else-if="broadsheet" class="overflow-x-auto print:overflow-visible broadsheet-print-section">
+      <div v-else-if="broadsheet" class="print:overflow-visible broadsheet-print-section">
         <div class="px-6 py-6 text-center border-b border-[#C9A84C]/10 bg-[#1B2A4A]/30">
           <h2 class="academic-heading text-xl text-[#FAFAF7]">{{ broadsheet.school?.name || 'Folusho Victory Schools' }}</h2>
           <p v-if="broadsheet.school?.motto" class="mt-1 text-[10px] font-black uppercase tracking-widest gold-text">{{ broadsheet.school.motto }}</p>
@@ -332,7 +337,8 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
             <span class="rounded-md bg-[#1B2A4A]/80 border border-[#C9A84C]/15 px-3 py-1.5 text-[#F5F0E8]">Total Students: {{ broadsheet.students?.length || 0 }}</span>
           </div>
         </div>
-        <table class="w-full border-collapse">
+        <div class="hidden overflow-x-auto lg:block print:block">
+        <table class="w-full border-collapse print:table">
           <thead>
             <tr class="bg-[#1B2A4A]/60">
               <th rowspan="2" class="px-4 py-5 border-b border-r border-[#C9A84C]/10 text-[9px] font-black uppercase tracking-widest text-[#C9A84C]/60 min-w-[180px] text-left">Student Profile</th>
@@ -407,6 +413,78 @@ watch([selectedClassId, selectedSession, selectedTerm], () => {
             </tr>
           </tbody>
         </table>
+        </div>
+
+        <div class="space-y-4 p-3 sm:p-5 lg:hidden print:hidden">
+          <article
+            v-for="student in broadsheet.students"
+            :key="student.studentId"
+            class="rounded-2xl border border-[#C9A84C]/15 bg-[#1B2A4A]/35 p-4"
+          >
+            <div class="flex items-start justify-between gap-3 border-b border-[#C9A84C]/10 pb-3">
+              <button
+                type="button"
+                class="min-w-0 text-left"
+                :aria-label="`Open report for ${student.lastName} ${student.firstName}`"
+                @click="$router.push({
+                  name: 'student-report',
+                  params: { studentId: student.studentId },
+                  query: { session: selectedSession, term: selectedTerm }
+                })"
+              >
+                <span class="block truncate text-sm font-black uppercase text-[#FAFAF7]">{{ student.lastName }} {{ student.firstName }}</span>
+                <span class="mt-1 block text-[9px] font-bold uppercase tracking-widest text-[#F5F0E8]/45">{{ student.studentId }}</span>
+              </button>
+              <span class="shrink-0 rounded-lg bg-[#1B2A4A]/80 px-2.5 py-1 text-[10px] font-black text-[#C9A84C]">
+                #{{ student.position || '-' }}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 py-3 text-center sm:grid-cols-4">
+              <div class="rounded-xl bg-[#1B2A4A]/55 p-2">
+                <span class="block text-[8px] font-black uppercase tracking-widest text-[#F5F0E8]/45">Total</span>
+                <strong class="mt-1 block text-sm text-[#FAFAF7]">{{ student.total }}</strong>
+              </div>
+              <div class="rounded-xl bg-[#1B2A4A]/55 p-2">
+                <span class="block text-[8px] font-black uppercase tracking-widest text-[#F5F0E8]/45">Average</span>
+                <strong class="mt-1 block text-sm text-[#C9A84C]">{{ student.average }}%</strong>
+              </div>
+              <div class="rounded-xl bg-[#1B2A4A]/55 p-2">
+                <span class="block text-[8px] font-black uppercase tracking-widest text-[#F5F0E8]/45">Position</span>
+                <strong class="mt-1 block text-sm text-[#FAFAF7]">{{ student.position || '-' }}</strong>
+              </div>
+              <div class="rounded-xl bg-[#1B2A4A]/55 p-2">
+                <span class="block text-[8px] font-black uppercase tracking-widest text-[#F5F0E8]/45">Result</span>
+                <strong class="mt-1 block text-xs font-black" :class="student.average >= 40 ? 'text-[#7A9E7E]' : 'text-[#B45A74]'">
+                  {{ student.average >= 40 ? 'PASS' : 'FAIL' }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div
+                v-for="subject in broadsheet.subjects"
+                :key="subject.id"
+                class="rounded-xl border border-[#C9A84C]/10 bg-[#0F1B32]/55 p-3"
+              >
+                <div class="mb-2 flex items-start justify-between gap-2">
+                  <span class="text-xs font-bold text-[#F5F0E8]">{{ subject.name }}</span>
+                  <span class="shrink-0 text-[10px] font-black text-[#FAFAF7]">
+                    {{ student.scores?.[subject.id]?.total ?? '-' }}
+                    <template v-if="student.scores?.[subject.id]">/{{ student.scores[subject.id].maxScore || subject.maxScore || 100 }}</template>
+                  </span>
+                </div>
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[9px] font-bold text-[#F5F0E8]/50 sm:grid-cols-5">
+                  <span v-if="!isNursery">1st CA: {{ student.scores?.[subject.id]?.ca1 ?? '-' }}</span>
+                  <span v-if="!isNursery">2nd CA: {{ student.scores?.[subject.id]?.ca2 ?? '-' }}</span>
+                  <span>Exam: {{ student.scores?.[subject.id]?.exam ?? '-' }}</span>
+                  <span>{{ isSSS ? 'Grade' : 'Position' }}: {{ isSSS ? (student.scores?.[subject.id]?.grade || '-') : (student.scores?.[subject.id]?.subjectPosition || '-') }}</span>
+                  <span class="font-black text-[#FAFAF7]">Total: {{ student.scores?.[subject.id]?.total ?? '-' }}</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
       </div>
 
       <div v-else class="h-[500px] flex items-center justify-center p-8 text-center text-[#F5F0E8]/50">

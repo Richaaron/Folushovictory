@@ -702,7 +702,6 @@ teacherRouter.post(
       return res.status(403).json({ error: "Forbidden: You are not authorized to enroll students in this class." });
     }
 
-    const studentId = await generateStudentId();
     const parentUsername = await generateParentUsername();
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
     let parentPassword = "";
@@ -710,6 +709,7 @@ teacherRouter.post(
       parentPassword += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     const parentPasswordHash = await hashPassword(parentPassword);
+    const studentId = await generateStudentId();
 
     await createStudentWithParent({
       student: {

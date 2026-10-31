@@ -2,6 +2,7 @@ import { SafeDatabase } from "../firestore-utils/index.js";
 import { getClassById } from "./classes.js";
 import { listScoresForClass } from "./scores.js";
 import { getSchoolSettings } from "./config.js";
+import { releaseStudentId } from "../ids.js";
 
 function normalizeClassRef(value) {
   return String(value || "").trim().toLowerCase();
@@ -55,27 +56,27 @@ export async function createStudentWithParent({ student, parentUser, studentUser
   const normalizedParentUsername = String(parentUser.username).toLowerCase().trim();
   const normalizedStudentUsername = normalizedStudentId;
 
-  const existsStudent = await SafeDatabase.exists("students", normalizedStudentId);
-  if (existsStudent) {
-    const error = new Error(`Student with ID ${student.studentId} already exists`);
-    error.statusCode = 409;
-    throw error;
-  }
-  const existsParent = await SafeDatabase.exists("users", normalizedParentUsername);
-  if (existsParent) {
-    const error = new Error(`Parent username ${parentUser.username} already exists`);
-    error.statusCode = 409;
-    throw error;
-  }
-  if (studentUser && await SafeDatabase.exists("users", normalizedStudentUsername)) {
-    const error = new Error(`Student account ${student.studentId} already exists`);
-    error.statusCode = 409;
-    throw error;
-  }
-
   let studentCreated = false;
   let parentCreated = false;
   try {
+    const existsStudent = await SafeDatabase.exists("students", normalizedStudentId);
+    if (existsStudent) {
+      const error = new Error(`Student with ID ${student.studentId} already exists`);
+      error.statusCode = 409;
+      throw error;
+    }
+    const existsParent = await SafeDatabase.exists("users", normalizedParentUsername);
+    if (existsParent) {
+      const error = new Error(`Parent username ${parentUser.username} already exists`);
+      error.statusCode = 409;
+      throw error;
+    }
+    if (studentUser && await SafeDatabase.exists("users", normalizedStudentUsername)) {
+      const error = new Error(`Student account ${student.studentId} already exists`);
+      error.statusCode = 409;
+      throw error;
+    }
+
     await SafeDatabase.createWithValidation("students", {
       ...student,
       studentId: normalizedStudentId
@@ -103,6 +104,11 @@ export async function createStudentWithParent({ student, parentUser, studentUser
     results.forEach((result) => {
       if (result.status === "rejected") console.error("Failed to roll back student enrollment:", result.reason);
     });
+    try {
+      await releaseStudentId(normalizedStudentId);
+    } catch (releaseError) {
+      console.error("Failed to return student admission number to the reuse queue:", releaseError);
+    }
     throw error;
   }
 

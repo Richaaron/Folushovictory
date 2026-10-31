@@ -26,6 +26,7 @@
 <style>
 .app-shell {
   background-color: #0d0904;
+  overflow-x: clip;
   background-image:
     radial-gradient(circle at top right, rgba(255, 214, 88, 0.12), transparent 18%),
     radial-gradient(circle at 20% 20%, rgba(255, 184, 28, 0.10), transparent 20%),

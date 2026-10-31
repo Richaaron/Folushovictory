@@ -922,7 +922,6 @@ adminRouter.post(
   "/students",
   asyncHandler(async (req, res) => {
     const payload = validateStudentPayload(req.body || {});
-    const studentId = await generateStudentId();
     const parentUsername = await generateParentUsername();
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
     let parentPassword = "";
@@ -933,6 +932,7 @@ adminRouter.post(
     const studentPin = generateStudentPin();
     const studentPinHash = await hashPassword(studentPin);
     const studentDisplayName = `${payload.firstName} ${payload.lastName}`.slice(0, 100);
+    const studentId = await generateStudentId();
 
     await createStudentWithParent({
       student: {
