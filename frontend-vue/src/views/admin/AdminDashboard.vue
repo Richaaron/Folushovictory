@@ -18,7 +18,6 @@ import api from '../../services/api'
 
 const router = useRouter()
 
-const loading = ref(true)
 const dashboardData = ref<any>(null)
 const recentActivity = ref<Array<{ id: string; type: string; text: string; time: string }>>([])
 
@@ -40,9 +39,9 @@ const stats = ref([
     value: '0', 
     icon: GraduationCap, 
     route: '/admin/students',
-    color: 'text-[#1E3A8A]',
-    bg: 'bg-[#EFF6FF]',
-    border: 'border-l-4 border-l-[#1E3A8A]'
+    color: 'text-sky-700',
+    bg: 'bg-sky-100',
+    border: 'border-l-4 border-l-sky-600'
   },
   { 
     name: 'Active Faculty', 
@@ -50,9 +49,9 @@ const stats = ref([
     value: '0', 
     icon: Users, 
     route: '/admin/teachers',
-    color: 'text-[#059669]',
-    bg: 'bg-[#ECFDF5]',
-    border: 'border-l-4 border-l-[#059669]'
+    color: 'text-emerald-700',
+    bg: 'bg-emerald-100',
+    border: 'border-l-4 border-l-emerald-600'
   },
   { 
     name: 'Classes', 
@@ -60,9 +59,9 @@ const stats = ref([
     value: '0', 
     icon: BookOpen, 
     route: '/admin/classes',
-    color: 'text-[#D97706]',
-    bg: 'bg-[#FFFBEB]',
-    border: 'border-l-4 border-l-[#D97706]'
+    color: 'text-amber-700',
+    bg: 'bg-amber-100',
+    border: 'border-l-4 border-l-amber-500'
   },
   { 
     name: 'Avg. Score', 
@@ -70,9 +69,9 @@ const stats = ref([
     value: '0%', 
     icon: TrendingUp, 
     route: '/admin/broadsheet',
-    color: 'text-[#9333EA]',
-    bg: 'bg-[#FAF5FF]',
-    border: 'border-l-4 border-l-[#9333EA]'
+    color: 'text-sky-800',
+    bg: 'bg-sky-50',
+    border: 'border-l-4 border-l-sky-800'
   }
 ])
 
@@ -119,11 +118,11 @@ const fetchDashboard = async () => {
       stats.value[1].value = data.counts.teachers?.toLocaleString() || '0'
       stats.value[2].value = data.counts.classes?.toLocaleString() || '0'
     }
-    stats.value[3].value = (data.avgPerformance || 78.4).toFixed(1) + '%'
+    if (data.performance?.schoolAverage) {
+      stats.value[3].value = `${Math.round(data.performance.schoolAverage)}%`
+    }
   } catch (err) {
-    console.error('Dashboard error:', err)
-  } finally {
-    loading.value = false
+    console.error('Dashboard load error:', err)
   }
 }
 
@@ -133,30 +132,30 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="space-y-6 text-[#1E293B]">
+  <div class="space-y-6 text-[#0F172A]">
     
     <!-- Welcome Header Card -->
-    <div class="bg-white rounded-2xl border border-[#E2E8F0] p-4 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div class="space-y-1">
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#EFF6FF] border border-[#BFDBFE] text-[#1E3A8A] text-xs font-bold">
-          <Sparkles class="w-3.5 h-3.5" />
+    <div class="bg-white/95 backdrop-blur-md rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-7 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-1.5">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-black shadow-xs">
+          <Sparkles class="w-3.5 h-3.5 text-amber-700" />
           <span>Folusho Victory Administrative Center</span>
         </div>
-        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-[#0F172A] tracking-tight">
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-[#0C4A6E] tracking-tight">
           Institutional Dashboard
         </h1>
-        <p class="text-xs sm:text-sm text-[#475569]">
+        <p class="text-xs sm:text-sm font-bold text-slate-700">
           Real-time oversight of student enrollment, faculty rosters, broadsheets, and examination reports.
         </p>
       </div>
 
-      <div class="flex items-center gap-3 bg-[#F8FAFC] px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] shrink-0">
-        <div class="h-9 w-9 rounded-lg bg-white border border-[#E2E8F0] flex items-center justify-center text-[#D97706] shadow-sm">
-          <Calendar class="w-4 h-4" />
+      <div class="flex items-center gap-3 bg-sky-50 px-4 py-3 rounded-xl border border-[#BAE6FD] shrink-0 shadow-sm">
+        <div class="h-10 w-10 rounded-xl bg-white border border-amber-300 flex items-center justify-center text-amber-600 shadow-sm">
+          <Calendar class="w-5 h-5" />
         </div>
         <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#64748B] block">Current Session</span>
-          <span class="text-xs sm:text-sm font-black text-[#0F172A] block">{{ activeTermLabel }}</span>
+          <span class="text-[10px] font-black uppercase tracking-wider text-slate-600 block">Current Session</span>
+          <span class="text-xs sm:text-sm font-black text-[#0C4A6E] block">{{ activeTermLabel }}</span>
         </div>
       </div>
     </div>
@@ -167,14 +166,14 @@ onMounted(async () => {
         v-for="stat in stats"
         :key="stat.name"
         @click="router.push(stat.route)"
-        class="bg-white rounded-2xl border border-[#E2E8F0] p-4 sm:p-5 shadow-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md flex flex-col justify-between active:bg-[#F8FAFC]"
+        class="bg-white/95 rounded-2xl border-2 border-[#BAE6FD] hover:border-amber-400 p-4 sm:p-5 shadow-md cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg flex flex-col justify-between active:bg-sky-50"
         :class="stat.border"
       >
         <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-[#475569]">
+          <span class="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-700">
             {{ stat.name }}
           </span>
-          <div class="h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center" :class="[stat.bg, stat.color]">
+          <div class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shadow-xs" :class="[stat.bg, stat.color]">
             <component :is="stat.icon" class="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
@@ -182,7 +181,7 @@ onMounted(async () => {
           <span class="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
             {{ stat.value }}
           </span>
-          <div class="flex items-center gap-1 text-[11px] font-bold text-[#1E3A8A] mt-1.5">
+          <div class="flex items-center gap-1 text-[11px] font-black text-sky-700 mt-1.5">
             <span>View section</span>
             <ArrowUpRight class="w-3.5 h-3.5" />
           </div>
@@ -194,30 +193,30 @@ onMounted(async () => {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
       
       <!-- Activity Feed (8 cols on desktop) -->
-      <div class="lg:col-span-8 bg-white rounded-2xl border border-[#E2E8F0] p-4 sm:p-6 shadow-sm flex flex-col">
-        <div class="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[#E2E8F0]">
-          <div class="flex items-center gap-2.5">
-            <div class="h-9 w-9 rounded-xl bg-[#EFF6FF] text-[#1E3A8A] flex items-center justify-center">
-              <Bell class="w-4 h-4" />
+      <div class="lg:col-span-8 bg-white/95 rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-6 shadow-md flex flex-col">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#BAE6FD]">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-sky-100 text-sky-800 flex items-center justify-center shadow-xs">
+              <Bell class="w-5 h-5" />
             </div>
             <div>
-              <h2 class="text-sm sm:text-base font-extrabold text-[#0F172A]">System Operational Feed</h2>
-              <p class="text-[11px] text-[#475569]">Recent teacher and administrative activities</p>
+              <h2 class="text-sm sm:text-base font-black text-[#0C4A6E]">System Operational Feed</h2>
+              <p class="text-xs font-bold text-slate-600">Recent teacher and administrative activities</p>
             </div>
           </div>
 
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-2">
             <button 
               @click="fetchActivityLogs" 
-              class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold text-[#334155] bg-[#F1F5F9] hover:bg-[#E2E8F0] border border-[#CBD5E1] transition-colors flex items-center gap-1"
+              class="px-3 py-1.5 rounded-lg text-xs font-black text-slate-800 bg-sky-50 hover:bg-sky-100 border border-[#BAE6FD] transition-colors flex items-center gap-1.5 shadow-xs"
             >
-              <Activity class="w-3.5 h-3.5 text-[#1E3A8A]" />
+              <Activity class="w-3.5 h-3.5 text-sky-700" />
               <span class="hidden sm:inline">Refresh</span>
             </button>
             <button 
               v-if="recentActivity.length" 
               @click="clearAllLogs" 
-              class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#991B1B] bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
+              class="px-3 py-1.5 rounded-lg text-xs font-black text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors shadow-xs"
             >
               <Trash2 class="w-3.5 h-3.5" />
             </button>
@@ -230,31 +229,31 @@ onMounted(async () => {
             <div
               v-for="item in recentActivity"
               :key="item.id"
-              class="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between gap-3 text-xs"
+              class="p-3.5 rounded-xl bg-sky-50/70 border border-[#BAE6FD] flex items-center justify-between gap-3 text-xs"
             >
-              <div class="space-y-0.5 min-w-0">
+              <div class="space-y-1 min-w-0">
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-white border border-[#CBD5E1] text-[#1E3A8A]">
+                  <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white border border-sky-300 text-sky-900 shadow-xs">
                     {{ item.type }}
                   </span>
-                  <span class="text-[11px] font-bold text-[#64748B]">{{ item.time }}</span>
+                  <span class="text-xs font-bold text-slate-600">{{ item.time }}</span>
                 </div>
-                <p class="font-bold text-[#0F172A] truncate">{{ item.text }}</p>
+                <p class="font-extrabold text-[#0F172A] truncate">{{ item.text }}</p>
               </div>
 
               <button
                 @click="deleteLog(item.id)"
-                class="p-1.5 rounded-lg text-[#64748B] hover:text-[#991B1B] transition-colors shrink-0"
+                class="p-1.5 rounded-lg text-slate-500 hover:text-red-700 hover:bg-red-50 transition-colors shrink-0"
                 title="Dismiss"
               >
-                <Trash2 class="w-3.5 h-3.5" />
+                <Trash2 class="w-4 h-4" />
               </button>
             </div>
           </template>
           <template v-else>
-            <div class="py-10 text-center text-[#64748B]">
-              <p class="text-xs sm:text-sm font-bold text-[#0F172A]">No recent activity recorded.</p>
-              <p class="text-xs mt-1">Actions performed by staff or administrators will appear here.</p>
+            <div class="py-12 text-center text-slate-600">
+              <p class="text-sm font-black text-[#0F172A]">No recent activity recorded.</p>
+              <p class="text-xs font-bold mt-1 text-slate-600">Actions performed by staff or administrators will appear here.</p>
             </div>
           </template>
         </div>
@@ -264,48 +263,48 @@ onMounted(async () => {
       <div class="lg:col-span-4 space-y-4">
         
         <!-- Result Broadsheet Card -->
-        <div class="bg-white rounded-2xl border border-[#E2E8F0] p-4 sm:p-5 shadow-sm space-y-3">
-          <div class="flex items-center gap-2.5">
-            <div class="h-9 w-9 rounded-xl bg-[#EFF6FF] text-[#1E3A8A] flex items-center justify-center shrink-0">
-              <FileCheck2 class="w-4 h-4" />
+        <div class="bg-white/95 rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-6 shadow-md space-y-3.5">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+              <FileCheck2 class="w-5 h-5" />
             </div>
             <div>
-              <h3 class="text-sm font-bold text-[#0F172A]">Terminal Broadsheet</h3>
-              <p class="text-[11px] text-[#475569]">Master results & grade publish</p>
+              <h3 class="text-sm font-black text-[#0C4A6E]">Terminal Broadsheet</h3>
+              <p class="text-xs font-bold text-slate-600">Master results & grade publish</p>
             </div>
           </div>
-          <p class="text-xs text-[#334155] leading-relaxed">
+          <p class="text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
             Review submitted scores across all Pre-Nursery, Primary, and Secondary classes, and release reports to parents.
           </p>
           <router-link
             to="/admin/broadsheet"
-            class="w-full py-2.5 px-3 rounded-xl bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-black flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95"
+            class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-800 text-white text-xs font-black flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
           >
             <span class="text-white">Open Master Broadsheet</span>
-            <ArrowUpRight class="w-3.5 h-3.5 text-white" />
+            <ArrowUpRight class="w-4 h-4 text-white" />
           </router-link>
         </div>
 
         <!-- Faculty Management Card -->
-        <div class="bg-white rounded-2xl border border-[#E2E8F0] p-4 sm:p-5 shadow-sm space-y-3">
-          <div class="flex items-center gap-2.5">
-            <div class="h-9 w-9 rounded-xl bg-[#ECFDF5] text-[#059669] flex items-center justify-center shrink-0">
-              <Users class="w-4 h-4" />
+        <div class="bg-white/95 rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-6 shadow-md space-y-3.5">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center justify-center shrink-0 shadow-xs">
+              <Users class="w-5 h-5" />
             </div>
             <div>
-              <h3 class="text-sm font-bold text-[#0F172A]">Faculty & Allocations</h3>
-              <p class="text-[11px] text-[#475569]">Teacher codes & classes</p>
+              <h3 class="text-sm font-black text-[#0C4A6E]">Faculty & Allocations</h3>
+              <p class="text-xs font-bold text-slate-600">Teacher codes & classes</p>
             </div>
           </div>
-          <p class="text-xs text-[#334155] leading-relaxed">
+          <p class="text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
             Assign form teachers, update subject allocations, and invite new educators with registration codes.
           </p>
           <router-link
             to="/admin/teachers"
-            class="w-full py-2.5 px-3 rounded-xl bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#CBD5E1] text-[#0F172A] text-xs font-black flex items-center justify-center gap-2 transition-all active:scale-95"
+            class="w-full py-3 px-4 rounded-xl bg-white hover:bg-sky-50 border-2 border-[#BAE6FD] text-[#0C4A6E] text-xs font-black flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
           >
             <span>Manage Faculty</span>
-            <ArrowUpRight class="w-3.5 h-3.5" />
+            <ArrowUpRight class="w-4 h-4" />
           </router-link>
         </div>
 

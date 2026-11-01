@@ -10,7 +10,7 @@ const menuItems = [
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-[#F8FAFC] text-[#1E293B] antialiased">
+  <div class="min-h-screen flex flex-col bg-transparent text-[#0F172A] antialiased">
     <Navbar portal="Student" :username="authStore.user?.displayName || authStore.user?.username || 'Student'" :menuItems="menuItems" />
     <main class="flex-grow p-3 sm:p-5 lg:p-6 overflow-x-hidden max-w-7xl mx-auto w-full">
       <router-view v-slot="{ Component }">

@@ -430,22 +430,22 @@ onMounted(fetchStudents)
 
 <template>
   <div class="bulk-report-page mx-auto max-w-7xl space-y-6 p-4 fade-in">
-    <div class="no-print flex flex-col gap-4 rounded-2xl border border-slate-700/60 bg-slate-950/90 p-4 shadow-xl shadow-black/20 lg:flex-row lg:items-center lg:justify-between">
+    <div class="no-print flex flex-col gap-4 rounded-2xl border-2 border-[#BAE6FD] bg-white p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
       <div class="flex items-center gap-4">
-        <button @click="router.back()" class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900/60 text-slate-200 transition hover:text-royal-purple border border-slate-700/60">
+        <button @click="router.back()" class="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-[#0C4A6E] transition hover:bg-sky-100 border border-sky-200">
           <ArrowLeft class="h-5 w-5" />
         </button>
         <div>
-          <h1 class="text-2xl font-black text-white">Bulk Result Printing</h1>
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ classInfo?.name || 'Class' }} Result Cards</p>
+          <h1 class="text-2xl font-black text-[#0C4A6E]">Bulk Result Printing</h1>
+          <p class="text-xs font-extrabold uppercase tracking-wider text-slate-600">{{ classInfo?.name || 'Class' }} Result Cards</p>
         </div>
       </div>
 
       <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
-        <select v-model="session" class="w-full sm:w-auto rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
+        <select v-model="session" class="w-full sm:w-auto rounded-xl bg-white px-4 py-2.5 text-xs font-black uppercase tracking-wider outline-none text-slate-900 border-2 border-[#BAE6FD]">
           <option v-for="s in generateSessionOptions().reverse()" :key="s" :value="s">{{ s }}</option>
         </select>
-        <select v-model="term" class="w-full sm:w-auto rounded-xl bg-slate-900/60 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none text-white border border-slate-700/60">
+        <select v-model="term" class="w-full sm:w-auto rounded-xl bg-white px-4 py-2.5 text-xs font-black uppercase tracking-wider outline-none text-slate-900 border-2 border-[#BAE6FD]">
           <option value="1st">First Term</option>
           <option value="2nd">Second Term</option>
           <option value="3rd">Third Term</option>
@@ -454,16 +454,16 @@ onMounted(fetchStudents)
           <option value="Third">Third</option>
         </select>
 
-        <button @click="notifyParents" :disabled="notifying || selectedCount === 0" class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-50">
-          <Loader2 v-if="notifying" class="h-4 w-4 animate-spin" />
-          <Mail v-else class="h-4 w-4" />
-          Email Parents
+        <button @click="notifyParents" :disabled="notifying || selectedCount === 0" class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition hover:bg-emerald-800 disabled:opacity-50">
+          <Loader2 v-if="notifying" class="h-4 w-4 animate-spin text-white" />
+          <Mail v-else class="h-4 w-4 text-white" />
+          <span>Email Parents</span>
         </button>
 
-        <button @click="handleExportPDF" :disabled="exportingPDF || selectedCount === 0" class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-rose-700 px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-rose-600 disabled:opacity-50">
-          <Loader2 v-if="exportingPDF" class="h-4 w-4 animate-spin" />
-          <Download v-else class="h-4 w-4" />
-          Export PDF
+        <button @click="handleExportPDF" :disabled="exportingPDF || selectedCount === 0" class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-rose-700 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition hover:bg-rose-800 disabled:opacity-50">
+          <Loader2 v-if="exportingPDF" class="h-4 w-4 animate-spin text-white" />
+          <Download v-else class="h-4 w-4 text-white" />
+          <span>Export PDF</span>
         </button>
       </div>
     </div>
@@ -526,54 +526,54 @@ onMounted(fetchStudents)
       </div>
 
       <div class="no-print grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div class="rounded-2xl border border-slate-700/60 bg-slate-950/90 p-5 shadow-sm">
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected Students</p>
-          <strong class="mt-2 block text-3xl font-black text-white">{{ selectedCount }}</strong>
+        <div class="rounded-2xl border-2 border-[#BAE6FD] bg-white p-5 shadow-sm">
+          <p class="text-[11px] font-black uppercase tracking-wider text-slate-600">Selected Students</p>
+          <strong class="mt-2 block text-3xl font-black text-[#0C4A6E]">{{ selectedCount }}</strong>
         </div>
-        <div class="rounded-2xl border border-emerald-700/50 bg-emerald-900/20 p-5 shadow-sm">
-          <p class="text-[10px] font-black uppercase tracking-widest text-emerald-300">Ready To Print</p>
-          <strong class="mt-2 block text-3xl font-black text-emerald-200">{{ clearedSelected.length }}</strong>
+        <div class="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 shadow-sm">
+          <p class="text-[11px] font-black uppercase tracking-wider text-emerald-800">Ready To Print</p>
+          <strong class="mt-2 block text-3xl font-black text-emerald-900">{{ clearedSelected.length }}</strong>
         </div>
-        <div class="rounded-2xl border border-amber-700/50 bg-amber-900/20 p-5 shadow-sm">
-          <p class="text-[10px] font-black uppercase tracking-widest text-amber-300">Fees Owing</p>
-          <strong class="mt-2 block text-3xl font-black text-amber-200">{{ owingSelected.length }}</strong>
+        <div class="rounded-2xl border-2 border-amber-300 bg-amber-50 p-5 shadow-sm">
+          <p class="text-[11px] font-black uppercase tracking-wider text-amber-800">Fees Owing</p>
+          <strong class="mt-2 block text-3xl font-black text-amber-900">{{ owingSelected.length }}</strong>
         </div>
       </div>
 
-      <div class="no-print rounded-2xl border border-slate-700/60 bg-slate-950/90 shadow-xl">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/60 p-4">
-          <p class="text-xs font-black uppercase tracking-widest text-slate-400">Choose students and mark fee status</p>
+      <div class="no-print rounded-2xl border-2 border-[#BAE6FD] bg-white shadow-sm overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-sky-100 p-4 bg-sky-50/50">
+          <p class="text-xs font-black uppercase tracking-wider text-[#0C4A6E]">Choose students and mark fee status</p>
           <div class="flex gap-2">
-            <button @click="selectAll" class="rounded-lg bg-slate-900/60 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white border border-slate-700/60">Select All</button>
-            <button @click="clearSelection" class="rounded-lg bg-slate-900/60 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white border border-slate-700/60">Clear</button>
+            <button @click="selectAll" class="rounded-lg bg-sky-700 hover:bg-sky-800 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-white shadow-sm transition">Select All</button>
+            <button @click="clearSelection" class="rounded-lg bg-slate-200 hover:bg-slate-300 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-slate-800 shadow-sm transition">Clear</button>
           </div>
         </div>
         <div class="max-h-[520px] overflow-auto">
           <table class="w-full text-left">
-            <thead class="sticky top-0 bg-slate-900/60">
+            <thead class="sticky top-0 bg-sky-100 border-b-2 border-sky-200">
               <tr>
-                <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Print</th>
-                <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Student</th>
-                <th class="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Fee Status</th>
+                <th class="px-5 py-3.5 text-xs font-black uppercase tracking-wider text-[#0C4A6E]">Print</th>
+                <th class="px-5 py-3.5 text-xs font-black uppercase tracking-wider text-[#0C4A6E]">Student</th>
+                <th class="px-5 py-3.5 text-xs font-black uppercase tracking-wider text-[#0C4A6E]">Fee Status</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-700/40">
-              <tr v-for="student in students" :key="student.studentId">
+            <tbody class="divide-y divide-sky-100 bg-white">
+              <tr v-for="student in students" :key="student.studentId" class="hover:bg-sky-50/60 transition">
                 <td class="px-5 py-4">
-                  <button @click="toggleStudent(student.studentId)" class="text-royal-purple">
-                    <CheckSquare v-if="selectedIds.has(student.studentId)" class="h-5 w-5" />
-                    <Square v-else class="h-5 w-5" />
+                  <button @click="toggleStudent(student.studentId)" class="text-sky-700">
+                    <CheckSquare v-if="selectedIds.has(student.studentId)" class="h-5 w-5 text-sky-700" />
+                    <Square v-else class="h-5 w-5 text-slate-400" />
                   </button>
                 </td>
                 <td class="px-5 py-4">
-                  <p class="text-sm font-black text-white">{{ student.lastName }} {{ student.firstName }}</p>
-                  <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ student.studentId }}</p>
+                  <p class="text-sm font-black text-slate-900">{{ student.lastName }} {{ student.firstName }}</p>
+                  <p class="text-xs font-bold uppercase tracking-wider text-slate-600">{{ student.studentId }}</p>
                 </td>
                 <td class="px-5 py-4">
                   <button
                     @click="toggleOwing(student.studentId)"
-                    class="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest"
-                    :class="isOwing(student) ? 'bg-amber-700/20 text-amber-200 border border-amber-700/30' : 'bg-emerald-700/20 text-emerald-200 border border-emerald-700/30'"
+                    class="rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider transition"
+                    :class="isOwing(student) ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'"
                   >
                     {{ isOwing(student) ? 'Owing Fees' : 'Fees Cleared' }}
                   </button>

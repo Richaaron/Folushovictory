@@ -145,16 +145,16 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F8FAFC] flex flex-col justify-center py-6 px-4 sm:px-6 lg:px-8 text-[#1E293B] antialiased">
+  <div class="min-h-screen bg-transparent flex flex-col justify-center py-6 px-4 sm:px-6 lg:px-8 text-[#0F172A] antialiased">
     
     <!-- Top Back Link -->
     <div class="mx-auto w-full max-w-md mb-4 flex items-center justify-between">
-      <router-link to="/" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E3A8A] hover:underline transition-colors">
+      <router-link to="/" class="inline-flex items-center gap-1.5 text-xs font-black text-[#0C4A6E] hover:text-amber-700 hover:underline transition-colors">
         <ArrowLeft class="w-4 h-4" />
         Return to Home
       </router-link>
-      <span class="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
-        Secure Authentication
+      <span class="text-[11px] font-black uppercase tracking-wider text-amber-900 bg-amber-100/90 border border-amber-300 px-2.5 py-0.5 rounded-full">
+        Secure Portal
       </span>
     </div>
 
@@ -162,16 +162,16 @@ const handleLogin = async () => {
     <div class="mx-auto w-full max-w-md">
       
       <!-- Responsive Portal Selector Tabs (2x2 on mobile, row on tablet) -->
-      <div class="bg-white p-1.5 rounded-2xl border border-[#E2E8F0] shadow-sm mb-4 grid grid-cols-2 sm:grid-cols-4 gap-1">
+      <div class="bg-white/95 p-1.5 rounded-2xl border-2 border-[#BAE6FD] shadow-md mb-4 grid grid-cols-2 sm:grid-cols-4 gap-1.5">
         <button
           v-for="key in portalKeys"
           :key="key"
           @click="selectPortal(key)"
-          class="py-2.5 px-2 rounded-xl text-xs font-bold capitalize transition-all duration-150 flex items-center justify-center gap-1.5"
+          class="py-2.5 px-2 rounded-xl text-xs font-extrabold capitalize transition-all duration-150 flex items-center justify-center gap-1.5"
           :class="[
             portal === key 
               ? portalConfig[key].activeTabClass 
-              : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
+              : 'text-slate-700 hover:bg-sky-50 hover:text-sky-900 font-bold'
           ]"
         >
           <component :is="portalConfig[key].icon" class="w-4 h-4 shrink-0" />
@@ -180,18 +180,18 @@ const handleLogin = async () => {
       </div>
 
       <!-- Main Login Card -->
-      <div class="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 shadow-sm">
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl border-2 border-[#BAE6FD] p-6 sm:p-8 shadow-xl">
         
         <!-- School Crest & Header -->
         <div class="text-center mb-6">
-          <div class="mx-auto h-14 w-14 rounded-2xl bg-white p-1 border border-[#E2E8F0] shadow-sm flex items-center justify-center mb-3">
+          <div class="mx-auto h-16 w-16 rounded-2xl bg-white p-1 border-2 border-amber-300 shadow-md flex items-center justify-center mb-3">
             <img src="/logo.png" alt="Folusho Victory Schools" class="h-full w-full object-contain" />
           </div>
           
-          <h1 class="text-xl sm:text-2xl font-black text-[#0F172A]">
+          <h1 class="text-xl sm:text-2xl font-black text-[#0C4A6E]">
             {{ currentConfig.title }}
           </h1>
-          <p class="text-xs text-[#475569] font-medium mt-1">
+          <p class="text-xs sm:text-sm text-slate-700 font-extrabold mt-1">
             {{ currentConfig.roleSubtitle }}
           </p>
         </div>
@@ -199,7 +199,7 @@ const handleLogin = async () => {
         <!-- Error Message Alert -->
         <div
           v-if="error"
-          class="mb-4 flex items-start gap-2.5 rounded-xl border border-red-300 bg-red-50 p-3.5 text-xs font-bold text-red-900"
+          class="mb-4 flex items-start gap-2.5 rounded-xl border-2 border-red-300 bg-red-50 p-3.5 text-xs font-bold text-red-900"
         >
           <AlertCircle class="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
           <span>{{ error }}</span>
@@ -208,7 +208,7 @@ const handleLogin = async () => {
         <!-- Teacher Setup Prompt -->
         <div 
           v-if="needSignup && portal === 'teacher'" 
-          class="mb-4 text-xs font-bold text-amber-900 bg-amber-50 border border-amber-300 rounded-xl p-3"
+          class="mb-4 text-xs font-bold text-amber-900 bg-amber-50 border-2 border-amber-300 rounded-xl p-3"
         >
           Your teacher invitation code needs registration. 
           <router-link to="/register/teacher" class="underline font-black text-amber-950 ml-1">
@@ -221,18 +221,18 @@ const handleLogin = async () => {
           
           <!-- Username / Admission Number -->
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-[#0F172A] mb-1.5">
+            <label class="block text-xs font-black uppercase tracking-wider text-[#0F172A] mb-1.5">
               {{ portal === 'student' ? 'Admission Number' : portal === 'teacher' ? 'Email or Teacher Code' : 'Email or Username' }}
             </label>
             <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#64748B]">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                 <User class="h-4 w-4" />
               </div>
               <input
                 v-model="username"
                 type="text"
                 required
-                class="w-full pl-10 pr-3 py-2.5 bg-white border border-[#CBD5E1] rounded-xl text-base text-[#0F172A] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 placeholder:text-[#94A3B8] transition-all"
+                class="w-full pl-10 pr-3 py-2.5 bg-white border-2 border-slate-300 rounded-xl text-base font-bold text-[#0F172A] focus:outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-500/20 placeholder:text-slate-400 transition-all shadow-sm"
                 :placeholder="currentConfig.placeholderUser"
               />
             </div>
@@ -241,12 +241,12 @@ const handleLogin = async () => {
           <!-- Password / 8-digit PIN -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <label class="block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+              <label class="block text-xs font-black uppercase tracking-wider text-[#0F172A]">
                 {{ portal === 'student' ? '8-Digit Student PIN' : 'Password' }}
               </label>
             </div>
             <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#64748B]">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                 <Lock class="h-4 w-4" />
               </div>
               <input
@@ -256,14 +256,14 @@ const handleLogin = async () => {
                 :maxlength="portal === 'student' ? 8 : undefined"
                 :pattern="portal === 'student' ? '[0-9]{8}' : undefined"
                 required
-                class="w-full pl-10 pr-10 py-2.5 bg-white border border-[#CBD5E1] rounded-xl text-base text-[#0F172A] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 placeholder:text-[#94A3B8] transition-all"
+                class="w-full pl-10 pr-10 py-2.5 bg-white border-2 border-slate-300 rounded-xl text-base font-bold text-[#0F172A] focus:outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-500/20 placeholder:text-slate-400 transition-all shadow-sm"
                 :placeholder="portal === 'student' ? 'Enter your 8-digit PIN' : 'Enter your password'"
               />
               <button
                 v-if="portal !== 'student'"
                 type="button"
                 @click="passwordVisible = !passwordVisible"
-                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#64748B] hover:text-[#0F172A]"
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-900"
                 tabindex="-1"
               >
                 <Eye v-if="!passwordVisible" class="h-4 w-4" />
@@ -276,7 +276,7 @@ const handleLogin = async () => {
           <button
             type="submit"
             :disabled="loading"
-            class="w-full py-3 px-4 rounded-xl text-sm font-extrabold text-white flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 mt-2"
+            class="w-full py-3 px-4 rounded-xl text-sm font-black text-white flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 mt-2"
             :class="[currentConfig.btnBg, loading ? 'opacity-70 cursor-not-allowed' : '']"
           >
             <Loader2 v-if="loading" class="h-4 w-4 animate-spin text-white" />
@@ -285,10 +285,10 @@ const handleLogin = async () => {
         </form>
 
         <!-- Help Link -->
-        <div class="mt-5 pt-4 border-t border-[#E2E8F0] text-center">
+        <div class="mt-5 pt-4 border-t border-slate-200 text-center">
           <router-link 
             :to="`/forgot-password/${portal}`" 
-            class="text-xs font-bold text-[#1E3A8A] hover:underline transition-colors"
+            class="text-xs font-black text-sky-800 hover:text-amber-700 hover:underline transition-colors"
           >
             {{ portal === 'student' ? 'Forgot your 8-digit student PIN?' : 'Forgot password or need help signing in?' }}
           </router-link>
@@ -298,7 +298,7 @@ const handleLogin = async () => {
 
       <!-- Security Notice -->
       <div class="mt-4 text-center">
-        <p class="text-xs font-medium text-[#64748B]">
+        <p class="text-xs font-bold text-slate-800">
           Folusho Victory Schools • Official Academic System
         </p>
       </div>

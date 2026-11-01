@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { ShieldCheck, UserCheck, GraduationCap, Users, ArrowLeft } from 'lucide-vue-next'
 
 type PortalKey = 'admin' | 'teacher' | 'parent' | 'student'
 
@@ -13,32 +14,37 @@ const portal = computed<PortalKey>(() => {
 
 const portalMeta: Record<PortalKey, {
   title: string
-  emoji: string
+  icon: any
+  badge: string
   helpText: string
   cta: string
 }> = {
   admin: {
     title: 'Administrator',
-    emoji: '🛡️',
-    helpText: 'Lost your staff credential? Ask the IT administrator to initiate a secure account reset for your admin portal access.',
+    icon: ShieldCheck,
+    badge: 'IT Administration',
+    helpText: 'Lost your staff credential? Ask the school IT administrator or board to initiate a secure account reset for your administrative portal access.',
     cta: 'Return to Admin Login'
   },
   teacher: {
     title: 'Academic Staff',
-    emoji: '📚',
-    helpText: 'Need a new staff passphrase? Contact your admin office to refresh your teacher access code securely.',
+    icon: UserCheck,
+    badge: 'Faculty Access',
+    helpText: 'Need a new staff passphrase? Contact your school administration office to refresh your teacher access code securely.',
     cta: 'Return to Teacher Login'
   },
   parent: {
-    title: 'Parent/Guardian',
-    emoji: '👪',
-    helpText: 'If you forgot your Parent Access Code, contact the school office for a verified recovery path.',
+    title: 'Parent / Guardian',
+    icon: Users,
+    badge: 'Family Portal',
+    helpText: 'If you forgot your Parent Access Code or Student ID link, please contact the administrative registry for a verified recovery path.',
     cta: 'Return to Parent Login'
   },
   student: {
-    title: 'Student',
-    emoji: '🎓',
-    helpText: 'Forgot your student PIN? Ask your school administrator to reset it. Your admission number alone cannot be used to access your account.',
+    title: 'Student Portal',
+    icon: GraduationCap,
+    badge: 'Learner Account',
+    helpText: 'Forgot your student PIN? Ask your form teacher or school administrator to reset it. Your admission number alone cannot be used to unlock your portal.',
     cta: 'Return to Student Login'
   }
 }
@@ -47,40 +53,59 @@ const current = computed(() => portalMeta[portal.value])
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#020617] px-3 sm:px-4 py-8 sm:py-12">
-    <div class="w-full max-w-lg space-y-8">
-      <div class="rounded-[2rem] bg-white dark:bg-slate-950/95 border border-slate-200/70 dark:border-slate-800 shadow-2xl p-8 sm:p-10">
-        <div class="text-center space-y-4">
-          <div class="mx-auto inline-flex items-center justify-center h-16 w-16 rounded-3xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-inner">
-            <span class="text-2xl">{{ current.emoji }}</span>
+  <div class="min-h-screen flex items-center justify-center bg-transparent px-4 py-8 sm:py-12">
+    <div class="w-full max-w-lg space-y-6">
+      
+      <!-- Recovery Card -->
+      <div class="bg-white rounded-3xl border-2 border-[#BAE6FD] shadow-xl shadow-sky-900/10 p-6 sm:p-10 space-y-6">
+        
+        <!-- Header -->
+        <div class="text-center space-y-3">
+          <div class="mx-auto inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-sky-100 border border-sky-300 text-sky-800 shadow-sm">
+            <component :is="current.icon" class="w-8 h-8 text-sky-800" />
           </div>
-          <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+
+          <div class="inline-block px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-black uppercase tracking-wider">
+            {{ current.badge }}
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl font-black text-[#0C4A6E] tracking-tight">
             {{ current.title }} Recovery
           </h1>
-          <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed">
+
+          <p class="text-sm sm:text-base font-medium text-slate-700 leading-relaxed max-w-md mx-auto">
             {{ current.helpText }}
           </p>
         </div>
 
-        <div class="mt-8 grid gap-4 sm:grid-cols-[1fr_auto] items-center">
-          <div class="rounded-2xl bg-slate-50 dark:bg-slate-900 p-6 border border-slate-200 dark:border-slate-800">
-            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300">
-              For added security, recover access through your school administration. This portal is reserved for role-based account support.
-            </p>
-          </div>
+        <!-- Security Notice -->
+        <div class="rounded-2xl bg-sky-50/80 border border-sky-200 p-5 space-y-2">
+          <p class="text-xs font-black uppercase tracking-wider text-sky-900">
+            Verified School Protocol
+          </p>
+          <p class="text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed">
+            For maximum student data protection, credentials cannot be reset via unverified emails. Please visit or contact the Folusho Victory administrative office.
+          </p>
+        </div>
+
+        <!-- Action Button -->
+        <div class="pt-2">
           <router-link
             :to="`/login/${portal}`"
-            class="inline-flex items-center justify-center rounded-full bg-nebula-600 text-white px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] shadow-lg hover:bg-nebula-700 transition"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-sky-700 hover:bg-sky-800 active:bg-sky-900 text-white font-black text-sm uppercase tracking-wider py-3.5 px-6 shadow-md transition-all"
           >
-            {{ current.cta }}
+            <ArrowLeft class="w-4 h-4 text-white" />
+            <span>{{ current.cta }}</span>
           </router-link>
         </div>
       </div>
 
-      <div class="text-center text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 uppercase tracking-[0.25em]">
-        <p>Role-aware recovery support</p>
-        <p class="mt-2">Return to login for your selected portal anytime.</p>
+      <!-- Footer Info -->
+      <div class="text-center space-y-1 text-xs font-bold text-slate-700">
+        <p class="tracking-wide">FOLUSHO VICTORY COLLEGE • SECURE ACCESS</p>
+        <p class="text-slate-600 font-medium">Return to login for your designated portal anytime.</p>
       </div>
+
     </div>
   </div>
 </template>

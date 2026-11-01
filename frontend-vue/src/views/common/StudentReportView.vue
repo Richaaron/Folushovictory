@@ -109,17 +109,17 @@ onMounted(fetchData)
 <template>
   <div class="mx-auto max-w-7xl space-y-6 p-4 fade-in report-screen">
     <!-- Action Bar -->
-    <div class="no-print sticky top-0 z-50 flex items-center justify-between rounded-2xl border border-gray-700/50 bg-gray-900/90 p-4 shadow-xl backdrop-blur-xl">
-      <button @click="$router.back()" class="flex items-center gap-2 text-sm font-medium text-gray-300 transition-all hover:text-purple-400">
-        <ArrowLeft class="h-5 w-5" /> Back
+    <div class="no-print sticky top-0 z-50 flex items-center justify-between rounded-2xl border-2 border-[#BAE6FD] bg-white/95 p-4 shadow-md backdrop-blur-md">
+      <button @click="$router.back()" class="flex items-center gap-2 text-sm font-black text-slate-800 transition-all hover:text-sky-700">
+        <ArrowLeft class="h-5 w-5 text-sky-700" /> <span>Back</span>
       </button>
 
       <button
         v-if="data"
         @click="printReport"
-        class="flex items-center gap-2 rounded-xl bg-[#1B2A4A] px-4 py-2 text-xs font-black uppercase tracking-widest text-[#C9A84C] border border-[#C9A84C]/30 hover:bg-[#C9A84C]/15 transition-all shadow-md"
+        class="flex items-center gap-2 rounded-xl bg-sky-700 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-sky-800 active:bg-sky-900 transition-all shadow-md"
       >
-        <Printer class="h-4 w-4" /> Save PDF / Print
+        <Printer class="h-4 w-4 text-white" /> <span>Save PDF / Print</span>
       </button>
     </div>
 
