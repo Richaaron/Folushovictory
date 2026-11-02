@@ -56,10 +56,10 @@ const isSelected = (subjectId: string) => props.modelValue.includes(subjectId)
 
 const levelColor = (level: string) => {
   const normalized = normalizeLevel(level)
-  if (normalized === 'Primary') return 'text-emerald-400 border-emerald-900 bg-emerald-950/30'
-  if (normalized === 'JSS') return 'text-blue-400 border-blue-900 bg-blue-950/30'
-  if (normalized === 'SSS') return 'text-purple-400 border-purple-900 bg-purple-950/30'
-  return 'text-slate-400 border-slate-700 bg-slate-800/50'
+  if (normalized === 'Primary') return 'text-emerald-800 border-emerald-300 bg-emerald-50'
+  if (normalized === 'JSS') return 'text-sky-800 border-sky-300 bg-sky-50'
+  if (normalized === 'SSS') return 'text-purple-800 border-purple-300 bg-purple-50'
+  return 'text-slate-700 border-slate-300 bg-slate-100'
 }
 const selectAll = () => {
   const ids = new Set([...props.modelValue, ...filteredSubjects.value.map(s => s.id)])
@@ -78,26 +78,26 @@ const deselectAll = () => {
     <!-- Search bar & Batch actions -->
     <div class="flex flex-col sm:flex-row gap-2">
       <div class="relative flex-grow">
-        <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+        <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-700" />
         <input
           v-model="search"
           type="text"
           placeholder="Search subjects..."
-          class="w-full pl-9 pr-4 py-2.5 bg-slate-900/60 border border-slate-700/60 rounded-xl text-sm text-white placeholder-slate-500 outline-none focus:border-royal-purple/50 transition-colors"
+          class="w-full pl-9 pr-4 py-2.5 bg-sky-50 text-slate-900 border-2 border-sky-200 rounded-xl text-sm font-medium placeholder-slate-400 outline-none focus:border-sky-600 focus:bg-white transition-colors"
         />
       </div>
       <div class="flex gap-2">
         <button
           type="button"
           @click="selectAll"
-          class="px-3 py-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex-1 sm:flex-none"
+          class="px-3 py-2 bg-white hover:bg-sky-50 border-2 border-sky-200 text-sky-900 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors flex-1 sm:flex-none shadow-2xs active:scale-95"
         >
           Select All
         </button>
         <button
           type="button"
           @click="deselectAll"
-          class="px-3 py-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex-1 sm:flex-none"
+          class="px-3 py-2 bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors flex-1 sm:flex-none shadow-2xs active:scale-95"
         >
           Clear
         </button>
@@ -106,17 +106,17 @@ const deselectAll = () => {
 
     <!-- Count badge -->
     <div class="flex items-center justify-between px-1">
-      <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">
+      <span class="text-[10px] font-black uppercase tracking-wider text-slate-600">
         {{ filteredSubjects.length }} subject{{ filteredSubjects.length !== 1 ? 's' : '' }} available
       </span>
-      <span class="text-[9px] font-black uppercase tracking-widest text-royal-purple">
+      <span class="text-[10px] font-black uppercase tracking-wider text-sky-800">
         {{ modelValue.length }} selected
       </span>
     </div>
 
     <!-- Subject grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto custom-modal-scrollbar pr-1.5 rounded-xl bg-slate-900/40 border border-slate-700/50 p-3">
-      <div v-if="filteredSubjects.length === 0" class="col-span-2 py-8 text-center text-slate-500 text-sm font-bold">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto custom-modal-scrollbar pr-1.5 rounded-2xl bg-sky-50/40 border-2 border-sky-100 p-2.5">
+      <div v-if="filteredSubjects.length === 0" class="col-span-2 py-8 text-center text-slate-500 text-xs font-bold">
         No subjects found.
       </div>
       <button
@@ -125,29 +125,29 @@ const deselectAll = () => {
         type="button"
         @click="toggle(subject.id)"
         :class="[
-          'flex items-center gap-3 p-3 rounded-xl border text-left transition-all duration-150',
+          'flex items-center gap-2.5 p-2.5 rounded-xl border-2 text-left transition-all duration-150',
           isSelected(subject.id)
-            ? 'bg-royal-purple/15 border-royal-purple/40 text-white'
-            : 'bg-slate-900/40 border-slate-700/50 text-slate-300 hover:border-slate-500 hover:bg-slate-800/40'
+            ? 'bg-sky-100/90 border-sky-500 text-sky-950 font-black shadow-2xs'
+            : 'bg-white border-slate-200 text-slate-800 hover:border-sky-300'
         ]"
       >
         <!-- Checkbox indicator -->
         <div :class="[
-          'h-5 w-5 rounded-md flex-shrink-0 flex items-center justify-center border transition-all',
+          'h-5 w-5 rounded-md flex-shrink-0 flex items-center justify-center border-2 transition-all',
           isSelected(subject.id)
-            ? 'bg-royal-purple border-royal-purple'
-            : 'border-slate-600 bg-transparent'
+            ? 'bg-sky-700 border-sky-700 text-white'
+            : 'border-slate-300 bg-white'
         ]">
-          <Check v-if="isSelected(subject.id)" class="w-3 h-3 text-white" />
+          <Check v-if="isSelected(subject.id)" class="w-3.5 h-3.5 text-white stroke-[3]" />
         </div>
         <!-- Subject info -->
         <div class="min-w-0">
-          <p class="text-xs font-black truncate">{{ subject.name }}</p>
+          <p class="text-xs font-black truncate leading-tight">{{ subject.name }}</p>
           <div class="flex gap-1 mt-0.5">
-            <span :class="['text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border', levelColor(subject.level)]">
+            <span :class="['text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border', levelColor(subject.level)]">
               {{ subject.level }}
             </span>
-            <span v-if="subject.track && subject.track !== 'General'" class="text-[8px] font-black uppercase tracking-widest text-slate-500 px-1.5 py-0.5 rounded border border-slate-700">
+            <span v-if="subject.track && subject.track !== 'General'" class="text-[8px] font-black uppercase tracking-wider text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300">
               {{ subject.track }}
             </span>
           </div>

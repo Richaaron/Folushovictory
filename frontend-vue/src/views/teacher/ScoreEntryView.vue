@@ -173,6 +173,10 @@ const fetchStudents = async () => {
     
     let filteredStudents = studentsResp.data.students || []
     
+    const subjNameUpper = (subjectName || '').toUpperCase()
+    const isCRS = subjNameUpper.includes('CHRISTIAN') || subjNameUpper === 'CRS' || subjNameUpper === 'CRK'
+    const isIRS = subjNameUpper.includes('ISLAMIC') || subjNameUpper === 'IRS' || subjNameUpper === 'IRK'
+
     if (classLevel === 'SSS') {
       const coreGeneralSubjects = [
         'Mathematics', 'English Language', 'Marketing', 
@@ -184,21 +188,19 @@ const fetchStudents = async () => {
         'Commercial': ['Financial Accounting', 'Commerce']
       }
       
-      const subjNameUpper = (subjectName || '').toUpperCase()
       const isCore = coreGeneralSubjects.some(s => s.toUpperCase() === subjNameUpper)
       
       if (!isCore) {
         filteredStudents = filteredStudents.filter((student: any) => {
-          const studentSubjects = student.subjectIds || []
+          const studentSubjects = Array.isArray(student.subjectIds) ? student.subjectIds : []
+          // 1. Explicitly registered elective / subject
           if (studentSubjects.includes(subjectId)) return true
           
-          const classSubjects = cls.subjectIds || []
-          if (classSubjects.includes(subjectId)) return true
-          
-          const studentStream = student.stream || cls.track || ''
+          // 2. Stream-based allocation for track subjects
+          const studentStream = String(student.stream || cls.track || '').toUpperCase()
           let streamMatch = false
           Object.entries(trackSubjectNames).forEach(([track, subjects]) => {
-            if (studentStream.toUpperCase() === track.toUpperCase()) {
+            if (studentStream === track.toUpperCase()) {
               if (subjects.some(s => s.toUpperCase() === subjNameUpper)) {
                 streamMatch = true
               }
@@ -208,6 +210,14 @@ const fetchStudents = async () => {
           return streamMatch
         })
       }
+    } else if (isCRS || isIRS) {
+      // Religious Studies filter for JSS / Primary classes
+      filteredStudents = filteredStudents.filter((student: any) => {
+        const studentSubjects = Array.isArray(student.subjectIds) ? student.subjectIds : []
+        if (studentSubjects.includes(subjectId)) return true
+        if (studentSubjects.length > 0) return false
+        return true
+      })
     }
 
     students.value = filteredStudents.map((s: any) => ({
@@ -361,13 +371,25 @@ const handleSave = async () => {
   success.value = false
   error.value = ''
   
-  const scores = students.value.map(s => ({
-    studentId: s.studentId,
-    ca1: isNurseryClass.value ? 0 : clampCA(s.ca1),
-    ca2: isNurseryClass.value ? 0 : clampCA(s.ca2),
-    exam: clampExam(s.exam)
-  }))
-  savedCount.value = scores.filter(s => s.ca1 > 0 || s.ca2 > 0 || s.exam > 0).length
+  // Only submit scores for students who have at least one score entered
+  const scores = students.value
+    .filter(s => (s.ca1 !== '' && s.ca1 !== undefined && s.ca1 !== null) ||
+                 (s.ca2 !== '' && s.ca2 !== undefined && s.ca2 !== null) ||
+                 (s.exam !== '' && s.exam !== undefined && s.exam !== null))
+    .map(s => ({
+      studentId: s.studentId,
+      ca1: isNurseryClass.value ? 0 : clampCA(s.ca1),
+      ca2: isNurseryClass.value ? 0 : clampCA(s.ca2),
+      exam: clampExam(s.exam)
+    }))
+
+  if (scores.length === 0) {
+    error.value = 'Please enter assessment or examination scores for at least one student before publishing.'
+    saving.value = false
+    return
+  }
+
+  savedCount.value = scores.length
 
   if (isOffline.value) {
     saveDraftLocally()
