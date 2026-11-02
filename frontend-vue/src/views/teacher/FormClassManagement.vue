@@ -285,6 +285,10 @@ watch([session, term], () => {
   if (academicSettingsLoaded.value) fetchStudents()
 })
 
+const setPresetRemark = (student: any, text: string) => {
+  student.remark = text
+}
+
 onMounted(async () => {
   await Promise.all([initializeAcademicPeriod(), fetchSubjects()])
 })
@@ -301,202 +305,334 @@ onMounted(async () => {
         {{ releaseError }}
       </div>
     </div>
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-      <div class="flex items-center gap-4">
-        <button @click="router.back()" class="h-12 w-12 rounded-2xl bg-slate-900/60 border border-slate-700/60 shadow-sm flex items-center justify-center text-slate-200 hover:text-royal-purple transition-all">
-          <ArrowLeft class="w-5 h-5" />
+    <div class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-6 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+      <div class="flex items-center gap-4 min-w-0">
+        <button @click="router.back()" class="h-11 w-11 rounded-xl bg-sky-50 border border-sky-200 shadow-sm flex items-center justify-center text-[#0C4A6E] hover:bg-sky-100 transition-all shrink-0">
+          <ArrowLeft class="w-5 h-5 text-sky-800" />
         </button>
-        <div>
-          <h1 class="text-3xl font-black text-white tracking-tight">Class Management</h1>
-          <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">{{ className }} • Form Teacher Oversight</p>
+        <div class="min-w-0">
+          <h1 class="text-xl sm:text-2xl font-black text-[#0C4A6E] tracking-tight truncate">Class Management & Results</h1>
+          <p class="text-xs font-bold text-slate-600 uppercase tracking-wider mt-0.5 truncate">{{ className }} • Form Teacher Oversight</p>
         </div>
       </div>
       
-      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-4 w-full md:w-auto">
+      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
         <!-- Session + Term Selectors -->
-        <select v-model="session" class="w-full sm:w-auto px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
+        <select v-model="session" class="w-full sm:w-auto px-3.5 py-2.5 bg-white text-slate-900 border-2 border-slate-300 rounded-xl text-xs font-black uppercase tracking-wider outline-none shadow-xs">
           <option v-for="s in sessionOptions" :key="s" :value="s">{{ s }}</option>
         </select>
-        <select v-model="term" class="w-full sm:w-auto px-4 py-3 bg-slate-900/60 text-white border-none rounded-xl text-xs font-black uppercase tracking-widest outline-none shadow-sm">
+        <select v-model="term" class="w-full sm:w-auto px-3.5 py-2.5 bg-white text-slate-900 border-2 border-slate-300 rounded-xl text-xs font-black uppercase tracking-wider outline-none shadow-xs">
           <option>First</option>
           <option>Second</option>
           <option>Third</option>
         </select>
+
         <button
           @click="router.push({ name: 'bulk-reports', params: { classId }, query: { session, term } })"
-          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple"
+          class="w-full sm:w-auto justify-center flex items-center gap-2 rounded-xl bg-white border-2 border-[#BAE6FD] hover:bg-sky-50 px-3.5 py-2.5 text-xs font-black uppercase tracking-wider text-[#0C4A6E] shadow-sm transition"
         >
-          <Printer class="w-4 h-4" />
-          Bulk Results
+          <Printer class="w-4 h-4 text-sky-800" />
+          <span>Bulk Reports</span>
         </button>
+
         <button
           @click="router.push({ name: 'teacher-broadsheet', params: { classId }, query: { className, session, term } })"
-          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple"
+          class="w-full sm:w-auto justify-center flex items-center gap-2 rounded-xl bg-white border-2 border-[#BAE6FD] hover:bg-sky-50 px-3.5 py-2.5 text-xs font-black uppercase tracking-wider text-[#0C4A6E] shadow-sm transition"
         >
-          <BarChart3 class="w-4 h-4" />
-          Broadsheet
+          <BarChart3 class="w-4 h-4 text-sky-800" />
+          <span>Broadsheet</span>
         </button>
+
         <button 
           v-if="canAddStudents && isCurrentSession"
           @click="openAddStudentModal"
-          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl purple-gradient px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-purple-200 dark:shadow-purple-900/30 transition hover:scale-105 active:scale-95"
+          class="w-full sm:w-auto justify-center flex items-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition active:scale-95"
         >
-          <UserPlus class="w-4 h-4" />
-          Add Student
+          <UserPlus class="w-4 h-4 text-white" />
+          <span>Add Student</span>
         </button>
+
         <button 
           @click="showSubjectModal = true"
-          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-6 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple"
+          class="w-full sm:w-auto justify-center flex items-center gap-2 rounded-xl bg-white border-2 border-[#BAE6FD] hover:bg-sky-50 px-3.5 py-2.5 text-xs font-black uppercase tracking-wider text-[#0C4A6E] shadow-sm transition"
         >
-          <BookOpen class="w-4 h-4" />
-          Subjects
+          <BookOpen class="w-4 h-4 text-sky-800" />
+          <span>Subjects</span>
         </button>
+
         <button 
           @click="saveAllRemarks"
           :disabled="saving"
-          class="w-full sm:w-auto justify-center flex items-center gap-3 rounded-2xl bg-slate-900/60 border border-slate-700/60 px-8 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:text-royal-purple disabled:opacity-50"
+          class="hidden sm:flex items-center gap-2 rounded-xl bg-sky-700 hover:bg-sky-800 active:bg-sky-900 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition disabled:opacity-50"
         >
-          <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-          <Save v-else class="w-4 h-4" /> 
-          {{ saving ? 'Saving...' : 'Save Remarks' }}
+          <Loader2 v-if="saving" class="w-4 h-4 animate-spin text-white" />
+          <Save v-else class="w-4 h-4 text-white" /> 
+          <span>{{ saving ? 'Saving...' : 'Save Remarks' }}</span>
         </button>
       </div>
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="academic-card rounded-3xl p-8 flex items-center gap-6">
-        <div class="h-14 w-14 rounded-2xl bg-slate-900/60 border border-slate-700/60 text-blue-400 flex items-center justify-center">
-          <Users class="w-7 h-7" />
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 shadow-sm flex items-center gap-4">
+        <div class="h-12 w-12 rounded-xl bg-sky-100 border border-sky-300 text-sky-800 flex items-center justify-center shrink-0">
+          <Users class="w-6 h-6 text-sky-800" />
         </div>
         <div>
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Students</p>
-          <p class="text-2xl font-black text-white">{{ students.length }}</p>
+          <p class="text-[11px] font-black text-slate-600 uppercase tracking-wider">Total Students</p>
+          <p class="text-2xl font-black text-[#0C4A6E]">{{ students.length }}</p>
         </div>
       </div>
-        <div class="academic-card rounded-3xl p-8 flex items-center gap-6">
-        <div class="h-14 w-14 rounded-2xl bg-slate-900/60 border border-slate-700/60 text-amber-400 flex items-center justify-center">
-          <MessageSquare class="w-7 h-7" />
+      <div class="bg-white rounded-2xl border-2 border-amber-300 p-5 shadow-sm flex items-center gap-4">
+        <div class="h-12 w-12 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0">
+          <MessageSquare class="w-6 h-6 text-amber-800" />
         </div>
         <div>
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Remarks Pending</p>
-          <p class="text-2xl font-black text-white">{{ students.filter(s => !s.remark).length }}</p>
+          <p class="text-[11px] font-black text-amber-800 uppercase tracking-wider">Remarks Pending</p>
+          <p class="text-2xl font-black text-amber-900">{{ students.filter(s => !s.remark).length }}</p>
         </div>
       </div>
-        <div class="academic-card rounded-3xl p-8 flex items-center gap-6">
-        <div class="h-14 w-14 rounded-2xl bg-slate-900/60 border border-slate-700/60 text-emerald-400 flex items-center justify-center">
-          <FileText class="w-7 h-7" />
+      <div class="bg-white rounded-2xl border-2 border-emerald-300 p-5 shadow-sm flex items-center gap-4">
+        <div class="h-12 w-12 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center shrink-0">
+          <FileText class="w-6 h-6 text-emerald-800" />
         </div>
         <div>
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Results Released</p>
-          <p class="text-2xl font-black text-white">{{ students.filter(s => s.released).length }}</p>
+          <p class="text-[11px] font-black text-emerald-800 uppercase tracking-wider">Results Released</p>
+          <p class="text-2xl font-black text-emerald-900">{{ students.filter(s => s.released).length }}</p>
         </div>
       </div>
     </div>
 
     <!-- Student List -->
-    <div class="glass-card overflow-hidden">
+    <div class="bg-white rounded-2xl border-2 border-[#BAE6FD] shadow-sm overflow-hidden">
       <div v-if="loading" class="p-20 flex items-center justify-center">
-        <Loader2 class="w-10 h-10 text-royal-purple animate-spin" />
+        <Loader2 class="w-10 h-10 text-sky-800 animate-spin" />
       </div>
-      <div v-else class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-900/60">
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Student Info</th>
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Form Teacher's Remark</th>
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center">Status</th>
-              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody v-if="students.length > 0" class="divide-y divide-slate-700/40">
-            <tr v-for="st in students" :key="st.studentId" class="hover:bg-slate-900/20 transition-colors">
-              <td class="px-8 py-6">
-                <div class="flex items-center gap-4">
-                  <div class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 flex items-center justify-center text-xs font-black text-slate-200">
-                    {{ st.lastName[0] }}{{ st.firstName[0] }}
-                  </div>
-                  <div>
-                    <p class="text-sm font-black text-white">{{ st.lastName }} {{ st.firstName }}</p>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ st.studentId }}</p>
-                  </div>
+
+      <div v-else>
+        <!-- MOBILE VIEW: Interactive Remark & Processing Cards -->
+        <div class="sm:hidden p-3.5 space-y-4">
+          <div 
+            v-for="st in students" 
+            :key="st.studentId"
+            class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-4 shadow-sm space-y-3.5"
+          >
+            <!-- Header: Avatar, Name, ID & Release Status -->
+            <div class="flex items-center justify-between pb-3 border-b border-sky-100">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="h-11 w-11 rounded-2xl bg-amber-100 border border-amber-300 text-amber-900 font-black text-sm flex items-center justify-center shrink-0 shadow-xs">
+                  {{ st.lastName[0] }}{{ st.firstName[0] }}
                 </div>
-              </td>
-              <td class="px-8 py-6 min-w-[300px]">
-                <textarea 
-                  v-model="st.remark"
-                  rows="2"
-                  class="w-full px-4 py-3 bg-slate-900/60 border-none rounded-xl text-sm font-medium text-white focus:ring-2 focus:ring-royal-purple outline-none resize-none" 
-                  placeholder="Enter pastoral remark..."
-                ></textarea>
-              </td>
-              <td class="px-8 py-6 text-center">
-                <div 
-                  :class="st.released ? 'bg-emerald-900/30 text-emerald-300 border border-emerald-800/30' : 'bg-slate-900/60 text-slate-200 border border-slate-700/60'"
-                  class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
+                <div class="min-w-0">
+                  <p class="text-sm font-black text-slate-900 truncate leading-tight">{{ st.lastName }} {{ st.firstName }}</p>
+                  <p class="text-[10px] font-black uppercase tracking-wider text-[#0C4A6E] mt-0.5">{{ st.studentId }}</p>
+                </div>
+              </div>
+
+              <!-- Status Badge -->
+              <span 
+                :class="st.released ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-amber-100 text-amber-900 border-amber-300'"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase border shrink-0"
+              >
+                <span class="h-1.5 w-1.5 rounded-full" :class="st.released ? 'bg-emerald-600' : 'bg-amber-600'"></span>
+                {{ st.released ? 'Published' : 'Draft' }}
+              </span>
+            </div>
+
+            <!-- Remark Input & Quick Preset Buttons -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-black uppercase tracking-wider text-[#0C4A6E]">Form Teacher's Remark</label>
+                <span v-if="st.remark" class="text-[10px] font-bold text-emerald-700">Remark Set ✓</span>
+              </div>
+
+              <!-- Touch-friendly Textarea (16px font to prevent zoom) -->
+              <textarea 
+                v-model="st.remark"
+                rows="2"
+                class="w-full px-3.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl text-base font-medium text-slate-900 placeholder:text-slate-400 focus:border-sky-600 outline-none resize-none leading-relaxed" 
+                placeholder="Type remark or tap a preset below..."
+              ></textarea>
+
+              <!-- Quick Presets for Mobile Teachers (Massive Time Saver!) -->
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                <button
+                  type="button"
+                  @click="setPresetRemark(st, 'An outstanding academic performance. Keep up the high standard.')"
+                  class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 border border-sky-200 text-[#0C4A6E] text-[10px] font-extrabold transition active:scale-95"
                 >
-                  <div class="h-1.5 w-1.5 rounded-full" :class="st.released ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'"></div>
-                  {{ st.released ? 'Live' : 'Draft' }}
-                </div>
-              </td>
-              <td class="px-8 py-6 text-center">
-                <div class="flex items-center justify-center gap-3">
-                  <button 
-                    v-if="isCurrentSession"
-                    @click="openEditModal(st)"
-                    class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:text-royal-purple transition-all flex items-center justify-center"
-                    title="Edit Student"
+                  🌟 Outstanding
+                </button>
+                <button
+                  type="button"
+                  @click="setPresetRemark(st, 'A commendable performance with impressive discipline.')"
+                  class="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-[10px] font-extrabold transition active:scale-95"
+                >
+                  👍 Commendable
+                </button>
+                <button
+                  type="button"
+                  @click="setPresetRemark(st, 'Good effort shown, but capable of higher achievement.')"
+                  class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-[10px] font-extrabold transition active:scale-95"
+                >
+                  💪 Can Do Better
+                </button>
+              </div>
+            </div>
+
+            <!-- Action Buttons Row (44px min touch height) -->
+            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-sky-100">
+              <!-- Preview Report Button -->
+              <button 
+                @click="router.push({ name: 'student-report', params: { studentId: st.studentId }, query: { session: session, term: term, preview: 'true' } })"
+                class="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-300 text-[#0C4A6E] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition active:scale-95"
+              >
+                <FileText class="w-4 h-4 text-sky-800" />
+                <span>Report</span>
+              </button>
+
+              <!-- Release / Revoke Button -->
+              <button 
+                v-if="!st.released"
+                @click="releaseResult(st.studentId, true)"
+                class="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm transition active:scale-95"
+              >
+                <Send class="w-3.5 h-3.5 text-white" />
+                <span>Publish</span>
+              </button>
+              <button 
+                v-else
+                @click="releaseResult(st.studentId, false)"
+                class="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition active:scale-95"
+              >
+                <AlertCircle class="w-3.5 h-3.5 text-red-700" />
+                <span>Revoke</span>
+              </button>
+
+              <!-- Edit Student -->
+              <button 
+                v-if="isCurrentSession"
+                @click="openEditModal(st)"
+                class="min-h-[44px] min-w-[44px] px-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 flex items-center justify-center transition active:scale-95"
+                title="Edit Student"
+              >
+                <Edit2 class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESKTOP TABLE VIEW -->
+        <div class="hidden sm:block overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-sky-50 border-b-2 border-sky-200">
+                <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-[#0C4A6E]">Student Info</th>
+                <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-[#0C4A6E]">Form Teacher's Remark</th>
+                <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-[#0C4A6E] text-center">Status</th>
+                <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-[#0C4A6E] text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody v-if="students.length > 0" class="divide-y divide-sky-100 bg-white">
+              <tr v-for="st in students" :key="st.studentId" class="hover:bg-sky-50/50 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 font-black text-xs flex items-center justify-center shrink-0">
+                      {{ st.lastName[0] }}{{ st.firstName[0] }}
+                    </div>
+                    <div>
+                      <p class="text-sm font-black text-slate-900">{{ st.lastName }} {{ st.firstName }}</p>
+                      <p class="text-xs font-bold text-[#0C4A6E] uppercase tracking-wider">{{ st.studentId }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 min-w-[320px]">
+                  <textarea 
+                    v-model="st.remark"
+                    rows="2"
+                    class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:border-sky-600 outline-none resize-none leading-relaxed" 
+                    placeholder="Enter pastoral remark..."
+                  ></textarea>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span 
+                    :class="st.released ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-amber-100 text-amber-900 border-amber-300'"
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase border"
                   >
-                    <Edit2 class="w-4 h-4" />
-                  </button>
-                  <button 
-                    @click="router.push({ name: 'student-report', params: { studentId: st.studentId }, query: { session: session, term: term, preview: 'true' } })"
-                    class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:text-royal-purple transition-all flex items-center justify-center"
-                    title="Preview Report Card"
-                  >
-                    <FileText class="w-4 h-4" />
-                  </button>
-                  <button 
-                    v-if="isCurrentSession"
-                    @click="handleDeleteStudent(st.studentId)"
-                    class="h-10 w-10 rounded-xl bg-slate-900/60 border border-slate-700/60 text-slate-200 hover:text-red-500 hover:border-red-500/50 transition-all flex items-center justify-center"
-                    title="Delete Student"
-                  >
-                    <Trash2 class="w-4 h-4" />
-                  </button>
-                  <div class="w-px h-6 bg-slate-700/40"></div>
-                  <button 
-                    v-if="!st.released"
-                    @click="releaseResult(st.studentId, true)"
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-royal-purple text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-purple-200 dark:shadow-none hover:scale-105 active:scale-95 transition-all"
-                  >
-                    <Send class="w-3 h-3" /> Release
-                  </button>
-                  <button 
-                    v-else
-                    @click="releaseResult(st.studentId, false)"
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/60 border border-slate-700/60 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
-                  >
-                    <AlertCircle class="w-3 h-3" /> Revoke
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-          <tbody v-else>
-            <tr>
-              <td colspan="4" class="px-8 py-20 text-center">
-                <div class="flex flex-col items-center justify-center text-slate-400">
-                  <Users class="w-12 h-12 mb-4 opacity-20" />
-                  <p class="text-sm font-black uppercase tracking-widest">No students found in this class</p>
-                  <p class="text-xs mt-1">Assignments may need to be updated by the admin</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                    <span class="h-2 w-2 rounded-full" :class="st.released ? 'bg-emerald-600' : 'bg-amber-600'"></span>
+                    {{ st.released ? 'Published' : 'Draft' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button 
+                      v-if="isCurrentSession"
+                      @click="openEditModal(st)"
+                      class="h-9 w-9 rounded-xl bg-sky-50 border border-sky-200 text-[#0C4A6E] hover:bg-sky-100 transition-all flex items-center justify-center shadow-xs"
+                      title="Edit Student"
+                    >
+                      <Edit2 class="w-4 h-4" />
+                    </button>
+                    <button 
+                      @click="router.push({ name: 'student-report', params: { studentId: st.studentId }, query: { session: session, term: term, preview: 'true' } })"
+                      class="h-9 w-9 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 hover:bg-amber-100 transition-all flex items-center justify-center shadow-xs"
+                      title="Preview Report Card"
+                    >
+                      <FileText class="w-4 h-4" />
+                    </button>
+                    <button 
+                      v-if="isCurrentSession"
+                      @click="handleDeleteStudent(st.studentId)"
+                      class="h-9 w-9 rounded-xl bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 transition-all flex items-center justify-center shadow-xs"
+                      title="Delete Student"
+                    >
+                      <Trash2 class="w-4 h-4" />
+                    </button>
+                    <button 
+                      v-if="!st.released"
+                      @click="releaseResult(st.studentId, true)"
+                      class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black uppercase tracking-wider shadow-sm transition active:scale-95"
+                    >
+                      <Send class="w-3.5 h-3.5" /> <span>Release</span>
+                    </button>
+                    <button 
+                      v-else
+                      @click="releaseResult(st.studentId, false)"
+                      class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-black uppercase tracking-wider hover:bg-red-100 transition-all"
+                    >
+                      <AlertCircle class="w-3.5 h-3.5" /> <span>Revoke</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tbody v-else>
+              <tr>
+                <td colspan="4" class="px-8 py-16 text-center text-slate-600 font-bold">
+                  No students found in this class.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-  </div>
+    </div>
+
+    <!-- Mobile Sticky Save Remarks Bar (Docked right above bottom nav dock) -->
+    <div class="sm:hidden fixed bottom-16 inset-x-0 p-3 bg-white/95 backdrop-blur-md border-t-2 border-[#BAE6FD] z-40 shadow-lg">
+      <button 
+        @click="saveAllRemarks"
+        :disabled="saving"
+        class="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-sky-700 hover:bg-sky-800 active:bg-sky-900 text-white font-black text-xs uppercase tracking-wider shadow-md transition active:scale-95 disabled:opacity-50"
+      >
+        <Loader2 v-if="saving" class="w-4 h-4 animate-spin text-white" />
+        <Save v-else class="w-4 h-4 text-white" /> 
+        <span>{{ saving ? 'Saving Remarks...' : 'Save All Remarks' }}</span>
+      </button>
+    </div>
+
+    <!-- Mobile Spacer -->
+    <div class="sm:hidden h-28"></div>
 
     <!-- Add Student Modal -->
     <transition name="fade">
