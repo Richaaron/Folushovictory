@@ -11,7 +11,9 @@ import {
   Trash2,
   Edit2,
   FileText,
-  KeyRound
+  KeyRound,
+  LayoutGrid,
+  List
 } from 'lucide-vue-next'
 import api from '../../services/api'
 import StudentSubjectPicker from '../../components/StudentSubjectPicker.vue'
@@ -26,6 +28,7 @@ const searchQuery = ref('')
 const showEditModal = ref(false)
 const editingStudent = ref<any>(null)
 const editModalRoot = ref<HTMLElement | null>(null)
+const mobileViewMode = ref<'cards' | 'table'>('cards')
 const stats = ref({
   total: 0,
   newlyEnrolled: 0,
@@ -272,71 +275,173 @@ onMounted(async () => {
     </div>
 
     <!-- Filter Bar -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col lg:flex-row gap-3">
-      <div class="relative flex-grow">
-        <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input v-model="searchQuery" type="text" placeholder="Search by name or Student ID..." class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-700" />
+    <div class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-4 shadow-sm flex flex-col gap-3">
+      <div class="flex flex-col lg:flex-row gap-3">
+        <div class="relative flex-grow">
+          <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input v-model="searchQuery" type="text" placeholder="Search by name or Student ID..." class="w-full bg-white border-2 border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-sky-600" />
+        </div>
+        <div class="flex gap-2 sm:gap-3 flex-wrap">
+          <select v-model="selectedClassId" class="bg-white border-2 border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:border-sky-600 flex-1 sm:flex-initial">
+            <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+          </select>
+          <button @click="fetchStudents" class="px-5 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 active:bg-sky-900 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition">
+            <Filter class="w-3.5 h-3.5 text-white" /> <span>Filter</span>
+          </button>
+        </div>
       </div>
-      <div class="flex gap-2 sm:gap-3 flex-wrap">
-        <select v-model="selectedClassId" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-700 flex-1 sm:flex-initial">
-          <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
-        </select>
-        <button @click="fetchStudents" class="px-5 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition">
-          <Filter class="w-3.5 h-3.5 text-white" /> <span>Filter</span>
-        </button>
+
+      <!-- Mobile Display Mode Switcher (Cards vs Table) -->
+      <div class="sm:hidden flex items-center justify-between pt-2 border-t border-sky-100">
+        <span class="text-xs font-black uppercase tracking-wider text-[#0C4A6E]">View Mode:</span>
+        <div class="inline-flex rounded-xl bg-sky-50 p-1 border border-sky-200">
+          <button
+            @click="mobileViewMode = 'cards'"
+            type="button"
+            class="px-3 py-1 rounded-lg text-xs font-black transition-all flex items-center gap-1.5"
+            :class="mobileViewMode === 'cards' ? 'bg-sky-700 text-white shadow-xs' : 'text-slate-700 hover:text-sky-900'"
+          >
+            <LayoutGrid class="w-3.5 h-3.5" />
+            <span>Cards</span>
+          </button>
+          <button
+            @click="mobileViewMode = 'table'"
+            type="button"
+            class="px-3 py-1 rounded-lg text-xs font-black transition-all flex items-center gap-1.5"
+            :class="mobileViewMode === 'table' ? 'bg-sky-700 text-white shadow-xs' : 'text-slate-700 hover:text-sky-900'"
+          >
+            <List class="w-3.5 h-3.5" />
+            <span>Table</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Student Table -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[420px] flex flex-col">
-      <div v-if="loading" class="flex-grow flex items-center justify-center p-10">
-        <Loader2 class="w-10 h-10 text-blue-800 animate-spin" />
+    <!-- Student List / Table Container -->
+    <div class="bg-white rounded-2xl border-2 border-[#BAE6FD] shadow-sm overflow-hidden min-h-[420px] flex flex-col">
+      <div v-if="loading" class="flex-grow flex items-center justify-center p-12">
+        <Loader2 class="w-10 h-10 text-sky-800 animate-spin" />
       </div>
-      <div v-else class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b-2 border-slate-200">
-              <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-800">Student ID</th>
-              <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-800">Full Name</th>
-              <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-800 hidden sm:table-cell">Gender</th>
-              <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-800 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200">
-            <tr v-for="student in filteredStudents" :key="student.studentId || student.id" @click="openResultPreview(student)" class="cursor-pointer transition-colors hover:bg-slate-50">
-              <td class="px-6 py-4 align-middle">
-                <span class="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-xs font-black uppercase tracking-wider text-blue-900 border border-blue-200">{{ student.studentId }}</span>
-              </td>
-              <td class="px-6 py-4 align-middle">
-                <div class="flex items-center gap-3">
-                  <div class="h-10 w-10 rounded-xl bg-amber-100 text-amber-800 font-black text-sm flex items-center justify-center shrink-0 border border-amber-200">
-                    {{ student.firstName?.charAt(0) || 'S' }}
-                  </div>
-                  <div class="min-w-0">
-                    <p class="font-black text-slate-900 truncate text-sm">{{ student.firstName }} {{ student.lastName }}</p>
-                    <p class="text-xs font-bold text-slate-500 mt-0.5">{{ classes.find(c => c.id === student.classId)?.name || 'Unassigned' }}</p>
+      
+      <div v-else>
+        <!-- MOBILE CARDS VIEW (Clean, Touch-Friendly Cards) -->
+        <div v-if="mobileViewMode === 'cards'" class="sm:hidden p-3.5 space-y-3">
+          <div
+            v-for="student in filteredStudents"
+            :key="student.studentId || student.id"
+            class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-4 shadow-sm space-y-3 transition-all active:scale-[0.99]"
+          >
+            <!-- Top row: Avatar, Name, Class & Gender -->
+            <div class="flex items-center justify-between gap-3" @click="openResultPreview(student)">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="h-11 w-11 rounded-2xl bg-amber-100 border border-amber-300 text-amber-900 font-black text-base flex items-center justify-center shrink-0 shadow-xs">
+                  {{ student.firstName?.charAt(0) || 'S' }}
+                </div>
+                <div class="min-w-0">
+                  <p class="font-black text-slate-900 text-base leading-tight truncate">
+                    {{ student.firstName }} {{ student.lastName }}
+                  </p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="inline-block text-[11px] font-extrabold text-[#0C4A6E] bg-sky-50 px-2 py-0.5 rounded border border-sky-200 truncate max-w-[130px]">
+                      {{ classes.find(c => c.id === student.classId)?.name || 'Unassigned' }}
+                    </span>
+                    <span v-if="student.gender" class="text-[10px] font-black uppercase text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                      {{ student.gender }}
+                    </span>
                   </div>
                 </div>
-              </td>
-              <td class="px-6 py-4 align-middle hidden sm:table-cell">
-                <span class="text-xs font-bold uppercase text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">{{ student.gender }}</span>
-              </td>
-              <td class="px-6 py-4 align-middle text-right">
-                <div class="inline-flex items-center justify-end gap-2">
-                  <button @click.stop="resetStudentPin(student)" class="p-2 rounded-xl bg-slate-100 border border-slate-300 text-slate-700 hover:bg-amber-50 hover:text-amber-800 hover:border-amber-300 transition-all shadow-sm" title="Reset student PIN" :aria-label="`Reset PIN for ${student.firstName} ${student.lastName}`">
-                    <KeyRound class="w-4 h-4" />
-                  </button>
-                  <button @click.stop="openEditModal(student)" class="p-2 rounded-xl bg-slate-100 border border-slate-300 text-slate-700 hover:bg-blue-50 hover:text-blue-800 hover:border-blue-300 transition-all shadow-sm">
-                    <Edit2 class="w-4 h-4" />
-                  </button>
-                  <button @click.stop="handleDelete(student.studentId)" class="p-2 rounded-xl bg-slate-100 border border-slate-300 text-slate-700 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all shadow-sm">
-                    <Trash2 class="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+
+              <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-sky-100 text-xs font-black uppercase text-[#0C4A6E] border border-sky-300 shrink-0">
+                {{ student.studentId }}
+              </span>
+            </div>
+
+            <!-- Actions Row with 44px min touch targets -->
+            <div class="flex items-center gap-2 pt-2 border-t border-sky-100">
+              <button
+                @click.stop="openResultPreview(student)"
+                class="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition active:scale-95 shadow-xs"
+              >
+                <FileText class="w-4 h-4 text-white" />
+                <span>Report Sheet</span>
+              </button>
+
+              <button
+                @click.stop="resetStudentPin(student)"
+                class="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 font-bold text-xs flex items-center justify-center transition active:scale-95"
+                title="Reset PIN"
+              >
+                <KeyRound class="w-4 h-4 text-amber-800" />
+              </button>
+
+              <button
+                @click.stop="openEditModal(student)"
+                class="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-bold text-xs flex items-center justify-center transition active:scale-95"
+                title="Edit Student"
+              >
+                <Edit2 class="w-4 h-4 text-slate-800" />
+              </button>
+
+              <button
+                @click.stop="handleDelete(student.studentId)"
+                class="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-300 text-red-700 font-bold text-xs flex items-center justify-center transition active:scale-95"
+                title="Delete Student"
+              >
+                <Trash2 class="w-4 h-4 text-red-700" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLE VIEW (Desktop default or mobile explicit toggle) -->
+        <div :class="mobileViewMode === 'cards' ? 'hidden sm:block' : 'block'" class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-sky-50 border-b-2 border-sky-200">
+                <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-[#0C4A6E]">Student ID</th>
+                <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-[#0C4A6E]">Full Name</th>
+                <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-[#0C4A6E] hidden sm:table-cell">Gender</th>
+                <th class="px-6 py-4 text-xs font-black uppercase tracking-wider text-[#0C4A6E] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-sky-100 bg-white">
+              <tr v-for="student in filteredStudents" :key="student.studentId || student.id" @click="openResultPreview(student)" class="cursor-pointer transition-colors hover:bg-sky-50/50">
+                <td class="px-6 py-4 align-middle">
+                  <span class="inline-flex items-center px-3 py-1 rounded-md bg-sky-50 text-xs font-black uppercase tracking-wider text-[#0C4A6E] border border-sky-200">{{ student.studentId }}</span>
+                </td>
+                <td class="px-6 py-4 align-middle">
+                  <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center shrink-0 border border-amber-300">
+                      {{ student.firstName?.charAt(0) || 'S' }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="font-black text-slate-900 truncate text-sm">{{ student.firstName }} {{ student.lastName }}</p>
+                      <p class="text-xs font-bold text-slate-600 mt-0.5">{{ classes.find(c => c.id === student.classId)?.name || 'Unassigned' }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 align-middle hidden sm:table-cell">
+                  <span class="text-xs font-bold uppercase text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">{{ student.gender }}</span>
+                </td>
+                <td class="px-6 py-4 align-middle text-right">
+                  <div class="inline-flex items-center justify-end gap-2">
+                    <button @click.stop="resetStudentPin(student)" class="p-2 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 hover:bg-amber-100 transition-all shadow-sm" title="Reset student PIN" :aria-label="`Reset PIN for ${student.firstName} ${student.lastName}`">
+                      <KeyRound class="w-4 h-4 text-amber-800" />
+                    </button>
+                    <button @click.stop="openEditModal(student)" class="p-2 rounded-xl bg-sky-50 border border-sky-200 text-[#0C4A6E] hover:bg-sky-100 transition-all shadow-sm">
+                      <Edit2 class="w-4 h-4 text-sky-800" />
+                    </button>
+                    <button @click.stop="handleDelete(student.studentId)" class="p-2 rounded-xl bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 transition-all shadow-sm">
+                      <Trash2 class="w-4 h-4 text-red-700" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <div v-if="filteredStudents.length === 0" class="p-10 text-center">
           <p class="text-sm font-bold text-slate-600">{{ searchQuery ? `No students match "${searchQuery}"` : 'No students enrolled in this class.' }}</p>
         </div>

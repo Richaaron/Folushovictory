@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Navbar from '../components/common/Navbar.vue'
+import MobileBottomNav from '../components/common/MobileBottomNav.vue'
 import {
   LayoutDashboard,
   Users,
@@ -32,9 +33,9 @@ const menuItems = [
   <div class="min-h-screen flex flex-col bg-transparent text-[#0F172A] antialiased">
     <Navbar portal="Admin" username="Administrator" :menuItems="menuItems" :onToggleSidebar="toggleSidebar" />
 
-    <div class="flex-grow flex p-3 sm:p-5 lg:p-6 gap-5 max-w-7xl mx-auto w-full">
+    <div class="flex-grow flex p-3 sm:p-5 lg:p-6 gap-5 max-w-7xl mx-auto w-full pb-24 lg:pb-6">
       
-      <!-- Collapsible Admin Sidebar (Desktop only, mobile uses Navbar dropdown) -->
+      <!-- Collapsible Admin Sidebar (Desktop only) -->
       <aside
         class="hidden lg:flex flex-col flex-shrink-0 bg-white/95 backdrop-blur-md rounded-2xl border-2 border-[#BAE6FD] shadow-md overflow-hidden transition-all duration-200"
         :class="[sidebarOpen ? 'w-60' : 'w-20']"
@@ -85,6 +86,9 @@ const menuItems = [
       </main>
 
     </div>
+
+    <!-- Mobile Native Bottom App Bar -->
+    <MobileBottomNav portal="Admin" username="Administrator" />
   </div>
 </template>
 

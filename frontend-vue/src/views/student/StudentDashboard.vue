@@ -139,7 +139,7 @@ onMounted(fetchDashboard)
     </div>
 
     <!-- My Subjects Section -->
-    <section class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-7 shadow-sm space-y-4">
+    <section id="student-subjects-section" class="scroll-mt-20 bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-7 shadow-sm space-y-4">
       <div class="flex items-center justify-between pb-4 border-b border-sky-100">
         <div class="flex items-center gap-3">
           <div class="h-10 w-10 rounded-xl bg-sky-100 border border-sky-200 text-sky-800 flex items-center justify-center">
@@ -174,7 +174,7 @@ onMounted(fetchDashboard)
     </section>
 
     <!-- Assignments & Tests Section -->
-    <section class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-7 shadow-sm space-y-4">
+    <section id="student-tasks-section" class="scroll-mt-20 bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-7 shadow-sm space-y-4">
       <div class="flex items-center justify-between pb-4 border-b border-sky-100">
         <div class="flex items-center gap-3">
           <div class="h-10 w-10 rounded-xl bg-amber-100 border border-amber-200 text-amber-800 flex items-center justify-center">
@@ -276,7 +276,7 @@ onMounted(fetchDashboard)
     </section>
 
     <!-- Change PIN Section -->
-    <section class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-7 shadow-sm space-y-4">
+    <section id="student-pin-section" class="scroll-mt-20 bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-7 shadow-sm space-y-4">
       <div class="flex items-center gap-3 pb-3 border-b border-sky-100">
         <div class="h-9 w-9 rounded-lg bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center">
           <KeyRound class="h-5 w-5 text-amber-800" />

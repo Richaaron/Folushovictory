@@ -502,7 +502,7 @@ const printScoreSheet = () => {
 
         <!-- Publish (hidden on mobile — sticky bar handles it) -->
         <button @click="handleSave" :disabled="saving || deadlinePassed"
-          class="hidden sm:flex items-center gap-2 rounded-xl bg-blue-800 hover:bg-blue-900 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-sm transition active:scale-95 disabled:opacity-50">
+          class="hidden sm:flex items-center gap-2 rounded-xl bg-sky-700 hover:bg-sky-800 active:bg-sky-900 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-sm transition active:scale-95 disabled:opacity-50">
           <Loader2 v-if="saving" class="w-4 h-4 animate-spin text-white" />
           <Save v-else class="w-4 h-4 text-white" />
           <span class="text-white">{{ saving ? 'Saving…' : 'Publish Scores' }}</span>
@@ -704,7 +704,7 @@ const printScoreSheet = () => {
     </div>
 
     <!-- Mobile sticky publish button -->
-    <div class="sm:hidden fixed bottom-0 inset-x-0 p-4 bg-white/95 backdrop-blur border-t border-slate-200 no-print z-40 shadow-lg">
+    <div class="sm:hidden fixed bottom-16 inset-x-0 p-3 bg-white/95 backdrop-blur-md border-t-2 border-[#BAE6FD] no-print z-40 shadow-lg">
       <button @click="handleSave" :disabled="saving || deadlinePassed"
         class="w-full flex items-center justify-center gap-3 rounded-xl bg-blue-800 hover:bg-blue-900 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition active:scale-95 disabled:opacity-50">
         <Loader2 v-if="saving" class="w-4 h-4 animate-spin text-white" />
@@ -714,7 +714,7 @@ const printScoreSheet = () => {
     </div>
 
     <!-- Bottom padding for mobile sticky bar -->
-    <div class="sm:hidden h-20"></div>
+    <div class="sm:hidden h-36"></div>
   </div>
 </template>
 

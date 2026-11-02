@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Navbar from '../components/common/Navbar.vue'
+import MobileBottomNav from '../components/common/MobileBottomNav.vue'
 import { LayoutDashboard } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
 
@@ -12,13 +13,16 @@ const menuItems = [
 <template>
   <div class="min-h-screen flex flex-col bg-transparent text-[#0F172A] antialiased">
     <Navbar portal="Student" :username="authStore.user?.displayName || authStore.user?.username || 'Student'" :menuItems="menuItems" />
-    <main class="flex-grow p-3 sm:p-5 lg:p-6 overflow-x-hidden max-w-7xl mx-auto w-full">
+    <main class="flex-grow p-3 sm:p-5 lg:p-6 overflow-x-hidden max-w-7xl mx-auto w-full pb-24 lg:pb-6">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
     </main>
+
+    <!-- Mobile Native Bottom App Bar -->
+    <MobileBottomNav portal="Student" :username="authStore.user?.displayName || authStore.user?.username || 'Student'" />
   </div>
 </template>
 

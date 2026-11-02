@@ -445,3 +445,38 @@ tr:hover td {
 ::-webkit-scrollbar-thumb:hover {
   background: #0284C7;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   MOBILE NATIVE FEEL & TOUCH ERGONOMICS
+══════════════════════════════════════════════════════ */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  }
+}
+
+@media (max-width: 768px) {
+  /* Prevent horizontal bouncing / accidental overflow */
+  html, body {
+    overflow-x: hidden;
+    touch-action: pan-y;
+  }
+
+  /* Touch targets minimum 44px for primary interactive buttons */
+  button:not(.inline-button), 
+  .touch-target {
+    min-height: 44px;
+  }
+
+  /* Slightly tighter card padding on narrow devices */
+  .glass-card,
+  .parchment-card,
+  .academic-card {
+    padding: 1rem !important;
+    border-radius: 14px !important;
+  }
+}

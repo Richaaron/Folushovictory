@@ -179,7 +179,7 @@ onMounted(fetchData)
       <div class="lg:col-span-4 space-y-5">
         
         <!-- School Notices -->
-        <div class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-6 shadow-sm space-y-4">
+        <div id="parent-notices-section" class="scroll-mt-20 bg-white rounded-2xl border-2 border-[#BAE6FD] p-6 shadow-sm space-y-4">
           <div class="flex items-center gap-3 pb-3 border-b border-sky-100">
             <div class="h-9 w-9 rounded-lg bg-sky-100 border border-sky-300 text-sky-800 flex items-center justify-center">
               <Calendar class="w-5 h-5 text-sky-800" />
