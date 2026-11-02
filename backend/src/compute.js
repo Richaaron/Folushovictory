@@ -57,6 +57,11 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
     // For SSS, filter subjects based on the student's stream
     const studentStream = String(st.stream || "").toUpperCase();
     const studentSubjects = subjects.filter((sub) => {
+      // If any score exists in database for this student and subject (or alias), ALWAYS include it!
+      const scoreSubjectIds = [sub.id, ...(sub.aliasIds || [])].filter(Boolean);
+      const hasScore = scoreSubjectIds.some((id) => scoresByKey.has(`${st.id}_${id}`));
+      if (hasScore) return true;
+
       if (!isSSS) return true;
       
       const subTrack = String(sub.track || "").toUpperCase();

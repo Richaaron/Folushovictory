@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  BarChart3
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -524,6 +525,13 @@ const printScoreSheet = () => {
           <span class="hidden sm:inline">Print</span>
         </button>
 
+        <!-- Broadsheet -->
+        <button @click="router.push({ name: 'teacher-broadsheet', params: { classId }, query: { classId, className, session, term } })" title="Open Master Broadsheet"
+          class="flex items-center gap-1.5 rounded-xl bg-white border-2 border-[#BAE6FD] px-3.5 py-2.5 text-xs font-black uppercase tracking-wider text-[#0C4A6E] transition hover:bg-sky-50 hover:border-sky-400 shadow-sm active:scale-95">
+          <BarChart3 class="w-4 h-4 text-sky-700" />
+          <span class="hidden sm:inline">Broadsheet</span>
+        </button>
+
         <!-- Publish (hidden on mobile — sticky bar handles it) -->
         <button @click="handleSave" :disabled="saving || deadlinePassed"
           class="hidden sm:flex items-center gap-2 rounded-xl bg-sky-700 hover:bg-sky-800 active:bg-sky-900 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-sm transition active:scale-95 disabled:opacity-50">
@@ -609,12 +617,22 @@ const printScoreSheet = () => {
         <p class="text-xs font-bold mt-0.5 text-red-800">{{ error }}</p>
       </div>
     </div>
-    <div v-if="success" class="p-4 rounded-2xl bg-emerald-50 text-emerald-900 flex items-center gap-3 border border-emerald-300">
-      <CheckCircle2 class="w-5 h-5 flex-shrink-0 text-emerald-700" />
-      <div>
-        <p class="text-sm font-black text-emerald-950">Scores Saved Successfully!</p>
-        <p class="text-xs font-bold mt-0.5 text-emerald-800">{{ savedCount }} student{{ savedCount === 1 ? '' : 's' }} with non-zero scores. The table below now reflects the confirmed saved values.</p>
+    <div v-if="success" class="p-4 rounded-2xl bg-emerald-50 text-emerald-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-2 border-emerald-300 shadow-sm">
+      <div class="flex items-center gap-3">
+        <CheckCircle2 class="w-6 h-6 flex-shrink-0 text-emerald-700" />
+        <div>
+          <p class="text-sm font-black text-emerald-950">Scores Published Successfully!</p>
+          <p class="text-xs font-bold mt-0.5 text-emerald-800">{{ savedCount }} student{{ savedCount === 1 ? '' : 's' }} recorded. Your updates are now visible in the master broadsheet.</p>
+        </div>
       </div>
+      <button
+        type="button"
+        @click="router.push({ name: 'teacher-broadsheet', params: { classId }, query: { classId, className, session, term } })"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition shadow-sm active:scale-95 shrink-0"
+      >
+        <BarChart3 class="w-4 h-4 text-white" />
+        <span>View in Broadsheet →</span>
+      </button>
     </div>
 
     <!-- Score Table — desktop (sm+) -->
