@@ -4,7 +4,7 @@ import { studentOffersSubject } from "../src/subjectRoster.js";
 
 const scienceClass = { id: "sss-1", level: "SSS", track: "Science" };
 
-test("includes a student explicitly enrolled in the subject", () => {
+test("includes a student explicitly enrolled in a subject", () => {
   assert.equal(
     studentOffersSubject(
       { subjectIds: ["physics-id"] },

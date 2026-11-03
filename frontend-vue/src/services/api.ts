@@ -50,16 +50,21 @@ const api = axios.create({
 
 console.debug('[API] baseURL:', API_BASE_URL)
 
-// Add the selected subject to teacher score roster calls. The score-entry route
-// carries this ID in its query string, while the roster API request is separate.
+// Request interceptor for adding auth token and the active subject to score-roster calls.
+// The app uses Vue Router hash history, so route query parameters are inside location.hash.
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore()
   if (authStore.token) {
     config.headers.Authorization = `Bearer ${authStore.token}`
   }
   if (config.url?.includes('/api/teacher/classes/') && config.url.endsWith('/students') && typeof window !== 'undefined') {
-    const subjectId = new URLSearchParams(window.location.search).get('subjectId')
-    if (subjectId) config.params = { ...(config.params || {}), subjectId }
+    const hashQueryIndex = window.location.hash.indexOf('?')
+    const hashQuery = hashQueryIndex >= 0 ? window.location.hash.slice(hashQueryIndex + 1) : ''
+    const subjectId = new URLSearchParams(hashQuery).get('subjectId')
+      || new URLSearchParams(window.location.search).get('subjectId')
+    if (subjectId) {
+      config.params = { ...(config.params || {}), subjectId }
+    }
   }
   const requestUrl = config.url?.startsWith('http') ? config.url : `${config.baseURL || ''}${config.url}`
   console.debug('[API] request', config.method?.toUpperCase(), requestUrl, config.headers)
