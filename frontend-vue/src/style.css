@@ -50,9 +50,9 @@
   --shadow-lg: 0 10px 20px -3px rgba(2, 132, 199, 0.15), 0 4px 8px -4px rgba(217, 119, 6, 0.10);
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    SKY BLUE & GOLD LUMINOUS BACKGROUND
-══════════════════════════════════════════════════════ */
+═════════════════════════════════════════════════════════════ */
 html, body {
   min-height: 100vh;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -71,9 +71,9 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    HIGH-CONTRAST TYPOGRAPHY & WRITE-UPS
-══════════════════════════════════════════════════════ */
+═════════════════════════════════════════════════════════════ */
 h1, h2, h3, h4, h5, h6,
 .academic-heading,
 .neon-heading {
@@ -104,10 +104,10 @@ p, span, label,
   font-weight: 800 !important;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    CLEAN, ULTRA-READABLE WHITE CARDS
    (Cards sit over the Sky Blue Gold background with crisp contrast)
-══════════════════════════════════════════════════════ */
+═════════════════════════════════════════════════════ */
 .glass-card,
 .parchment-card,
 .academic-card,
@@ -145,10 +145,10 @@ div[class*="bg-[#0a0e27]"]:not([class*="inset-0"]):not([class*="backdrop-"]) {
   box-shadow: none !important;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    GLOBAL HIGH-CONTRAST TEXT OVERRIDES
    Ensures ALL write-ups are bold, crisp, and dark
-══════════════════════════════════════════════════════ */
+═════════════════════════════════════════════════════ */
 [class*="text-[#FAFAF7]"],
 [class*="text-[#F5F0E8]"],
 [class*="text-[#FAF8F5]"],
@@ -180,9 +180,9 @@ span.text-white:not(button *):not(a.neon-btn *):not(a.chalkboard-btn *):not([cla
   color: var(--text-heading) !important;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    SOLID COLORED BUTTONS (Crisp White Text)
-══════════════════════════════════════════════════════ */
+═════════════════════════════════════════════════════ */
 .neon-btn,
 .chalkboard-btn,
 button.neon-btn,
@@ -237,9 +237,9 @@ a.chalkboard-btn *,
   color: #FFFFFF !important;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    LIGHT / GHOST / OUTLINE BUTTONS (Dark Readable Text)
-══════════════════════════════════════════════════════ */
+═════════════════════════════════════════════ */
 button[class*="bg-white"],
 button[class*="bg-slate-50"],
 button[class*="bg-slate-100"],
@@ -329,9 +329,9 @@ button:not([class*="bg-"]) * {
   background-color: #F0F9FF !important;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    INPUTS (Mobile 16px to prevent auto-zoom)
-══════════════════════════════════════════════════════ */
+═════════════════════════════════════════════════════ */
 input, select, textarea,
 .modern-input,
 .academic-input {
@@ -368,9 +368,9 @@ input[type="number"] {
   font-weight: 800 !important;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    RESPONSIVE TABLES WITH TOUCH SCROLL
-══════════════════════════════════════════════════════ */
+═════════════════════════════════════════════════════ */
 .table-responsive-container {
   width: 100%;
   overflow-x: auto;
@@ -446,9 +446,9 @@ tr:hover td {
   background: #0284C7;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    MOBILE NATIVE FEEL & TOUCH ERGONOMICS
-══════════════════════════════════════════════════════ */
+═════════════════════════════════════════════════════ */
 * {
   -webkit-tap-highlight-color: transparent;
 }
@@ -460,23 +460,132 @@ tr:hover td {
 }
 
 @media (max-width: 768px) {
-  /* Prevent horizontal bouncing / accidental overflow */
+  :root {
+    --bg-page: #020817;
+    --bg-card: #0f172a;
+    --bg-subtle: #111827;
+    --text-heading: #e2e8f0;
+    --text-body: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-card: rgba(148, 163, 184, 0.28);
+  }
+
   html, body {
-    overflow-x: hidden;
-    touch-action: pan-y;
+    background:
+      radial-gradient(circle at top, rgba(14, 165, 233, 0.18), transparent 30%),
+      radial-gradient(circle at bottom right, rgba(251, 191, 36, 0.12), transparent 28%),
+      linear-gradient(180deg, #020817 0%, #0f172a 45%, #111827 100%);
+    color: var(--text-body);
   }
 
-  /* Touch targets minimum 44px for primary interactive buttons */
-  button:not(.inline-button), 
-  .touch-target {
-    min-height: 44px;
+  body {
+    min-height: 100vh;
   }
 
-  /* Slightly tighter card padding on narrow devices */
+  #app,
+  .app-shell {
+    background: rgba(2, 8, 23, 0.96);
+    min-height: 100vh;
+    color: var(--text-body);
+  }
+
+  #app {
+    max-width: 430px;
+    margin: 0 auto;
+    border-left: 1px solid rgba(148, 163, 184, 0.12);
+    border-right: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.05), 0 22px 60px rgba(2, 6, 23, 0.55);
+  }
+
+  /* Prevent the "shrunken desktop" look by tightening the mobile layout */
+  .glass-card,
+  .parchment-card,
+  .academic-card,
+  article,
+  section,
+  [class*="bg-white"],
+  [class*="bg-slate-50"],
+  [class*="bg-slate-100"],
+  [class*="bg-slate-200"],
+  [class*="bg-sky-50"],
+  [class*="bg-blue-50"],
+  [class*="bg-emerald-50"],
+  [class*="bg-amber-50"],
+  [class*="bg-[#F8FAFC]"],
+  [class*="bg-[#FFFFFF]"] {
+    background: rgba(15, 23, 42, 0.94) !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.28) !important;
+    color: var(--text-body) !important;
+  }
+
   .glass-card,
   .parchment-card,
   .academic-card {
     padding: 1rem !important;
     border-radius: 14px !important;
+  }
+
+  h1, h2, h3, h4, h5, h6,
+  .academic-heading,
+  .neon-heading,
+  .gradient-text {
+    color: #f8fafc !important;
+  }
+
+  p, span, label, li, td, th,
+  .academic-body,
+  .neon-body,
+  a,
+  .text-slate-700,
+  .text-slate-800,
+  .text-slate-900,
+  .text-gray-700,
+  .text-gray-800,
+  .text-gray-900,
+  .text-black {
+    color: var(--text-body) !important;
+  }
+
+  [class*="text-slate-400"],
+  [class*="text-slate-500"],
+  [class*="text-slate-600"],
+  [class*="text-gray-500"],
+  [class*="text-gray-600"],
+  [class*="text-[#6B7280]"],
+  [class*="text-[#9CA3AF]"] {
+    color: var(--text-secondary) !important;
+  }
+
+  input, select, textarea,
+  .modern-input,
+  .academic-input {
+    background-color: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+    color: var(--text-body) !important;
+  }
+
+  input::placeholder, textarea::placeholder,
+  .modern-input::placeholder,
+  .academic-input::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  button:not(.inline-button),
+  .touch-target {
+    min-height: 44px;
+  }
+
+  html, body {
+    overflow-x: hidden;
+    touch-action: pan-y;
+  }
+
+  .modal-backdrop,
+  [class*="inset-0"][class*="bg-slate-950"],
+  [class*="inset-0"][class*="bg-black"],
+  [class*="inset-0"][class*="bg-slate-900"] {
+    background: rgba(2, 6, 23, 0.74) !important;
   }
 }
