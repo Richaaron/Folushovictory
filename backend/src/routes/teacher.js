@@ -19,7 +19,7 @@ import { getUserByUsername, updateUser, deleteUser } from "../repos/users.js";
 import { sendResultReleasedEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 import { isReligiousStudiesAlias, normalizeLevel, RELIGIOUS_STUDIES_NAME } from "../subjectAliases.js";
-import { isSubjectAvailableForClass } from "../subjectEligibility.js";
+import { isSubjectAvailableForClass, isStudentEligibleForSubject, getSubjectCategory } from "../subjectEligibility.js";
 import { SafeDatabase } from "../firestore-utils/index.js";
 
 export const teacherRouter = express.Router();
@@ -416,7 +416,20 @@ teacherRouter.get(
     const session = querySession || String(schoolSettings?.currentSession || "").trim();
     const term = queryTerm || String(schoolSettings?.currentTerm || "").trim();
 
-    const students = await listStudentsForSessionClass(classId, session, term);
+    const querySubjectId = String(req.query.subjectId || "").trim();
+    let students = await listStudentsForSessionClass(classId, session, term);
+    const allStudentsCount = students.length;
+
+    let targetSubject = null;
+    let subjectCategory = null;
+    if (querySubjectId) {
+      targetSubject = await getSubjectById(querySubjectId).catch(() => null);
+      if (targetSubject) {
+        subjectCategory = getSubjectCategory(targetSubject, cls?.level || cls?.name);
+        students = students.filter((student) => isStudentEligibleForSubject(student, targetSubject, cls));
+      }
+    }
+
     const studentIds = students.map((student) => String(student.studentId || "")).filter(Boolean);
 
     const [remarks, releaseStatuses] = await Promise.all([
@@ -435,7 +448,14 @@ teacherRouter.get(
       released: !!releaseStatuses[student.studentId]
     }));
 
-    return res.json({ students: enrichedStudents, class: cls, canAddStudents });
+    return res.json({ 
+      students: enrichedStudents, 
+      class: cls, 
+      canAddStudents,
+      allStudentsCount,
+      subject: targetSubject,
+      subjectCategory
+    });
   })
 );
 

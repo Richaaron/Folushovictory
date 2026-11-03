@@ -1,3 +1,5 @@
+import { isStudentEligibleForSubject } from "./subjectEligibility.js";
+
 export function gradeForTotal(total, scale) {
   const grades = Array.isArray(scale?.grades) ? scale.grades : [];
   for (const g of grades) {
@@ -54,38 +56,13 @@ export function numericBroadsheet({ students, subjects, scoresByKey, scale, leve
 
   // Step 1: Compute basic rows with totals and averages
   const rows = students.map((st) => {
-    // For SSS, filter subjects based on the student's stream
-    const studentStream = String(st.stream || "").toUpperCase();
     const studentSubjects = subjects.filter((sub) => {
       // If any score exists in database for this student and subject (or alias), ALWAYS include it!
       const scoreSubjectIds = [sub.id, ...(sub.aliasIds || [])].filter(Boolean);
       const hasScore = scoreSubjectIds.some((id) => scoresByKey.has(`${st.id}_${id}`));
       if (hasScore) return true;
 
-      if (!isSSS) return true;
-      
-      const subTrack = String(sub.track || "").toUpperCase();
-      if (!subTrack || subTrack === "GENERAL") {
-        const coreNames = [
-          'MATHEMATICS', 'ENGLISH LANGUAGE', 'MARKETING', 'CITIZENSHIP AND HERITAGE STUDIES', 'ECONOMICS', 'BIOLOGY', 'CIVIC EDUCATION'
-        ];
-        if (coreNames.includes(String(sub.name).toUpperCase())) return true;
-        
-        const selectedIds = Array.isArray(st.subjectIds) ? st.subjectIds : [];
-        return selectedIds.includes(sub.id);
-      }
-      
-      if (studentStream === "SCIENCE") {
-        return subTrack === "SCIENCE" || ["CHEMISTRY", "PHYSICS"].includes(String(sub.name).toUpperCase());
-      }
-      if (studentStream === "ART") {
-        return subTrack === "ART" || ["GOVERNMENT", "LITERATURE IN ENGLISH"].includes(String(sub.name).toUpperCase());
-      }
-      if (studentStream === "COMMERCIAL") {
-        return subTrack === "COMMERCIAL" || ["FINANCIAL ACCOUNTING", "COMMERCE"].includes(String(sub.name).toUpperCase());
-      }
-      
-      return false;
+      return isStudentEligibleForSubject(st, sub, { level: l });
     });
 
     const perSubject = studentSubjects.map((sub) => {

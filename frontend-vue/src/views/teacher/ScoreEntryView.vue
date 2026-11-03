@@ -13,7 +13,8 @@ import {
   ChevronRight,
   CheckCircle2,
   AlertCircle,
-  BarChart3
+  BarChart3,
+  Users
 } from 'lucide-vue-next'
 import api from '../../services/api'
 
@@ -34,6 +35,58 @@ const success = ref(false)
 const savedCount = ref(0)  // number of non-zero scores confirmed saved
 
 const isNurseryClass = ref(false)
+const totalClassStudents = ref(0)
+const detectedSubjectCategory = ref<string>('')
+const detectedSubject = ref<any>(null)
+
+const subjectCategoryInfo = computed(() => {
+  if (!detectedSubjectCategory.value) return null
+  const cat = detectedSubjectCategory.value
+  if (cat === 'General Core') {
+    return {
+      icon: '🌐',
+      title: 'General Core Subject',
+      badge: 'All Students',
+      badgeClass: 'bg-sky-100 text-sky-900 border-sky-300',
+      description: 'Compulsory core subject offered by all students in this class.'
+    }
+  }
+  if (cat === 'Science Arm') {
+    return {
+      icon: '🔬',
+      title: 'Science Arm Subject',
+      badge: 'Science Arm',
+      badgeClass: 'bg-purple-100 text-purple-900 border-purple-300',
+      description: 'Departmental subject for students registered in the Science stream.'
+    }
+  }
+  if (cat === 'Art Arm') {
+    return {
+      icon: '🎨',
+      title: 'Art / Humanities Arm Subject',
+      badge: 'Art Arm',
+      badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
+      description: 'Departmental subject for students registered in the Art & Humanities stream.'
+    }
+  }
+  if (cat === 'Commercial Arm') {
+    return {
+      icon: '💼',
+      title: 'Commercial Arm Subject',
+      badge: 'Commercial Arm',
+      badgeClass: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+      description: 'Departmental subject for students registered in the Commercial / Business stream.'
+    }
+  }
+  return {
+    icon: '🏷️',
+    title: 'Elective Subject',
+    badge: 'Elective',
+    badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
+    description: 'Special or vocational elective offered strictly by registered students.'
+  }
+})
+
 const mobileGradingMode = ref<'carousel' | 'list'>('carousel')
 const currentCarouselIndex = ref(0)
 const nextStudent = () => {
@@ -161,63 +214,83 @@ const startCountdownTimer = () => {
 const fetchStudents = async () => {
   loading.value = true
   try {
-    const [studentsResp, schoolResp] = await Promise.all([
+    const [studentsResp, schoolResp, subjectsResp] = await Promise.all([
       api.get(`/api/teacher/classes/${classId}/students`, {
-        params: { session: session.value, term: term.value }
+        params: { session: session.value, term: term.value, subjectId }
       }),
-      api.get('/api/config/school')
+      api.get('/api/config/school'),
+      api.get('/api/teacher/subjects').catch(() => ({ data: { subjects: [] } }))
     ])
     const cls = studentsResp.data.class || {}
     const classLevel = (cls.level || '').toUpperCase()
     isNurseryClass.value = ['NURSERY 1', 'NURSERY 2', 'PRE NURSERY'].includes(classLevel) || classLevel.includes('NURSERY')
     
+    totalClassStudents.value = studentsResp.data.allStudentsCount || (studentsResp.data.students || []).length
+
+    const allSubjects = subjectsResp.data.subjects || []
+    const currentSubjectObj = allSubjects.find((s: any) => s.id === subjectId) || studentsResp.data.subject || null
+    detectedSubject.value = currentSubjectObj
+
     let filteredStudents = studentsResp.data.students || []
     
-    const subjNameUpper = (subjectName || '').toUpperCase()
-    const isCRS = subjNameUpper.includes('CHRISTIAN') || subjNameUpper === 'CRS' || subjNameUpper === 'CRK'
-    const isIRS = subjNameUpper.includes('ISLAMIC') || subjNameUpper === 'IRS' || subjNameUpper === 'IRK'
+    const subTrack = String(currentSubjectObj?.track || '').toUpperCase().trim()
+    const subjNameUpper = String(currentSubjectObj?.name || subjectName || '').toUpperCase().trim()
+    const aliasSubjectIds = [subjectId, ...(currentSubjectObj?.aliasIds || [])].map(String).filter(Boolean)
+
+    const coreGeneralSubjects = [
+      'MATHEMATICS', 'ENGLISH LANGUAGE', 'MARKETING', 
+      'CITIZENSHIP AND HERITAGE STUDIES', 'ECONOMICS', 'BIOLOGY', 'CIVIC EDUCATION'
+    ]
+    const trackSubjectNames = {
+      'Science': ['CHEMISTRY', 'PHYSICS', 'FURTHER MATHEMATICS', 'TECHNICAL DRAWING'],
+      'Art': ['GOVERNMENT', 'LITERATURE IN ENGLISH', 'LITERATURE', 'HISTORY', 'VISUAL ARTS', 'FINE ART'],
+      'Commercial': ['FINANCIAL ACCOUNTING', 'COMMERCE', 'ACCOUNTING', 'BOOK KEEPING', 'OFFICE PRACTICE', 'STORE MANAGEMENT']
+    }
 
     if (classLevel === 'SSS') {
-      const coreGeneralSubjects = [
-        'Mathematics', 'English Language', 'Marketing', 
-        'Citizenship and Heritage studies', 'Economics', 'Biology', 'Civic Education'
-      ]
-      const trackSubjectNames = {
-        'Science': ['Chemistry', 'Physics'],
-        'Art': ['Government', 'Literature in English'],
-        'Commercial': ['Financial Accounting', 'Commerce']
+      if (coreGeneralSubjects.includes(subjNameUpper)) {
+        detectedSubjectCategory.value = 'General Core'
+      } else if (subTrack === 'SCIENCE' || trackSubjectNames.Science.includes(subjNameUpper)) {
+        detectedSubjectCategory.value = 'Science Arm'
+      } else if (subTrack === 'ART' || subTrack === 'ARTS' || trackSubjectNames.Art.includes(subjNameUpper)) {
+        detectedSubjectCategory.value = 'Art Arm'
+      } else if (subTrack === 'COMMERCIAL' || trackSubjectNames.Commercial.includes(subjNameUpper)) {
+        detectedSubjectCategory.value = 'Commercial Arm'
+      } else {
+        detectedSubjectCategory.value = 'Elective'
       }
-      
-      const isCore = coreGeneralSubjects.some(s => s.toUpperCase() === subjNameUpper)
-      
-      if (!isCore) {
+
+      filteredStudents = filteredStudents.filter((student: any) => {
+        const studentSubjects = Array.isArray(student.subjectIds) ? student.subjectIds.map(String) : []
+        if (aliasSubjectIds.some(id => studentSubjects.includes(id))) return true
+        if (detectedSubjectCategory.value === 'General Core') return true
+
+        const studentStream = String(student.stream || cls.track || '').toUpperCase().trim()
+        if (detectedSubjectCategory.value === 'Science Arm') {
+          return studentStream === 'SCIENCE'
+        }
+        if (detectedSubjectCategory.value === 'Art Arm') {
+          return studentStream === 'ART' || studentStream === 'ARTS'
+        }
+        if (detectedSubjectCategory.value === 'Commercial Arm') {
+          return studentStream === 'COMMERCIAL'
+        }
+
+        return false
+      })
+    } else {
+      detectedSubjectCategory.value = 'General Core'
+      const isCRS = subjNameUpper.includes('CHRISTIAN') || subjNameUpper === 'CRS' || subjNameUpper === 'CRK'
+      const isIRS = subjNameUpper.includes('ISLAMIC') || subjNameUpper === 'IRS' || subjNameUpper === 'IRK'
+      if (isCRS || isIRS) {
+        detectedSubjectCategory.value = 'Elective'
         filteredStudents = filteredStudents.filter((student: any) => {
           const studentSubjects = Array.isArray(student.subjectIds) ? student.subjectIds : []
-          // 1. Explicitly registered elective / subject
-          if (studentSubjects.includes(subjectId)) return true
-          
-          // 2. Stream-based allocation for track subjects
-          const studentStream = String(student.stream || cls.track || '').toUpperCase()
-          let streamMatch = false
-          Object.entries(trackSubjectNames).forEach(([track, subjects]) => {
-            if (studentStream === track.toUpperCase()) {
-              if (subjects.some(s => s.toUpperCase() === subjNameUpper)) {
-                streamMatch = true
-              }
-            }
-          })
-          
-          return streamMatch
+          if (aliasSubjectIds.some(id => studentSubjects.includes(id))) return true
+          if (studentSubjects.length > 0) return false
+          return true
         })
       }
-    } else if (isCRS || isIRS) {
-      // Religious Studies filter for JSS / Primary classes
-      filteredStudents = filteredStudents.filter((student: any) => {
-        const studentSubjects = Array.isArray(student.subjectIds) ? student.subjectIds : []
-        if (studentSubjects.includes(subjectId)) return true
-        if (studentSubjects.length > 0) return false
-        return true
-      })
     }
 
     students.value = filteredStudents.map((s: any) => ({
@@ -562,6 +635,32 @@ const printScoreSheet = () => {
           <span class="text-white">{{ saving ? 'Saving…' : 'Publish Scores' }}</span>
         </button>
       </div>
+
+      <!-- Subject Classification & Enrollment Scope Banner -->
+      <div v-if="subjectCategoryInfo" class="bg-sky-50/90 rounded-2xl border-2 border-sky-200 p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">{{ subjectCategoryInfo.icon }}</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black uppercase tracking-wider text-[#0C4A6E]">
+                {{ subjectCategoryInfo.title }}
+              </span>
+              <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full border"
+                :class="subjectCategoryInfo.badgeClass">
+                {{ subjectCategoryInfo.badge }}
+              </span>
+            </div>
+            <p class="text-xs font-medium text-slate-600 mt-0.5">
+              {{ subjectCategoryInfo.description }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs font-black text-[#0C4A6E] bg-white border border-sky-200 px-3 py-1.5 rounded-xl shadow-2xs">
+          <Users class="w-4 h-4 text-sky-700" />
+          <span>{{ students.length }} of {{ totalClassStudents || students.length }} Students Offering</span>
+        </div>
+      </div>
     </div>
 
 
@@ -704,6 +803,16 @@ const printScoreSheet = () => {
                 <span class="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-black text-slate-800">
                   {{ studentPositions.get(st.studentId) || overallPositions.get(st.studentId) || '-' }}
                 </span>
+              </td>
+            </tr>
+            <tr v-if="students.length === 0">
+              <td colspan="6" class="px-6 py-16 text-center">
+                <p class="text-sm font-black text-[#0C4A6E]">No students currently offer or are registered for {{ subjectName }} in {{ className }}.</p>
+                <p class="text-xs font-bold text-slate-500 mt-1" v-if="detectedSubjectCategory">
+                  Classification: <span class="text-sky-800 font-black">{{ detectedSubjectCategory }}</span>
+                  <span v-if="detectedSubjectCategory.includes('Arm')"> &bull; Only students in the {{ detectedSubjectCategory.replace(' Arm', '') }} stream are eligible.</span>
+                  <span v-else-if="detectedSubjectCategory === 'Elective'"> &bull; Form teachers can manage elective registrations in Form Class Management &rarr; Subject Enrollment.</span>
+                </p>
               </td>
             </tr>
           </tbody>
@@ -1038,8 +1147,13 @@ const printScoreSheet = () => {
       </template>
 
       <!-- Empty state -->
-      <div v-else class="bg-white p-10 rounded-2xl border-2 border-[#BAE6FD] text-center text-slate-600 font-bold uppercase tracking-wider text-xs">
-        No students found for this class.
+      <div v-else class="bg-white p-8 rounded-2xl border-2 border-[#BAE6FD] text-center space-y-2 shadow-sm">
+        <p class="text-sm font-black text-[#0C4A6E]">No students currently offer or are registered for {{ subjectName }}.</p>
+        <p class="text-xs font-bold text-slate-600" v-if="detectedSubjectCategory">
+          Classification: <span class="text-sky-800 font-black">{{ detectedSubjectCategory }}</span>
+          <span v-if="detectedSubjectCategory.includes('Arm')"> ({{ detectedSubjectCategory.replace(' Arm', '') }} stream only).</span>
+          <span v-else-if="detectedSubjectCategory === 'Elective'"> (Form teachers can enroll students in Form Class Management &rarr; Subject Enrollment).</span>
+        </p>
       </div>
     </div>
 
