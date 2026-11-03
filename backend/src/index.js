@@ -61,8 +61,7 @@ app.use("/api/admin", adminRouter);
 if (process.env.ENABLE_LOCAL_DEV_ROUTES === "true" && process.env.NODE_ENV !== "production") {
   app.use("/__dev__/admin", devAdminRouter);
 }
-// Subject roster routes must run first so the legacy class roster and score handlers
-// cannot bypass the subject-specific filter or submission validation.
+// Subject-aware routes run first; requests without subjectId fall through safely.
 app.use("/api/teacher", teacherScoreRosterRouter);
 app.use("/api/teacher", teacherRouter);
 app.use("/api/parent", parentRouter);
