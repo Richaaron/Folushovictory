@@ -50,7 +50,8 @@ const api = axios.create({
 
 console.debug('[API] baseURL:', API_BASE_URL)
 
-// Request interceptor for adding auth token and the active subject to score-roster requests.
+// Add the selected subject to teacher score roster calls. The score-entry route
+// carries this ID in its query string, while the roster API request is separate.
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore()
   if (authStore.token) {
@@ -58,9 +59,7 @@ api.interceptors.request.use((config) => {
   }
   if (config.url?.includes('/api/teacher/classes/') && config.url.endsWith('/students') && typeof window !== 'undefined') {
     const subjectId = new URLSearchParams(window.location.search).get('subjectId')
-    if (subjectId) {
-      config.params = { ...(config.params || {}), subjectId }
-    }
+    if (subjectId) config.params = { ...(config.params || {}), subjectId }
   }
   const requestUrl = config.url?.startsWith('http') ? config.url : `${config.baseURL || ''}${config.url}`
   console.debug('[API] request', config.method?.toUpperCase(), requestUrl, config.headers)
