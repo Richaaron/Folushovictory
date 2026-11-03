@@ -6,6 +6,7 @@ import { meRouter } from "./routes/me.js";
 import { adminRouter } from "./routes/admin.js";
 import { devAdminRouter } from "./routes/devAdmin.js";
 import { teacherRouter } from "./routes/teacher.js";
+import { teacherScoreRosterRouter } from "./routes/teacherScoreRoster.js";
 import { parentRouter } from "./routes/parent.js";
 import { studentRouter } from "./routes/student.js";
 import { resultsRouter } from "./routes/results.js";
@@ -60,6 +61,9 @@ app.use("/api/admin", adminRouter);
 if (process.env.ENABLE_LOCAL_DEV_ROUTES === "true" && process.env.NODE_ENV !== "production") {
   app.use("/__dev__/admin", devAdminRouter);
 }
+// Subject roster routes must run first so the legacy class roster and score handlers
+// cannot bypass the subject-specific filter or submission validation.
+app.use("/api/teacher", teacherScoreRosterRouter);
 app.use("/api/teacher", teacherRouter);
 app.use("/api/parent", parentRouter);
 app.use("/api/student", studentRouter);
