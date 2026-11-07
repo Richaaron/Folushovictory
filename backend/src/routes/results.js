@@ -4,7 +4,7 @@ import { authRequired } from "../middleware/auth.js";
 import { asyncHandler } from "../http.js";
 import { getClassById } from "../repos/classes.js";
 import { listStudentsByClass, listStudentsForSessionClass, getStudentById } from "../repos/students.js";
-import { listScoresForClass, listScoresForStudent } from "../repos/scores.js";
+import { listScoresForClass, listScoresForStudent, listScoresForStudentSession } from "../repos/scores.js";
 import { getGradingScale, getTermMeta, getSchoolSettings } from "../repos/config.js";
 import { gradeForTotal, numericBroadsheet, traitSheet } from "../compute.js";
 import { listSubjects, getSubjectById } from "../repos/subjects.js";
@@ -221,6 +221,41 @@ async function resolveReportTermParams(session, term) {
     session: session || String(schoolSettings.currentSession || '').trim(),
     term: term || String(schoolSettings.currentTerm || '').trim()
   };
+}
+
+/**
+ * For a historical session, a student may have since moved to a new class.
+ * Resolve the class they actually belonged to for that session (via their
+ * stored scores) so past reports load correctly. Falls back to the student's
+ * current class when the session is current or no historical scores exist.
+ */
+async function resolveReportClass(cls, student, session) {
+  if (!session) return cls;
+  const schoolSettings = await getSchoolSettings();
+  const activeSession = String(schoolSettings?.currentSession || "").trim();
+  if (!activeSession || session === activeSession) return cls;
+
+  const scores = await listScoresForStudentSession({ session, studentId: student.studentId }).catch(() => []);
+  const counts = new Map();
+  for (const score of scores) {
+    const classId = String(score.classId || "").trim();
+    if (!classId) continue;
+    counts.set(classId, (counts.get(classId) || 0) + 1);
+  }
+  if (counts.size === 0 || counts.has(String(cls.id))) return cls;
+
+  let bestClassId = null;
+  let bestCount = -1;
+  for (const [classId, count] of counts) {
+    if (count > bestCount) {
+      bestCount = count;
+      bestClassId = classId;
+    }
+  }
+  if (!bestClassId) return cls;
+
+  const historicalClass = await getClassById(bestClassId).catch(() => null);
+  return historicalClass || cls;
 }
 
 async function buildStudentReport({ student, cls, session, term }) {
@@ -566,7 +601,7 @@ resultsRouter.get(
       }
     }
 
-    const cls = await getClassById(student.classId);
+    let cls = await getClassById(student.classId);
     if (!cls) return res.status(404).json({ error: "Class not found" });
 
     if (req.user.role === Roles.TEACHER) {
@@ -575,6 +610,8 @@ resultsRouter.get(
       const isFormTeacher = cls.formTeacherUsername === req.user.username;
       if (!assignedToClass && !isFormTeacher) return res.status(403).json({ error: "Forbidden" });
     }
+
+    cls = await resolveReportClass(cls, student, String(session));
 
     return res.json(await buildStudentReport({
       student,

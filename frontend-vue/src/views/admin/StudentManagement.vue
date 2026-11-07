@@ -17,6 +17,7 @@ import {
 } from 'lucide-vue-next'
 import api from '../../services/api'
 import StudentSubjectPicker from '../../components/StudentSubjectPicker.vue'
+import { generateSessionOptions, getCurrentSession } from '../../utils/sessions'
 
 const router = useRouter()
 const students = ref<any[]>([])
@@ -270,12 +271,54 @@ const handleUpdateStudent = async () => {
   }
 }
 
-const openResultPreview = (student: any) => {
-  const studentId = student.studentId || student.id
+const normalizeTerm = (value: any) => {
+  const term = String(value || '').trim().toLowerCase()
+  if (term === 'first' || term === 'first term' || term === '1') return '1st'
+  if (term === 'second' || term === 'second term' || term === '2') return '2nd'
+  if (term === 'third' || term === 'third term' || term === '3') return '3rd'
+  if (['1st', '2nd', '3rd'].includes(term)) return term
+  return ''
+}
+
+const showResultModal = ref(false)
+const resultStudent = ref<any>(null)
+const resultSession = ref(getCurrentSession())
+const resultTerm = ref('1st')
+const sessionOptions = ref<string[]>(generateSessionOptions().reverse())
+
+const fetchSchoolSettings = async () => {
+  try {
+    const { data } = await api.get('/api/config/school')
+    const currentSession = String(data?.currentSession || '').trim()
+    if (currentSession) {
+      resultSession.value = currentSession
+      if (!sessionOptions.value.includes(currentSession)) {
+        sessionOptions.value = [currentSession, ...sessionOptions.value]
+      }
+    }
+    const currentTerm = normalizeTerm(data?.currentTerm)
+    if (currentTerm) resultTerm.value = currentTerm
+  } catch (err) {
+    console.error('Error fetching school settings:', err)
+  }
+}
+
+const openResultModal = (student: any) => {
+  resultStudent.value = student
+  if (!sessionOptions.value.includes(resultSession.value)) {
+    sessionOptions.value = [resultSession.value, ...sessionOptions.value]
+  }
+  showResultModal.value = true
+}
+
+const viewResult = () => {
+  if (!resultStudent.value) return
+  const studentId = resultStudent.value.studentId || resultStudent.value.id
+  showResultModal.value = false
   router.push({
     name: 'student-report',
     params: { studentId },
-    query: { preview: 'true', session: '2023/2024', term: 'First' }
+    query: { preview: 'true', session: resultSession.value, term: resultTerm.value }
   })
 }
 
@@ -287,6 +330,7 @@ onMounted(async () => {
   await fetchStudents()
   await fetchStats()
   await fetchSubjects()
+  await fetchSchoolSettings()
   await initPinJob()
 })
 
@@ -418,7 +462,7 @@ onUnmounted(() => {
             class="bg-white rounded-2xl border-2 border-[#BAE6FD] p-4 shadow-sm space-y-3 transition-all active:scale-[0.99]"
           >
             <!-- Top row: Avatar, Name, Class & Gender -->
-            <div class="flex items-center justify-between gap-3" @click="openResultPreview(student)">
+            <div class="flex items-center justify-between gap-3" @click="openResultModal(student)">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="h-11 w-11 rounded-2xl bg-amber-100 border border-amber-300 text-amber-900 font-black text-base flex items-center justify-center shrink-0 shadow-xs">
                   {{ student.firstName?.charAt(0) || 'S' }}
@@ -446,7 +490,7 @@ onUnmounted(() => {
             <!-- Actions Row with 44px min touch targets -->
             <div class="flex items-center gap-2 pt-2 border-t border-sky-100">
               <button
-                @click.stop="openResultPreview(student)"
+                @click.stop="openResultModal(student)"
                 class="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition active:scale-95 shadow-xs"
               >
                 <FileText class="w-4 h-4 text-white" />
@@ -492,7 +536,7 @@ onUnmounted(() => {
               </tr>
             </thead>
             <tbody class="divide-y divide-sky-100 bg-white">
-              <tr v-for="student in filteredStudents" :key="student.studentId || student.id" @click="openResultPreview(student)" class="cursor-pointer transition-colors hover:bg-sky-50/50">
+              <tr v-for="student in filteredStudents" :key="student.studentId || student.id" @click="openResultModal(student)" class="cursor-pointer transition-colors hover:bg-sky-50/50">
                 <td class="px-6 py-4 align-middle">
                   <span class="inline-flex items-center px-3 py-1 rounded-md bg-sky-50 text-xs font-black uppercase tracking-wider text-[#0C4A6E] border border-sky-200">{{ student.studentId }}</span>
                 </td>
@@ -671,6 +715,51 @@ onUnmounted(() => {
               <button @click="showEditModal = false" class="px-5 py-2.5 rounded-xl bg-slate-100 border border-slate-300 text-slate-700 text-xs font-extrabold flex-1 hover:bg-slate-200 transition">Cancel</button>
               <button @click="handleUpdateStudent" class="px-5 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-extrabold flex-[2] transition shadow-sm">Save Changes</button>
             </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Check Result Modal (read-only, any session/term) -->
+    <transition name="fade">
+      <div v-if="showResultModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showResultModal = false"></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 w-full sm:max-w-md shadow-2xl relative z-10 max-h-[90vh] overflow-y-auto">
+          <h2 class="text-xl font-black text-slate-900">Check Student Result</h2>
+          <p class="mt-1 text-xs font-bold text-slate-500">View a student's report sheet for any academic session. Results are read-only and can be downloaded or printed.</p>
+
+          <div v-if="resultStudent" class="mt-5 rounded-xl border-2 border-[#BAE6FD] bg-sky-50 p-4">
+            <p class="font-black text-slate-900">{{ resultStudent.firstName }} {{ resultStudent.lastName }}</p>
+            <p class="mt-0.5 text-xs font-extrabold uppercase tracking-wider text-[#0C4A6E]">
+              {{ resultStudent.studentId || resultStudent.id }}
+              <span class="mx-1 text-sky-300">•</span>
+              {{ classes.find(c => c.id === resultStudent.classId)?.name || 'Unassigned' }}
+            </p>
+          </div>
+
+          <div class="mt-5 space-y-4">
+            <div class="space-y-1.5">
+              <label class="text-xs font-black uppercase tracking-wider text-slate-700 ml-1">Academic Session</label>
+              <select v-model="resultSession" class="w-full h-11 px-3.5 bg-slate-50 border-2 border-[#BAE6FD] focus:border-sky-600 rounded-xl text-sm font-bold text-slate-900 outline-none transition-colors">
+                <option v-for="session in sessionOptions" :key="session" :value="session">{{ session }}</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="text-xs font-black uppercase tracking-wider text-slate-700 ml-1">Academic Term</label>
+              <select v-model="resultTerm" class="w-full h-11 px-3.5 bg-slate-50 border-2 border-[#BAE6FD] focus:border-sky-600 rounded-xl text-sm font-bold text-slate-900 outline-none transition-colors">
+                <option value="1st">First Term</option>
+                <option value="2nd">Second Term</option>
+                <option value="3rd">Third Term</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-6 flex gap-3">
+            <button @click="showResultModal = false" class="px-5 py-2.5 rounded-xl bg-slate-100 border border-slate-300 text-slate-700 text-xs font-extrabold flex-1 hover:bg-slate-200 transition">Cancel</button>
+            <button @click="viewResult" class="px-5 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-extrabold flex-[2] transition shadow-sm flex items-center justify-center gap-2">
+              <FileText class="w-4 h-4 text-white" /> <span>View Result</span>
+            </button>
           </div>
         </div>
       </div>

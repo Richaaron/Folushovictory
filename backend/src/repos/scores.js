@@ -96,3 +96,15 @@ export async function listScoresForStudent({ session, term, studentId }) {
   );
   return dedupeScores(data);
 }
+
+export async function listScoresForStudentSession({ session, studentId }) {
+  const { data } = await SafeDatabase.query(
+    "scores",
+    [
+      ["session", "==", String(session)],
+      ["studentId", "==", String(studentId)]
+    ],
+    { pageSize: 1000, orderBy: "updatedAt", orderDirection: "desc" }
+  );
+  return dedupeScores(data);
+}
