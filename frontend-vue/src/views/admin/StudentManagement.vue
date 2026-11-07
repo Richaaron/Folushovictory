@@ -167,6 +167,26 @@ const resetStudentPin = async (student: any) => {
   }
 }
 
+const generatingAllPins = ref(false)
+
+const generateAllPins = async () => {
+  if (!confirm('Generate NEW PINs for ALL students and email the full list to the school admin address?\n\nEvery student\'s current PIN will stop working.')) return
+  generatingAllPins.value = true
+  try {
+    const { data } = await api.post('/api/admin/students/reset-all-pins')
+    const emailNote = data.emailSent
+      ? `The list has been emailed to ${data.emailedTo}.`
+      : `⚠️ The email could NOT be sent (check email configuration).`
+    const failureNote = data.failureCount > 0 ? `\n\n${data.failureCount} student(s) could not be updated.` : ''
+    alert(`✅ Generated PINs for ${data.count} student(s).\n\n${emailNote}${failureNote}`)
+  } catch (err: any) {
+    const errorMsg = err.response?.data?.error || err.message || 'Unable to generate PINs.'
+    alert(`❌ Failed: ${errorMsg}`)
+  } finally {
+    generatingAllPins.value = false
+  }
+}
+
 const handleDelete = async (id: string) => {
   if (!confirm(`Are you sure you want to delete this student record? This action cannot be undone.`)) return
   try {
@@ -239,6 +259,13 @@ onMounted(async () => {
           class="w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-sm transition active:scale-95"
         >
           <UserPlus class="w-4 h-4 text-white" /> <span>Register New Student</span>
+        </button>
+        <button
+          @click="generateAllPins"
+          :disabled="generatingAllPins"
+          class="w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-sm transition active:scale-95"
+        >
+          <KeyRound class="w-4 h-4 text-white" /> <span>{{ generatingAllPins ? 'Generating...' : 'Generate & Email All PINs' }}</span>
         </button>
       </div>
     </section>

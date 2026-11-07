@@ -56,6 +56,53 @@ export const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
+export const sendStudentCredentialsEmail = async ({ to, students, subject = null }) => {
+  const list = (Array.isArray(students) ? students : [students]).filter(Boolean);
+  const hasClass = list.some((student) => student.classLabel);
+  const rows = list
+    .map((student) => `
+      <tr>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #1e293b;">${escapeHtml(student.name || "")}</td>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-family: monospace; color: #1e293b;">${escapeHtml(student.studentId || "")}</td>
+        ${hasClass ? `<td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #1e293b;">${escapeHtml(student.classLabel || "-")}</td>` : ""}
+        <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-family: monospace; font-weight: bold; color: #0B6E4F;">${escapeHtml(student.pin || "")}</td>
+      </tr>`)
+    .join("");
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 720px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+      <div style="background-color: #0B6E4F; padding: 24px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">Folusho Victory Schools</h1>
+      </div>
+      <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+        <h2 style="margin-top: 0;">Student Logins (${list.length})</h2>
+        <p>The following student${list.length === 1 ? "" : "s"} can log in to the student portal with the <strong>admission number</strong> and <strong>PIN</strong> below. Please share them privately with each student.</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px;">
+          <thead>
+            <tr style="background-color: #f8fafc; text-align: left;">
+              <th style="padding: 10px 12px; border-bottom: 2px solid #cbd5e1; color: #475569;">Name</th>
+              <th style="padding: 10px 12px; border-bottom: 2px solid #cbd5e1; color: #475569;">Admission No.</th>
+              ${hasClass ? `<th style="padding: 10px 12px; border-bottom: 2px solid #cbd5e1; color: #475569;">Class</th>` : ""}
+              <th style="padding: 10px 12px; border-bottom: 2px solid #cbd5e1; color: #475569;">PIN</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0;" />
+        <p style="font-size: 12px; color: #94a3b8; text-align: center;">
+          © ${new Date().getFullYear()} Folusho Victory Schools. All rights reserved.
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: subject || `FVS: Student PIN${list.length === 1 ? "" : "s"} (${list.length})`,
+    html
+  });
+};
+
 export const sendResultReleasedEmail = async ({ parentEmail, parentName, studentName, session, term }) => {
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">

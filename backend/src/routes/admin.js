@@ -17,7 +17,7 @@ import { setReleaseStatus } from "../repos/releases.js";
 import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
 // Firebase dependency removed - all database operations use SafeDatabase (Supabase)
-import { sendEmail, sendResultReleasedEmail, sendLoginChangeNotificationEmail, sendTeacherCredentialsEmail, sendTeacherRegistrationInvitationEmail } from "../services/email.js";
+import { sendEmail, sendResultReleasedEmail, sendLoginChangeNotificationEmail, sendTeacherCredentialsEmail, sendTeacherRegistrationInvitationEmail, sendStudentCredentialsEmail } from "../services/email.js";
 import { logActivity } from "../services/activityLog.js";
 import { performHealthCheck, validateDataIntegrity, getCollectionMetrics, SafeDatabase } from "../firestore-utils/index.js";
 import { getIdColumnName } from "../firestore-utils/db-utils.js";
@@ -975,7 +975,25 @@ adminRouter.post(
       resourceId: studentId
     }).catch((error) => console.error("Activity log failed:", error));
 
-    return res.status(201).json({ studentId, studentPin, parentUsername, parentPassword });
+    let credentialEmailSent = false;
+    try {
+      const cls = await getClassById(payload.classId);
+      await sendStudentCredentialsEmail({
+        to: config.studentCredentialsAdminEmail,
+        students: [{
+          name: studentDisplayName,
+          studentId,
+          pin: studentPin,
+          classLabel: cls?.name || cls?.className || payload.classId
+        }],
+        subject: `FVS: New student enrolled - ${studentDisplayName} (${studentId})`
+      });
+      credentialEmailSent = true;
+    } catch (error) {
+      console.error("Failed to email new student PIN:", error);
+    }
+
+    return res.status(201).json({ studentId, studentPin, parentUsername, parentPassword, credentialEmailSent });
   })
 );
 
@@ -1022,6 +1040,99 @@ adminRouter.post(
     }).catch((error) => console.error("Activity log failed:", error));
 
     return res.json({ success: true, studentId: student.studentId, pin });
+  })
+);
+
+adminRouter.post(
+  "/students/reset-all-pins",
+  asyncHandler(async (req, res) => {
+    const [allStudents, classes] = await Promise.all([
+      queryAllDocuments("students"),
+      listClasses()
+    ]);
+    const classLabelFor = (classId) => {
+      const cls = classes.find((c) => String(c.id) === String(classId));
+      return cls?.name || cls?.className || classId || "";
+    };
+
+    const generated = [];
+    const failures = [];
+
+    for (const student of allStudents) {
+      const studentId = String(student.studentId || student.id || "").trim().toLowerCase();
+      if (!studentId) continue;
+      try {
+        const pin = generateStudentPin();
+        const passwordHash = await hashPassword(pin);
+        const existingUser = await getUserByUsername(studentId);
+        if (existingUser && existingUser.role !== Roles.STUDENT) {
+          failures.push({ studentId, reason: "Admission number is used by a non-student account." });
+          continue;
+        }
+
+        const displayName = `${student.firstName || ""} ${student.lastName || ""}`.trim().slice(0, 100);
+        if (existingUser) {
+          await updateUser(studentId, { passwordHash, studentId, displayName, portal: "STUDENT" });
+        } else {
+          await createUser({
+            username: studentId,
+            portal: "STUDENT",
+            role: Roles.STUDENT,
+            displayName,
+            passwordHash,
+            studentId
+          }, { docId: studentId });
+        }
+
+        generated.push({
+          name: displayName,
+          studentId,
+          pin,
+          classLabel: classLabelFor(student.classId)
+        });
+      } catch (error) {
+        failures.push({ studentId, reason: error?.message || String(error) });
+      }
+    }
+
+    generated.sort((a, b) => a.studentId.localeCompare(b.studentId));
+
+    let emailSent = false;
+    if (generated.length > 0) {
+      try {
+        await sendStudentCredentialsEmail({
+          to: config.studentCredentialsAdminEmail,
+          students: generated,
+          subject: `FVS: Student PINs for all students (${generated.length})`
+        });
+        emailSent = true;
+      } catch (error) {
+        console.error("Failed to email all student PINs:", error);
+      }
+    }
+
+    await logActivity({
+      actor: req.user.username,
+      role: Roles.ADMIN,
+      action: "Generated PINs for all students",
+      details: {
+        count: generated.length,
+        failureCount: failures.length,
+        emailedTo: config.studentCredentialsAdminEmail,
+        emailSent
+      },
+      resourceType: "student"
+    }).catch((error) => console.error("Activity log failed:", error));
+
+    return res.json({
+      success: true,
+      count: generated.length,
+      failureCount: failures.length,
+      failures,
+      emailSent,
+      emailedTo: config.studentCredentialsAdminEmail,
+      students: generated
+    });
   })
 );
 
