@@ -8,11 +8,11 @@ import { listStudentsForSessionClass } from "../repos/students.js";
 import { getSchoolSettings } from "../repos/config.js";
 import { getSubjectById, listSubjects } from "../repos/subjects.js";
 import { isReligiousStudiesAlias, normalizeLevel } from "../subjectAliases.js";
-import { isSubjectAvailableForClass } from "../subjectEligibility.js";
+import { isSubjectAvailableForClass, getSubjectCategory } from "../subjectEligibility.js";
 import { subjectIsReligious, studentOffersSubject } from "../subjectRoster.js";
 
 export const teacherScoreRosterRouter = express.Router();
-teacherScoreRosterRouter.use(authRequired, requireRole(Roles.TEACHER));
+teacherScoreRosterRouter.use(authRequired, requireRole(Roles.TEACHER, Roles.ADMIN));
 
 async function getSubjectIdsIncludingAliases(subject) {
   if (!subjectIsReligious(subject)) return [String(subject.id)];
@@ -59,7 +59,10 @@ async function getAuthorizedSubjectRoster({ req, res, classId, subjectId, sessio
   const isPrimaryOrNurseryFormTeacher = formClasses.some((formClass) =>
     formClass.id === classId && ["Primary", "Nursery"].includes(normalizeLevel(formClass.level))
   );
-  if (!hasAssignment && !isPrimaryOrNurseryFormTeacher) {
+  const isAdmin = req.user.role === Roles.ADMIN;
+  const isFormTeacher = cls.formTeacherUsername === req.user.username;
+
+  if (!hasAssignment && !isPrimaryOrNurseryFormTeacher && !isAdmin && !isFormTeacher) {
     res.status(403).json({ error: "Forbidden" });
     return null;
   }
@@ -68,9 +71,21 @@ async function getAuthorizedSubjectRoster({ req, res, classId, subjectId, sessio
   const resolvedSession = session || String(settings?.currentSession || "").trim();
   const resolvedTerm = term || String(settings?.currentTerm || "").trim();
   const students = await listStudentsForSessionClass(classId, resolvedSession, resolvedTerm);
+  const filtered = students.filter((student) => studentOffersSubject(student, cls, subject, subjectIds));
+  const enriched = filtered.map((student) => ({
+    ...student,
+    id: student.studentId,
+    name: `${student.firstName} ${student.lastName}`.trim(),
+    subjectIds: Array.isArray(student.subjectIds) ? student.subjectIds : []
+  }));
+
   return {
     class: cls,
-    students: students.filter((student) => studentOffersSubject(student, cls, subject, subjectIds))
+    subject,
+    subjectCategory: getSubjectCategory(subject, cls.level),
+    allStudentsCount: students.length,
+    canAddStudents: isFormTeacher || isAdmin,
+    students: enriched
   };
 }
 
@@ -90,7 +105,14 @@ teacherScoreRosterRouter.get(
       term: String(req.query.term || "").trim()
     });
     if (!roster) return;
-    return res.json({ students: roster.students, class: roster.class, canAddStudents: false });
+    return res.json({
+      students: roster.students,
+      class: roster.class,
+      subject: roster.subject,
+      subjectCategory: roster.subjectCategory,
+      allStudentsCount: roster.allStudentsCount,
+      canAddStudents: roster.canAddStudents
+    });
   })
 );
 

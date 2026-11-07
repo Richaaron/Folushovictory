@@ -24,7 +24,7 @@ import { SafeDatabase } from "../firestore-utils/index.js";
 
 export const teacherRouter = express.Router();
 
-teacherRouter.use(authRequired, requireRole(Roles.TEACHER));
+teacherRouter.use(authRequired, requireRole(Roles.TEACHER, Roles.ADMIN));
 
 /**
  * Resolves a subjectId to its canonical ID.
@@ -60,12 +60,14 @@ async function resolveScoreSubjectId(subjectId) {
  * same canonical subject. If either teacher has an assignment for any religious-studies
  * variant in the class, both are allowed to enter scores.
  */
-async function canTeacherEnterSubject({ teacherUsername, classId, subjectId, aliasIds = [] }) {
+async function canTeacherEnterSubject({ teacherUsername, classId, subjectId, aliasIds = [], role = null }) {
+  if (role === Roles.ADMIN) return true;
   const [cls, subject] = await Promise.all([
     getClassById(classId),
     getSubjectById(subjectId)
   ]);
   if (cls && subject && !isSubjectAvailableForClass(subject, cls)) return false;
+  if (cls?.formTeacherUsername === teacherUsername) return true;
 
   // 1. Direct match: teacher assigned to the exact canonical subject in this class
   const direct = await getAssignmentByTriplet({ teacherUsername, classId, subjectId });
@@ -188,7 +190,8 @@ teacherRouter.get(
           if (!uniqueAssignments.has(key)) {
             uniqueAssignments.set(key, {
               id: `primary-auto-${cls.id}-${subject.id}`,
-              teacherUsername: req.user.username,
+              role: req.user.role,
+      teacherUsername: req.user.username,
               classId: cls.id,
               subjectId: subject.id,
               createdAt: new Date().toISOString()
@@ -332,7 +335,8 @@ teacherRouter.post(
         description,
         classId,
         subjectId,
-        teacherUsername: req.user.username,
+        role: req.user.role,
+      teacherUsername: req.user.username,
         dueAt,
         maxScore,
         questions,
@@ -408,7 +412,8 @@ teacherRouter.get(
     const isPryNurClass = cls?.level === "PRY" || cls?.level === "NUR";
     const canAddStudents = isFormTeacher || (isPryNurTeacher && isPryNurClass);
 
-    if (!isSubjectTeacher && !isFormTeacher && !(isPryNurTeacher && isPryNurClass)) {
+    const isAdmin = req.user.role === Roles.ADMIN;
+    if (!isSubjectTeacher && !isFormTeacher && !(isPryNurTeacher && isPryNurClass) && !isAdmin) {
       return res.status(403).json({ error: "Forbidden" });
     }
 
@@ -479,6 +484,7 @@ teacherRouter.post(
     // the broadsheet can display all students' scores under the same column.
     const resolvedSubject = await resolveScoreSubjectId(subjectId);
     const canEnter = await canTeacherEnterSubject({
+      role: req.user.role,
       teacherUsername: req.user.username,
       classId: String(classId),
       subjectId: resolvedSubject.subjectId,
@@ -558,6 +564,7 @@ teacherRouter.post(
 
     const resolvedSubject = await resolveScoreSubjectId(subjectId);
     const canEnter = await canTeacherEnterSubject({
+      role: req.user.role,
       teacherUsername: req.user.username,
       classId: String(classId),
       subjectId: resolvedSubject.subjectId,

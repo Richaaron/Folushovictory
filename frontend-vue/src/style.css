@@ -498,22 +498,28 @@ tr:hover td {
     box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.05), 0 22px 60px rgba(2, 6, 23, 0.55);
   }
 
-  /* Prevent the "shrunken desktop" look by tightening the mobile layout */
-  .glass-card,
-  .parchment-card,
-  .academic-card,
-  article,
-  section,
-  [class*="bg-white"],
-  [class*="bg-slate-50"],
-  [class*="bg-slate-100"],
-  [class*="bg-slate-200"],
-  [class*="bg-sky-50"],
-  [class*="bg-blue-50"],
-  [class*="bg-emerald-50"],
-  [class*="bg-amber-50"],
-  [class*="bg-[#F8FAFC]"],
-  [class*="bg-[#FFFFFF]"] {
+  /* Prevent the "shrunken desktop" look by tightening the mobile layout.
+     Any LIGHT surface is switched to the dark mobile surface so text (forced
+     light below) always stays readable. The #app prefix is required so this
+     beats the desktop white-card rules (article:not(...) / section:not(...)),
+     which otherwise win on specificity and leave white cards with light text. */
+  #app :is(
+    .glass-card, .parchment-card, .academic-card,
+    article, section,
+    [class*="bg-white"],
+    [class*="bg-[#FFFFFF]"], [class*="bg-[#F8FAFC]"],
+    [class~="bg-slate-50"], [class~="bg-slate-100"], [class~="bg-slate-200"], [class~="bg-slate-300"],
+    [class~="bg-sky-50"], [class~="bg-sky-100"], [class~="bg-sky-200"],
+    [class~="bg-blue-50"], [class~="bg-blue-100"],
+    [class~="bg-emerald-50"], [class~="bg-emerald-100"], [class~="bg-emerald-200"],
+    [class~="bg-amber-50"], [class~="bg-amber-100"], [class~="bg-amber-200"], [class~="bg-amber-300"],
+    [class~="bg-yellow-50"], [class~="bg-yellow-100"],
+    [class~="bg-red-50"], [class~="bg-red-100"], [class~="bg-red-200"],
+    [class~="bg-rose-50"], [class~="bg-rose-100"],
+    [class~="bg-purple-50"], [class~="bg-purple-100"],
+    [class*="bg-[#EFF6FF]"], [class*="bg-[#ECFDF5]"], [class*="bg-[#FFFBEB]"],
+    [class*="bg-[#FEF3C7]"], [class*="bg-[#F0F9FF]"], [class*="bg-[#C9A84C]"]
+  ) {
     background: rgba(15, 23, 42, 0.94) !important;
     border: 1px solid rgba(148, 163, 184, 0.22) !important;
     box-shadow: 0 10px 30px rgba(2, 6, 23, 0.28) !important;
@@ -527,6 +533,14 @@ tr:hover td {
     border-radius: 14px !important;
   }
 
+  /* Force EVERY text element to a light, readable color. The previous rule
+     only covered p/span/label/etc., so text in <div>s (e.g. the landing page
+     stat numbers) kept its dark desktop color and disappeared on dark cards. */
+  #app,
+  #app * {
+    color: var(--text-body) !important;
+  }
+
   h1, h2, h3, h4, h5, h6,
   .academic-heading,
   .neon-heading,
@@ -534,27 +548,21 @@ tr:hover td {
     color: #f8fafc !important;
   }
 
-  p, span, label, li, td, th,
-  .academic-body,
-  .neon-body,
-  a,
-  .text-slate-700,
-  .text-slate-800,
-  .text-slate-900,
-  .text-gray-700,
-  .text-gray-800,
-  .text-gray-900,
-  .text-black {
-    color: var(--text-body) !important;
+  /* Gradient headings rely on transparent text-fill; make them solid light so
+     they remain visible on the dark mobile theme. */
+  .gradient-text {
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    -webkit-text-fill-color: #f8fafc !important;
   }
 
-  [class*="text-slate-400"],
-  [class*="text-slate-500"],
-  [class*="text-slate-600"],
-  [class*="text-gray-500"],
-  [class*="text-gray-600"],
-  [class*="text-[#6B7280]"],
-  [class*="text-[#9CA3AF]"] {
+  #app [class*="text-slate-400"],
+  #app [class*="text-slate-500"],
+  #app [class*="text-slate-600"],
+  #app [class*="text-gray-500"],
+  #app [class*="text-gray-600"],
+  #app [class*="text-[#6B7280]"],
+  #app [class*="text-[#9CA3AF]"] {
     color: var(--text-secondary) !important;
   }
 
