@@ -25,8 +25,122 @@ const loading = ref(true)
 const error = ref('')
 const previewMode = computed(() => String(route.query.preview || '').toLowerCase() === 'true')
 
+const collectStyles = () => {
+  let css = Array.from(document.querySelectorAll('style'))
+    .map((s) => s.textContent || '')
+    .join('\n')
+  try {
+    for (const sheet of Array.from(document.styleSheets)) {
+      try {
+        for (const rule of Array.from(sheet.cssRules || [])) {
+          css += rule.cssText + '\n'
+        }
+      } catch (e) {
+        // Cross-origin stylesheet – skip
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+  return css
+}
+
+// Print through an isolated document so the app's full-height wrappers and the
+// mobile `#app` media-query overrides cannot stretch the report to a second page.
 const printReport = () => {
-  window.print()
+  const card = document.querySelector('.report-card') as HTMLElement | null
+  if (!card) return
+
+  const clone = card.cloneNode(true) as HTMLElement
+  clone.querySelectorAll('.no-print').forEach((n) => n.remove())
+
+  const styles = collectStyles()
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Student Report Card</title>
+<style>
+${styles}
+
+/* ── Isolated print sheet: exactly one page per student ── */
+@page { size: A4 portrait; margin: 5mm; }
+html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+.no-print { display: none !important; }
+.report-card {
+  display: block !important;
+  width: 200mm !important;
+  max-width: 200mm !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 auto !important;
+  padding: 4px 6px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  transform: none !important;
+  zoom: 0.9 !important;
+  page-break-after: auto !important;
+  break-after: auto !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+/* Hide decorative sections to guarantee a single-page report */
+.preview-banner, .cumulative-section, .performance-summary,
+.watermark-logo, .school-contact, .report-footer {
+  display: none !important;
+}
+/* Neutralize the mobile-only layout so the report keeps its desktop, compact form */
+.remarks-section { display: flex !important; flex-direction: row !important; gap: 14px !important; }
+.remark-box { flex: 1 1 0 !important; width: auto !important; }
+.table-frame { overflow: visible !important; }
+.table-frame table { width: 100% !important; min-width: 0 !important; }
+* {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+</style>
+</head>
+<body>
+${clone.outerHTML}
+<script>
+  setTimeout(function () {
+    window.focus();
+    window.print();
+    window.onafterprint = function () { window.close(); };
+  }, 600);
+<\/script>
+</body>
+</html>`
+
+  const popup = window.open('', '_blank', 'width=900,height=700')
+  if (popup) {
+    popup.document.open()
+    popup.document.write(html)
+    popup.document.close()
+    return
+  }
+
+  // Fallback when the popup is blocked: render into a hidden iframe.
+  let iframe = document.getElementById('report-print-iframe') as HTMLIFrameElement | null
+  if (!iframe) {
+    iframe = document.createElement('iframe')
+    iframe.id = 'report-print-iframe'
+    iframe.style.position = 'fixed'
+    iframe.style.right = '0'
+    iframe.style.bottom = '0'
+    iframe.style.width = '0'
+    iframe.style.height = '0'
+    iframe.style.border = '0'
+    document.body.appendChild(iframe)
+  }
+  const doc = iframe.contentWindow?.document || iframe.contentDocument
+  if (doc) {
+    doc.open()
+    doc.write(html)
+    doc.close()
+  }
 }
 
 const fetchData = async () => {
@@ -115,7 +229,7 @@ onMounted(fetchData)
       </button>
 
       <button
-        v-if="data"
+        v-if="data && (data.released || previewMode)"
         @click="printReport"
         class="flex items-center gap-2 rounded-xl bg-sky-700 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-sky-800 active:bg-sky-900 transition-all shadow-md"
       >
