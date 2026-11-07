@@ -18,6 +18,7 @@ import { publishResults, getPublish } from "../repos/publishes.js";
 import { setPrincipalRemark, setTeacherRemark } from "../repos/remarks.js";
 // Firebase dependency removed - all database operations use SafeDatabase (Supabase)
 import { sendEmail, sendResultReleasedEmail, sendLoginChangeNotificationEmail, sendTeacherCredentialsEmail, sendTeacherRegistrationInvitationEmail, sendStudentCredentialsEmail } from "../services/email.js";
+import { buildStudentPinsPdf } from "../services/pinPdf.js";
 import { logActivity } from "../services/activityLog.js";
 import { performHealthCheck, validateDataIntegrity, getCollectionMetrics, SafeDatabase } from "../firestore-utils/index.js";
 import { getIdColumnName } from "../firestore-utils/db-utils.js";
@@ -1124,6 +1125,7 @@ async function runBulkPinJob(actor) {
             name: displayName,
             studentId,
             pin,
+            classId: student.classId || null,
             classLabel: classLabelFor(student.classId)
           });
         } catch (error) {
@@ -1145,10 +1147,47 @@ async function runBulkPinJob(actor) {
 
     if (generated.length > 0) {
       try {
+        const groupsByClass = new Map();
+        for (const student of generated) {
+          const key = String(student.classId || "unassigned");
+          if (!groupsByClass.has(key)) {
+            groupsByClass.set(key, {
+              classLabel: student.classLabel || "Unassigned",
+              students: []
+            });
+          }
+          groupsByClass.get(key).students.push({
+            name: student.name,
+            studentId: student.studentId,
+            pin: student.pin
+          });
+        }
+
+        // Keep classes in the school's own class order, then any leftovers.
+        const orderedGroups = [];
+        for (const cls of classes) {
+          const group = groupsByClass.get(String(cls.id));
+          if (group) {
+            orderedGroups.push(group);
+            groupsByClass.delete(String(cls.id));
+          }
+        }
+        for (const group of groupsByClass.values()) orderedGroups.push(group);
+
+        for (const group of orderedGroups) {
+          group.students.sort((a, b) => a.studentId.localeCompare(b.studentId));
+        }
+
+        const pdfBuffer = await buildStudentPinsPdf(orderedGroups);
+
         await sendStudentCredentialsEmail({
           to: config.studentCredentialsAdminEmail,
           students: generated,
-          subject: `FVS: Student PINs for all students (${generated.length})`
+          subject: `FVS: Student PINs for all students (${generated.length})`,
+          attachments: [{
+            filename: `student-pins-${new Date().toISOString().slice(0, 10)}.pdf`,
+            content: pdfBuffer.toString("base64")
+          }]
         });
         pinBulkJob.emailSent = true;
       } catch (error) {

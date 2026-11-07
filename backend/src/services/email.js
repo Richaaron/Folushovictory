@@ -12,7 +12,7 @@ const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character
   "'": "&#39;"
 })[character]);
 
-export const sendEmail = async ({ to, subject, html }) => {
+export const sendEmail = async ({ to, subject, html, attachments = [] }) => {
   const logId = Math.random().toString(36).substring(2, 15);
   const logData = {
     to,
@@ -40,6 +40,7 @@ export const sendEmail = async ({ to, subject, html }) => {
       to,
       subject,
       html,
+      ...(attachments.length > 0 ? { attachments } : {}),
     });
 
     if (emailResponse.error) {
@@ -56,7 +57,7 @@ export const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
-export const sendStudentCredentialsEmail = async ({ to, students, subject = null }) => {
+export const sendStudentCredentialsEmail = async ({ to, students, subject = null, attachments = [] }) => {
   const list = (Array.isArray(students) ? students : [students]).filter(Boolean);
   const hasClass = list.some((student) => student.classLabel);
   const rows = list
@@ -99,7 +100,8 @@ export const sendStudentCredentialsEmail = async ({ to, students, subject = null
   return sendEmail({
     to,
     subject: subject || `FVS: Student PIN${list.length === 1 ? "" : "s"} (${list.length})`,
-    html
+    html,
+    attachments
   });
 };
 

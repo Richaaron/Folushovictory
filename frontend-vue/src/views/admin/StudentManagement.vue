@@ -188,7 +188,7 @@ const pollPinJob = async () => {
       stopPinJobPolling()
       if (data.state === 'completed') {
         const emailNote = data.emailSent
-          ? `The list has been emailed to ${data.emailedTo}.`
+          ? `The PDF (one page per class) has been emailed to ${data.emailedTo}.`
           : '⚠️ The email could NOT be sent (check email configuration).'
         const failureNote = data.failureCount > 0 ? `\n\n${data.failureCount} student(s) could not be updated.` : ''
         alert(`✅ Generated PINs for ${data.count} student(s).\n\n${emailNote}${failureNote}`)
@@ -215,7 +215,7 @@ const initPinJob = async () => {
 }
 
 const generateAllPins = async () => {
-  if (!confirm('Generate NEW PINs for ALL students and email the full list to the school admin address?\n\nEvery student\'s current PIN will stop working.')) return
+  if (!confirm('Generate NEW PINs for ALL students and email the PDF (one page per class) to the school admin address?\n\nEvery student\'s current PIN will stop working.')) return
   generatingAllPins.value = true
   try {
     const { data } = await api.post('/api/admin/students/reset-all-pins')
