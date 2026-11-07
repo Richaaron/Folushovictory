@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { BookOpen, ClipboardList, Clock3, GraduationCap, KeyRound, Loader2, Send, Trophy, CheckCircle2, AlertCircle } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { BookOpen, ClipboardList, Clock3, FileText, GraduationCap, KeyRound, Loader2, Send, Trophy, CheckCircle2, AlertCircle } from 'lucide-vue-next'
 import api from '../../services/api'
+import { generateSessionOptions, getCurrentSession } from '../../utils/sessions'
 
+const router = useRouter()
 const dashboard = ref<any>(null)
 const loading = ref(true)
 const error = ref('')
@@ -87,7 +90,49 @@ const changePin = async () => {
 const isPastDue = (activity: any) => activity.dueAt && new Date(activity.dueAt).getTime() < Date.now()
 const formatDueAt = (dueAt: string | null) => dueAt ? new Date(dueAt).toLocaleString() : 'No deadline'
 
-onMounted(fetchDashboard)
+const normalizeTerm = (value: any) => {
+  const term = String(value || '').trim().toLowerCase()
+  if (term === 'first' || term === 'first term' || term === '1') return '1st'
+  if (term === 'second' || term === 'second term' || term === '2') return '2nd'
+  if (term === 'third' || term === 'third term' || term === '3') return '3rd'
+  if (['1st', '2nd', '3rd'].includes(term)) return term
+  return ''
+}
+
+const selectedSession = ref(getCurrentSession())
+const selectedTerm = ref('1st')
+const sessionOptions = ref<string[]>(generateSessionOptions().reverse())
+
+const fetchSchoolSettings = async () => {
+  try {
+    const { data } = await api.get('/api/config/school')
+    const currentSession = String(data?.currentSession || '').trim()
+    if (currentSession) {
+      selectedSession.value = currentSession
+      if (!sessionOptions.value.includes(currentSession)) {
+        sessionOptions.value = [currentSession, ...sessionOptions.value]
+      }
+    }
+    const currentTerm = normalizeTerm(data?.currentTerm)
+    if (currentTerm) selectedTerm.value = currentTerm
+  } catch (err) {
+    // Non-blocking: fall back to the generated session options.
+  }
+}
+
+const viewResult = () => {
+  const studentId = dashboard.value?.student?.studentId
+  if (!studentId) return
+  router.push({
+    name: 'student-report',
+    params: { studentId },
+    query: { session: selectedSession.value, term: selectedTerm.value }
+  })
+}
+
+onMounted(async () => {
+  await Promise.all([fetchDashboard(), fetchSchoolSettings()])
+})
 </script>
 
 <template>
@@ -137,6 +182,46 @@ onMounted(fetchDashboard)
       <AlertCircle class="h-5 w-5 shrink-0 text-red-700" />
       <span>{{ error }}</span>
     </div>
+
+    <!-- My Results Section -->
+    <section id="student-results-section" class="scroll-mt-20 bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-7 shadow-sm space-y-4">
+      <div class="flex items-center justify-between pb-4 border-b border-sky-100">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-emerald-100 border border-emerald-200 text-emerald-800 flex items-center justify-center">
+            <FileText class="h-5 w-5 text-emerald-800" />
+          </div>
+          <div>
+            <h2 class="text-lg font-black text-[#0C4A6E]">My Results</h2>
+            <p class="text-xs font-semibold text-slate-600">Check your report sheet for any academic session and download it</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-3 max-w-2xl">
+        <div class="space-y-1.5">
+          <label class="text-xs font-black uppercase tracking-wider text-slate-700 ml-1">Academic Session</label>
+          <select v-model="selectedSession" class="w-full h-11 px-3.5 bg-slate-50 border-2 border-[#BAE6FD] focus:border-sky-600 rounded-xl text-sm font-bold text-slate-900 outline-none transition-colors">
+            <option v-for="session in sessionOptions" :key="session" :value="session">{{ session }}</option>
+          </select>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-xs font-black uppercase tracking-wider text-slate-700 ml-1">Academic Term</label>
+          <select v-model="selectedTerm" class="w-full h-11 px-3.5 bg-slate-50 border-2 border-[#BAE6FD] focus:border-sky-600 rounded-xl text-sm font-bold text-slate-900 outline-none transition-colors">
+            <option value="1st">First Term</option>
+            <option value="2nd">Second Term</option>
+            <option value="3rd">Third Term</option>
+          </select>
+        </div>
+
+        <div class="flex items-end">
+          <button @click="viewResult" class="w-full min-h-[44px] px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold flex items-center justify-center gap-2 transition-colors shadow-sm">
+            <FileText class="h-4 w-4 text-white" />
+            <span>View / Download Result</span>
+          </button>
+        </div>
+      </div>
+    </section>
 
     <!-- My Subjects Section -->
     <section id="student-subjects-section" class="scroll-mt-20 bg-white rounded-2xl border-2 border-[#BAE6FD] p-5 sm:p-7 shadow-sm space-y-4">
