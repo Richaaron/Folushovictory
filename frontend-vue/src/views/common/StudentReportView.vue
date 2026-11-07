@@ -1130,12 +1130,27 @@ td {
 }
 
 @media print {
+  :global(html),
   :global(body) {
     margin: 0 !important;
     padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
     background: white !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* Neutralize the app's full-viewport (100vh) wrappers. When printing the
+     live page these would otherwise stretch to a full A4 page height and push
+     a single student's report onto a second page. */
+  :global(#app),
+  :global(.app-shell),
+  :global(.min-h-screen) {
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   .no-print {
@@ -1147,6 +1162,13 @@ td {
     width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
+    min-height: 0 !important;
+  }
+
+  /* Remove any sibling spacing (e.g. space-y-6) so the card starts at the top */
+  .report-screen > * {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
 
   /* Compact page layout: maximize usable space while remaining printable */
@@ -1154,7 +1176,10 @@ td {
     /* Expand to use the full printable width and increase type for readability */
     width: calc(210mm - 8mm) !important;
     max-width: calc(210mm - 8mm) !important;
-    min-height: calc(297mm - 16mm) !important;
+    /* Do NOT force a minimum height: a single report must fit on exactly one
+       page, so the card is only as tall as its content. */
+    min-height: 0 !important;
+    height: auto !important;
     margin: 0 auto !important;
     border: 0 !important;
     border-radius: 0 !important;
