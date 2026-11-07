@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   Search, 
@@ -168,20 +168,65 @@ const resetStudentPin = async (student: any) => {
 }
 
 const generatingAllPins = ref(false)
+const pinJob = ref<any>(null)
+let pinJobTimer: number | null = null
+
+const pinJobRunning = computed(() => pinJob.value?.state === 'running')
+
+const stopPinJobPolling = () => {
+  if (pinJobTimer !== null) {
+    clearInterval(pinJobTimer)
+    pinJobTimer = null
+  }
+}
+
+const pollPinJob = async () => {
+  try {
+    const { data } = await api.get('/api/admin/students/reset-all-pins/status')
+    pinJob.value = data
+    if (data.state === 'completed' || data.state === 'failed') {
+      stopPinJobPolling()
+      if (data.state === 'completed') {
+        const emailNote = data.emailSent
+          ? `The list has been emailed to ${data.emailedTo}.`
+          : '⚠️ The email could NOT be sent (check email configuration).'
+        const failureNote = data.failureCount > 0 ? `\n\n${data.failureCount} student(s) could not be updated.` : ''
+        alert(`✅ Generated PINs for ${data.count} student(s).\n\n${emailNote}${failureNote}`)
+      } else {
+        alert(`❌ PIN generation failed: ${data.error || 'Unknown error'}`)
+      }
+    }
+  } catch (err) {
+    // ignore transient polling errors
+  }
+}
+
+const initPinJob = async () => {
+  try {
+    const { data } = await api.get('/api/admin/students/reset-all-pins/status')
+    pinJob.value = data
+    if (data.state === 'running') {
+      stopPinJobPolling()
+      pinJobTimer = window.setInterval(pollPinJob, 5000)
+    }
+  } catch (err) {
+    // ignore
+  }
+}
 
 const generateAllPins = async () => {
   if (!confirm('Generate NEW PINs for ALL students and email the full list to the school admin address?\n\nEvery student\'s current PIN will stop working.')) return
   generatingAllPins.value = true
   try {
     const { data } = await api.post('/api/admin/students/reset-all-pins')
-    const emailNote = data.emailSent
-      ? `The list has been emailed to ${data.emailedTo}.`
-      : `⚠️ The email could NOT be sent (check email configuration).`
-    const failureNote = data.failureCount > 0 ? `\n\n${data.failureCount} student(s) could not be updated.` : ''
-    alert(`✅ Generated PINs for ${data.count} student(s).\n\n${emailNote}${failureNote}`)
+    pinJob.value = { state: 'running', processed: 0, total: 0, ...data }
+    stopPinJobPolling()
+    pinJobTimer = window.setInterval(pollPinJob, 5000)
+    await pollPinJob()
   } catch (err: any) {
     const errorMsg = err.response?.data?.error || err.message || 'Unable to generate PINs.'
     alert(`❌ Failed: ${errorMsg}`)
+    if (err.response?.status === 409) await pollPinJob()
   } finally {
     generatingAllPins.value = false
   }
@@ -242,6 +287,11 @@ onMounted(async () => {
   await fetchStudents()
   await fetchStats()
   await fetchSubjects()
+  await initPinJob()
+})
+
+onUnmounted(() => {
+  stopPinJobPolling()
 })
 </script>
 
@@ -262,13 +312,22 @@ onMounted(async () => {
         </button>
         <button
           @click="generateAllPins"
-          :disabled="generatingAllPins"
+          :disabled="generatingAllPins || pinJobRunning"
           class="w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-sm transition active:scale-95"
         >
-          <KeyRound class="w-4 h-4 text-white" /> <span>{{ generatingAllPins ? 'Generating...' : 'Generate & Email All PINs' }}</span>
+          <KeyRound class="w-4 h-4 text-white" /> <span>{{ (generatingAllPins || pinJobRunning) ? 'Generating...' : 'Generate & Email All PINs' }}</span>
         </button>
       </div>
     </section>
+
+    <!-- Background PIN generation progress -->
+    <div v-if="pinJobRunning" class="bg-amber-50 border border-amber-300 rounded-2xl p-4 flex items-center gap-3 text-amber-900">
+      <Loader2 class="w-5 h-5 text-amber-700 animate-spin shrink-0" />
+      <p class="text-xs sm:text-sm font-bold">
+        Generating new PINs in the background — {{ pinJob?.processed || 0 }}<span v-if="pinJob?.total"> / {{ pinJob.total }}</span> students processed.
+        You will receive an email at {{ pinJob?.emailedTo }} when it finishes. You can keep working.
+      </p>
+    </div>
 
     <!-- Registry Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

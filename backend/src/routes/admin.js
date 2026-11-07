@@ -1043,61 +1043,106 @@ adminRouter.post(
   })
 );
 
-adminRouter.post(
-  "/students/reset-all-pins",
-  asyncHandler(async (req, res) => {
-    const [allStudents, classes] = await Promise.all([
+// ---------------------------------------------------------------
+// Bulk student PIN generation.
+// Regenerating PINs for 500+ students (bcrypt hashing + DB writes)
+// takes several minutes, so the request returns immediately and the
+// work continues in the background. Progress is exposed via the
+// status endpoint below and the list is emailed when it finishes.
+// ---------------------------------------------------------------
+const PIN_JOB_IDLE = {
+  state: "idle",
+  total: 0,
+  processed: 0,
+  count: 0,
+  failureCount: 0,
+  failures: [],
+  emailSent: false,
+  emailedTo: null,
+  startedAt: null,
+  finishedAt: null,
+  error: null
+};
+
+let pinBulkJob = { ...PIN_JOB_IDLE };
+let pinBulkRunning = false;
+
+async function runBulkPinJob(actor) {
+  try {
+    const [allStudents, classes, studentUsers] = await Promise.all([
       queryAllDocuments("students"),
-      listClasses()
+      listClasses(),
+      queryAllDocuments("users", [["role", "==", Roles.STUDENT]])
     ]);
+
+    const usersByName = new Map();
+    for (const user of studentUsers) {
+      if (user?.username) usersByName.set(String(user.username).toLowerCase(), user);
+    }
+
     const classLabelFor = (classId) => {
       const cls = classes.find((c) => String(c.id) === String(classId));
       return cls?.name || cls?.className || classId || "";
     };
 
+    pinBulkJob.total = allStudents.length;
+    pinBulkJob.processed = 0;
+
     const generated = [];
     const failures = [];
+    const CONCURRENCY = 12;
+    let cursor = 0;
 
-    for (const student of allStudents) {
-      const studentId = String(student.studentId || student.id || "").trim().toLowerCase();
-      if (!studentId) continue;
-      try {
-        const pin = generateStudentPin();
-        const passwordHash = await hashPassword(pin);
-        const existingUser = await getUserByUsername(studentId);
-        if (existingUser && existingUser.role !== Roles.STUDENT) {
-          failures.push({ studentId, reason: "Admission number is used by a non-student account." });
+    const worker = async () => {
+      while (cursor < allStudents.length) {
+        const student = allStudents[cursor++];
+        const studentId = String(student?.studentId || student?.id || "").trim().toLowerCase();
+        if (!studentId) {
+          pinBulkJob.processed += 1;
           continue;
         }
+        try {
+          const pin = generateStudentPin();
+          const passwordHash = await hashPassword(pin);
+          const displayName = `${student.firstName || ""} ${student.lastName || ""}`.trim().slice(0, 100);
+          const existingUser = usersByName.get(studentId);
 
-        const displayName = `${student.firstName || ""} ${student.lastName || ""}`.trim().slice(0, 100);
-        if (existingUser) {
-          await updateUser(studentId, { passwordHash, studentId, displayName, portal: "STUDENT" });
-        } else {
-          await createUser({
-            username: studentId,
-            portal: "STUDENT",
-            role: Roles.STUDENT,
-            displayName,
-            passwordHash,
-            studentId
-          }, { docId: studentId });
+          if (existingUser) {
+            await updateUser(studentId, { passwordHash, studentId, displayName, portal: "STUDENT" });
+          } else {
+            await createUser({
+              username: studentId,
+              portal: "STUDENT",
+              role: Roles.STUDENT,
+              displayName,
+              passwordHash,
+              studentId
+            }, { docId: studentId });
+          }
+
+          generated.push({
+            name: displayName,
+            studentId,
+            pin,
+            classLabel: classLabelFor(student.classId)
+          });
+        } catch (error) {
+          failures.push({ studentId, reason: error?.message || String(error) });
+        } finally {
+          pinBulkJob.processed += 1;
         }
-
-        generated.push({
-          name: displayName,
-          studentId,
-          pin,
-          classLabel: classLabelFor(student.classId)
-        });
-      } catch (error) {
-        failures.push({ studentId, reason: error?.message || String(error) });
       }
-    }
+    };
+
+    const workerCount = Math.max(1, Math.min(CONCURRENCY, allStudents.length));
+    await Promise.all(Array.from({ length: workerCount }, () => worker()));
 
     generated.sort((a, b) => a.studentId.localeCompare(b.studentId));
+    pinBulkJob.count = generated.length;
+    pinBulkJob.failureCount = failures.length;
+    pinBulkJob.failures = failures;
+    pinBulkJob.emailedTo = config.studentCredentialsAdminEmail;
 
-    let emailSent = false;
     if (generated.length > 0) {
       try {
         await sendStudentCredentialsEmail({
@@ -1105,33 +1150,71 @@ adminRouter.post(
           students: generated,
           subject: `FVS: Student PINs for all students (${generated.length})`
         });
-        emailSent = true;
+        pinBulkJob.emailSent = true;
       } catch (error) {
         console.error("Failed to email all student PINs:", error);
       }
     }
 
     await logActivity({
-      actor: req.user.username,
+      actor,
       role: Roles.ADMIN,
       action: "Generated PINs for all students",
       details: {
         count: generated.length,
         failureCount: failures.length,
         emailedTo: config.studentCredentialsAdminEmail,
-        emailSent
+        emailSent: pinBulkJob.emailSent
       },
       resourceType: "student"
     }).catch((error) => console.error("Activity log failed:", error));
 
-    return res.json({
-      success: true,
-      count: generated.length,
-      failureCount: failures.length,
-      failures,
-      emailSent,
+    pinBulkJob.state = "completed";
+    pinBulkJob.finishedAt = new Date().toISOString();
+  } catch (error) {
+    console.error("Bulk student PIN job failed:", error);
+    pinBulkJob.state = "failed";
+    pinBulkJob.error = error?.message || String(error);
+    pinBulkJob.finishedAt = new Date().toISOString();
+  } finally {
+    pinBulkRunning = false;
+  }
+}
+
+adminRouter.get(
+  "/students/reset-all-pins/status",
+  asyncHandler(async (req, res) => {
+    return res.json({ success: true, ...pinBulkJob });
+  })
+);
+
+adminRouter.post(
+  "/students/reset-all-pins",
+  asyncHandler(async (req, res) => {
+    if (pinBulkRunning) {
+      return res.status(409).json({
+        error: "A PIN generation job is already running.",
+        ...pinBulkJob
+      });
+    }
+
+    pinBulkRunning = true;
+    pinBulkJob = {
+      ...PIN_JOB_IDLE,
+      state: "running",
+      failures: [],
       emailedTo: config.studentCredentialsAdminEmail,
-      students: generated
+      startedAt: new Date().toISOString()
+    };
+
+    runBulkPinJob(req.user.username);
+
+    return res.status(202).json({
+      success: true,
+      started: true,
+      state: pinBulkJob.state,
+      startedAt: pinBulkJob.startedAt,
+      emailedTo: pinBulkJob.emailedTo
     });
   })
 );
