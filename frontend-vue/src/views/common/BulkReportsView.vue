@@ -195,53 +195,150 @@ const handlePrintAll = (existingPopup?: Window | null) => {
     .print-card {
       box-sizing: border-box;
       display: block;
-      width: 200mm;
+      width: 202mm;
       margin: 0 auto;
       padding: 0;
-      page-break-after: always !important;
-      break-after: page !important;
       page-break-inside: avoid;
       break-inside: avoid;
     }
-    .print-card:last-child { page-break-after: auto !important; break-after: auto !important; }
+    /* Break before each card except the first – never leaves a trailing blank page. */
+    .print-card + .print-card { page-break-before: always !important; break-before: page !important; }
     .withheld-page { page-break-before: always !important; break-before: page !important; }
 
     /* ── PRINT-TIME OVERRIDES (highest priority) ── */
     @media print {
-      @page { size: A4 portrait; margin: 5mm; }
-      body { margin: 0 !important; padding: 0 !important; background: white !important; }
+      @page { size: A4 portrait; margin: 4mm; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
       .no-print { display: none !important; }
-      .print-area { display: block !important; width: 200mm !important; margin: 0 auto !important; }
-      .print-card {
+      .print-area {
         display: block !important;
-        width: 200mm !important;
+        width: 202mm !important;
+        max-width: 202mm !important;
         margin: 0 auto !important;
         padding: 0 !important;
-        page-break-after: always !important;
-        break-after: page !important;
+      }
+      /* Kill the space-y-* gaps so they cannot push a card onto an extra page. */
+      #print-area-section > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+
+      /* ── ONE PAGE PER STUDENT ──
+         Break BEFORE each card except the first. The old
+         page-break-after:always + :last-child approach always produced a
+         trailing blank page, because the withheld-fees section and the
+         action bar sit after the last card, so :last-child never matched. */
+      .print-card,
+      #print-area-section .print-card {
+        display: block !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        min-height: 0 !important;
+        height: auto !important;
+        transform: none !important;
+        overflow: visible !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        /* Scale down to force fit on one A4 page */
-        zoom: 0.85 !important;
-        transform: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        overflow: visible !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
       }
-      .print-card:last-child { page-break-after: auto !important; break-after: auto !important; }
+      .print-card + .print-card,
+      #print-area-section .print-card + .print-card {
+        page-break-before: always !important;
+        break-before: page !important;
+      }
       .withheld-page { page-break-before: always !important; break-before: page !important; }
-      /* Hide unwanted sections in print */
-      .school-contact { display: none !important; }
-      .report-footer { display: none !important; }
-      /* Enlarge table and remarks to fill the freed vertical space */
-      .result-section { margin-top: 25px !important; }
-      .result-section th { padding: 18px 10px !important; font-size: 11px !important; }
-      .result-section td { padding: 18px 10px !important; font-size: 14px !important; }
-      .remarks-section { margin-top: 25px !important; }
-      .remark-box { padding: 24px 20px !important; }
-      .remark-box p { font-size: 13px !important; line-height: 1.6 !important; }
-      .signature-area { margin-top: 20px !important; }
-      .signature-image { height: 45px !important; }
+
+      /* Hide decorative / variable-height sections to guarantee one page. */
+      .school-contact,
+      .report-footer,
+      .report-bottom-line { display: none !important; }
+      .report-top-line { height: 2px !important; }
+
+      /* ── COMPACT TYPOGRAPHY & SPACING (id-scoped so it beats the scoped CSS) ── */
+      #print-area-section .report-card { font-size: 8px !important; line-height: 1.08 !important; }
+      #print-area-section .report-card *:not(svg):not(path) {
+        font-size: 8px !important;
+        line-height: 1.08 !important;
+      }
+      #print-area-section .report-header {
+        padding: 3px 6px !important;
+        gap: 4px !important;
+        grid-template-columns: 1fr 96px !important;
+      }
+      #print-area-section .brand-panel { gap: 8px !important; }
+      #print-area-section .logo-mark {
+        width: 34px !important;
+        height: 34px !important;
+        padding: 0 !important;
+        border-radius: 4px !important;
+        box-shadow: none !important;
+      }
+      #print-area-section .logo-mark img { padding: 2px !important; }
+      #print-area-section .brand-copy h1 { font-size: 13px !important; line-height: 1 !important; }
+      #print-area-section .document-kicker { font-size: 6px !important; margin-bottom: 1px !important; gap: 3px !important; }
+      #print-area-section .document-kicker svg { width: 8px !important; height: 8px !important; }
+      #print-area-section .motto { font-size: 7px !important; margin-top: 1px !important; }
+      #print-area-section .term-panel { padding: 3px 4px !important; border-radius: 5px !important; }
+      #print-area-section .term-panel svg { width: 11px !important; height: 11px !important; margin-bottom: 1px !important; }
+      #print-area-section .term-panel span { font-size: 6px !important; }
+      #print-area-section .term-panel strong { font-size: 9px !important; margin: 0 !important; }
+      #print-area-section .term-panel small { font-size: 7px !important; }
+
+      #print-area-section .student-band,
+      #print-area-section .performance-summary { padding: 2px 6px 0 !important; gap: 2px !important; }
+      #print-area-section .info-card,
+      #print-area-section .stat-card { padding: 2px 3px !important; border-radius: 4px !important; }
+      #print-area-section .info-card span,
+      #print-area-section .stat-card span { font-size: 6px !important; }
+      #print-area-section .info-card strong { font-size: 8px !important; margin-top: 0 !important; }
+      #print-area-section .stat-card strong { font-size: 10px !important; margin-top: 0 !important; }
+      #print-area-section .stat-icon { width: 10px !important; height: 10px !important; }
+
+      #print-area-section .result-section,
+      #print-area-section .cumulative-section { padding: 2px 6px 0 !important; margin-top: 0 !important; }
+      #print-area-section .section-title { margin-bottom: 2px !important; }
+      #print-area-section .section-title span { font-size: 6px !important; }
+      #print-area-section .section-title strong { font-size: 8px !important; }
+      #print-area-section .table-frame { border-radius: 3px !important; border-width: 1px !important; }
+      #print-area-section .table-frame table th,
+      #print-area-section .table-frame table td {
+        padding: 1px 3px !important;
+        font-size: 8px !important;
+        line-height: 1.02 !important;
+      }
+      #print-area-section .grade-badge { padding: 0 2px !important; font-size: 7px !important; }
+      #print-area-section .cumulative-grid { gap: 3px !important; }
+      #print-area-section .cumulative-card { padding: 2px 4px !important; border-radius: 4px !important; }
+
+      #print-area-section .remarks-section {
+        margin-top: 2px !important;
+        padding: 2px 6px !important;
+        gap: 4px !important;
+      }
+      #print-area-section .remark-box {
+        min-height: 0 !important;
+        padding: 3px 5px !important;
+        border-radius: 4px !important;
+      }
+      #print-area-section .remark-box span { font-size: 6px !important; }
+      #print-area-section .remark-box p {
+        min-height: 0 !important;
+        margin: 1px 0 !important;
+        font-size: 8px !important;
+        line-height: 1.05 !important;
+      }
+      #print-area-section .signature-area { margin-top: 2px !important; }
+      #print-area-section .signature-line,
+      #print-area-section .signature-image { height: 14px !important; margin-top: 1px !important; }
+      #print-area-section .signature-image img { max-height: 13px !important; }
+      #print-area-section .teacher-name,
+      #print-area-section .remark-box strong { font-size: 7px !important; margin-top: 1px !important; }
+      #print-area-section .remark-box small { font-size: 6px !important; margin-top: 1px !important; }
+
       /* Preserve all colors */
       * {
         -webkit-print-color-adjust: exact !important;
@@ -252,11 +349,36 @@ const handlePrintAll = (existingPopup?: Window | null) => {
   </style>
 </head>
 <body>
-  <div class="print-area">
+  <div id="print-area-section" class="print-area">
     ${clone.innerHTML}
   </div>
   <script>
+    function fitCardsToPage() {
+      var cards = document.querySelectorAll('.print-card');
+      /* A4 height (297mm) minus 4mm top/bottom margins, with a safety buffer. */
+      var maxHeight = 284 * 96 / 25.4;
+
+      cards.forEach(function(card) {
+        var zoom = 1;
+        card.style.setProperty('zoom', '1', 'important');
+        card.style.setProperty('width', '202mm', 'important');
+        card.style.setProperty('max-width', 'none', 'important');
+
+        for (var i = 0; i < 10; i++) {
+          var height = card.getBoundingClientRect().height;
+          if (!height || height <= maxHeight) break;
+
+          zoom = Math.max(0.3, zoom * (maxHeight / height) * 0.98);
+          card.style.setProperty('zoom', String(zoom), 'important');
+          /* Compensate the width so the card still fills the page width. */
+          card.style.setProperty('width', (202 / zoom) + 'mm', 'important');
+        }
+      });
+    }
+
+    window.addEventListener('beforeprint', fitCardsToPage);
     setTimeout(function() {
+      fitCardsToPage();
       window.focus();
       window.print();
       window.onafterprint = function() { window.close(); };
