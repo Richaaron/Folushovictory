@@ -392,14 +392,41 @@ const handlePrintAll = (existingPopup?: Window | null) => {
       var cards = document.querySelectorAll('.print-card');
       /* A4 height minus 4mm margins and a print-engine safety allowance. */
       var maxHeight = 286 * 96 / 25.4;
+      var targetHeight = 280 * 96 / 25.4;
 
       cards.forEach(function(card) {
         card.removeAttribute('data-fit-level');
-        if (card.getBoundingClientRect().height <= maxHeight) return;
+        card.style.setProperty('zoom', '1', 'important');
+        card.style.setProperty('width', '202mm', 'important');
+        card.style.setProperty('max-width', 'none', 'important');
 
-        card.setAttribute('data-fit-level', 'compact');
         if (card.getBoundingClientRect().height > maxHeight) {
-          card.setAttribute('data-fit-level', 'dense');
+          card.setAttribute('data-fit-level', 'compact');
+          if (card.getBoundingClientRect().height > maxHeight) {
+            card.setAttribute('data-fit-level', 'dense');
+          }
+        }
+
+        /*
+         * Scale each report to use the printable page height. Compensating
+         * the CSS width keeps the rendered card within the 202mm page width.
+         */
+        var zoom = 1;
+        for (var i = 0; i < 6; i++) {
+          var height = card.getBoundingClientRect().height;
+          if (!height) break;
+
+          var ratio = targetHeight / height;
+          if (Math.abs(1 - ratio) < 0.015) break;
+          zoom = Math.max(0.7, Math.min(1.35, zoom * ratio * 0.99));
+          card.style.setProperty('zoom', String(zoom), 'important');
+          card.style.setProperty('width', (202 / zoom) + 'mm', 'important');
+
+          if (card.getBoundingClientRect().height > maxHeight) {
+            zoom = Math.max(0.7, zoom * (maxHeight / card.getBoundingClientRect().height) * 0.98);
+            card.style.setProperty('zoom', String(zoom), 'important');
+            card.style.setProperty('width', (202 / zoom) + 'mm', 'important');
+          }
         }
       });
     }
