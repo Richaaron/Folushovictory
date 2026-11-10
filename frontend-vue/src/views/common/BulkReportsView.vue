@@ -258,86 +258,121 @@ const handlePrintAll = (existingPopup?: Window | null) => {
       .report-bottom-line { display: none !important; }
       .report-top-line { height: 2px !important; }
 
-      /* ── COMPACT TYPOGRAPHY & SPACING (id-scoped so it beats the scoped CSS) ── */
-      #print-area-section .report-card { font-size: 8px !important; line-height: 1.08 !important; }
+      /* ── READABLE, PROFESSIONAL PRINT TYPOGRAPHY ── */
+      #print-area-section .report-card,
       #print-area-section .report-card *:not(svg):not(path) {
-        font-size: 8px !important;
-        line-height: 1.08 !important;
+        font-family: Arial, Helvetica, sans-serif !important;
+      }
+      #print-area-section .report-card {
+        font-size: 9pt !important;
+        line-height: 1.2 !important;
       }
       #print-area-section .report-header {
-        padding: 3px 6px !important;
-        gap: 4px !important;
-        grid-template-columns: 1fr 96px !important;
+        padding: 7mm 8mm !important;
+        gap: 5mm !important;
+        grid-template-columns: 1fr 42mm !important;
       }
-      #print-area-section .brand-panel { gap: 8px !important; }
+      #print-area-section .brand-panel { gap: 4mm !important; }
       #print-area-section .logo-mark {
-        width: 34px !important;
-        height: 34px !important;
+        width: 18mm !important;
+        height: 18mm !important;
         padding: 0 !important;
-        border-radius: 4px !important;
+        border-radius: 2mm !important;
         box-shadow: none !important;
       }
-      #print-area-section .logo-mark img { padding: 2px !important; }
-      #print-area-section .brand-copy h1 { font-size: 13px !important; line-height: 1 !important; }
-      #print-area-section .document-kicker { font-size: 6px !important; margin-bottom: 1px !important; gap: 3px !important; }
-      #print-area-section .document-kicker svg { width: 8px !important; height: 8px !important; }
-      #print-area-section .motto { font-size: 7px !important; margin-top: 1px !important; }
-      #print-area-section .term-panel { padding: 3px 4px !important; border-radius: 5px !important; }
-      #print-area-section .term-panel svg { width: 11px !important; height: 11px !important; margin-bottom: 1px !important; }
-      #print-area-section .term-panel span { font-size: 6px !important; }
-      #print-area-section .term-panel strong { font-size: 9px !important; margin: 0 !important; }
-      #print-area-section .term-panel small { font-size: 7px !important; }
+      #print-area-section .logo-mark img { padding: 2mm !important; }
+      #print-area-section .brand-copy h1 { font-size: 15pt !important; line-height: 1.1 !important; }
+      #print-area-section .document-kicker { font-size: 7pt !important; margin-bottom: 2mm !important; gap: 2mm !important; }
+      #print-area-section .document-kicker svg { width: 3mm !important; height: 3mm !important; }
+      #print-area-section .motto { font-size: 8pt !important; margin-top: 1mm !important; }
+      #print-area-section .term-panel { padding: 3mm !important; border-radius: 2mm !important; }
+      #print-area-section .term-panel svg { width: 5mm !important; height: 5mm !important; margin-bottom: 1mm !important; }
+      #print-area-section .term-panel span { font-size: 7pt !important; }
+      #print-area-section .term-panel strong { font-size: 12pt !important; margin: 1mm 0 !important; }
+      #print-area-section .term-panel small { font-size: 8pt !important; }
 
       #print-area-section .student-band,
-      #print-area-section .performance-summary { padding: 2px 6px 0 !important; gap: 2px !important; }
+      #print-area-section .performance-summary { padding: 3mm 8mm 0 !important; gap: 2mm !important; }
       #print-area-section .info-card,
-      #print-area-section .stat-card { padding: 2px 3px !important; border-radius: 4px !important; }
+      #print-area-section .stat-card { padding: 2mm 2.5mm !important; border-radius: 1.5mm !important; }
       #print-area-section .info-card span,
-      #print-area-section .stat-card span { font-size: 6px !important; }
-      #print-area-section .info-card strong { font-size: 8px !important; margin-top: 0 !important; }
-      #print-area-section .stat-card strong { font-size: 10px !important; margin-top: 0 !important; }
-      #print-area-section .stat-icon { width: 10px !important; height: 10px !important; }
+      #print-area-section .stat-card span { font-size: 7pt !important; line-height: 1.1 !important; }
+      #print-area-section .info-card strong { font-size: 8.5pt !important; margin-top: 1mm !important; line-height: 1.15 !important; }
+      #print-area-section .stat-card strong { font-size: 12pt !important; margin-top: 1mm !important; line-height: 1.1 !important; }
+      #print-area-section .stat-icon { width: 5mm !important; height: 5mm !important; }
 
       #print-area-section .result-section,
-      #print-area-section .cumulative-section { padding: 2px 6px 0 !important; margin-top: 0 !important; }
-      #print-area-section .section-title { margin-bottom: 2px !important; }
-      #print-area-section .section-title span { font-size: 6px !important; }
-      #print-area-section .section-title strong { font-size: 8px !important; }
-      #print-area-section .table-frame { border-radius: 3px !important; border-width: 1px !important; }
+      #print-area-section .cumulative-section { padding: 3mm 8mm 0 !important; margin-top: 0 !important; }
+      #print-area-section .section-title { margin-bottom: 2mm !important; }
+      #print-area-section .section-title span { font-size: 7pt !important; }
+      #print-area-section .section-title strong { font-size: 9pt !important; }
+      #print-area-section .table-frame { border-radius: 1.5mm !important; border-width: 0.25mm !important; }
       #print-area-section .table-frame table th,
       #print-area-section .table-frame table td {
-        padding: 1px 3px !important;
-        font-size: 8px !important;
-        line-height: 1.02 !important;
+        padding: 1.2mm 1.5mm !important;
+        font-size: 8.5pt !important;
+        line-height: 1.15 !important;
       }
-      #print-area-section .grade-badge { padding: 0 2px !important; font-size: 7px !important; }
-      #print-area-section .cumulative-grid { gap: 3px !important; }
-      #print-area-section .cumulative-card { padding: 2px 4px !important; border-radius: 4px !important; }
+      #print-area-section .grade-badge { padding: 0.4mm 1mm !important; font-size: 8pt !important; }
+      #print-area-section .cumulative-grid { gap: 1.5mm !important; }
+      #print-area-section .cumulative-card { padding: 1.5mm 2mm !important; border-radius: 1.5mm !important; }
 
       #print-area-section .remarks-section {
-        margin-top: 2px !important;
-        padding: 2px 6px !important;
-        gap: 4px !important;
+        margin-top: 0 !important;
+        padding: 3mm 8mm !important;
+        gap: 2mm !important;
       }
       #print-area-section .remark-box {
         min-height: 0 !important;
-        padding: 3px 5px !important;
-        border-radius: 4px !important;
+        padding: 2mm 2.5mm !important;
+        border-radius: 1.5mm !important;
       }
-      #print-area-section .remark-box span { font-size: 6px !important; }
+      #print-area-section .remark-box span { font-size: 7pt !important; }
       #print-area-section .remark-box p {
         min-height: 0 !important;
-        margin: 1px 0 !important;
-        font-size: 8px !important;
+        margin: 1mm 0 1.5mm !important;
+        font-size: 8.5pt !important;
+        line-height: 1.2 !important;
+      }
+      #print-area-section .signature-area { margin-top: 1mm !important; }
+      #print-area-section .signature-line,
+      #print-area-section .signature-image { height: 9mm !important; margin-top: 1mm !important; }
+      #print-area-section .signature-image img { max-height: 8mm !important; }
+      #print-area-section .teacher-name,
+      #print-area-section .remark-box strong { font-size: 8pt !important; margin-top: 1mm !important; }
+      #print-area-section .remark-box small { font-size: 7pt !important; margin-top: 1mm !important; }
+
+      /* Only unusually long cards get denser; normal cards keep readable sizing. */
+      #print-area-section .print-card[data-fit-level="compact"] .report-header {
+        padding-top: 5mm !important;
+        padding-bottom: 5mm !important;
+      }
+      #print-area-section .print-card[data-fit-level="compact"] .student-band,
+      #print-area-section .print-card[data-fit-level="compact"] .performance-summary,
+      #print-area-section .print-card[data-fit-level="compact"] .result-section,
+      #print-area-section .print-card[data-fit-level="compact"] .cumulative-section,
+      #print-area-section .print-card[data-fit-level="compact"] .remarks-section {
+        padding-top: 2mm !important;
+      }
+      #print-area-section .print-card[data-fit-level="compact"] .table-frame table th,
+      #print-area-section .print-card[data-fit-level="compact"] .table-frame table td {
+        padding-top: 0.8mm !important;
+        padding-bottom: 0.8mm !important;
+      }
+      #print-area-section .print-card[data-fit-level="dense"] .cumulative-section {
+        display: none !important;
+      }
+      #print-area-section .print-card[data-fit-level="dense"] .table-frame table th,
+      #print-area-section .print-card[data-fit-level="dense"] .table-frame table td {
+        font-size: 8pt !important;
+        padding-top: 0.5mm !important;
+        padding-bottom: 0.5mm !important;
         line-height: 1.05 !important;
       }
-      #print-area-section .signature-area { margin-top: 2px !important; }
-      #print-area-section .signature-line,
-      #print-area-section .signature-image { height: 14px !important; margin-top: 1px !important; }
-      #print-area-section .signature-image img { max-height: 13px !important; }
-      #print-area-section .teacher-name,
-      #print-area-section .remark-box strong { font-size: 7px !important; margin-top: 1px !important; }
-      #print-area-section .remark-box small { font-size: 6px !important; margin-top: 1px !important; }
+      #print-area-section .print-card[data-fit-level="dense"] .remarks-section {
+        padding-top: 1.5mm !important;
+        padding-bottom: 1.5mm !important;
+      }
 
       /* Preserve all colors */
       * {
@@ -355,30 +390,22 @@ const handlePrintAll = (existingPopup?: Window | null) => {
   <script>
     function fitCardsToPage() {
       var cards = document.querySelectorAll('.print-card');
-      /* A4 height (297mm) minus 4mm top/bottom margins, with a safety buffer. */
-      var maxHeight = 284 * 96 / 25.4;
+      /* A4 height minus 4mm margins and a print-engine safety allowance. */
+      var maxHeight = 286 * 96 / 25.4;
 
       cards.forEach(function(card) {
-        var zoom = 1;
-        card.style.setProperty('zoom', '1', 'important');
-        card.style.setProperty('width', '202mm', 'important');
-        card.style.setProperty('max-width', 'none', 'important');
+        card.removeAttribute('data-fit-level');
+        if (card.getBoundingClientRect().height <= maxHeight) return;
 
-        for (var i = 0; i < 10; i++) {
-          var height = card.getBoundingClientRect().height;
-          if (!height || height <= maxHeight) break;
-
-          zoom = Math.max(0.3, zoom * (maxHeight / height) * 0.98);
-          card.style.setProperty('zoom', String(zoom), 'important');
-          /* Compensate the width so the card still fills the page width. */
-          card.style.setProperty('width', (202 / zoom) + 'mm', 'important');
+        card.setAttribute('data-fit-level', 'compact');
+        if (card.getBoundingClientRect().height > maxHeight) {
+          card.setAttribute('data-fit-level', 'dense');
         }
       });
     }
 
     window.addEventListener('beforeprint', fitCardsToPage);
     setTimeout(function() {
-      fitCardsToPage();
       window.focus();
       window.print();
       window.onafterprint = function() { window.close(); };
