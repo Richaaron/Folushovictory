@@ -227,7 +227,8 @@ const handlePrintAll = (existingPopup?: Window | null) => {
          action bar sit after the last card, so :last-child never matched. */
       .print-card,
       #print-area-section .print-card {
-        display: block !important;
+        display: flex !important;
+        flex-direction: column !important;
         box-sizing: border-box !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -236,7 +237,7 @@ const handlePrintAll = (existingPopup?: Window | null) => {
         border: 0 !important;
         border-radius: 0 !important;
         box-shadow: none !important;
-        min-height: 0 !important;
+        min-height: 280mm !important;
         height: auto !important;
         transform: none !important;
         overflow: visible !important;
@@ -303,10 +304,27 @@ const handlePrintAll = (existingPopup?: Window | null) => {
 
       #print-area-section .result-section,
       #print-area-section .cumulative-section { padding: 3mm 8mm 0 !important; margin-top: 0 !important; }
+      #print-area-section .result-section {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+      }
       #print-area-section .section-title { margin-bottom: 2mm !important; }
       #print-area-section .section-title span { font-size: 7pt !important; }
       #print-area-section .section-title strong { font-size: 9pt !important; }
-      #print-area-section .table-frame { border-radius: 1.5mm !important; border-width: 0.25mm !important; }
+      #print-area-section .table-frame {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        border-radius: 1.5mm !important;
+        border-width: 0.25mm !important;
+      }
+      #print-area-section .table-frame table {
+        flex: 1 1 auto !important;
+        height: 100% !important;
+      }
       #print-area-section .table-frame table th,
       #print-area-section .table-frame table td {
         padding: 1.2mm 1.5mm !important;
@@ -392,40 +410,31 @@ const handlePrintAll = (existingPopup?: Window | null) => {
       var cards = document.querySelectorAll('.print-card');
       /* A4 height minus 4mm margins and a print-engine safety allowance. */
       var maxHeight = 286 * 96 / 25.4;
-      var targetHeight = 280 * 96 / 25.4;
 
       cards.forEach(function(card) {
         card.removeAttribute('data-fit-level');
+        card.style.setProperty('display', 'block', 'important');
+        card.style.setProperty('min-height', '0', 'important');
+        card.style.setProperty('height', 'auto', 'important');
         card.style.setProperty('zoom', '1', 'important');
-        card.style.setProperty('width', '202mm', 'important');
-        card.style.setProperty('max-width', 'none', 'important');
+        var naturalHeight = card.getBoundingClientRect().height;
+        card.style.removeProperty('display');
+        card.style.removeProperty('min-height');
+        card.style.removeProperty('height');
+        card.style.removeProperty('zoom');
 
-        if (card.getBoundingClientRect().height > maxHeight) {
+        if (naturalHeight > maxHeight) {
           card.setAttribute('data-fit-level', 'compact');
-          if (card.getBoundingClientRect().height > maxHeight) {
+          card.style.setProperty('display', 'block', 'important');
+          card.style.setProperty('min-height', '0', 'important');
+          card.style.setProperty('height', 'auto', 'important');
+          naturalHeight = card.getBoundingClientRect().height;
+          card.style.removeProperty('display');
+          card.style.removeProperty('min-height');
+          card.style.removeProperty('height');
+
+          if (naturalHeight > maxHeight) {
             card.setAttribute('data-fit-level', 'dense');
-          }
-        }
-
-        /*
-         * Scale each report to use the printable page height. Compensating
-         * the CSS width keeps the rendered card within the 202mm page width.
-         */
-        var zoom = 1;
-        for (var i = 0; i < 6; i++) {
-          var height = card.getBoundingClientRect().height;
-          if (!height) break;
-
-          var ratio = targetHeight / height;
-          if (Math.abs(1 - ratio) < 0.015) break;
-          zoom = Math.max(0.7, Math.min(1.35, zoom * ratio * 0.99));
-          card.style.setProperty('zoom', String(zoom), 'important');
-          card.style.setProperty('width', (202 / zoom) + 'mm', 'important');
-
-          if (card.getBoundingClientRect().height > maxHeight) {
-            zoom = Math.max(0.7, zoom * (maxHeight / card.getBoundingClientRect().height) * 0.98);
-            card.style.setProperty('zoom', String(zoom), 'important');
-            card.style.setProperty('width', (202 / zoom) + 'mm', 'important');
           }
         }
       });
